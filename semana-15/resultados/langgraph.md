@@ -1,6 +1,6 @@
 # Activity 3: the agent in LangGraph
 
-Code: [`adaptadores/langgraph.py`](../adaptadores/langgraph.py) (about 145 lines of code without docstrings). Tests: [`tests/test_langgraph.py`](../tests/test_langgraph.py) (15, no API calls, $0), run against the week 13 own loop with **the same simulated model script and the same week 14 MCP server**.
+Code: [`adaptadores/langgraph.py`](../adaptadores/langgraph.py) (about 145 lines of code without docstrings). Tests: [`tests/test_equivalencia.py`](../tests/test_equivalencia.py) (15 per framework, no API calls, $0; the same tests cover Strands in activity 4), run against the week 13 own loop with **the same simulated model script and the same week 14 MCP server**.
 
 ## The graph
 
