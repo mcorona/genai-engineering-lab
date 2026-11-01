@@ -31,24 +31,28 @@ def cargar(framework: str):
     return getattr(importlib.import_module(mod), clase)
 
 
+def resolver_peticion(framework: str, pet: dict) -> dict:
+    """Una petición del protocolo resuelta en este proceso. La usan el trabajador y el agente desplegado en AgentCore
+    (actividad 8), así el contrato de entrada y salida es el mismo en local y en la nube."""
+    from .contrato import resultado_a_dict, semana13
+    try:
+        lim = semana13().Limites(**pet["limites"]) if pet.get("limites") else None
+        a = cargar(framework)(pet["mcp_url"], pet["token"], pet.get("modelo", "claude-haiku-5-5"), pet.get("esfuerzo", "low"),
+                              limites=lim, base_url=pet.get("base_url"), **(pet.get("opciones") or {}))
+        r = a.resolver(pet["tarea"])
+        return {"resultado": resultado_a_dict(r), "eventos": getattr(a, "ultimas_trazas", []),
+                "extra": {k: getattr(a, k) for k in ("pausas", "decisiones", "checkpoints", "propuestas", "especialistas")
+                          if hasattr(a, k)}}
+    except Exception as e:  # noqa: BLE001  el orquestador decide; el trabajador no muere
+        return {"error": f"{type(e).__name__}: {e}"[:2000]}
+
+
 def trabajador(framework: str):
-    from .contrato import resultado_a_dict
-    clase = cargar(framework)
+    cargar(framework)
     for linea in sys.stdin:
         if not linea.strip():
             continue
-        pet = json.loads(linea)
-        try:
-            from .contrato import semana13
-            lim = semana13().Limites(**pet["limites"]) if pet.get("limites") else None
-            a = clase(pet["mcp_url"], pet["token"], pet.get("modelo", "claude-haiku-5-5"), pet.get("esfuerzo", "low"),
-                      limites=lim, base_url=pet.get("base_url"), **(pet.get("opciones") or {}))
-            r = a.resolver(pet["tarea"])
-            out = {"resultado": resultado_a_dict(r), "eventos": getattr(a, "ultimas_trazas", []),
-                   "extra": {k: getattr(a, k) for k in ("pausas", "decisiones", "checkpoints", "propuestas", "especialistas")
-                             if hasattr(a, k)}}
-        except Exception as e:  # noqa: BLE001  el orquestador decide; el trabajador no muere
-            out = {"error": f"{type(e).__name__}: {e}"[:2000]}
+        out = resolver_peticion(framework, json.loads(linea))
         sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str) + "\n")
         sys.stdout.flush()
 
