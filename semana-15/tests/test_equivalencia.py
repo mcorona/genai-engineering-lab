@@ -1,5 +1,6 @@
-"""Actividad 3: el agente en LangGraph contra el loop propio de la semana 13, con el mismo modelo simulado y el mismo
-servidor MCP de la semana 14. Equivalencia de contrato, límites, checkpoints e interrupción. Sin API ($0)."""
+"""Actividades 3 y 4: el agente en LangGraph y en Strands contra el loop propio de la semana 13, con el mismo modelo
+simulado y el mismo servidor MCP de la semana 14. Equivalencia de contrato, límites e interrupción (más checkpoints en
+LangGraph). Las mismas pruebas para los dos frameworks. Sin API ($0)."""
 import math
 
 import pytest
@@ -10,8 +11,9 @@ from arnes.puente import Puente
 from arnes.simulado import DobleAnthropic, Guion, Turno, guion_respuesta, herramienta, texto
 from arnes.trazas import validar_evento
 
-pytestmark = pytest.mark.skipif(not (VENVS / "lg" / "bin" / "python").exists(),
-                                reason="sin el entorno de LangGraph (linea_base/preparar.sh)")
+FRAMEWORKS = ["langgraph", "strands"]
+pytestmark = pytest.mark.skipif(not all((VENVS / v / "bin" / "python").exists() for v in ("lg", "st")),
+                                reason="sin los entornos de LangGraph y Strands (linea_base/preparar.sh)")
 
 SQL_V01 = ("SELECT COUNT(*) AS numero FROM artmst a JOIN prvmst p ON p.prv_id = a.art_prv "
            "WHERE a.art_lin = 'Tornilleria' AND p.prv_pais = 'US'")
@@ -20,9 +22,19 @@ CAMPOS = ("estado", "final", "pasos", "herramientas", "tokens_in", "tokens_out",
 
 
 @pytest.fixture(scope="module")
-def puentes():
-    with Puente("propio") as p, Puente("langgraph") as lg:
-        yield {"propio": p, "langgraph": lg}
+def todos():
+    with Puente("propio") as p, Puente("langgraph") as lg, Puente("strands") as st:
+        yield {"propio": p, "langgraph": lg, "strands": st}
+
+
+@pytest.fixture(params=FRAMEWORKS)
+def fw(request):
+    return request.param
+
+
+@pytest.fixture
+def puentes(todos, fw):
+    return {"propio": todos["propio"], "framework": todos[fw]}
 
 
 def _sistema(cuerpo):
@@ -42,8 +54,8 @@ def correr(puente, entorno, t, guion, limites=None, opciones=None, usuario="anal
 
 
 def ambos(puentes, entorno, t, fabrica, limites=None):
-    return {fw: correr(p, entorno, t, fabrica(), limites, {} if fw == "propio" else {"aprobacion": None})
-            for fw, p in puentes.items()}
+    return {nombre: correr(p, entorno, t, fabrica(), limites, {} if nombre == "propio" else {"aprobacion": None})
+            for nombre, p in puentes.items()}
 
 
 def _v01(adm):
@@ -56,7 +68,7 @@ def _v01(adm):
 
 @pytest.mark.parametrize("caso", ["correcta", "sql_equivocado", "abstencion", "aclaracion", "sin_responder",
                                   "respuesta_invalida_y_corregida", "responder_acompanado"])
-def test_equivalencia_con_el_loop_propio(puentes, entorno, adm, conexion_verificador, caso):
+def test_equivalencia_con_el_loop_propio(puentes, fw, entorno, adm, conexion_verificador, caso):
     from agente.verificar import verificar
     t, valor = _v01(adm)
     if caso in ("abstencion", "aclaracion"):
@@ -78,7 +90,7 @@ def test_equivalencia_con_el_loop_propio(puentes, entorno, adm, conexion_verific
                                              "resultados": [{"clave": "n", "sql": SQL_V01, "valor": valor}]})])]),
     }
     res = ambos(puentes, entorno, t, fabricas[caso])
-    (rp, _, pp, lp), (rl, out, pl, ll) = res["propio"], res["langgraph"]
+    (rp, _, pp, lp), (rl, out, pl, ll) = res["propio"], res["framework"]
     for campo in CAMPOS:
         assert getattr(rl, campo) == getattr(rp, campo), (caso, campo, getattr(rl, campo), getattr(rp, campo))
     assert math.isclose(rl.costo_usd, rp.costo_usd) and contrato.validar_resultado(rl, t) == []
@@ -92,7 +104,7 @@ def test_equivalencia_con_el_loop_propio(puentes, entorno, adm, conexion_verific
         assert sorted(x["name"] for x in a["tools"]) == sorted(x["name"] for x in b["tools"])
     assert pl[0]["messages"][0]["content"] in (pp[0]["messages"][0]["content"],
                                                [{"type": "text", "text": pp[0]["messages"][0]["content"]}])
-    assert all(validar_evento(e) == [] for e in out["eventos"]) and {e["framework"] for e in out["eventos"]} == {"langgraph"}
+    assert all(validar_evento(e) == [] for e in out["eventos"]) and {e["framework"] for e in out["eventos"]} == {fw}
     assert [e["tipo"] for e in out["eventos"]].count("modelo") == rl.pasos
 
 
@@ -107,7 +119,7 @@ def test_limites_iguales_al_loop_propio(puentes, entorno, adm, limites, motivo):
     t, valor = _v01(adm)
     fabrica = lambda: guion_respuesta(t, [{"clave": "n", "sql": SQL_V01, "valor": valor}])  # noqa: E731
     res = ambos(puentes, entorno, t, fabrica, limites)
-    (rp, *_), (rl, *_) = res["propio"], res["langgraph"]
+    (rp, *_), (rl, *_) = res["propio"], res["framework"]
     assert rp.estado == rl.estado == "limite_alcanzado" and rp.motivo == rl.motivo == motivo
     assert (rl.pasos, rl.herramientas, rl.tokens_in) == (rp.pasos, rp.herramientas, rp.tokens_in)
     assert rl.final is None and contrato.validar_resultado(rl, t) == []
@@ -117,7 +129,7 @@ def test_tres_errores_seguidos_paran_igual(puentes, entorno, adm):
     t, _ = _v01(adm)
     fabrica = lambda: Guion([Turno([herramienta("ejecutar_sql", {"sql": "SELECT * FROM no_existe"})])] * 4)  # noqa: E731
     res = ambos(puentes, entorno, t, fabrica)
-    (rp, *_), (rl, *_) = res["propio"], res["langgraph"]
+    (rp, *_), (rl, *_) = res["propio"], res["framework"]
     assert rp.motivo == rl.motivo == "errores_herramienta" and rl.errores_herramienta == rp.errores_herramienta == 3
 
 
@@ -130,14 +142,16 @@ def _guion_propuesta():
 
 
 @pytest.mark.parametrize("decision", ["aprobar", "rechazar"])
-def test_interrupcion_antes_de_proponer(puentes, entorno, adm, decision):
+def test_interrupcion_antes_de_proponer(puentes, fw, entorno, adm, decision):
     t = tarea("n01-es", adm)
-    r, out, _, llamadas = correr(puentes["langgraph"], entorno, t, _guion_propuesta(), opciones={"aprobacion": decision})
+    r, out, _, llamadas = correr(puentes["framework"], entorno, t, _guion_propuesta(), opciones={"aprobacion": decision})
     ex = out["extra"]
     assert len(ex["pausas"]) == 1 and ex["pausas"][0]["herramienta"] == "proponer_orden_compra"
     assert ex["pausas"][0]["argumentos"]["sku"] == "SKU-0001"
     assert ex["decisiones"] == [{"herramienta": "proponer_orden_compra", "decision": decision}]
-    assert ex["checkpoints"] >= 4 and r.estado == "abstenida"
+    assert r.estado == "abstenida"
+    if fw == "langgraph":
+        assert ex["checkpoints"] >= 4
     if decision == "aprobar":
         assert llamadas == ["proponer_orden_compra"] and r.errores_herramienta == 0
     else:   # rechazada: no llega al servidor y el modelo la recibe como error
@@ -148,7 +162,7 @@ def test_interrupcion_antes_de_proponer(puentes, entorno, adm, decision):
 
 def test_sin_politica_no_interrumpe(puentes, entorno, adm):
     t = tarea("n01-es", adm)
-    r, out, _, llamadas = correr(puentes["langgraph"], entorno, t, _guion_propuesta(), opciones={"aprobacion": None})
+    r, out, _, llamadas = correr(puentes["framework"], entorno, t, _guion_propuesta(), opciones={"aprobacion": None})
     assert out["extra"]["pausas"] == [] and llamadas == ["proponer_orden_compra"]
 
 
@@ -156,7 +170,7 @@ def test_perfil_sin_scope_de_compras_ni_siquiera_llega_a_la_pausa(puentes, entor
     """El almacenista no tiene legado:compras:proponer: el servidor no le lista la herramienta, así que no hay nada que
     aprobar y la llamada no llega al servidor. La aprobación humana nunca sustituye a los permisos."""
     t = tarea("n01-es", adm)
-    r, out, _, llamadas = correr(puentes["langgraph"], entorno, t, _guion_propuesta(), opciones={"aprobacion": "aprobar"},
+    r, out, _, llamadas = correr(puentes["framework"], entorno, t, _guion_propuesta(), opciones={"aprobacion": "aprobar"},
                                  usuario="almacenista")
     evento = next(e for e in out["eventos"] if e.get("herramienta") == "proponer_orden_compra")
     assert out["extra"]["pausas"] == [] and llamadas == []
