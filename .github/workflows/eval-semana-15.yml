@@ -1,13 +1,14 @@
 name: eval-semana-15
 
-# Semana 15. Sin API y sin secretos ($0): arnés común (contrato del Resultado, uso y costo normalizados, trazas, modelo
-# simulado, verificador sobre salidas guionadas contra el servidor MCP de la semana 14) y el contrato cargado en el
-# entorno virtual de cada framework. La actividad 10 agrega Keycloak y la mini eval con API.
+# Semana 15. Sin API: arnés común, el mismo agente en LangGraph y Strands (equivalencia, límites, interrupción),
+# spikes, multi-agente y A2A, AgentCore (paquete, permisos e infraestructura en simulación) y la matriz de decisión.
+# Con API (actividad 10): mini eval de LangGraph y Strands contra el servidor MCP de la semana 14 con OAuth de un
+# Keycloak efímero, más un caso de poisoning por categoría; umbrales calibrados y tope por corrida (semana-15/ci/eval_ci.py).
 on:
   pull_request:
     paths:
       - "semana-15/**"
-      - "!semana-15/**/*.md"
+      - "!semana-15/**/*.md"          # documentación y resultados: no pagan una eval
       - "!semana-15/resultados/**"
       - "semana-13/agente/**"
       - ".github/workflows/eval-semana-15.yml"
@@ -15,14 +16,14 @@ on:
 permissions:
   contents: read
 
-concurrency:
+concurrency:   # un push nuevo cancela la corrida anterior del mismo PR (no se paga una eval que ya no cuenta)
   group: eval-semana-15-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  pruebas:
+  eval:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 40
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -47,12 +48,22 @@ jobs:
         run: pip install "psycopg[binary]==3.3.6" "pydantic==2.14.1" "sqlglot==30.26.0" "mcp==2.3.0" "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1" pytest
       - name: Un entorno virtual por framework (LangGraph, Strands, OpenAI Agents, ADK)
         run: semana-15/linea_base/preparar.sh
+      - name: Keycloak efímero de la semana 14 (realm legacybridge, contraseñas aleatorias del job)
+        run: semana-14/auth/arrancar.sh
       - name: Preparar base de CI (datos sintéticos, semilla 42) y esquema legado
         run: |
           python semana-07/ci/preparar_base.py
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
-      - name: Arnés común (sin API)
+      - name: Pruebas sin API (arnés, LangGraph, Strands, spikes, multi-agente, AgentCore, matriz, decisión de la CI)
         run: |
           cd semana-15 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
           if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
+      - name: Mini eval de LangGraph y Strands (Haiku 5.5 low, tope por corrida)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_DE_FORK: ${{ github.event.pull_request.head.repo.fork }}
+        run: cd semana-15 && python ci/eval_ci.py
+      - name: Detener Keycloak
+        if: always()
+        run: semana-14/auth/arrancar.sh --borrar

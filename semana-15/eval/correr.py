@@ -173,9 +173,18 @@ def main(argv=None) -> int:
     ap.add_argument("--fases", default="tareas,seguridad")
     ap.add_argument("--simular", action="store_true")
     ap.add_argument("--solo-reporte", action="store_true")
+    ap.add_argument("--conjunto", choices=["subconjunto14", "ci"], default="subconjunto14",
+                    help="ci: las 10 tareas × ES/EN de la CI de la semana 13 (mini eval de la actividad 10)")
+    ap.add_argument("--casos", default="todos", help="ids de casos de seguridad separados por coma (por omisión los 38)")
+    ap.add_argument("--dir", type=Path, default=None, help="carpeta de salida (por omisión resultados/)")
+    ap.add_argument("--recalcular-esperado", action="store_true",
+                    help="recalcula el esperado de cada clave con su SQL de referencia en esta base (CI)")
     ap.add_argument("--reanudar", action="store_true",
                     help="conserva las corridas ya registradas (salvo las que terminaron en error) y lanza solo las que faltan")
     a = ap.parse_args(argv)
+    global RES
+    if a.dir:
+        RES = Path(a.dir)
     if a.solo_reporte:
         return reporte(json.loads((RES / "frameworks_meta.json").read_text()))
     if a.emisor == "auto":
@@ -192,6 +201,15 @@ def main(argv=None) -> int:
     antes = seg.huella(adm)
     from herramientas.conexion import conectar
     from agente.verificar import verificar
+    if a.conjunto == "ci":
+        from eval.spikes import tareas_ci
+        lista = tareas_ci()
+    else:
+        lista = tareas()
+    if a.recalcular_esperado:   # el golden set congeló los valores de la base local; en CI se recalculan (semana 14)
+        for t in lista:
+            for s in t["salida"].values():
+                s["esperado"] = [list(f) for f in adm.execute(s["sql_ref"]).fetchall()]
 
     doble = None
     base_url = None
@@ -199,7 +217,7 @@ def main(argv=None) -> int:
         from arnes.simulado import DobleAnthropic
         doble = DobleAnthropic(GuionFijo()).__enter__()
         base_url = doble.base_url
-    RES.mkdir(exist_ok=True)
+    RES.mkdir(parents=True, exist_ok=True)
     det_t, det_s, trazas = RES / "frameworks_detalle.jsonl", RES / "frameworks_seguridad_detalle.jsonl", RES / "trazas" / "frameworks.jsonl"
     hechas, previo = set(), 0.0
     if a.reanudar:
@@ -275,6 +293,10 @@ def main(argv=None) -> int:
               f"${r.costo_usd:.4f} {r.segundos:5.1f}s [acumulado ${total[0]:.3f}]", flush=True)
 
     casos = seg.casos()
+    if a.casos != "todos":
+        pedidos = a.casos.split(",")
+        casos = [c for c in casos if c["id"] in pedidos]
+        assert len(casos) == len(pedidos), f"casos desconocidos: {set(pedidos) - {c['id'] for c in casos}}"
     verdades = {c["id"]: adm.execute(c["verdad"]).fetchall() for c in casos if c.get("verdad")}
     chunks = []
     if adm.execute("SELECT to_regclass('semana10.chunks')").fetchone()[0]:
@@ -318,7 +340,7 @@ def main(argv=None) -> int:
               f"${r.costo_usd:.4f} [acumulado ${total[0]:.3f}]", flush=True)
 
     fases = a.fases.split(",")
-    print(f"{len(tareas()) * a.k * len(FRAMEWORKS) if "tareas" in fases else 0} corridas de tareas en total + "
+    print(f"{len(lista) * a.k * len(FRAMEWORKS) if "tareas" in fases else 0} corridas de tareas en total + "
           f"{len(casos) * len(FRAMEWORKS) if 'seguridad' in fases else 0} casos de seguridad · emisor {a.emisor} · "
           f"{'SIMULACIÓN ($0)' if a.simular else 'Haiku 5.5 low'} · tope ${a.tope_usd:.2f}", flush=True)
     t0 = time.time()
@@ -326,7 +348,7 @@ def main(argv=None) -> int:
         with ThreadPoolExecutor(a.hilos * len(FRAMEWORKS)) as ex:
             trabajos = []
             if "tareas" in fases:
-                trabajos += [ex.submit(una_tarea, fw, t, rep) for rep in range(a.k) for t in tareas() for fw in FRAMEWORKS
+                trabajos += [ex.submit(una_tarea, fw, t, rep) for rep in range(a.k) for t in lista for fw in FRAMEWORKS
                              if (fw, t["id"], rep) not in hechas]
             if "seguridad" in fases:
                 trabajos += [ex.submit(un_caso, fw, c) for c in casos for fw in FRAMEWORKS if (fw, c["id"], 0) not in hechas]

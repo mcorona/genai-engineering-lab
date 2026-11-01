@@ -6,8 +6,7 @@ import sys
 import pytest
 from conftest import S15
 
-sys.path.insert(0, str(S15 / "eval"))
-import matriz as m  # noqa: E402
+from eval import matriz as m  # noqa: E402  (sin agregar eval/ a sys.path: eval/multiagente.py taparía el paquete)
 
 RES = S15 / "resultados"
 
