@@ -1,0 +1,69 @@
+{
+ "strands": {
+  "card_campos": [
+   "capabilities",
+   "defaultInputModes",
+   "defaultOutputModes",
+   "description",
+   "name",
+   "preferredTransport",
+   "protocolVersion",
+   "skills",
+   "url",
+   "version"
+  ],
+  "version_protocolo": "0.3.0",
+  "seguridad_declarada": [],
+  "llamadas_sin_token": [
+   {
+    "metodo": "SendMessage",
+    "http": 200,
+    "error": "Method not found",
+    "texto": null
+   },
+   {
+    "metodo": "message/send",
+    "http": 200,
+    "error": null,
+    "texto": "{\"artifacts\": [{\"artifactId\": \"4a78c821-bb6b-46a7-84d1-86847a5027e9\", \"name\": \"agent_response\", \"parts\": [{\"kind\": \"text"
+   }
+  ],
+  "a2a_sdk": "0.3.26",
+  "auth_en_servidor": "no hay parámetro: se agrega middleware a la app Starlette/FastAPI"
+ },
+ "google_adk": {
+  "card_campos": [
+   "capabilities",
+   "defaultInputModes",
+   "defaultOutputModes",
+   "description",
+   "name",
+   "securitySchemes",
+   "skills",
+   "supportedInterfaces",
+   "version"
+  ],
+  "version_protocolo": [
+   "1.0"
+  ],
+  "seguridad_declarada": [
+   "keycloak"
+  ],
+  "llamadas_sin_token": [
+   {
+    "metodo": "SendMessage",
+    "http": 200,
+    "error": null,
+    "texto": "{\"task\": {\"id\": \"00dda221-699a-4a38-967a-e1d6b59667a6\", \"contextId\": \"5b94b3dc-a1c8-467a-9ef2-aedb253f455b\", \"status\": {"
+   },
+   {
+    "metodo": "message/send",
+    "http": 200,
+    "error": null,
+    "texto": "{\"artifacts\": [{\"artifactId\": \"6ef9bef6-c425-46cc-be73-64953c46036f\", \"parts\": [{\"kind\": \"text\", \"text\": \"respuesta guio"
+   }
+  ],
+  "a2a_sdk": "1.3.0",
+  "esquema_construido": true
+ }
+}

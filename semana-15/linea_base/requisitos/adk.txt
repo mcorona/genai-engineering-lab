@@ -1,0 +1,1 @@
+google-adk[a2a,mcp,extensions]==2.13.0

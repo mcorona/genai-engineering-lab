@@ -1,0 +1,86 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "entrada": 1200,
+ "salida": 300,
+ "frameworks": {
+  "langgraph": {
+   "integracion": "langchain_anthropic.ChatAnthropic (nativa)",
+   "uso": {
+    "input_tokens": 1200,
+    "output_tokens": 300,
+    "total_tokens": 1500,
+    "input_token_details": {}
+   },
+   "costo_usd": null,
+   "peticiones": [
+    {
+     "ruta": "/v1/messages",
+     "modelo": "claude-haiku-5-5",
+     "stream": false,
+     "herramientas": 0,
+     "max_tokens": 256,
+     "x_api_key": false,
+     "version": "2026-10-21"
+    }
+   ]
+  },
+  "strands": {
+   "integracion": "strands.models.anthropic.AnthropicModel (nativa)",
+   "uso": {
+    "inputTokens": 1200,
+    "outputTokens": 300,
+    "totalTokens": 1500
+   },
+   "costo_usd": null,
+   "peticiones": [
+    {
+     "ruta": "/v1/messages",
+     "modelo": "claude-haiku-5-5",
+     "stream": true,
+     "herramientas": 0,
+     "max_tokens": 256,
+     "x_api_key": true,
+     "version": "2023-06-01"
+    }
+   ]
+  },
+  "openai_agents": {
+   "integracion": "agents.extensions.models.litellm_model.LitellmModel (LiteLLM)",
+   "uso": {
+    "input_tokens": 1200,
+    "output_tokens": 300
+   },
+   "costo_usd": 0.00027,
+   "peticiones": [
+    {
+     "ruta": "/v1/messages",
+     "modelo": "claude-haiku-5-5",
+     "stream": false,
+     "herramientas": 0,
+     "max_tokens": 128000,
+     "x_api_key": true,
+     "version": "2023-06-01"
+    }
+   ]
+  },
+  "google_adk": {
+   "integracion": "google.adk.models.lite_llm.LiteLlm (LiteLLM); google.adk.models.anthropic_llm.Claude solo por Vertex AI",
+   "uso": {
+    "prompt_token_count": 1200,
+    "candidates_token_count": 300
+   },
+   "costo_usd": 0.00027,
+   "peticiones": [
+    {
+     "ruta": "/v1/messages",
+     "modelo": "claude-haiku-5-5",
+     "stream": false,
+     "herramientas": 0,
+     "max_tokens": 128000,
+     "x_api_key": true,
+     "version": "2023-06-01"
+    }
+   ]
+  }
+ }
+}
