@@ -1,0 +1,65 @@
+{
+ "destino": "agentcore",
+ "emisor": "keycloak",
+ "simulacion": false,
+ "costo_usd": 0.0,
+ "sin_lanzar": 0,
+ "minutos": 2.9,
+ "tope_usd": 0.3,
+ "arranque": [
+  {
+   "tipo": "frio",
+   "ms": 5901,
+   "proceso_s": 4.025,
+   "importacion_s": 3.742,
+   "invocacion": 1,
+   "pid": 341
+  },
+  {
+   "tipo": "frio",
+   "ms": 7110,
+   "proceso_s": 5.535,
+   "importacion_s": 5.125,
+   "invocacion": 1,
+   "pid": 343
+  },
+  {
+   "tipo": "frio",
+   "ms": 5609,
+   "proceso_s": 4.093,
+   "importacion_s": 3.749,
+   "invocacion": 1,
+   "pid": 339
+  },
+  {
+   "tipo": "caliente",
+   "ms": 277,
+   "proceso_s": 4.379,
+   "importacion_s": 3.749,
+   "invocacion": 2,
+   "pid": 339
+  },
+  {
+   "tipo": "caliente",
+   "ms": 328,
+   "proceso_s": 4.7,
+   "importacion_s": 3.749,
+   "invocacion": 3,
+   "pid": 339
+  },
+  {
+   "tipo": "caliente",
+   "ms": 292,
+   "proceso_s": 4.999,
+   "importacion_s": 3.749,
+   "invocacion": 4,
+   "pid": 339
+  }
+ ],
+ "identidad_sin_usuario": {
+  "ms": 7072,
+  "error": "identity: RuntimeError: sin workload access token: invoca con runtimeUserId (autenticación IAM)",
+  "respondio": false
+ },
+ "tablas_modificadas": []
+}

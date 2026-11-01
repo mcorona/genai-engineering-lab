@@ -1,1 +1,3 @@
 .venvs/
+agentcore/build/
+agentcore/estado.json
