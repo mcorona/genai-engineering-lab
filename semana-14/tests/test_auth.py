@@ -100,6 +100,14 @@ LISTA = peticion("tools/list")
 
 # ---------- Protected Resource Metadata y 401 ----------
 
+
+def _trazas(s, n=1, espera_s=2.0):
+    """La traza se escribe después de enviar la respuesta (incluye estado y bytes): se espera a que exista."""
+    fin = time.monotonic() + espera_s
+    while len(s.trazas.ultimas) < n and time.monotonic() < fin:
+        time.sleep(0.01)
+    return list(s.trazas.ultimas)
+
 def test_metadatos_rfc9728(jwks):
     with srv_oauth(jwks) as s:
         estado, _, cuerpo = crudo(s, metodo="GET", cuerpo=None, encabezados_mcp=False, ruta="/.well-known/oauth-protected-resource/mcp")
@@ -112,7 +120,7 @@ def test_metadatos_rfc9728(jwks):
 def test_token_ausente_401(jwks):
     with srv_oauth(jwks) as s:
         estado, h, cuerpo = crudo(s, cuerpo=LISTA)
-        traza = s.trazas.ultimas[-1]
+        traza = _trazas(s)[-1]
     assert estado == 401
     w = desafio(h)
     assert w.startswith("Bearer ") and 'scope="legado:leer"' in w

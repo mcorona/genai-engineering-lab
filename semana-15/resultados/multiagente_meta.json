@@ -1,0 +1,13 @@
+{
+ "emisor": "keycloak",
+ "simulacion": false,
+ "costo_usd": 0.1558,
+ "sin_lanzar": 0,
+ "minutos": 12.2,
+ "tope_usd": 0.35,
+ "limites": {
+  "max_pasos": 24,
+  "max_segundos": 300.0
+ },
+ "tablas_modificadas": []
+}

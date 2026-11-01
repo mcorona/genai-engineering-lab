@@ -249,6 +249,65 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "legado-a2a-compras",
+      "name": "Purchasing specialist (A2A resource server)",
+      "description": "Semana 15: especialista de compras remoto (A2A). Solo existe como audiencia propia (RFC 8707).",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "resource_url": "http://127.0.0.1:8015/"
+      }
+    },
+    {
+      "clientId": "legacybridge-supervisor",
+      "name": "LegacyBridge supervisor (A2A client)",
+      "description": "Semana 15: cliente público del supervisor para pedir tokens del especialista A2A. Su mapper de audiencia emite solo la URI del especialista (Keycloak exige que el `resource` pedido esté entre las audiencias de los mappers); no emite la del servidor MCP.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": false,
+      "fullScopeAllowed": false,
+      "consentRequired": false,
+      "redirectUris": [
+        "http://127.0.0.1/callback",
+        "http://localhost/callback"
+      ],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "use.refresh.tokens": "true"
+      },
+      "defaultClientScopes": [
+        "basic"
+      ],
+      "optionalClientScopes": [
+        "legado:leer",
+        "legado:compras:proponer"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audiencia-a2a-compras",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "included.custom.audience": "http://127.0.0.1:8015/"
+          }
+        }
+      ]
     }
   ],
   "offlineSessionIdleTimeout": 86400,
