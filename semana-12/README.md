@@ -1,6 +1,6 @@
 # Week 12: managed RAG (Bedrock Knowledge Bases and Vertex AI Search)
 
-Status: complete. Every resource was deleted on 2026-10-29; the real cost of the week is recorded after the bill settles (section 10).
+Status: complete. Every resource was deleted on 2026-10-29. Real cost from the bills: AWS $1.50 (covered by credits), Google Cloud MXN 16.64, Anthropic at most $4.94, OpenAI $0 ([`resultados/costo_real.md`](resultados/costo_real.md)).
 
 Goal: load the same document base into a managed RAG on AWS (Bedrock Knowledge Bases with S3 Vectors) and on Google Cloud (Vertex AI Search), and compare both with the own pipeline from weeks 8 to 10. The comparison covers quality, latency, cost and security, using the week 11 suites.
 
@@ -287,7 +287,7 @@ The semantic ranker works with the read-only CI identity (Discovery Engine viewe
 - **Final inventory** ([`infra/inventario.sh`](infra/inventario.sh)): nothing billable in either cloud. Only the two `semana12` budgets remain; they cost nothing and stay until the bill is reviewed.
 - **Long-term keys:** the admin user's only access key, used by the `default` CLI profile, is deactivated; the admin works with `aws login` (temporary credentials).
 
-**The bill.** Charges take 24 to 48 hours to settle. [`infra/costo_real.sh`](infra/costo_real.sh) makes one Cost Explorer query ($0.01) and summarizes AWS cost by service and day; Google Cloud (billing reports, project `ejemplo1-9xub`, in MXN), Anthropic and OpenAI usage come from their consoles. The real cost goes to `resultados/costo_real.md` and is compared with the estimate in [`resultados/costos_fijos.md`](resultados/costos_fijos.md) (≈ $3 to $4). The activity cost notes in this README add up to about $5.2. After that review, `--presupuesto` deletes the budgets.
+**The bill.** Charges take 24 to 48 hours to settle. [`infra/costo_real.sh`](infra/costo_real.sh) makes one Cost Explorer query ($0.01) and summarizes AWS cost by service and day; Google Cloud (billing reports, project `ejemplo1-9xub`, in MXN), Anthropic and OpenAI usage come from their consoles. The real cost goes to `resultados/costo_real.md` and is compared with the estimate in [`resultados/costos_fijos.md`](resultados/costos_fijos.md) (≈ $3 to $4). The activity cost notes in this README add up to about $5.2. After that review, `--presupuesto` deletes the budgets. **Result (2026-10-31):** [`resultados/costo_real.md`](resultados/costo_real.md).
 
 ## 11. Limits, decisions and failed cases
 

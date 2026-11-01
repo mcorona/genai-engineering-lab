@@ -71,5 +71,5 @@ Lo que no cumple el criterio queda marcado como pendiente hasta que se resuelva.
 
 - **Fase 1 (semanas 1 a 4): completa.** Mini-GPT en MLX (pérdida de validación 1.72); tokens y variabilidad por idioma; decisión documentada de no ajustar (las reglas en el prompt del modelo de 27B bastan); inferencia local cuantizada contra API (la API es unas 13 veces más rápida en p50).
 - **Fase 2 (semanas 5 a 7): completa.** Prompts versionados, evals de regresión en CI con protección de rama, NLQ bilingüe medido por ejecución.
-- **Fase 3 (semanas 8 a 12): cerrada.** Los 11 criterios verificados con evidencia. Queda registrar el costo real de la semana 12 cuando se consolide la factura.
+- **Fase 3 (semanas 8 a 12): cerrada.** Los 11 criterios verificados con evidencia. Costo real de la semana 12 según las facturas: AWS $1.50 (cubierto con créditos), Google Cloud MXN 16.64 y Anthropic $4.94 como máximo (`semana-12/resultados/costo_real.md`).
 - **Fase 4 (semanas 13 a 18): en curso.** Semana 13 completa (agente con loop propio 0.921 y con Claude Agent SDK 0.889 contra 0.504 del workflow; seguridad 140/140). Semana 14 completa: servidor MCP remoto con OAuth y permisos mínimos, 13/13 amenazas cubiertas, tool poisoning 38/38 con defensas y eval del agente en CI con Keycloak (criterio 14). Siguiente: semana 15.
