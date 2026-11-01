@@ -96,15 +96,18 @@ class Registro:
         return salida
 
     def excedido(self) -> str | None:
+        """Límites que la semana 13 revisa antes de cada llamada al modelo. `max_herramientas` se revisa antes de cada
+        herramienta (`herramientas_agotadas`), igual que en su loop."""
         if self.r.pasos >= self.lim.max_pasos:
             return "max_pasos"
-        if self.r.herramientas >= self.lim.max_herramientas:
-            return "max_herramientas"
         if self.r.tokens_in + self.r.tokens_out >= self.lim.max_tokens_total:
             return "max_tokens_total"
         if time.perf_counter() - self.t0 >= self.lim.max_segundos:
             return "max_segundos"
         return None
+
+    def herramientas_agotadas(self) -> bool:
+        return self.r.herramientas >= self.lim.max_herramientas
 
     def parar(self, estado: str | None = None, motivo: str = ""):
         if self.final and estado is None:

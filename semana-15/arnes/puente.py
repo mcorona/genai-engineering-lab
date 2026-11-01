@@ -1,7 +1,8 @@
 """Puente entre procesos: cada framework corre en su propio entorno virtual (fijan versiones incompatibles de `mcp`,
 `a2a-sdk` y `litellm`), y el orquestador, la base y el verificador en el entorno principal.
 
-Protocolo por líneas JSON: el orquestador escribe {"tarea", "mcp_url", "token", "modelo", "esfuerzo", "base_url"} en la
+Protocolo por líneas JSON: el orquestador escribe {"tarea", "mcp_url", "token", "modelo", "esfuerzo", "base_url",
+"limites", "opciones"} en la
 entrada estándar del trabajador; el trabajador responde {"resultado": {...}, "eventos": [...]} o {"error": "..."}.
 
     python -m arnes.puente trabajador <framework>      # dentro del entorno del framework
@@ -35,10 +36,13 @@ def trabajador(framework: str):
             continue
         pet = json.loads(linea)
         try:
+            from .contrato import semana13
+            lim = semana13().Limites(**pet["limites"]) if pet.get("limites") else None
             a = clase(pet["mcp_url"], pet["token"], pet.get("modelo", "claude-haiku-5-5"), pet.get("esfuerzo", "low"),
-                      base_url=pet.get("base_url"))
+                      limites=lim, base_url=pet.get("base_url"), **(pet.get("opciones") or {}))
             r = a.resolver(pet["tarea"])
-            out = {"resultado": resultado_a_dict(r), "eventos": getattr(a, "ultimas_trazas", [])}
+            out = {"resultado": resultado_a_dict(r), "eventos": getattr(a, "ultimas_trazas", []),
+                   "extra": {k: getattr(a, k) for k in ("pausas", "decisiones", "checkpoints") if hasattr(a, k)}}
         except Exception as e:  # noqa: BLE001  el orquestador decide; el trabajador no muere
             out = {"error": f"{type(e).__name__}: {e}"[:2000]}
         sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str) + "\n")
