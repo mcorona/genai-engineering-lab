@@ -1,0 +1,1 @@
+strands-agents[anthropic,a2a,otel]==1.63.0
