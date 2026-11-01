@@ -2,6 +2,7 @@
 
 **English** · [Español](README.es.md)
 
+[![Agent frameworks (week 15)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-15.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-15.yml)
 [![MCP server (week 14)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-14.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-14.yml)
 [![Agent eval (week 13)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-13.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-13.yml)
 [![Regression evals](https://github.com/mcorona/genai-engineering-lab/actions/workflows/evals-semana-06.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/evals-semana-06.yml)
@@ -42,6 +43,7 @@ Author: **Manuel Corona**, independent AI architect and consultant. The lab span
 | **RAG evaluation** | Separate retrieval and generation suites. RAGAS metrics are validated on known failures before use. $0.28 per CI run | [`semana-11`](semana-11/README.md) |
 | **Managed RAG** (AWS and Google Cloud) | Bedrock Knowledge Bases and Vertex AI Search compared with the own pipeline on the same gold set. Cost from $0.00027 to $0.0012 per query, leak 0 in 672 queries, keyless CI through OIDC federation, all resources deleted afterwards | [`semana-12`](semana-12/README.md) |
 | **Remote MCP server with OAuth** | MCP 2026-07-28 over Streamable HTTP; Keycloak as authorization server (PKCE, RFC 8707 audience); least privilege in three layers (scopes, filtered catalogs, a PostgreSQL role per profile). 13/13 threats covered. Tool poisoning: **38/38** with client defenses (without them, shadowing captured 100% of queries). Agent over HTTP + OAuth: same success and cost as in-process, +7 ms per tool call, 0/8 leaks for roles without the scope | [`semana-14`](semana-14/README.md) |
+| **Same agent in four frameworks** | LangGraph and Strands score **0.900 / 0.900** on 40 tasks with identical failures and **38/38** poisoning cases each, through an MCP gateway; OpenAI Agents SDK and Google ADK 0.950 on 20. The framework does not change quality; it changes cost (ADK +53% from full MCP results), protocols, observability and hosting. Multi-agent over A2A (Keycloak audience per agent) ties the single agent at 1.7× cost and 3× latency. On Bedrock AgentCore: same 1.000, cold start 5.7 s. A [client decision matrix](semana-15/resultados/matriz_decision.md) links every score to its evidence | [`semana-15`](semana-15/README.md) |
 
 ## LegacyBridge: the reference system
 
@@ -76,7 +78,7 @@ Folders are named `semana-NN` (week NN). Each week has its own `README.md` with 
 | LLM fundamentals | [1](semana-01/README.md) · [2](semana-02/README.md) · [3](semana-03/README.md) · [4](semana-04/README.md) | Mini-GPT in MLX; token cost and sampling variability by language; a documented *don't fine-tune* decision (LoRA vs prompt); local quantized inference vs API (the API is about 13× faster at p50) |
 | Prompts and evals | [5](semana-05/README.md) · [6](semana-06/README.md) · [7](semana-07/README.md) | Versioned prompt library; regression evals as a required PR check; bilingual NLQ measured by execution |
 | RAG and data | [8](semana-08/README.md) · [9](semana-09/README.md) · [10](semana-10/README.md) · [11](semana-11/README.md) · [12](semana-12/README.md) | Chunking, embeddings and vector DBs; advanced RAG and multi-tenancy; legacy schema, PDFs, OCR and images; RAG evaluation; managed RAG on AWS and Google Cloud |
-| Agents and MCP | [13](semana-13/README.md) · [14](semana-14/README.md) | Agentic patterns and the Claude Agent SDK; remote MCP server with OAuth, least privilege and tool-poisoning tests |
+| Agents and MCP | [13](semana-13/README.md) · [14](semana-14/README.md) · [15](semana-15/README.md) | Agentic patterns and the Claude Agent SDK; remote MCP server with OAuth, least privilege and tool-poisoning tests; the same agent in LangGraph, Strands, OpenAI Agents SDK and Google ADK, multi-agent with A2A, Bedrock AgentCore, and a client decision matrix |
 
 ## Quickstart
 
@@ -107,7 +109,7 @@ Evals that call a model need `ANTHROPIC_API_KEY`. Each one prints its estimated 
 | 1. LLM fundamentals | 1–4 | Complete |
 | 2. Prompts, evals and NLQ | 5–7 | Complete |
 | 3. RAG and data | 8–12 | Complete, with all 11 exit criteria verified |
-| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 and 14 complete (exit criteria 13 and 14 verified) |
+| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 15 complete (exit criteria 13, 14 and 15 verified) |
 
 The detailed exit criteria for each phase, with the PR that verified each one, are kept in [README.es.md](README.es.md).
 
