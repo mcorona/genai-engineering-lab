@@ -308,12 +308,15 @@ def borrar(confirmar: bool, presupuesto: bool) -> int:
                     print(f"identidad de carga {w['name']}: borrada")
                 except Exception as e:  # noqa: BLE001
                     print(f"identidad de carga {w['name']}: {type(e).__name__} (la administra el runtime)")
-    try:
+    # El borrado es idempotente en AWS (responde bien aunque el proveedor no exista): se consulta antes para reportar
+    # la verdad. Primera corrida con --presupuesto: decía "borrado" de un proveedor que ya no existía.
+    existe = not confirmar or PROVEEDOR in [x["name"] for x in ctl.list_api_key_credential_providers()
+                                            .get("credentialProviders", [])]
+    if existe:
         ctl.delete_api_key_credential_provider(name=PROVEEDOR)
         print(f"proveedor de llave {PROVEEDOR}: borrado (y su secreto)")
-    except Exception as e:  # noqa: BLE001
-        if "ResourceNotFound" not in type(e).__name__:
-            raise
+    else:
+        print(f"proveedor de llave {PROVEEDOR}: no existía")
     iam = s.client("iam")
     try:
         iam.delete_role_policy(RoleName=ROL, PolicyName=f"{ROL}-permisos")

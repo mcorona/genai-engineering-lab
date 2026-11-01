@@ -1,7 +1,6 @@
 """Actividad 8 (sin AWS y sin API): paquete CodeZip, permisos mínimos, simulación de la infraestructura y el agente de
 AgentCore (agentcore/main.py) servido en local con el mismo protocolo HTTP que Runtime."""
 import json
-import sys
 
 import pytest
 from conftest import S15, VENVS
@@ -11,9 +10,17 @@ from arnes import contrato
 from arnes.puente import Puente
 from arnes.simulado import DobleAnthropic, Guion, Turno, herramienta
 
-sys.path.insert(0, str(S15 / "agentcore"))
-import empaquetar  # noqa: E402
-import infra  # noqa: E402
+import importlib.util  # noqa: E402
+
+
+def _cargar(nombre):   # por ruta: agregar agentcore/ a sys.path dejaría su main.py como módulo `main` para todos
+    spec = importlib.util.spec_from_file_location(f"agentcore_{nombre}", S15 / "agentcore" / f"{nombre}.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+empaquetar, infra = _cargar("empaquetar"), _cargar("infra")
 
 CUENTA = "123456789012"
 HAY_ST = (VENVS / "st" / "bin" / "python").exists()
