@@ -52,24 +52,41 @@ def trabajador(framework: str):
 class Puente:
     """Del lado del orquestador: un proceso trabajador por framework, reutilizado entre tareas."""
 
-    def __init__(self, framework: str, python: str | None = None):
+    def __init__(self, framework: str, python: str | None = None, timeout_s: float = 600):
         venvs = Path(os.environ.get("VENVS_S15", S15 / ".venvs"))
-        py = python or (str(venvs / VENV[framework] / "bin" / "python") if framework in VENV else sys.executable)
-        self.p = subprocess.Popen([py, "-m", "arnes.puente", "trabajador", framework], cwd=S15, text=True,
-                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
-                                  env={**os.environ, "PYTHONPATH": str(S15)})
+        self.framework, self.timeout_s = framework, timeout_s
+        self.cmd = [python or (str(venvs / VENV[framework] / "bin" / "python") if framework in VENV else sys.executable),
+                    "-m", "arnes.puente", "trabajador", framework]
+        self._arrancar()
+
+    def _arrancar(self):
+        # stderr a /dev/null: un trabajador que escribe mucho en stderr no debe bloquearse con el buffer lleno
+        self.p = subprocess.Popen(self.cmd, cwd=S15, text=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                  stderr=subprocess.DEVNULL, bufsize=1, env={**os.environ, "PYTHONPATH": str(S15)})
 
     def resolver(self, **peticion) -> dict:
+        """Una tarea. Si el trabajador no responde en `timeout_s`, se mata y se reinicia, y se devuelve un error."""
+        import select
         self.p.stdin.write(json.dumps(peticion, ensure_ascii=False, default=str) + "\n")
         self.p.stdin.flush()
+        listos, _, _ = select.select([self.p.stdout], [], [], self.timeout_s)
+        if not listos:
+            self.p.kill()
+            self.p.wait()
+            self._arrancar()
+            return {"error": f"timeout_trabajador: sin respuesta en {self.timeout_s:.0f} s"}
         linea = self.p.stdout.readline()
         if not linea:
-            raise RuntimeError("el trabajador terminó: " + self.p.stderr.read()[-1500:])
+            self._arrancar()
+            return {"error": "el trabajador terminó sin responder"}
         return json.loads(linea)
 
     def cerrar(self):
-        self.p.stdin.close()
-        self.p.wait(timeout=30)
+        try:
+            self.p.stdin.close()
+            self.p.wait(timeout=30)
+        except Exception:  # noqa: BLE001
+            self.p.kill()
 
     def __enter__(self):
         return self

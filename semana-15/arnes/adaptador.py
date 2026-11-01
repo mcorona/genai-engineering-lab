@@ -29,8 +29,10 @@ from .trazas import Trazador
 
 
 class Registro:
-    def __init__(self, framework: str, modelo: str, tarea: dict, limites=None, ruta_trazas: Path | None = None):
+    def __init__(self, framework: str, modelo: str, tarea: dict, limites=None, ruta_trazas: Path | None = None,
+                 sistema: str | None = None):
         l13 = semana13()
+        self._sistema = sistema
         self.tarea, self.modelo_id = tarea, modelo
         self.lim = limites or l13.Limites()
         self.r = Resultado(corrida=uuid.uuid4().hex[:12])
@@ -40,9 +42,9 @@ class Registro:
         self.traza = Trazador(ruta_trazas, framework, modelo, self.r.corrida, tid)
 
     # ----- prompt y herramienta final, idénticos a la semana 13 -----
-    @staticmethod
-    def sistema() -> str:
-        return semana13().SISTEMA
+    def sistema(self) -> str:
+        """El prompt de sistema de la semana 13, o el que se pase (p. ej. `sistema_seguro` de la semana 14)."""
+        return self._sistema or semana13().SISTEMA
 
     def mensaje(self) -> str:
         return semana13().mensaje_tarea(self.tarea)
@@ -128,12 +130,12 @@ class Adaptador(ABC):
     framework = "?"
 
     def __init__(self, mcp_url: str, token: str, modelo: str = "claude-haiku-5-5", esfuerzo: str = "low",
-                 limites=None, base_url: str | None = None, ruta_trazas: Path | None = None):
+                 limites=None, base_url: str | None = None, ruta_trazas: Path | None = None, sistema: str | None = None):
         self.mcp_url, self.token, self.modelo, self.esfuerzo = mcp_url, token, modelo, esfuerzo
-        self.limites, self.base_url, self.ruta_trazas = limites, base_url, ruta_trazas
+        self.limites, self.base_url, self.ruta_trazas, self.sistema = limites, base_url, ruta_trazas, sistema
 
     def registro(self, tarea: dict) -> Registro:
-        return Registro(self.framework, self.modelo, tarea, self.limites, self.ruta_trazas)
+        return Registro(self.framework, self.modelo, tarea, self.limites, self.ruta_trazas, self.sistema)
 
     @abstractmethod
     def resolver(self, tarea: dict):

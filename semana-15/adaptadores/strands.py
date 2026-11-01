@@ -124,7 +124,7 @@ class ReglasSemana13(HookProvider):
                 self.ya_registradas.add(uid)
                 ev.cancel_tool = json.dumps(salida, ensure_ascii=False)
             return
-        if nombre == HERRAMIENTA_HITL and self.aprobacion is not None and nombre in self.conocidas:
+        if nombre.split("__")[-1] == HERRAMIENTA_HITL and self.aprobacion is not None and nombre in self.conocidas:
             pausa = {"herramienta": nombre, "argumentos": ev.tool_use["input"], "corrida": self.reg.r.corrida}
             decision = ev.interrupt("aprobacion_" + nombre, reason=pausa)     # la primera vez detiene el agente
             self.decisiones.append({"herramienta": nombre, "decision": decision})
@@ -175,7 +175,9 @@ class AdaptadorStrands(Adaptador):
     def resolver(self, tarea: dict):
         lim = self.limites or semana13().Limites()
         reg = self.registro(tarea)
-        modelo = ModeloContado(client_args={"api_key": "doble", "base_url": self.base_url} if self.base_url else {},
+        cliente_args = {"timeout": 120, "max_retries": 3}
+        modelo = ModeloContado(client_args={**cliente_args, "api_key": "doble", "base_url": self.base_url} if self.base_url
+                               else cliente_args,
                                model_id=self.modelo, max_tokens=lim.max_tokens_salida,
                                params={"output_config": {"effort": self.esfuerzo}})
         cliente = MCPClient(url=self.mcp_url, headers={"Authorization": f"Bearer {self.token}"})
