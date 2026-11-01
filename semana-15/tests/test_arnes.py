@@ -35,7 +35,8 @@ def test_resultado_es_el_de_la_semana_13():
 def test_prompt_mensaje_y_respuesta_son_los_de_la_semana_13():
     import agente.loop as l13
     t = tarea("v01-es")
-    assert Registro.sistema() is l13.SISTEMA
+    assert Registro("x", H55, t).sistema() is l13.SISTEMA
+    assert Registro("x", H55, t, sistema="otro").sistema() == "otro"
     assert Registro("x", H55, t).mensaje() == l13.mensaje_tarea(t)
     assert Registro.herramienta_responder() == l13.herramienta_responder()
 

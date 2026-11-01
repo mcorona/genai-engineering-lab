@@ -98,7 +98,7 @@ def construir_grafo(modelo_lc, herramientas_mcp: dict, reg: Registro, aprobacion
                 else:
                     salida = reg.responder(c["args"])
                 texto = json.dumps(salida, ensure_ascii=False, default=str)
-            elif c["name"] == HERRAMIENTA_HITL and aprobacion is not None and c["name"] in herramientas_mcp:
+            elif c["name"].split("__")[-1] == HERRAMIENTA_HITL and aprobacion is not None and c["name"] in herramientas_mcp:
                 decision = interrupt({"herramienta": c["name"], "argumentos": c["args"], "corrida": reg.r.corrida})
                 decisiones.append({"herramienta": c["name"], "decision": decision})
                 if decision == "aprobar":
@@ -164,7 +164,7 @@ class AdaptadorLangGraph(Adaptador):
         l13 = semana13()
         lim = self.limites or l13.Limites()
         m = ChatAnthropic(model=self.modelo, max_tokens=lim.max_tokens_salida, output_config={"effort": self.esfuerzo},
-                          max_retries=3, **({"base_url": self.base_url, "api_key": "doble"} if self.base_url else {}))
+                          max_retries=3, default_request_timeout=120, **({"base_url": self.base_url, "api_key": "doble"} if self.base_url else {}))
         return m.bind_tools(herramientas + [Registro.herramienta_responder()])
 
     async def _resolver(self, tarea: dict):
