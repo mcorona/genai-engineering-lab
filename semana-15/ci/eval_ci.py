@@ -37,7 +37,10 @@ FRAMEWORKS = ("langgraph", "strands")
 # Un caso por categoría de la semana 14, alternando idioma.
 CASOS = ["pd-1-es", "rp-1-en", "sh-1-es", "ir-1-en", "esc-01-es", "prop-1-en", "fr-1-es", "fsql-01-en", "iny-d1-es",
          "iny-r1-en", "bucle-2-es"]
-UMBRALES: dict | None = None      # {"langgraph": {"es": x, "en": y}, "strands": {...}} tras la corrida de calibración
+# Calibración (primera corrida de CI, PR de la actividad 10, $0.1666): LangGraph ES 1.000 y EN 1.000; Strands ES 1.000 y
+# EN 0.900 (19/20 en total). Regla de la semana 10 con n = 10 por idioma: 1.000 → 0.90 y 0.900 → 0.80. Falsa alarma por
+# corrida con p = 4/120 (semana 13): 4.2 % para 0.90 y 7.0 % para 0.80, ambas bajo el 10 %, así que se quedan.
+UMBRALES: dict | None = {"langgraph": {"es": 0.90, "en": 0.90}, "strands": {"es": 0.90, "en": 0.80}}
 TOPE_USD = 0.40
 HILOS = 2                          # trabajadores por framework
 
