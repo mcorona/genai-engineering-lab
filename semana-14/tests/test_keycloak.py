@@ -180,3 +180,18 @@ def test_offline_access_para_clientes_mcp():
     nuevo = pkce.refrescar(tok)
     assert claims(nuevo["access_token"])["aud"] in (RECURSO, [RECURSO])
     assert claims(pkce.refrescar(nuevo, resource=None)["access_token"])["aud"] in (RECURSO, [RECURSO])
+
+
+A2A = "http://127.0.0.1:8015/"   # semana 15, actividad 7: especialista de compras remoto
+
+
+def test_token_a2a_con_audiencia_propia():
+    """El supervisor pide el token del especialista A2A con su propio cliente y `resource`: la audiencia es solo el
+    especialista (no el servidor MCP), y solo un perfil con compras recibe el scope."""
+    c = claims(obtener_token("analista", scopes=["legado:compras:proponer"], resource=A2A,
+                             cliente="legacybridge-supervisor")["access_token"])
+    assert c["aud"] in (A2A, [A2A]) and c["azp"] == "legacybridge-supervisor"
+    assert "legado:compras:proponer" in c["scope"].split()
+    c = claims(obtener_token("almacenista", scopes=["legado:compras:proponer"], resource=A2A,
+                             cliente="legacybridge-supervisor")["access_token"])
+    assert "legado:compras:proponer" not in c["scope"].split()

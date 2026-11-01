@@ -64,6 +64,14 @@ def con_url(url, fn):
 
 # ---------- cliente HTTP del SDK ----------
 
+
+def _trazas(s, n=1, espera_s=2.0):
+    """La traza se escribe después de enviar la respuesta (incluye estado y bytes): se espera a que exista."""
+    fin = time.monotonic() + espera_s
+    while len(s.trazas.ultimas) < n and time.monotonic() < fin:
+        time.sleep(0.01)
+    return list(s.trazas.ultimas)
+
 def test_cliente_sdk_por_http():
     with http_srv("almacenista") as s:
         async def fn(c):
@@ -96,7 +104,7 @@ def test_origin_hostil_403():
         ok = crudo(s, cuerpo=peticion("tools/list"), headers={"Origin": f"http://127.0.0.1:{s.puerto}"})
         hostil = crudo(s, cuerpo=peticion("tools/list"), headers={"Origin": "http://evil.example"})
         otro_puerto = crudo(s, cuerpo=peticion("tools/list"), headers={"Origin": f"http://127.0.0.1:{s.puerto + 1}"})
-        trazas = list(s.trazas.ultimas)
+        trazas = _trazas(s, 3)
     assert ok[0] == 200
     assert hostil[0] == 403 and otro_puerto[0] == 403
     assert [t["resultado"] for t in trazas] == ["ok", "rechazado", "rechazado"]
@@ -153,7 +161,7 @@ def test_cuerpo_excesivo_413():
         datos = json.dumps(grande).encode()
         por_partes = crudo(s, cuerpo=grande, chunks=[datos[i:i + 512] for i in range(0, len(datos), 512)])
         normal_ = crudo(s, cuerpo=peticion("tools/list"))
-        trazas = list(s.trazas.ultimas)
+        trazas = _trazas(s, 3)
     assert declarado[0] == 413 and por_partes[0] == 413
     assert json.loads(declarado[2])["error"]["code"] == -32600
     assert normal_[0] == 200
@@ -187,7 +195,7 @@ def test_tiempo_agotado():
         inicio = time.perf_counter()
         r = con_url(s.url, lambda c: c.call_tool("buscar_regla_negocio", {"consulta": "R-COB"}))
         seg = time.perf_counter() - inicio
-        traza = s.trazas.ultimas[-1]
+        traza = _trazas(s)[-1]
     assert seg < 1.5
     assert r.is_error is True and r.structured_content["error"]["tipo"] == "tiempo_agotado"
     jsonschema.validate(r.structured_content, next(t for t in herramientas_mcp() if t.name == "buscar_regla_negocio").output_schema)
@@ -217,7 +225,7 @@ def test_peticiones_en_curso_limitadas_503():
         hilos = [threading.Thread(target=una, args=(i,)) for i in range(6)]
         [h.start() for h in hilos]
         [h.join() for h in hilos]
-        trazas = list(s.trazas.ultimas)
+        trazas = _trazas(s, 6)
     estados = sorted(r[0] for r in resultados)
     assert estados.count(200) >= 2 and estados.count(503) >= 1 and set(estados) <= {200, 503}
     assert all(r[1]["retry-after"] == "1" for r in resultados if r[0] == 503)

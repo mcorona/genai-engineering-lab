@@ -54,7 +54,7 @@ class Registro:
         return semana13().herramienta_responder()
 
     # ----- eventos -----
-    def modelo(self, uso, ms: float, pedidas: list[str] | None = None):
+    def modelo(self, uso, ms: float, pedidas: list[str] | None = None, agente: str | None = None):
         tin, tout = normalizar_uso(uso)
         self.r.pasos += 1
         self.r.tokens_in += tin
@@ -64,9 +64,9 @@ class Registro:
         if pedidas and len(pedidas) > 1:
             self.r.turnos_paralelos += 1
         self.traza("modelo", self.r.pasos, ms=round(ms), tokens_in=tin, tokens_out=tout, costo_usd=round(c, 8),
-                   herramientas_pedidas=list(pedidas or []))
+                   herramientas_pedidas=list(pedidas or []), **({"agente": agente} if agente else {}))
 
-    def herramienta(self, nombre: str, ms: float, salida: dict | str):
+    def herramienta(self, nombre: str, ms: float, salida: dict | str, agente: str | None = None):
         if isinstance(salida, str):
             try:
                 salida = json.loads(salida)
@@ -76,7 +76,8 @@ class Registro:
         self.r.herramientas += 1
         self.r.errores_herramienta += 0 if ok else 1
         self.traza("herramienta", self.r.pasos, herramienta=nombre, ms=round(ms), ok=ok,
-                   error=(salida.get("error") or {}).get("tipo") if isinstance(salida.get("error"), dict) else salida.get("error"))
+                   error=(salida.get("error") or {}).get("tipo") if isinstance(salida.get("error"), dict) else salida.get("error"),
+                   **({"agente": agente} if agente else {}))
 
     def responder(self, entrada: dict) -> dict:
         """Valida la respuesta final como la semana 13. Devuelve la salida para el modelo; si es válida, la guarda."""

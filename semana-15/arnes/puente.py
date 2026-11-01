@@ -21,8 +21,9 @@ ADAPTADORES = {"propio": "arnes.adaptador:AdaptadorPropio",
                "langgraph": "adaptadores.langgraph:AdaptadorLangGraph",
                "strands": "adaptadores.strands:AdaptadorStrands",
                "openai_agents": "adaptadores.openai_agents:AdaptadorOpenAIAgents",
-               "google_adk": "adaptadores.google_adk:AdaptadorGoogleADK"}
-VENV = {"langgraph": "lg", "strands": "st", "openai_agents": "oa", "google_adk": "adk"}
+               "google_adk": "adaptadores.google_adk:AdaptadorGoogleADK",
+               "multiagente": "adaptadores.multiagente:AdaptadorMultiagente"}
+VENV = {"langgraph": "lg", "strands": "st", "openai_agents": "oa", "google_adk": "adk", "multiagente": "lg"}
 
 
 def cargar(framework: str):
@@ -44,7 +45,8 @@ def trabajador(framework: str):
                       limites=lim, base_url=pet.get("base_url"), **(pet.get("opciones") or {}))
             r = a.resolver(pet["tarea"])
             out = {"resultado": resultado_a_dict(r), "eventos": getattr(a, "ultimas_trazas", []),
-                   "extra": {k: getattr(a, k) for k in ("pausas", "decisiones", "checkpoints") if hasattr(a, k)}}
+                   "extra": {k: getattr(a, k) for k in ("pausas", "decisiones", "checkpoints", "propuestas", "especialistas")
+                             if hasattr(a, k)}}
         except Exception as e:  # noqa: BLE001  el orquestador decide; el trabajador no muere
             out = {"error": f"{type(e).__name__}: {e}"[:2000]}
         sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str) + "\n")
