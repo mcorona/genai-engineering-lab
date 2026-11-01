@@ -19,7 +19,9 @@ from pathlib import Path
 S15 = Path(__file__).resolve().parents[1]
 ADAPTADORES = {"propio": "arnes.adaptador:AdaptadorPropio",
                "langgraph": "adaptadores.langgraph:AdaptadorLangGraph",
-               "strands": "adaptadores.strands:AdaptadorStrands"}
+               "strands": "adaptadores.strands:AdaptadorStrands",
+               "openai_agents": "adaptadores.openai_agents:AdaptadorOpenAIAgents",
+               "google_adk": "adaptadores.google_adk:AdaptadorGoogleADK"}
 VENV = {"langgraph": "lg", "strands": "st", "openai_agents": "oa", "google_adk": "adk"}
 
 
