@@ -1,0 +1,58 @@
+name: eval-semana-15
+
+# Semana 15. Sin API y sin secretos ($0): arnés común (contrato del Resultado, uso y costo normalizados, trazas, modelo
+# simulado, verificador sobre salidas guionadas contra el servidor MCP de la semana 14) y el contrato cargado en el
+# entorno virtual de cada framework. La actividad 10 agrega Keycloak y la mini eval con API.
+on:
+  pull_request:
+    paths:
+      - "semana-15/**"
+      - "!semana-15/**/*.md"
+      - "!semana-15/resultados/**"
+      - "semana-13/agente/**"
+      - ".github/workflows/eval-semana-15.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-semana-15-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ci-admin
+          POSTGRES_DB: inventory
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d inventory"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PG_ADMIN_DSN: postgresql://admin:ci-admin@localhost:5432/inventory
+      PG_DSN: postgresql://copilot_ro:ci-ro@localhost:5432/inventory
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Instalar dependencias del entorno principal
+        run: pip install "psycopg[binary]==3.3.6" "pydantic==2.14.1" "sqlglot==30.26.0" "mcp==2.3.0" "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1" pytest
+      - name: Un entorno virtual por framework (LangGraph, Strands, OpenAI Agents, ADK)
+        run: semana-15/linea_base/preparar.sh
+      - name: Preparar base de CI (datos sintéticos, semilla 42) y esquema legado
+        run: |
+          python semana-07/ci/preparar_base.py
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
+      - name: Arnés común (sin API)
+        run: |
+          cd semana-15 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
+          if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
