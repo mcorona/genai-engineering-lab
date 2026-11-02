@@ -1,0 +1,648 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.316",
+  "startedAt": "2026-11-02T23:27:36.723Z",
+  "durationSeconds": 520,
+  "costUsd": 0.11242664000000001,
+  "partial": false,
+  "suite": {
+    "root": "/Users/manuelcorona/AI-projects-llm-internals/semana-16/legacy-schema-audit",
+    "ablation": "with-without",
+    "modelOverride": "haiku",
+    "judgeModel": "haiku",
+    "caseFilter": "02-*",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "legacy-schema-audit",
+        "version": "0.1.0",
+        "path": "/Users/manuelcorona/AI-projects-llm-internals/semana-16/legacy-schema-audit"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "02-en-riesgos",
+      "dir": "evals/02-en-riesgos",
+      "source": "prose",
+      "promptMarkdown": "We're about to migrate a legacy orders database (schema `ventas`). Before we do, audit it for data-quality and privacy risks and give me the evidence for each one.",
+      "runsPerCase": 3,
+      "timeoutSeconds": 900,
+      "maxTurns": 45,
+      "graders": [
+        {
+          "name": "no-personal-values",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "auditoria/riesgos.md"
+            },
+            "pattern": "@correo\\.example|33 0000 \\d{4}",
+            "flags": "",
+            "match": "not_contains"
+          }
+        },
+        {
+          "name": "orphan-ids",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "auditoria/riesgos.md"
+            },
+            "pattern": "\\b38\\b[^\\n]{0,40}\\b39\\b",
+            "flags": "",
+            "match": "contains"
+          }
+        },
+        {
+          "name": "orphans-finding",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "auditoria/riesgos.md"
+            },
+            "pattern": "###\\s*R-\\d+\\s*·\\s*huerfanos\\s*·\\s*pedcab",
+            "flags": "",
+            "match": "contains"
+          }
+        },
+        {
+          "name": "queries-run",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select",
+            "min": 3,
+            "arm": "both"
+          }
+        },
+        {
+          "name": "risks-file",
+          "type": "file_exists",
+          "weight": 1,
+          "config": {
+            "path": "auditoria/riesgos.md",
+            "exists": true
+          }
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "input_match": "legacy-schema-audit"
+          }
+        },
+        {
+          "name": "sql-evidence",
+          "type": "regex",
+          "weight": 1,
+          "config": {
+            "target": {
+              "source": "file",
+              "path": "auditoria/riesgos.md"
+            },
+            "pattern": "```sql\\s*\\n\\s*(SELECT|WITH)\\b",
+            "flags": "i",
+            "match": "contains"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 35,
+            "costUsd": 0.034001685000000004,
+            "judgeCostUsd": 0,
+            "durationSeconds": 141,
+            "startedAt": "2026-11-02T23:27:36.767Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-Pfpgjr/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "mocks": {
+              "servers": [
+                {
+                  "server": "legacy-sql",
+                  "kind": "shadow",
+                  "tools": [
+                    {
+                      "tool": "list_objects",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "describe_object",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "profile_table",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "run_select",
+                      "responder": "agent"
+                    }
+                  ]
+                }
+              ],
+              "warnings": [],
+              "calls": {
+                "total": 20,
+                "errors": 0,
+                "unmocked": [],
+                "costUsd": 0.013751000000000003,
+                "replay": {
+                  "hits": 0,
+                  "misses": 20
+                }
+              }
+            },
+            "graders": [
+              {
+                "name": "no-personal-values",
+                "passed": true,
+                "weight": 1,
+                "explanation": "pattern absent as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphan-ids",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched \\b38\\b[^\\n]{0,40}\\b39\\b",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphans-finding",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched ###\\s*R-\\d+\\s*·\\s*huerfanos\\s*·\\s*pedcab",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "queries-run",
+                "passed": true,
+                "weight": 1,
+                "explanation": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select called 13x (expected 3..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "risks-file",
+                "passed": true,
+                "weight": 1,
+                "explanation": "auditoria/riesgos.md exists as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": true,
+                "scored": false
+              },
+              {
+                "name": "sql-evidence",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched ```sql\\s*\\n\\s*(SELECT|WITH)\\b",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 32,
+            "costUsd": 0.03867218,
+            "judgeCostUsd": 0,
+            "durationSeconds": 179,
+            "startedAt": "2026-11-02T23:29:57.958Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-rqyFsW/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "mocks": {
+              "servers": [
+                {
+                  "server": "legacy-sql",
+                  "kind": "shadow",
+                  "tools": [
+                    {
+                      "tool": "list_objects",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "describe_object",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "profile_table",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "run_select",
+                      "responder": "agent"
+                    }
+                  ]
+                }
+              ],
+              "warnings": [],
+              "calls": {
+                "total": 22,
+                "errors": 0,
+                "unmocked": [],
+                "costUsd": 0.0172087,
+                "replay": {
+                  "hits": 0,
+                  "misses": 22
+                }
+              }
+            },
+            "graders": [
+              {
+                "name": "no-personal-values",
+                "passed": true,
+                "weight": 1,
+                "explanation": "pattern absent as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphan-ids",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched \\b38\\b[^\\n]{0,40}\\b39\\b",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphans-finding",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched ###\\s*R-\\d+\\s*·\\s*huerfanos\\s*·\\s*pedcab",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "queries-run",
+                "passed": true,
+                "weight": 1,
+                "explanation": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select called 15x (expected 3..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "risks-file",
+                "passed": true,
+                "weight": 1,
+                "explanation": "auditoria/riesgos.md exists as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": true,
+                "scored": false
+              },
+              {
+                "name": "sql-evidence",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched ```sql\\s*\\n\\s*(SELECT|WITH)\\b",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 29,
+            "costUsd": 0.030949425,
+            "judgeCostUsd": 0,
+            "durationSeconds": 156,
+            "startedAt": "2026-11-02T23:32:56.896Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-pEwe7a/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "mocks": {
+              "servers": [
+                {
+                  "server": "legacy-sql",
+                  "kind": "shadow",
+                  "tools": [
+                    {
+                      "tool": "list_objects",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "describe_object",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "profile_table",
+                      "responder": "agent"
+                    },
+                    {
+                      "tool": "run_select",
+                      "responder": "agent"
+                    }
+                  ]
+                }
+              ],
+              "warnings": [],
+              "calls": {
+                "total": 18,
+                "errors": 0,
+                "unmocked": [],
+                "costUsd": 0.0135009,
+                "replay": {
+                  "hits": 0,
+                  "misses": 18
+                }
+              }
+            },
+            "graders": [
+              {
+                "name": "no-personal-values",
+                "passed": true,
+                "weight": 1,
+                "explanation": "pattern absent as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphan-ids",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched \\b38\\b[^\\n]{0,40}\\b39\\b",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphans-finding",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched ###\\s*R-\\d+\\s*·\\s*huerfanos\\s*·\\s*pedcab",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "queries-run",
+                "passed": true,
+                "weight": 1,
+                "explanation": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select called 11x (expected 3..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "risks-file",
+                "passed": true,
+                "weight": 1,
+                "explanation": "auditoria/riesgos.md exists as expected",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": true,
+                "scored": false
+              },
+              {
+                "name": "sql-evidence",
+                "passed": true,
+                "weight": 1,
+                "explanation": "matched ```sql\\s*\\n\\s*(SELECT|WITH)\\b",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ],
+        "without": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 8,
+            "costUsd": 0.00302281,
+            "judgeCostUsd": 0,
+            "durationSeconds": 17,
+            "startedAt": "2026-11-02T23:35:33.005Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-dq4E7G/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "no-personal-values",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphan-ids",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphans-finding",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "queries-run",
+                "passed": false,
+                "weight": 1,
+                "explanation": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select called 0x (expected 3..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "risks-file",
+                "passed": false,
+                "weight": 1,
+                "explanation": "auditoria/riesgos.md missing (expected present)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "sql-evidence",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 8,
+            "costUsd": 0.00298967,
+            "judgeCostUsd": 0,
+            "durationSeconds": 15,
+            "startedAt": "2026-11-02T23:35:50.474Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-9w23Z8/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "no-personal-values",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphan-ids",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphans-finding",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "queries-run",
+                "passed": false,
+                "weight": 1,
+                "explanation": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select called 0x (expected 3..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "risks-file",
+                "passed": false,
+                "weight": 1,
+                "explanation": "auditoria/riesgos.md missing (expected present)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "sql-evidence",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          },
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 7,
+            "costUsd": 0.00279087,
+            "judgeCostUsd": 0,
+            "durationSeconds": 11,
+            "startedAt": "2026-11-02T23:36:05.711Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-TmASMo/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "no-personal-values",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphan-ids",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "orphans-finding",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "queries-run",
+                "passed": false,
+                "weight": 1,
+                "explanation": "mcp__plugin_legacy-schema-audit_legacy-sql__run_select called 0x (expected 3..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "risks-file",
+                "passed": false,
+                "weight": 1,
+                "explanation": "auditoria/riesgos.md missing (expected present)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "sql-evidence",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: case \"02-en-riesgos\" grader focus file \"auditoria/riesgos.md\": path \"auditoria/riesgos.md\" does not exist",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1,
+        "scoreWithout": 0,
+        "passRateWithout": 0,
+        "delta": 1
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 1,
+    "overallScore": 1,
+    "overallPassRate": 1,
+    "meanDelta": 1
+  }
+}

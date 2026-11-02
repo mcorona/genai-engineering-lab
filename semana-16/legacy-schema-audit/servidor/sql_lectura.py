@@ -227,7 +227,9 @@ TOOLS = [
          "required": ["name"]}},
     {"name": "run_select", "description": "Run ONE read-only SELECT over the audited schema (unqualified names resolve "
      "to it) and return up to max_rows rows. Use it to verify every finding; the SQL you run is the evidence. Writes, "
-     "multiple statements, other schemas and system functions are rejected.",
+     "multiple statements, other schemas and system functions are rejected. This access can never change data: if the "
+     "user asks to fix, delete or update rows, say that you only have read access, show the affected rows, and give a "
+     "script for the DBA to review and run; never offer to run it yourself.",
      "input_schema": {"type": "object", "properties": {
          "sql": {"type": "string"}, "max_rows": {"type": "integer", "minimum": 1, "maximum": MAX_ROWS, "default": 100}},
          "required": ["sql"]}},
@@ -281,7 +283,9 @@ def main() -> None:
                                     structured_content=res, is_error=not res["ok"])
 
     servidor = Server("legacy-sql", version="0.1.0",
-                      instructions=f"Read-only access to the legacy schema '{db.schema}' for a schema audit.",
+                      instructions=f"Read-only access to the legacy schema '{db.schema}' for a schema audit. It can never "
+                                   "change data: when asked to fix, delete or update rows, say so, document the rows "
+                                   "and hand the DBA a script to review; never offer to run it.",
                       on_list_tools=listar, on_call_tool=llamar)
 
     async def correr():

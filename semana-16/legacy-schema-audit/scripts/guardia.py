@@ -7,7 +7,7 @@
 4. Reading secrets: .env files, the week 14 .secretos.env, .pgpass, .netrc, private keys, cloud credentials,
    ~/.ssh and ~/.aws (Read, Grep, Glob, NotebookRead and Bash).
 5. Writes outside auditoria/ of the project (Write, Edit, MultiEdit, NotebookEdit, Bash redirections and
-   file-changing commands).
+   file-changing commands), and deliverables that contain personal values (emails, phone numbers, RFC tax IDs).
 6. A plugin subagent calling a tool outside the `tools:` list of its agents/*.md (hook input has agent_type).
 
 Anything it cannot decide (unreadable input, a failed import) is blocked: fail closed, and hooks.json sets
@@ -37,6 +37,32 @@ BASH_BD = re.compile(r"\b(psql|pg_dump|pg_dumpall|pg_restore|pgcli|createdb|drop
 BASH_CAMBIA = {"rm", "rmdir", "mv", "cp", "dd", "truncate", "chmod", "chown", "ln", "install", "touch", "mkdir",
                "tee", "rsync", "unlink", "shred"}
 ESCRITURA = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
+# Personal values in a deliverable: emails, phone numbers and Mexican personal tax IDs (RFC). A phone is a run of digit
+# groups separated by spaces with at least 9 digits and one 4-digit group ("33 0000 1201", "+1 555 0100 204"), so
+# ids ("38 39 40"), dates and amounts do not match.
+EMAIL_RFC = re.compile(r"[\w.+*-]*@[\w-]+(\.[\w-]+)*\.[a-z]{2,}\b|\b[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}\b", re.I)  # masked too
+TELEFONO = re.compile(r"(?<!\w)\+?\d{1,4}(?: \d{2,4}){2,4}(?!\w)")
+
+
+def yaml_invalido(texto: str) -> None:
+    """A deliverable YAML that does not parse is blocked with the line, so the model fixes it before the client sees
+    it (activity 5: Haiku wrote `meaning: Tipo de movimiento: ENT ...` without quotes). Skipped without PyYAML."""
+    try:
+        import yaml
+    except ImportError:
+        return
+    try:
+        yaml.safe_load(texto)
+    except yaml.YAMLError as e:
+        marca = getattr(e, "problem_mark", None)
+        donde = f" at line {marca.line + 1}, column {marca.column + 1}" if marca else ""
+        raise Bloqueo(f"auditoria YAML does not parse{donde} ({getattr(e, 'problem', None) or type(e).__name__}). Quote "
+                      "values that contain ': ' or '#', then write it again.")
+
+
+def dato_personal(texto: str) -> bool:
+    return bool(EMAIL_RFC.search(texto)) or any(
+        sum(c.isdigit() for c in m.group()) >= 9 and re.search(r"\b\d{4}\b", m.group()) for m in TELEFONO.finditer(texto))
 LECTURA_RUTA = {"Read": ("file_path",), "NotebookRead": ("notebook_path",), "Grep": ("path", "glob"),
                 "Glob": ("path", "pattern")}
 
@@ -101,6 +127,14 @@ def decidir(evento: dict, estado_dir: Path) -> None:
             raise Bloqueo(f"Writing outside auditoria/ is blocked: {ruta}")
         if SECRETO.search(ruta):
             raise Bloqueo("Writing secret files is blocked.")
+        texto = "\n".join(str(x) for x in (entrada.get("content"), entrada.get("new_string"), entrada.get("new_source"),
+                                           *[e.get("new_string") for e in entrada.get("edits") or [] if isinstance(e, dict)])
+                          if x)
+        if dato_personal(texto):
+            raise Bloqueo("Personal data in a deliverable is blocked (an email, phone number or tax ID). Name the column "
+                          "and give counts or row ids instead of the values.")
+        if herramienta == "Write" and ruta.endswith((".yaml", ".yml")):
+            yaml_invalido(str(entrada.get("content") or ""))
         return
 
     for campo in LECTURA_RUTA.get(herramienta, ()):

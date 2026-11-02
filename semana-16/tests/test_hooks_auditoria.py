@@ -62,6 +62,11 @@ PERMITE = [
     ("Bash", {"command": "echo listo > auditoria/nota.txt 2>&1"}),
     ("Skill", {"skill": "legacy-schema-audit:auditar"}),
     ("Grep", {"pattern": "R-0", "path": "auditoria"}),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "15 contacts (cto_id 1-15) have an email; ped_id 38 39 40; "
+                                                             "2026-09-01; 12,850.00 MXN; 1500 pieces"}),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "count(*) FILTER (WHERE cto_eml LIKE '%@%')"}),
+    ("Write", {"file_path": "auditoria/diccionario.yaml", "content": "tables:\n  - name: movinv\n    columns:\n"
+               "      - name: mov_tip\n        meaning: 'Tipo de movimiento: ENT o SAL'\n"}),
 ]
 BLOQUEA = [
     (P + "run_select", {"sql": "DELETE FROM movinv"}, "read-only SELECT"),
@@ -91,6 +96,15 @@ BLOQUEA = [
     ("Bash", {"command": "rm -rf build"}, "outside auditoria/"),
     ("Bash", {"command": "cp auditoria/riesgos.md /tmp/"}, "outside auditoria/"),
     ("Bash", {"command": "sed -i 's/a/b/' README.md"}, "In-place"),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "Contact: ana@correo.example"}, "Personal data"),
+    ("Write", {"file_path": "auditoria/resumen.md", "content": "Call 33 0000 1201 for details"}, "Personal data"),
+    ("Edit", {"file_path": "auditoria/riesgos.md", "old_string": "x", "new_string": "+49 30 0000 208"}, "Personal data"),
+    ("MultiEdit", {"file_path": "auditoria/d.yaml", "edits": [{"old_string": "a", "new_string": "RFC OOLL850923TK1"}]},
+     "Personal data"),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "masked: a****@correo.example"}, "Personal data"),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "| cto_tel | 33 0000 1201. |"}, "Personal data"),
+    ("Write", {"file_path": "auditoria/diccionario.yaml", "content": "tables:\n  - name: movinv\n    columns:\n"
+               "      - name: mov_tip\n        meaning: Tipo de movimiento: ENT o SAL\n"}, "does not parse"),
 ]
 
 

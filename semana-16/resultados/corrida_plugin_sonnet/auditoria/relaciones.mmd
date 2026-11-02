@@ -1,0 +1,84 @@
+%% Schema "legado". Audited 2026-11-02, read-only.
+%% The database declares NO foreign keys: every relationship below is inferred
+%% from names and data (dotted line, label "inferred"). Primary keys of artnot,
+%% movinv and prvcto are declared; those of the views are inferred.
+%% Orphans found by the audit (see riesgos.md):
+%%   movinv.mov_art -> artmst   : mov_id 35, 36 (plus nulls: 42, 43)
+%%   movinv.mov_alm -> almmst   : mov_id 37 (plus null: 44)
+%%   prvcto.cto_prv -> prvmst   : cto_id 14 (plus null: 15)
+%%   all other relationships    : 0 orphans
+erDiagram
+    prvmst ||..o{ artmst : "inferred"
+    prvmst |o..o{ prvcto : "inferred"
+    artmst ||..o{ exidet : "inferred"
+    almmst ||..o{ exidet : "inferred"
+    artmst ||..o{ vtadia : "inferred"
+    artmst ||..o{ artnot : "inferred"
+    artmst ||..o{ ocpcab : "inferred"
+    artmst |o..o{ movinv : "inferred"
+    almmst |o..o{ movinv : "inferred"
+
+    almmst {
+        int alm_id PK "inferred key"
+        text alm_dsc
+        text alm_cdd
+    }
+    prvmst {
+        int prv_id PK "inferred key"
+        text prv_nm
+        text prv_pais
+        int prv_dte
+    }
+    artmst {
+        text art_cd PK "inferred key"
+        text art_dsc
+        text art_lin
+        numeric art_cst
+        int art_ptr
+        boolean art_crt
+        int art_prv FK
+    }
+    exidet {
+        text exi_art PK, FK "inferred composite key"
+        int exi_alm PK, FK "inferred composite key"
+        int exi_qty
+        timestamptz exi_fup
+    }
+    vtadia {
+        text vta_art PK, FK "inferred composite key"
+        date vta_fch PK "inferred composite key"
+        int vta_und
+    }
+    artnot {
+        int not_id PK "declared"
+        text not_art FK
+        text not_txt
+        date not_fch
+    }
+    ocpcab {
+        int ocp_id PK "inferred key"
+        text ocp_art FK
+        int ocp_qty
+        text ocp_sts
+        timestamptz ocp_fcr
+    }
+    movinv {
+        int mov_id PK "declared"
+        text mov_art FK "nullable"
+        int mov_alm FK "nullable"
+        text mov_tip
+        numeric mov_qty
+        text mov_uni
+        date mov_fch
+        text mov_usr
+    }
+    prvcto {
+        int cto_id PK "declared"
+        int cto_prv FK "nullable"
+        text cto_nom
+        text cto_crg
+        text cto_eml
+        text cto_tel
+        text cto_rfc
+        date cto_alt
+    }

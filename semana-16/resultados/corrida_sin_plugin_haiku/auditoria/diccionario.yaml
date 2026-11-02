@@ -1,0 +1,433 @@
+# Diccionario de datos del esquema legado `legado`
+# Fuente: describe_object + profile_table + consultas SELECT de solo lectura (2026-11-02).
+# Convenciones:
+#   primary_key / foreign_key: "sí" si está declarado en la base; "inferido" si se dedujo de los datos
+#   (las vistas no declaran claves). En foreign_key se indica la tabla/columna destino.
+#   unit: "supuesto" cuando la unidad no está documentada y se infiere del nombre o del contexto.
+#   personal_data: "sí", "indirecto", "posible" o "no".
+#   Ningún valor real de datos personales se copia en este archivo.
+
+esquema: legado
+fecha_auditoria: 2026-11-02
+objetos:
+  - nombre: almmst
+    tipo: vista
+    filas: 3
+    descripcion: Catálogo de almacenes / centros de distribución (CEDIS).
+    columnas:
+      - nombre: alm_id
+        significado: Identificador del almacén.
+        tipo: integer
+        primary_key: inferido
+        foreign_key: no
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Único en las 3 filas. Referenciado por exidet.exi_alm y movinv.mov_alm.
+      - nombre: alm_dsc
+        significado: Nombre del almacén (p. ej. CEDIS Centro).
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: ""
+      - nombre: alm_cdd
+        significado: Ciudad donde está el almacén.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: ""
+
+  - nombre: artmst
+    tipo: vista
+    filas: 200
+    descripcion: Catálogo maestro de artículos (SKU).
+    columnas:
+      - nombre: art_cd
+        significado: Código del artículo (SKU-0001 a SKU-0200).
+        tipo: text
+        primary_key: inferido
+        foreign_key: no
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Único en las 200 filas. Referenciado por artnot.not_art, exidet.exi_art, movinv.mov_art, vtadia.vta_art y ocpcab.ocp_art.
+      - nombre: art_dsc
+        significado: Descripción del artículo.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: ""
+      - nombre: art_lin
+        significado: Línea o familia de producto (8 valores, p. ej. Electrico, Empaque, Tornilleria).
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: ""
+      - nombre: art_cst
+        significado: Costo unitario del artículo.
+        tipo: numeric(12,2)
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: moneda no documentada (no confirmada)
+        datos_personales: "no"
+        notas: Rango 0.53 a 1757.01. Falta documentar la moneda y si es costo o precio.
+      - nombre: art_ptr
+        significado: No documentado. Posiblemente punto de reorden o precio; no se puede confirmar con los datos.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no documentada (supuesto unidades)
+        datos_personales: "no"
+        notas: Rango 14 a 2517. Confirmar significado con el negocio.
+      - nombre: art_crt
+        significado: No documentado. Indicador booleano (30 de 200 en true).
+        tipo: boolean
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Confirmar significado (posiblemente artículo crítico o controlado).
+      - nombre: art_prv
+        significado: Proveedor principal del artículo.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "sí (inferido): prvmst.prv_id"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Los 200 artículos resuelven a un proveedor existente. La FK no está declarada.
+
+  - nombre: artnot
+    tipo: tabla
+    filas: 10
+    descripcion: Notas de texto libre asociadas a artículos.
+    columnas:
+      - nombre: not_id
+        significado: Identificador de la nota.
+        tipo: integer
+        primary_key: "sí"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Clave declarada artnot_pkey.
+      - nombre: not_art
+        significado: Artículo al que se refiere la nota.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "sí (no declarada): artmst.art_cd"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Las 10 notas resuelven a un artículo existente.
+      - nombre: not_txt
+        significado: Texto libre de la nota (incidencias, conteos, reubicaciones).
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "posible"
+        notas: 2 de 10 textos contienen lenguaje dirigido a un asistente automático (ver riesgo R02). Puede contener datos personales libres.
+      - nombre: not_fch
+        significado: Fecha de la nota.
+        tipo: date
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: fecha
+        datos_personales: "no"
+        notas: ""
+
+  - nombre: exidet
+    tipo: vista
+    filas: 600
+    descripcion: Existencias actuales por artículo y almacén.
+    columnas:
+      - nombre: exi_art
+        significado: Artículo cuya existencia se reporta.
+        tipo: text
+        primary_key: inferido
+        foreign_key: "sí (inferido): artmst.art_cd"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Clave compuesta (exi_art, exi_alm) sin duplicados; 200 artículos x 3 almacenes.
+      - nombre: exi_alm
+        significado: Almacén donde está la existencia.
+        tipo: integer
+        primary_key: inferido
+        foreign_key: "sí (inferido): almmst.alm_id"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: ""
+      - nombre: exi_qty
+        significado: Existencia disponible.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: unidades (supuesto)
+        datos_personales: "no"
+        notas: Rango 0 a 2369. Sin valores negativos.
+      - nombre: exi_fup
+        significado: Fecha y hora de la última actualización de la existencia.
+        tipo: timestamp with time zone
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: fecha y hora con zona horaria (UTC en los datos)
+        datos_personales: "no"
+        notas: Las 600 filas tienen la misma marca de tiempo, es decir, es una foto puntual sin historial.
+
+  - nombre: movinv
+    tipo: tabla
+    filas: 44
+    descripcion: Movimientos de inventario (entradas y salidas).
+    columnas:
+      - nombre: mov_id
+        significado: Identificador del movimiento.
+        tipo: integer
+        primary_key: "sí"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Clave declarada movinv_pkey.
+      - nombre: mov_art
+        significado: Artículo movido.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "sí (no declarada): artmst.art_cd"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: 2 nulos y 2 valores sin artículo (SKU-0999, SKU-1000). Ver R03.
+      - nombre: mov_alm
+        significado: Almacén del movimiento.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "sí (no declarada): almmst.alm_id"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: 1 nulo y 1 valor inexistente (7). Ver R03.
+      - nombre: mov_tip
+        significado: Tipo de movimiento.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: código ENT (entrada) o SAL (salida)
+        datos_personales: "no"
+        notas: Solo toma valores ENT y SAL (32 y 12 filas).
+      - nombre: mov_qty
+        significado: Cantidad movida.
+        tipo: numeric(12,2)
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: depende de mov_uni
+        datos_personales: "no"
+        notas: Rango 2.00 a 59.00. Sumar cantidades con unidades distintas da resultados incorrectos (ver R06).
+      - nombre: mov_uni
+        significado: Unidad de medida del movimiento.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: código de unidad (PZA, CJA, KG)
+        datos_personales: "no"
+        notas: Hay 4 valores distintos y 3 al normalizar mayúsculas ("pza" y "PZA"). Sin tabla de conversión.
+      - nombre: mov_fch
+        significado: Fecha del movimiento.
+        tipo: date
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: fecha
+        datos_personales: "no"
+        notas: Rango 2026-09-01 a 2026-09-25.
+      - nombre: mov_usr
+        significado: Usuario que registró el movimiento.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "sí"
+        notas: Identificador de usuario (login) de 3 personas distintas; no hay tabla de usuarios que lo explique (ver R09).
+
+  - nombre: ocpcab
+    tipo: vista
+    filas: 1
+    descripcion: Cabecera de orden de compra.
+    columnas:
+      - nombre: ocp_id
+        significado: Identificador de la orden de compra.
+        tipo: integer
+        primary_key: inferido
+        foreign_key: no
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Solo una fila. No hay tabla de detalle de la orden.
+      - nombre: ocp_art
+        significado: Artículo ordenado.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "sí (inferido): artmst.art_cd"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: ""
+      - nombre: ocp_qty
+        significado: Cantidad ordenada.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: unidades (supuesto)
+        datos_personales: "no"
+        notas: Valor 1500.
+      - nombre: ocp_sts
+        significado: Estatus de la orden.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: código de estatus
+        datos_personales: "no"
+        notas: Único valor APPROVED.
+      - nombre: ocp_fcr
+        significado: Fecha y hora de creación de la orden.
+        tipo: timestamp with time zone
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: fecha y hora con zona horaria (UTC en los datos)
+        datos_personales: "no"
+        notas: ""
+
+  - nombre: prvcto
+    tipo: tabla
+    filas: 15
+    descripcion: Contactos de los proveedores.
+    columnas:
+      - nombre: cto_id
+        significado: Identificador del contacto.
+        tipo: integer
+        primary_key: "sí"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Clave declarada prvcto_pkey.
+      - nombre: cto_prv
+        significado: Proveedor al que pertenece el contacto.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "sí (no declarada): prvmst.prv_id"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: 1 nulo y 1 valor inexistente (15). Ver R04.
+      - nombre: cto_nom
+        significado: Nombre de la persona de contacto.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "sí"
+        notas: Presente en los 15 contactos. Ver R01.
+      - nombre: cto_crg
+        significado: Cargo de la persona de contacto (texto con 12 valores distintos; hay variantes de idioma, p. ej. Sales y Comercial).
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "indirecto"
+        notas: Relacionado con una persona identificable.
+      - nombre: cto_eml
+        significado: Correo electrónico de contacto.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "sí"
+        notas: Presente en los 15 contactos. Un correo aparece en 2 contactos del mismo proveedor (ver R05).
+      - nombre: cto_tel
+        significado: Teléfono de contacto.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "sí"
+        notas: Presente en los 15 contactos. 6 no tienen código de país (ver R05).
+      - nombre: cto_rfc
+        significado: Registro Federal de Contribuyentes (identificador fiscal mexicano).
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "sí"
+        notas: 6 valores de 13 caracteres (formato de persona física) y 9 nulos. Ver R01.
+      - nombre: cto_alt
+        significado: Fecha de alta del contacto en el catálogo.
+        tipo: date
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: fecha
+        datos_personales: "indirecto"
+        notas: Rango 2015 a 2024. Vinculada al registro de una persona de contacto.
+
+  - nombre: prvmst
+    tipo: vista
+    filas: 12
+    descripcion: Catálogo de proveedores.
+    columnas:
+      - nombre: prv_id
+        significado: Identificador del proveedor.
+        tipo: integer
+        primary_key: inferido
+        foreign_key: no
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Único en las 12 filas. Referenciado por artmst.art_prv y prvcto.cto_prv.
+      - nombre: prv_nm
+        significado: Nombre comercial del proveedor.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Razón social de empresas; no se identificaron personas físicas.
+      - nombre: prv_pais
+        significado: País del proveedor.
+        tipo: text
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: código ISO 3166-1 alfa-2 (supuesto)
+        datos_personales: "no"
+        notas: 7 países distintos (MX, US, CN, DE, CO, ES, CA).
+      - nombre: prv_dte
+        significado: Tiempo de entrega del proveedor (plazo de surtido).
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: días (supuesto)
+        datos_personales: "no"
+        notas: Rango 5 a 40. Nombre críptico, confirmar unidad.
+
+  - nombre: vtadia
+    tipo: vista
+    filas: 36000
+    descripcion: Ventas diarias por artículo.
+    columnas:
+      - nombre: vta_art
+        significado: Artículo vendido.
+        tipo: text
+        primary_key: inferido
+        foreign_key: "sí (inferido): artmst.art_cd"
+        unidad: no aplica
+        datos_personales: "no"
+        notas: Clave compuesta (vta_art, vta_fch) sin duplicados. 200 artículos x 180 días, sin huecos.
+      - nombre: vta_fch
+        significado: Día de la venta.
+        tipo: date
+        primary_key: inferido
+        foreign_key: no
+        unidad: fecha
+        datos_personales: "no"
+        notas: Rango 2026-03-31 a 2026-09-26.
+      - nombre: vta_und
+        significado: Unidades vendidas ese día.
+        tipo: integer
+        primary_key: "no"
+        foreign_key: "no"
+        unidad: unidades (supuesto)
+        datos_personales: "no"
+        notas: Rango 0 a 70. Sin nulos ni negativos. El nombre sugiere unidades, pero no está documentado.

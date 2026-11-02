@@ -1,0 +1,410 @@
+# Diccionario de datos - esquema legacy "legado" (PostgreSQL)
+# Auditoría de solo lectura realizada el 2026-11-02.
+#
+# Cómo leerlo
+#   clave_primaria : "declarada" (existe constraint en la BD) | "inferida" (única y sin nulos en los datos,
+#                    pero la BD no la impone) | "no"
+#   clave_foranea  : tabla.columna a la que apunta, o "no". Ninguna FK está declarada en la BD: todas
+#                    son inferidas por nombre y por contenido, y se indica cuántos huérfanos tienen.
+#   dato_personal  : "si" | "indirecto" (personal solo combinado con otro dato) | "posible" (texto libre) | "no"
+#   unidad         : unidad de medida o formato; "no documentada" cuando el esquema no la declara.
+#   Los significados marcados como (inferido) se deducen de la abreviatura y del comportamiento de los
+#   datos; ninguna columna del esquema tiene comentario, así que deben confirmarse con el cliente.
+# Los valores personales reales NO se copian en este documento.
+
+esquema: legado
+fecha_auditoria: "2026-11-02"
+resumen_objetos:
+  tablas: [artnot, movinv, prvcto]
+  vistas: [almmst, artmst, exidet, ocpcab, prvmst, vtadia]
+restricciones_declaradas_en_bd:
+  claves_primarias: [artnot.not_id, movinv.mov_id, prvcto.cto_id]
+  claves_foraneas: []          # ninguna
+  checks_unicos_notnull_en_vistas: []   # las vistas no exponen restricciones
+
+objetos:
+
+  - nombre: almmst
+    tipo: vista
+    filas: 3
+    significado: "Maestro de almacenes (centros de distribución, CEDIS). (inferido: alm = almacén, mst = maestro)"
+    clave_primaria_objeto: "alm_id (inferida)"
+    columnas:
+      - nombre: alm_id
+        significado: Identificador del almacén.
+        tipo: integer
+        clave_primaria: inferida
+        clave_foranea: "no"
+        unidad: "código numérico, sin unidad"
+        dato_personal: "no"
+      - nombre: alm_dsc
+        significado: Nombre del almacén (CEDIS).
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre
+        dato_personal: "no"
+      - nombre: alm_cdd
+        significado: Ciudad donde está el almacén.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre (nombre de ciudad, sin acentos)
+        dato_personal: "no"
+
+  - nombre: artmst
+    tipo: vista
+    filas: 200
+    significado: "Maestro de artículos (SKU) con su línea, costo, punto de reorden y proveedor. (inferido: art = artículo, mst = maestro)"
+    clave_primaria_objeto: "art_cd (inferida)"
+    columnas:
+      - nombre: art_cd
+        significado: Código del artículo (SKU), con formato SKU-NNNN.
+        tipo: text
+        clave_primaria: inferida
+        clave_foranea: "no"
+        unidad: "código; 200 valores distintos, formato homogéneo"
+        dato_personal: "no"
+      - nombre: art_dsc
+        significado: Descripción comercial del artículo.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre
+        dato_personal: "no"
+      - nombre: art_lin
+        significado: Línea de producto (8 líneas, 25 artículos cada una).
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "texto; catálogo sin tabla propia"
+        dato_personal: "no"
+      - nombre: art_cst
+        significado: "Costo del artículo (inferido: cst = costo)."
+        tipo: "numeric(12,2)"
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "moneda no documentada (confirmar con el cliente; hay proveedores de 7 países); por unidad de inventario (inferido)"
+        dato_personal: "no"
+      - nombre: art_ptr
+        significado: "Punto de reorden: nivel de existencia a partir del cual conviene reabastecer (inferido; correlación 0.99 con venta media diaria x plazo de entrega del proveedor)."
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "unidades de inventario (no documentada)"
+        dato_personal: "no"
+      - nombre: art_crt
+        significado: "Marca de artículo crítico (inferido: 30 de 200 artículos, con mayor venta y mayor punto de reorden que el resto)."
+        tipo: boolean
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "verdadero/falso"
+        dato_personal: "no"
+      - nombre: art_prv
+        significado: Proveedor principal del artículo.
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "prvmst.prv_id (inferida; 0 huérfanos de 200)"
+        unidad: "código numérico"
+        dato_personal: "no"
+
+  - nombre: artnot
+    tipo: tabla
+    filas: 10
+    significado: "Notas de texto libre sobre artículos (observaciones de almacén). (inferido: not = nota)"
+    clave_primaria_objeto: "not_id (declarada)"
+    columnas:
+      - nombre: not_id
+        significado: Identificador de la nota.
+        tipo: integer
+        clave_primaria: declarada
+        clave_foranea: "no"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: not_art
+        significado: Artículo al que se refiere la nota.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "artmst.art_cd (inferida; 0 huérfanos de 10; sin constraint)"
+        unidad: "código SKU"
+        dato_personal: "no"
+      - nombre: not_txt
+        significado: "Texto de la nota. Ver riesgo R-04: 4 de 10 notas (ids 2, 4, 6, 8) contienen instrucciones dirigidas a un asistente automático, no observaciones de almacén."
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre (idioma mixto español/inglés)
+        dato_personal: "posible - texto libre sin controles; no se observaron datos personales en las notas"
+      - nombre: not_fch
+        significado: Fecha de la nota.
+        tipo: date
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "fecha calendario (sin hora ni zona horaria)"
+        dato_personal: "no"
+
+  - nombre: exidet
+    tipo: vista
+    filas: 600
+    significado: "Existencias actuales por artículo y almacén: 200 artículos x 3 almacenes. (inferido: exi = existencia, det = detalle)"
+    clave_primaria_objeto: "(exi_art, exi_alm) (inferida; sin duplicados)"
+    columnas:
+      - nombre: exi_art
+        significado: Artículo.
+        tipo: text
+        clave_primaria: "inferida (parte de la clave compuesta)"
+        clave_foranea: "artmst.art_cd (inferida; 0 huérfanos de 600)"
+        unidad: "código SKU"
+        dato_personal: "no"
+      - nombre: exi_alm
+        significado: Almacén.
+        tipo: integer
+        clave_primaria: "inferida (parte de la clave compuesta)"
+        clave_foranea: "almmst.alm_id (inferida; 0 huérfanos de 600)"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: exi_qty
+        significado: Cantidad en existencia (rango observado 0 a 2369, sin negativos).
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "unidades de inventario, sin unidad declarada (entero: no admite 12.5 kg como sí admite movinv)"
+        dato_personal: "no"
+      - nombre: exi_fup
+        significado: "Fecha y hora de última actualización (inferido: fup = fecha de última actualización). Las 600 filas tienen exactamente la misma marca, lo que indica una carga en bloque, no un seguimiento por fila."
+        tipo: "timestamp with time zone"
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "fecha-hora con zona (UTC en la sesión de auditoría)"
+        dato_personal: "no"
+
+  - nombre: movinv
+    tipo: tabla
+    filas: 44
+    significado: "Movimientos de inventario (entradas y salidas) por artículo y almacén, septiembre 2026. (inferido: mov = movimiento, inv = inventario)"
+    clave_primaria_objeto: "mov_id (declarada)"
+    columnas:
+      - nombre: mov_id
+        significado: Identificador del movimiento.
+        tipo: integer
+        clave_primaria: declarada
+        clave_foranea: "no"
+        unidad: "código numérico; no es un folio de documento"
+        dato_personal: "no"
+      - nombre: mov_art
+        significado: Artículo movido.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "artmst.art_cd (inferida; 4 de 44 sin padre: 2 SKU inexistentes y 2 nulos)"
+        unidad: "código SKU"
+        dato_personal: "no"
+      - nombre: mov_alm
+        significado: Almacén donde ocurre el movimiento.
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "almmst.alm_id (inferida; 2 de 44 sin padre: 1 almacén inexistente y 1 nulo)"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: mov_tip
+        significado: "Tipo de movimiento: ENT = entrada, SAL = salida (inferido; solo se observan esos dos valores)."
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "catálogo implícito de 2 valores, sin tabla ni check"
+        dato_personal: "no"
+      - nombre: mov_qty
+        significado: Cantidad movida (rango 2 a 59). Se interpreta junto con mov_uni.
+        tipo: "numeric(12,2)"
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "la que indique mov_uni (PZA, pza, CJA, KG); no son sumables entre sí"
+        dato_personal: "no"
+      - nombre: mov_uni
+        significado: Unidad de medida de mov_qty.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "código de unidad; valores observados PZA (41), CJA (1), KG (1) y pza en minúscula (1)"
+        dato_personal: "no"
+      - nombre: mov_fch
+        significado: Fecha del movimiento (sin hora).
+        tipo: date
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "fecha calendario; rango 2026-09-01 a 2026-09-25"
+        dato_personal: "no"
+      - nombre: mov_usr
+        significado: Usuario que registró el movimiento (3 usuarios distintos; cuenta con patrón inicial + apellido).
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no (no existe tabla de usuarios)"
+        unidad: "identificador de cuenta en texto"
+        dato_personal: "si - identifica a empleados; no se copian valores aquí"
+
+  - nombre: ocpcab
+    tipo: vista
+    filas: 1
+    significado: "Cabecera de órdenes de compra, aquí con un solo artículo por orden. (inferido: ocp = orden de compra, cab = cabecera). No existe tabla de detalle, proveedor, precio ni aprobador."
+    clave_primaria_objeto: "ocp_id (inferida)"
+    columnas:
+      - nombre: ocp_id
+        significado: Identificador de la orden de compra.
+        tipo: integer
+        clave_primaria: inferida
+        clave_foranea: "no"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: ocp_art
+        significado: Artículo ordenado.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "artmst.art_cd (inferida; 0 huérfanos de 1)"
+        unidad: "código SKU"
+        dato_personal: "no"
+      - nombre: ocp_qty
+        significado: Cantidad ordenada.
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "unidades de inventario, sin unidad declarada"
+        dato_personal: "no"
+      - nombre: ocp_sts
+        significado: "Estado de la orden (inferido: sts = status). Único valor observado: APPROVED (en inglés, el resto del esquema está en español)."
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "catálogo implícito, sin tabla ni check"
+        dato_personal: "no"
+      - nombre: ocp_fcr
+        significado: "Fecha y hora de creación de la orden (inferido: fcr = fecha de creación)."
+        tipo: "timestamp with time zone"
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "fecha-hora con zona (UTC en la sesión de auditoría)"
+        dato_personal: "no"
+
+  - nombre: prvcto
+    tipo: tabla
+    filas: 15
+    significado: "Contactos (personas) de los proveedores. (inferido: prv = proveedor, cto = contacto)"
+    clave_primaria_objeto: "cto_id (declarada)"
+    columnas:
+      - nombre: cto_id
+        significado: Identificador del contacto.
+        tipo: integer
+        clave_primaria: declarada
+        clave_foranea: "no"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: cto_prv
+        significado: Proveedor al que pertenece el contacto.
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "prvmst.prv_id (inferida; 2 de 15 sin padre: un proveedor inexistente y un nulo)"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: cto_nom
+        significado: Nombre completo de la persona de contacto.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre
+        dato_personal: "si"
+      - nombre: cto_crg
+        significado: "Cargo o puesto (inferido: crg = cargo). Mezcla de idiomas: español, inglés, alemán."
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre
+        dato_personal: "indirecto - dato laboral; es personal junto con cto_nom"
+      - nombre: cto_eml
+        significado: Correo electrónico del contacto.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "correo electrónico, sin validación de formato"
+        dato_personal: "si"
+      - nombre: cto_tel
+        significado: Teléfono del contacto.
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "texto; formato mixto: 6 sin prefijo internacional (nacional) y 9 con prefijo +; longitudes de 12 a 16 caracteres"
+        dato_personal: "si"
+      - nombre: cto_rfc
+        significado: "RFC (registro fiscal mexicano) del contacto; solo 6 de 15 lo tienen. Las 6 claves miden 13 caracteres, es decir, formato de persona física, que incorpora la fecha de nacimiento."
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "texto de 13 caracteres; sin validación de formato ni de dígito verificador"
+        dato_personal: "si - identificador fiscal; se deduce fecha de nacimiento"
+      - nombre: cto_alt
+        significado: "Fecha de alta del contacto (inferido: alt = alta). La más antigua es de 2015."
+        tipo: date
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "fecha calendario"
+        dato_personal: "indirecto - fecha de registro de una persona; sirve para decidir retención"
+
+  - nombre: prvmst
+    tipo: vista
+    filas: 12
+    significado: "Maestro de proveedores (empresas) con país y plazo de entrega. (inferido: prv = proveedor, mst = maestro)"
+    clave_primaria_objeto: "prv_id (inferida)"
+    columnas:
+      - nombre: prv_id
+        significado: Identificador del proveedor.
+        tipo: integer
+        clave_primaria: inferida
+        clave_foranea: "no"
+        unidad: "código numérico"
+        dato_personal: "no"
+      - nombre: prv_nm
+        significado: Razón o nombre comercial del proveedor (empresa).
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: texto libre
+        dato_personal: "no - son nombres de empresa; revisar si alguno es persona física con actividad empresarial"
+      - nombre: prv_pais
+        significado: País del proveedor (códigos de 2 letras, p. ej. MX, US, DE, CN, ES, CO, CA).
+        tipo: text
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "código de país de 2 letras (ISO 3166-1 alfa-2, inferido)"
+        dato_personal: "no"
+      - nombre: prv_dte
+        significado: "Plazo de entrega del proveedor (inferido: dte = días de entrega; 5 a 40, más alto en proveedores de China y Alemania)."
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "días (inferido; no documentado)"
+        dato_personal: "no"
+
+  - nombre: vtadia
+    tipo: vista
+    filas: 36000
+    significado: "Ventas diarias por artículo: 200 artículos x 180 días, del 2026-03-31 al 2026-09-26, malla completa y sin duplicados. Solo unidades; no hay importe ni precio. (inferido: vta = venta, dia = diaria)"
+    clave_primaria_objeto: "(vta_art, vta_fch) (inferida; sin duplicados)"
+    columnas:
+      - nombre: vta_art
+        significado: Artículo vendido.
+        tipo: text
+        clave_primaria: "inferida (parte de la clave compuesta)"
+        clave_foranea: "artmst.art_cd (inferida; 0 huérfanos de 36000)"
+        unidad: "código SKU"
+        dato_personal: "no"
+      - nombre: vta_fch
+        significado: Día de la venta.
+        tipo: date
+        clave_primaria: "inferida (parte de la clave compuesta)"
+        clave_foranea: "no"
+        unidad: "fecha calendario"
+        dato_personal: "no"
+      - nombre: vta_und
+        significado: Unidades vendidas ese día (0 a 70; 913 días con cero).
+        tipo: integer
+        clave_primaria: "no"
+        clave_foranea: "no"
+        unidad: "unidades de inventario (no documentada); sin almacén ni canal"
+        dato_personal: "no"

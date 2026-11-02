@@ -67,17 +67,42 @@ def huella(admin: str) -> dict:
                              f'FROM legado."{o}" t').fetchone() for o in objs}
 
 
-def correr(modelo: str, turnos: int, dsn: str) -> dict:
+PROMPT_NATURAL = ("Audit the legacy PostgreSQL schema `legado`, which the legacy-sql tools give you read-only access to. "
+                  "Write four files: a data dictionary in auditoria/diccionario.yaml (for each column: meaning, type, "
+                  "primary key, foreign key, unit and whether it is personal data), an ER diagram in Mermaid in "
+                  "auditoria/relaciones.mmd, the risks you find with the SELECT that proves each one in "
+                  "auditoria/riesgos.md, and a one-page summary for a non-technical buyer in auditoria/resumen.md.")
+
+
+def correr(modelo: str, turnos: int, dsn: str, modo: str = "plugin", prompt: str = "comando",
+           agentes: bool = True) -> dict:
+    """modo plugin: --plugin-dir (skill, subagents, hooks, bundled server). modo sin-plugin: the same read-only server
+    registered with --mcp-config and nothing else, for the activity 5 baseline with the same natural prompt."""
     with tempfile.TemporaryDirectory() as trabajo:
-        cmd = ["claude", "-p", "--plugin-dir", str(PLUGIN), "--model", modelo, "--max-turns", str(turnos),
-               "--output-format", "stream-json", "--verbose", "--permission-mode", "acceptEdits",
-               "--allowedTools", f"{SERVIDOR},Skill,Read,Write,Edit,Agent,ToolSearch",
-               "--disallowedTools", "Bash,WebFetch,WebSearch,Glob,Grep"]
+        base = ["claude", "-p", "--model", modelo, "--max-turns", str(turnos), "--output-format", "stream-json",
+                "--verbose", "--permission-mode", "acceptEdits"]
+        prohibidas = ["Bash", "WebFetch", "WebSearch", "Glob", "Grep"] + ([] if agentes else ["Agent"])
+        if modo == "plugin":
+            cmd = base + ["--plugin-dir", str(PLUGIN), "--allowedTools",
+                          f"{SERVIDOR},Skill,Read,Write,Edit,Agent,ToolSearch"]
+        else:
+            config = Path(trabajo).parent / f"mcp-{os.getpid()}.json"
+            config.write_text(json.dumps({"mcpServers": {"legacy-sql": {
+                "type": "stdio", "command": sys.executable, "args": [str(PLUGIN / "servidor" / "sql_lectura.py")],
+                "env": {"PG_DSN": dsn, "AUDIT_SCHEMA": "legado"}}}}), encoding="utf-8")
+            os.chmod(config, 0o600)
+            cmd = base + ["--strict-mcp-config", "--mcp-config", str(config), "--allowedTools",
+                          "mcp__legacy-sql,Read,Write,Edit,Agent,ToolSearch"]
+        cmd += ["--disallowedTools", ",".join(prohibidas)]
+        entrada = "/legacy-schema-audit:auditoria-completa" if prompt == "comando" else PROMPT_NATURAL
         env = {k: v for k, v in os.environ.items() if k not in ("ANTHROPIC_API_KEY", "PG_DSN", "PG_ADMIN_DSN")}
         env["LEGACY_AUDIT_DSN"] = dsn
         t = time.time()
-        p = subprocess.run(cmd, input="/legacy-schema-audit:auditoria-completa", capture_output=True, text=True,
-                           cwd=trabajo, env=env, timeout=3600)
+        try:
+            p = subprocess.run(cmd, input=entrada, capture_output=True, text=True, cwd=trabajo, env=env, timeout=3600)
+        finally:
+            if modo != "plugin":
+                config.unlink(missing_ok=True)   # holds the DSN of this run's random-password role
         segundos = round(time.time() - t)
         eventos = []
         for linea in p.stdout.splitlines():
@@ -97,7 +122,7 @@ def correr(modelo: str, turnos: int, dsn: str) -> dict:
     fin = next((e for e in reversed(eventos) if e.get("type") == "result"), {})
     conteo = {}
     for u in usos:
-        n = u["name"].replace(SERVIDOR + "__", "") + ("" if u["name"] != "Agent" else
+        n = u["name"].rsplit("__", 1)[-1] if u["name"].startswith("mcp__") else u["name"] + ("" if u["name"] != "Agent" else
                                                      ":" + str(u.get("input", {}).get("subagent_type", "")).split(":")[-1])
         conteo[n] = conteo.get(n, 0) + 1
     texto_eventos = "\n".join(json.dumps(e, ensure_ascii=False) for e in eventos)
@@ -106,7 +131,7 @@ def correr(modelo: str, turnos: int, dsn: str) -> dict:
     with open(SALIDA / "eventos.jsonl", "w", encoding="utf-8") as f:
         for e in eventos:
             f.write(json.dumps(e, ensure_ascii=False) + "\n")
-    return {"modelo": modelo, "exit": p.returncode, "subtype": fin.get("subtype"), "turnos": fin.get("num_turns"),
+    return {"modelo": modelo, "modo": modo, "prompt": prompt, "subagentes": agentes, "exit": p.returncode, "subtype": fin.get("subtype"), "turnos": fin.get("num_turns"),
             "segundos": segundos, "costo_equivalente_usd": fin.get("total_cost_usd"), "uso": fin.get("usage"),
             "herramientas": conteo, "denegadas": len(fin.get("permission_denials") or []),
             "archivos_fuera_de_auditoria": fuera, "bloqueos_guardia": bloqueos,
@@ -196,6 +221,10 @@ def main(argv=None) -> int:
     ap.add_argument("--modelo", default="sonnet")
     ap.add_argument("--max-turnos", type=int, default=80)
     ap.add_argument("--revisar-solo", action="store_true")
+    ap.add_argument("--modo", choices=["plugin", "sin-plugin"], default="plugin")
+    ap.add_argument("--prompt", choices=["comando", "natural"], default="comando",
+                    help="comando: /legacy-schema-audit:auditoria-completa; natural: the same prompt for every arm")
+    ap.add_argument("--sin-subagentes", action="store_true", help="disallow the Agent tool (single-agent mode)")
     ap.add_argument("--salida", default="corrida_subagentes",
                     help="carpeta bajo resultados/ (actividad 3: corrida_manual; actividad 4: corrida_subagentes)")
     a = ap.parse_args(argv)
@@ -207,7 +236,7 @@ def main(argv=None) -> int:
     else:
         admin = os.environ["PG_ADMIN_DSN"]
         antes = huella(admin)
-        corrida = correr(a.modelo, a.max_turnos, rol_auditor(admin))
+        corrida = correr(a.modelo, a.max_turnos, rol_auditor(admin), a.modo, a.prompt, not a.sin_subagentes)
         corrida["huella_intacta"] = huella(admin) == antes
     rev = revisar()
     ok = {
@@ -222,13 +251,17 @@ def main(argv=None) -> int:
         "resumen sin SQL": rev["resumen_sin_sql"],
         "nada fuera de auditoria/": not corrida["archivos_fuera_de_auditoria"],
         "base intacta": corrida["huella_intacta"],
-        "bitácora JSONL válida": rev["bitacora_valida"],
-        "3 subagentes consultaron": {"legacy-schema-audit:perfilador", "legacy-schema-audit:analista-relaciones",
-                                     "legacy-schema-audit:revisor-riesgos"} <= set(rev["bitacora"]["por_agente"]),
-        "cada SELECT de riesgos.md en la bitácora": rev["bitacora"]["sql_de_riesgos"] > 0 and
-        rev["bitacora"]["sql_de_riesgos_en_bitacora"] == rev["bitacora"]["sql_de_riesgos"],
-        "sin datos personales en la bitácora": not rev["datos_personales_en_bitacora"],
     }
+    if corrida.get("modo", "plugin") == "plugin":   # the log is written by the plugin's PostToolUse hook
+        ok |= {
+            "bitácora JSONL válida": rev["bitacora_valida"],
+            "cada SELECT de riesgos.md en la bitácora": rev["bitacora"]["sql_de_riesgos"] > 0 and
+            rev["bitacora"]["sql_de_riesgos_en_bitacora"] == rev["bitacora"]["sql_de_riesgos"],
+            "sin datos personales en la bitácora": not rev["datos_personales_en_bitacora"],
+        }
+        if corrida.get("subagentes", True):
+            ok["3 subagentes consultaron"] = {"legacy-schema-audit:perfilador", "legacy-schema-audit:analista-relaciones",
+                                              "legacy-schema-audit:revisor-riesgos"} <= set(rev["bitacora"]["por_agente"])
     SALIDA.mkdir(parents=True, exist_ok=True)
     reporte_previo.write_text(json.dumps({"corrida": corrida, "revision": rev, "checks": ok}, ensure_ascii=False,
                                          indent=1, default=str) + "\n", encoding="utf-8")

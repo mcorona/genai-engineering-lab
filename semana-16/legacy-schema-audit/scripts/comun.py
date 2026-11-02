@@ -23,12 +23,24 @@ def corto(nombre: str) -> str:
     return nombre.rsplit("__", 1)[-1] if nombre.startswith("mcp__") else nombre
 
 
+ESCRITURA_SQL = re.compile(r"\b(INSERT|UPDATE|DELETE|MERGE|DROP|ALTER|CREATE|TRUNCATE|GRANT|REVOKE|COPY|CALL|DO|LOCK|"
+                           r"VACUUM|REINDEX|CLUSTER|SET|RESET|BEGIN|COMMIT|ROLLBACK|INTO)\b|\b(pg_|lo_)\w*\s*\(|"
+                           r"\b(dblink|set_config|current_setting|nextval|setval|query_to_xml|table_to_xml)\s*\(", re.I)
+
+
 def check_read_only(sql: str) -> None:
-    """Same check the bundled server applies (servidor/sql_lectura.py), loaded by path. Raises on anything but one
-    read-only SELECT; if sqlglot is missing the import fails and the hook fails closed."""
-    spec = importlib.util.spec_from_file_location("sql_lectura", RAIZ / "servidor" / "sql_lectura.py")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    """Same check the bundled server applies (servidor/sql_lectura.py, sqlglot), loaded by path. Raises on anything but
+    one read-only SELECT. When sqlglot is not importable (a hook run by a bare system python3, as in `plugin eval`
+    sandboxes) a stricter regex check takes its place: one statement, SELECT or WITH, no write keyword anywhere."""
+    try:
+        spec = importlib.util.spec_from_file_location("sql_lectura", RAIZ / "servidor" / "sql_lectura.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+    except ImportError:
+        texto = re.sub(r"'(?:[^']|'')*'", "''", sql).strip().rstrip(";")
+        if ";" in texto or not re.match(r"^\(?\s*(SELECT|WITH)\b", texto, re.I) or ESCRITURA_SQL.search(texto):
+            raise ValueError("write_blocked: only one read-only SELECT is allowed (regex check, sqlglot unavailable)")
+        return
     try:
         mod.check_read_only(sql)
     except mod.ToolError as e:
