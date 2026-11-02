@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "lb-spike 0.1.0"
