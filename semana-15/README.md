@@ -8,7 +8,7 @@ The framework changes cost, protocols, observability, hosting and team effort, n
 - **Multi-agent** (a LangGraph supervisor plus a Strands specialist over A2A with its own OAuth audience) ties the single agent at 1.7× the cost and 3× the latency.
 - **On Bedrock AgentCore** the same Strands agent keeps its quality, with a 5.7 s cold start.
 
-Week cost: **$1.78 in API** (plan: $1.50 to $1.90) plus an estimated < $0.05 on AWS, with every AWS resource deleted and verified.
+Week cost: **$1.78 in API** (plan: $1.50 to $1.90) plus $0.024 on AWS (actual, covered by credits), with every AWS resource deleted and verified.
 
 | Deliverable | Where |
 |---|---|
@@ -149,9 +149,9 @@ Evals with a model need `ANTHROPIC_API_KEY` and print their cost and cap. The Ke
 | Activity 7: multi-agent eval (including the discarded purchasing cases) | Haiku 5.5 `low` | 26 | $0.1744 |
 | Activity 7: `eval-semana-14` CI triggered by the realm change | Haiku 5.5 `low` | 1 run | $0.1919 |
 | Activity 8: AgentCore, model | Haiku 5.5 `low` | 20 | $0.0616 |
-| Activity 8: AgentCore, AWS (Runtime, Identity, S3, CloudWatch) | — | 2 deploys | < $0.05 (estimate; check Cost Explorer) |
+| Activity 8: AgentCore, AWS (Runtime $0.0204, Secrets Manager $0.0039, S3 and logs < $0.001) | — | 2 deploys | $0.024 (actual, covered by AWS credits) |
 | Activity 10: CI calibration and verification | Haiku 5.5 `low` | 2 runs | $0.3368 |
-| **Week total** | | | **$1.78** API + < $0.05 AWS (plan: $1.50 to $1.90) |
+| **Week total** | | | **$1.78** API + **$0.024** AWS (plan: $1.50 to $1.90) |
 
 From now on, each PR that changes week 15 code costs about $0.17 in CI; documentation and results do not run the eval. AWS: 0 resources left, checked by inventory.
 
