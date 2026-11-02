@@ -5,12 +5,13 @@
 2. Huella del esquema legado (filas y md5 de cada objeto) antes y después.
 3. `claude -p --plugin-dir` con el comando /legacy-schema-audit:auditoria-completa en un directorio temporal, con la
    suscripción (sin ANTHROPIC_API_KEY), solo las herramientas del servidor del plugin, Skill, Read y Write.
-4. Copia auditoria/ a resultados/corrida_manual/ y revisa las salidas: estructura, evidencia SQL, sin datos
+4. Copia auditoria/ (con la bitácora del hook) a resultados/<salida>/ y revisa las salidas: estructura, evidencia SQL, sin datos
    personales, huella intacta, y una comparación preliminar con la verdad de la actividad 2 (la evaluación completa
    es de la actividad 5).
 
-    python corrida/correr.py                     # Sonnet 5.5, hasta 80 turnos
+    python corrida/correr.py                     # Sonnet 5.5, hasta 80 turnos, salida en resultados/corrida_subagentes
     python corrida/correr.py --revisar-solo      # vuelve a revisar la última corrida sin llamar al modelo
+    python corrida/correr.py --revisar-solo --salida corrida_manual   # la corrida de la actividad 3
 """
 from __future__ import annotations
 
@@ -70,8 +71,8 @@ def correr(modelo: str, turnos: int, dsn: str) -> dict:
     with tempfile.TemporaryDirectory() as trabajo:
         cmd = ["claude", "-p", "--plugin-dir", str(PLUGIN), "--model", modelo, "--max-turns", str(turnos),
                "--output-format", "stream-json", "--verbose", "--permission-mode", "acceptEdits",
-               "--allowedTools", f"{SERVIDOR},Skill,Read,Write,Edit",
-               "--disallowedTools", "Bash,WebFetch,WebSearch,Glob,Grep,Task"]
+               "--allowedTools", f"{SERVIDOR},Skill,Read,Write,Edit,Agent,ToolSearch",
+               "--disallowedTools", "Bash,WebFetch,WebSearch,Glob,Grep"]
         env = {k: v for k, v in os.environ.items() if k not in ("ANTHROPIC_API_KEY", "PG_DSN", "PG_ADMIN_DSN")}
         env["LEGACY_AUDIT_DSN"] = dsn
         t = time.time()
@@ -96,15 +97,20 @@ def correr(modelo: str, turnos: int, dsn: str) -> dict:
     fin = next((e for e in reversed(eventos) if e.get("type") == "result"), {})
     conteo = {}
     for u in usos:
-        n = u["name"].replace(SERVIDOR + "__", "")
+        n = u["name"].replace(SERVIDOR + "__", "") + ("" if u["name"] != "Agent" else
+                                                     ":" + str(u.get("input", {}).get("subagent_type", "")).split(":")[-1])
         conteo[n] = conteo.get(n, 0) + 1
+    texto_eventos = "\n".join(json.dumps(e, ensure_ascii=False) for e in eventos)
+    bloqueos = len(re.findall(r"legacy-schema-audit: (?!role |no DSN)", texto_eventos))
+    inicio = re.search(r"legacy-schema-audit: (role [^.\\\"]+|STOP[^\\\"]{0,120}|no DSN[^.\\\"]+)", texto_eventos)
     with open(SALIDA / "eventos.jsonl", "w", encoding="utf-8") as f:
         for e in eventos:
             f.write(json.dumps(e, ensure_ascii=False) + "\n")
     return {"modelo": modelo, "exit": p.returncode, "subtype": fin.get("subtype"), "turnos": fin.get("num_turns"),
             "segundos": segundos, "costo_equivalente_usd": fin.get("total_cost_usd"), "uso": fin.get("usage"),
             "herramientas": conteo, "denegadas": len(fin.get("permission_denials") or []),
-            "archivos_fuera_de_auditoria": fuera, "stderr": p.stderr.strip()[-400:]}
+            "archivos_fuera_de_auditoria": fuera, "bloqueos_guardia": bloqueos,
+            "sessionstart": inicio.group(1) if inicio else None, "stderr": p.stderr.strip()[-400:]}
 
 
 def revisar() -> dict:
@@ -164,6 +170,24 @@ def revisar() -> dict:
     lineas = [x.strip() for x in textos["relaciones.mmd"].splitlines() if x.strip() and not x.strip().startswith("%%")]
     r["mermaid_er"] = bool(lineas) and lineas[0] == "erDiagram"  # los comentarios %% antes del diagrama son válidos
     r["resumen_sin_sql"] = not re.search(r"\bSELECT\b|```", textos["resumen.md"])
+    # bitácora del hook PostToolUse (actividad 4): consultas, agentes y evidencia de cada hallazgo
+    bit = a / "bitacora.jsonl"
+    lineas = bit.read_text(encoding="utf-8").splitlines() if bit.exists() else []
+    try:
+        log = [json.loads(x) for x in lineas]
+        r["bitacora_valida"] = bool(log)
+    except json.JSONDecodeError:
+        log, r["bitacora_valida"] = [], False
+    norm = lambda q: re.sub(r"\s+", " ", (q or "").strip().rstrip(";")).lower()  # noqa: E731
+    registradas = {norm(x.get("sql")) for x in log if x.get("sql") and x.get("ok")}
+    citadas = [norm(q) for q in re.findall(r"```sql\s*\n(.*?)```", textos["riesgos.md"], re.S)]
+    r["bitacora"] = {"consultas": len(log), "por_agente": {}, "sql_de_riesgos": len(citadas),
+                     "sql_de_riesgos_en_bitacora": sum(q in registradas for q in citadas),
+                     "no_encontradas": [q[:120] for q in citadas if q not in registradas]}
+    for x in log:
+        k = x.get("agent") or "main"
+        r["bitacora"]["por_agente"][k] = r["bitacora"]["por_agente"].get(k, 0) + 1
+    r["datos_personales_en_bitacora"] = sorted({v for v in valores if v in "\n".join(lineas)})
     return r
 
 
@@ -172,12 +196,16 @@ def main(argv=None) -> int:
     ap.add_argument("--modelo", default="sonnet")
     ap.add_argument("--max-turnos", type=int, default=80)
     ap.add_argument("--revisar-solo", action="store_true")
+    ap.add_argument("--salida", default="corrida_subagentes",
+                    help="carpeta bajo resultados/ (actividad 3: corrida_manual; actividad 4: corrida_subagentes)")
     a = ap.parse_args(argv)
-    admin = os.environ["PG_ADMIN_DSN"]
+    global SALIDA
+    SALIDA = S16 / "resultados" / a.salida
     reporte_previo = SALIDA / "corrida.json"
     if a.revisar_solo:
         corrida = json.loads(reporte_previo.read_text(encoding="utf-8"))["corrida"]
     else:
+        admin = os.environ["PG_ADMIN_DSN"]
         antes = huella(admin)
         corrida = correr(a.modelo, a.max_turnos, rol_auditor(admin))
         corrida["huella_intacta"] = huella(admin) == antes
@@ -194,6 +222,12 @@ def main(argv=None) -> int:
         "resumen sin SQL": rev["resumen_sin_sql"],
         "nada fuera de auditoria/": not corrida["archivos_fuera_de_auditoria"],
         "base intacta": corrida["huella_intacta"],
+        "bitácora JSONL válida": rev["bitacora_valida"],
+        "3 subagentes consultaron": {"legacy-schema-audit:perfilador", "legacy-schema-audit:analista-relaciones",
+                                     "legacy-schema-audit:revisor-riesgos"} <= set(rev["bitacora"]["por_agente"]),
+        "cada SELECT de riesgos.md en la bitácora": rev["bitacora"]["sql_de_riesgos"] > 0 and
+        rev["bitacora"]["sql_de_riesgos_en_bitacora"] == rev["bitacora"]["sql_de_riesgos"],
+        "sin datos personales en la bitácora": not rev["datos_personales_en_bitacora"],
     }
     SALIDA.mkdir(parents=True, exist_ok=True)
     reporte_previo.write_text(json.dumps({"corrida": corrida, "revision": rev, "checks": ok}, ensure_ascii=False,
@@ -206,6 +240,8 @@ def main(argv=None) -> int:
     print(f"Diccionario: {d['columnas_cubiertas']} columnas · PK {d['llave_primaria']} · FK {d['llave_foranea']} · "
           f"personales {d['datos_personales']}")
     print(f"Riesgos: {rev['riesgos']}")
+    print(f"Bitácora: {rev['bitacora']}")
+    print(f"Guardia: {corrida.get('bloqueos_guardia')} bloqueos · SessionStart: {corrida.get('sessionstart')}")
     print(f"\n{sum(ok.values())}/{len(ok)} checks en verde")
     return 0 if all(ok.values()) else 1
 

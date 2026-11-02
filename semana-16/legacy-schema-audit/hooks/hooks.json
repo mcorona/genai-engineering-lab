@@ -1,0 +1,44 @@
+{
+  "description": "legacy-schema-audit guardrails: read-only role check at session start, a guard before every tool call, and a JSONL log of every database query.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/verificar_rol.py", "--estado", "${CLAUDE_PLUGIN_DATA}"],
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/guardia.py", "--estado", "${CLAUDE_PLUGIN_DATA}"],
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/bitacora.py"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

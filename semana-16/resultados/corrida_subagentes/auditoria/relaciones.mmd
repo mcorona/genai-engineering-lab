@@ -1,0 +1,79 @@
+%% Schema: legado. Audited 2026-11-02.
+%% No foreign key is declared in the schema (only the primary keys of artnot, movinv and prvcto),
+%% so every relationship below is inferred and drawn dotted. Each was checked with an orphan count.
+%% Orphans found: movinv.mov_art (2), movinv.mov_alm (1), prvcto.cto_prv (1).
+erDiagram
+    prvmst ||..o{ artmst : "inferred"
+    prvmst ||..o{ prvcto : "inferred"
+    artmst ||..o{ artnot : "inferred"
+    artmst ||..o{ exidet : "inferred"
+    artmst ||..o{ movinv : "inferred"
+    artmst ||..o{ ocpcab : "inferred"
+    artmst ||..o{ vtadia : "inferred"
+    almmst ||..o{ exidet : "inferred"
+    almmst ||..o{ movinv : "inferred"
+
+    almmst {
+        integer alm_id PK "inferred"
+        text alm_dsc
+        text alm_cdd
+    }
+    artmst {
+        text art_cd PK "inferred"
+        text art_dsc
+        text art_lin
+        numeric art_cst
+        integer art_ptr
+        boolean art_crt
+        integer art_prv FK
+    }
+    artnot {
+        integer not_id PK "declared"
+        text not_art FK
+        text not_txt
+        date not_fch
+    }
+    exidet {
+        text exi_art PK, FK "inferred composite key"
+        integer exi_alm PK, FK "inferred composite key"
+        integer exi_qty
+        timestamptz exi_fup
+    }
+    movinv {
+        integer mov_id PK "declared"
+        text mov_art FK "2 nulls, 2 orphans"
+        integer mov_alm FK "1 null, 1 orphan"
+        text mov_tip
+        numeric mov_qty
+        text mov_uni
+        date mov_fch
+        text mov_usr
+    }
+    ocpcab {
+        integer ocp_id PK "inferred, single row"
+        text ocp_art FK
+        integer ocp_qty
+        text ocp_sts
+        timestamptz ocp_fcr
+    }
+    prvcto {
+        integer cto_id PK "declared"
+        integer cto_prv FK "1 null, 1 orphan"
+        text cto_nom
+        text cto_crg
+        text cto_eml
+        text cto_tel
+        text cto_rfc
+        date cto_alt
+    }
+    prvmst {
+        integer prv_id PK "inferred"
+        text prv_nm
+        text prv_pais
+        integer prv_dte
+    }
+    vtadia {
+        text vta_art PK, FK "inferred composite key"
+        date vta_fch PK "inferred composite key"
+        integer vta_und
+    }

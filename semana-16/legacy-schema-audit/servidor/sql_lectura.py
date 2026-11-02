@@ -49,8 +49,9 @@ class ToolError(Exception):
         self.kind, self.message = kind, message
 
 
-def guard(sql: str, schema: str, objects: set[str]) -> str:
-    """Returns the normalized SQL if it is one read-only SELECT over objects of `schema`; raises ToolError if not."""
+def check_read_only(sql: str):
+    """The parsed statement if `sql` is exactly one read-only SELECT (no writes, no dangerous functions); raises
+    ToolError otherwise. Shared with the plugin's PreToolUse hook, which has no catalog to check objects against."""
     if len(sql) > MAX_SQL_CHARS:
         raise ToolError("too_long", f"SQL longer than {MAX_SQL_CHARS} characters.")
     try:
@@ -67,6 +68,12 @@ def guard(sql: str, schema: str, objects: set[str]) -> str:
         name = (f.name if isinstance(f, exp.Anonymous) else f.sql_name()).lower()
         if name.startswith(FORBIDDEN_FUNCS):
             raise ToolError("forbidden_function", f"Function {name} is not allowed.")
+    return root
+
+
+def guard(sql: str, schema: str, objects: set[str]) -> str:
+    """Returns the normalized SQL if it is one read-only SELECT over objects of `schema`; raises ToolError if not."""
+    root = check_read_only(sql)
     ctes = {c.alias_or_name.lower() for c in root.find_all(exp.CTE)}
     for t in root.find_all(exp.Table):
         name, db = (t.name or "").lower(), (t.db or "").lower()
