@@ -1,0 +1,38 @@
+%% Esquema legado, auditado el 2026-11-02 (modo diccionario).
+%% Todas las relaciones son inferidas: el acceso no expone claves foráneas declaradas.
+%% Cada una se confirmó contando filas hijas sin padre (0 huérfanos en las tres).
+%% No se dibujan prvmst, vtadia ni ocpcab: las herramientas las nombran pero este usuario
+%% no las ve. La descripción de artmst.art_cd dice que vtadia.vta_art y ocpcab.ocp_art
+%% la referencian, sin confirmar.
+erDiagram
+    artmst ||..o{ exidet : "inferred"
+    almmst ||..o{ exidet : "inferred"
+    artmst ||..o{ artnot : "inferred"
+
+    artmst {
+        text art_cd PK "SKU-0001 a SKU-0200"
+        text art_dsc
+        text art_lin
+        number art_ptr
+        boolean art_crt
+    }
+
+    almmst {
+        integer alm_id PK "1 a 3"
+        text alm_dsc
+        text alm_cdd
+    }
+
+    exidet {
+        text exi_art PK, FK "artmst.art_cd"
+        integer exi_alm PK, FK "almmst.alm_id"
+        number exi_qty
+        timestamptz exi_fup
+    }
+
+    artnot {
+        integer not_id PK
+        text not_art FK "artmst.art_cd"
+        text not_txt
+        date not_fch
+    }
