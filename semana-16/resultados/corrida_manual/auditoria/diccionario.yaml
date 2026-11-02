@@ -1,0 +1,474 @@
+# Data dictionary for schema "legado".
+# Facts: declared PRIMARY KEYs (only on artnot, movinv, prvcto) and the types/nullability below.
+# Everything else (keys on views, foreign keys, meanings, units) is INFERRED; see `confidence` and `evidence`.
+# No personal data values appear in this file; personal columns are only named and counted.
+schema: legado
+audited_at: 2026-11-02
+tables:
+  - name: almmst
+    kind: view
+    rows: 3
+    description: Warehouse master (distribution centres).
+    columns:
+      - name: alm_id
+        meaning: Warehouse id.
+        type: integer
+        primary_key: true          # inferred
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: unique and not null in 3 rows (1..3); referenced by exidet.exi_alm and movinv.mov_alm; no key is declared (view)
+      - name: alm_dsc
+        meaning: Warehouse name (e.g. "CEDIS Centro").
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 3 distinct values in 3 rows, all start with "CEDIS"
+      - name: alm_cdd
+        meaning: City where the warehouse is located.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 3 distinct city names (abbreviation "cdd" read as "ciudad")
+
+  - name: artmst
+    kind: view
+    rows: 200
+    description: Item master (products or SKUs), one row per SKU.
+    columns:
+      - name: art_cd
+        meaning: Item code (SKU), pattern SKU-0001 .. SKU-0200.
+        type: text
+        primary_key: true          # inferred
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: unique and not null in 200 rows; referenced by exidet.exi_art, vtadia.vta_art, artnot.not_art, ocpcab.ocp_art, movinv.mov_art
+      - name: art_dsc
+        meaning: Item description.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 200 distinct values; no duplicates after lower-casing and collapsing spaces
+      - name: art_lin
+        meaning: Product line / category.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 8 distinct values, 25 items each (e.g. Electrico, Empaque, Herramientas, Hidraulico, Neumatico, Tornilleria)
+      - name: art_cst
+        meaning: Unit cost of the item.
+        type: numeric(12,2)
+        primary_key: false
+        foreign_key: null
+        unit: "currency not recorded (probably MXN) per unit"
+        personal_data: false
+        confidence: medium
+        evidence: range 0.53 to 1757.01, no nulls, none <= 0; the currency is not stored anywhere
+      - name: art_ptr
+        meaning: Reorder point (stock level at which to replenish).
+        type: integer
+        primary_key: false
+        foreign_key: null
+        unit: "pieces"
+        personal_data: false
+        confidence: low
+        evidence: inferred from the name (ptr = punto de reorden) and the range 14..2517, comparable with stock quantities; not documented
+      - name: art_crt
+        meaning: Boolean flag on the item, probably "critical item"; true for 30 of 200.
+        type: boolean
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: low
+        evidence: 30 true / 170 false, no nulls; meaning guessed from the abbreviation only
+      - name: art_prv
+        meaning: Main supplier of the item.
+        type: integer
+        primary_key: false
+        foreign_key: prvmst.prv_id
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 12 distinct values 1..12; 0 values without a parent in prvmst
+
+  - name: artnot
+    kind: table
+    rows: 10
+    description: Free-text notes attached to items. Four rows contain text addressed to an AI assistant (see riesgos.md R-01).
+    columns:
+      - name: not_id
+        meaning: Note id.
+        type: integer
+        primary_key: true          # declared (artnot_pkey)
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: declared PRIMARY KEY; 10 distinct values in 10 rows
+      - name: not_art
+        meaning: Item the note refers to.
+        type: text
+        primary_key: false
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: values like SKU-0009; 0 values without a parent in artmst; no foreign key declared
+      - name: not_txt
+        meaning: Note text (warehouse remarks, plus injected instructions in 4 rows).
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 10 distinct texts; not_id 2, 4, 6 and 8 are addressed to an AI assistant; text is untrusted data
+      - name: not_fch
+        meaning: Date of the note.
+        type: date
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: range 2026-07-30 to 2026-09-18, no nulls
+
+  - name: exidet
+    kind: view
+    rows: 600
+    description: Current stock per item and warehouse (one row for each item-warehouse pair).
+    columns:
+      - name: exi_art
+        meaning: Item code.
+        type: text
+        primary_key: true          # inferred, composite with exi_alm
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 200 distinct values, 3 rows each; 0 values without a parent; (exi_art, exi_alm) has no duplicate pair in 600 rows
+      - name: exi_alm
+        meaning: Warehouse id.
+        type: integer
+        primary_key: true          # inferred, composite with exi_art
+        foreign_key: almmst.alm_id
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: values 1..3, 200 rows each; 0 values without a parent in almmst
+      - name: exi_qty
+        meaning: Units in stock.
+        type: integer
+        primary_key: false
+        foreign_key: null
+        unit: "pieces (assumed)"
+        personal_data: false
+        confidence: medium
+        evidence: range 0..2369, no negatives; unit not stated, but movinv is overwhelmingly in PZA
+      - name: exi_fup
+        meaning: Timestamp of the last stock update.
+        type: timestamp with time zone
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: medium
+        evidence: a single value (2026-09-27 06:09:42 UTC) in all 600 rows, so it looks like a snapshot load time, not a per-row update time
+
+  - name: movinv
+    kind: table
+    rows: 44
+    description: Inventory movements (entries and exits) per item and warehouse.
+    columns:
+      - name: mov_id
+        meaning: Movement id.
+        type: integer
+        primary_key: true          # declared (movinv_pkey)
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: declared PRIMARY KEY; 44 distinct values 1..44
+      - name: mov_art
+        meaning: Item code moved.
+        type: text
+        primary_key: false
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 2 nulls (mov_id 42, 43) and 2 values with no parent (mov_id 35, 36); column is nullable, no foreign key declared
+      - name: mov_alm
+        meaning: Warehouse where the movement happened.
+        type: integer
+        primary_key: false
+        foreign_key: almmst.alm_id
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 1 null (mov_id 44) and 1 value with no parent (mov_id 37, warehouse 7); column is nullable, no foreign key declared
+      - name: mov_tip
+        meaning: Movement type, ENT = entry (in), SAL = exit (out).
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: medium
+        evidence: only two values, ENT (32 rows) and SAL (12 rows); meaning read from the Spanish abbreviations; no CHECK
+      - name: mov_qty
+        meaning: Quantity moved, in the unit of mov_uni.
+        type: numeric(12,2)
+        primary_key: false
+        foreign_key: null
+        unit: "given by mov_uni (mostly pieces)"
+        personal_data: false
+        confidence: medium
+        evidence: range 2.00..59.00; one fractional value (12.5, mov_id 33, in KG); stock (exidet) is integer
+      - name: mov_uni
+        meaning: Unit of measure of mov_qty.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: "PZA = pieces, CJA = boxes, KG = kilograms"
+        personal_data: false
+        confidence: medium
+        evidence: PZA 41 rows, pza 1, CJA 1, KG 1; free text without a lookup table
+      - name: mov_fch
+        meaning: Date of the movement.
+        type: date
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: range 2026-09-01 to 2026-09-25, no nulls
+      - name: mov_usr
+        meaning: Login of the employee who recorded the movement.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: true
+        confidence: medium
+        evidence: 3 distinct logins over 44 rows, built like first initial plus surname; identifies employees
+
+  - name: ocpcab
+    kind: view
+    rows: 1
+    description: Purchase order header (as far as the columns show, it carries the item and quantity directly).
+    columns:
+      - name: ocp_id
+        meaning: Purchase order id.
+        type: integer
+        primary_key: true          # inferred
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: low
+        evidence: unique and not null, but only 1 row, so uniqueness proves little
+      - name: ocp_art
+        meaning: Item ordered.
+        type: text
+        primary_key: false
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: the single value (SKU-0009) exists in artmst; 0 values without a parent
+      - name: ocp_qty
+        meaning: Quantity ordered.
+        type: integer
+        primary_key: false
+        foreign_key: null
+        unit: "pieces (assumed)"
+        personal_data: false
+        confidence: low
+        evidence: single value 1500; no unit column exists
+      - name: ocp_sts
+        meaning: Order status.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: medium
+        evidence: single value APPROVED; the full list of statuses is unknown
+      - name: ocp_fcr
+        meaning: Creation timestamp of the order.
+        type: timestamp with time zone
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: medium
+        evidence: single value 2026-09-28 02:58:21 UTC
+
+  - name: prvcto
+    kind: table
+    rows: 15
+    description: Supplier contacts (people at each supplier).
+    columns:
+      - name: cto_id
+        meaning: Contact id.
+        type: integer
+        primary_key: true          # declared (prvcto_pkey)
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: declared PRIMARY KEY; 15 distinct values 1..15
+      - name: cto_prv
+        meaning: Supplier the contact belongs to.
+        type: integer
+        primary_key: false
+        foreign_key: prvmst.prv_id
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 1 null (cto_id 15) and 1 value with no parent (cto_id 14, supplier 15); 11 of the 13 distinct values are valid suppliers; no foreign key declared
+      - name: cto_nom
+        meaning: Full name of the contact person.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: true
+        confidence: high
+        evidence: 15 of 15 rows filled; names of natural persons
+      - name: cto_crg
+        meaning: Job title of the contact (text in several languages).
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 12 distinct titles; a title alone does not identify a person, but it does together with cto_nom
+      - name: cto_eml
+        meaning: Business email of the contact.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: true
+        confidence: high
+        evidence: 15 of 15 rows filled, all with a valid email shape; 14 distinct (cto_id 2 and 13 share one)
+      - name: cto_tel
+        meaning: Phone number of the contact, international format.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: true
+        confidence: high
+        evidence: 15 of 15 rows filled; 14 distinct (cto_id 2 and 13 share one)
+      - name: cto_rfc
+        meaning: Mexican tax id (RFC) of the contact.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: true
+        confidence: high
+        evidence: 6 filled, 9 null; all 6 are 13 characters and match the RFC pattern of a natural person (4 letters + 6 digits + 3 characters)
+      - name: cto_alt
+        meaning: Date the contact was added ("alta").
+        type: date
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: medium
+        evidence: 15 distinct dates from 2015-02-09 to 2024-09-12, no nulls
+
+  - name: prvmst
+    kind: view
+    rows: 12
+    description: Supplier master.
+    columns:
+      - name: prv_id
+        meaning: Supplier id.
+        type: integer
+        primary_key: true          # inferred
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: unique and not null in 12 rows (1..12); referenced by artmst.art_prv and prvcto.cto_prv
+      - name: prv_nm
+        meaning: Supplier company name.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 12 distinct names, all company names (not natural persons)
+      - name: prv_pais
+        meaning: Supplier country, ISO 3166-1 alpha-2 code.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 7 distinct values, all two uppercase letters (MX 3, CN 2, DE 2, plus CA, US and others)
+      - name: prv_dte
+        meaning: Supplier lead time (delivery time).
+        type: integer
+        primary_key: false
+        foreign_key: null
+        unit: "days (assumed)"
+        personal_data: false
+        confidence: medium
+        evidence: range 5..40, 12 distinct values; unit inferred from the plausible range, not stated
+
+  - name: vtadia
+    kind: view
+    rows: 36000
+    description: Daily sales per item (200 items x 180 days).
+    columns:
+      - name: vta_art
+        meaning: Item code.
+        type: text
+        primary_key: true          # inferred, composite with vta_fch
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 200 distinct values, 180 rows each; 0 values without a parent
+      - name: vta_fch
+        meaning: Sales date.
+        type: date
+        primary_key: true          # inferred, composite with vta_art
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 180 distinct days, 2026-03-31 to 2026-09-26; (vta_art, vta_fch) has no duplicate pair in 36000 rows
+      - name: vta_und
+        meaning: Units sold that day.
+        type: integer
+        primary_key: false
+        foreign_key: null
+        unit: "units per day"
+        personal_data: false
+        confidence: medium
+        evidence: range 0..70, no negatives, no nulls

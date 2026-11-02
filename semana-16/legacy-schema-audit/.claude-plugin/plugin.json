@@ -1,0 +1,25 @@
+{
+  "name": "legacy-schema-audit",
+  "displayName": "Legacy Schema Audit",
+  "version": "0.1.0",
+  "description": "Read-only audit of a legacy database schema: data dictionary, ER relationships, risks with SQL evidence, and an executive summary for non-technical buyers.",
+  "author": {"name": "Manuel Corona"},
+  "homepage": "https://github.com/mcorona/genai-engineering-lab",
+  "license": "MIT",
+  "keywords": ["legacy", "database", "audit", "data-dictionary", "data-quality", "pii", "postgresql"],
+  "userConfig": {
+    "pg_dsn": {
+      "type": "string",
+      "title": "Read-only PostgreSQL DSN",
+      "description": "Connection string of a role with SELECT grants only (postgresql://user:password@host:5432/db). Stored in the system keychain. Leave empty to audit through a remote MCP server instead.",
+      "sensitive": true,
+      "required": false
+    },
+    "audit_schema": {
+      "type": "string",
+      "title": "Schema to audit",
+      "description": "The only schema the bundled SQL server can read.",
+      "default": "legado"
+    }
+  }
+}
