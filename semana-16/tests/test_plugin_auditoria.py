@@ -161,3 +161,11 @@ def test_protocolo_mcp_por_stdio():
 ])
 def test_configuracion_desde_el_entorno(env, esperado):
     assert srv.config_from_env(env) == esperado
+
+
+def test_el_servidor_dice_que_no_puede_modificar_datos():
+    """La eval de la actividad 5 (caso 10) encontró que el modelo ofrecía borrar filas cuando la skill no se disparaba."""
+    d = next(t for t in srv.TOOLS if t["name"] == "run_select")["description"]
+    assert "never offer to run it" in d and "only have read access" in d
+    mock = json.loads((PLUGIN / "evals" / "mocks" / "legacy-sql" / "_tools.json").read_text())["tools"]
+    assert [t["description"] for t in mock] == [t["description"] for t in srv.TOOLS]

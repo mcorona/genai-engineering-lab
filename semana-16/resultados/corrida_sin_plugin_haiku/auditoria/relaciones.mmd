@@ -1,0 +1,87 @@
+%% Diagrama entidad-relación del esquema legado (auditoría 2026-11-02)
+%% Las relaciones son inferidas de los datos: ninguna FK está declarada en la base.
+%% Las vistas (almmst, artmst, exidet, ocpcab, prvmst, vtadia) no declaran claves: sus PK son inferidas.
+%% Las tablas (artnot, movinv, prvcto) sí declaran PK, pero ninguna columna de referencia tiene FK declarada.
+erDiagram
+    prvmst ||--o{ artmst : "prv_id = art_prv (inferida)"
+    prvmst ||--o{ prvcto : "prv_id = cto_prv (sin FK declarada)"
+    artmst ||--o{ artnot : "art_cd = not_art (sin FK declarada)"
+    artmst ||--o{ exidet : "art_cd = exi_art (inferida)"
+    almmst ||--o{ exidet : "alm_id = exi_alm (inferida)"
+    artmst ||--o{ movinv : "art_cd = mov_art (sin FK declarada)"
+    almmst ||--o{ movinv : "alm_id = mov_alm (sin FK declarada)"
+    artmst ||--o{ vtadia : "art_cd = vta_art (inferida)"
+    artmst ||--o{ ocpcab : "art_cd = ocp_art (inferida)"
+
+    almmst {
+        integer alm_id PK "inferida"
+        text alm_dsc "nombre del CEDIS"
+        text alm_cdd "ciudad"
+    }
+
+    prvmst {
+        integer prv_id PK "inferida"
+        text prv_nm "nombre del proveedor"
+        text prv_pais "código ISO de país"
+        integer prv_dte "plazo de entrega (días, supuesto)"
+    }
+
+    artmst {
+        text art_cd PK "inferida; SKU"
+        text art_dsc "descripción"
+        text art_lin "línea de producto"
+        numeric art_cst "costo unitario (moneda no documentada)"
+        integer art_ptr "no documentado"
+        boolean art_crt "no documentado"
+        integer art_prv FK "proveedor principal"
+    }
+
+    artnot {
+        integer not_id PK
+        text not_art FK "artículo"
+        text not_txt "texto libre; posible dato personal"
+        date not_fch "fecha de la nota"
+    }
+
+    exidet {
+        text exi_art PK "compuesta, inferida"
+        integer exi_alm PK "compuesta, inferida"
+        integer exi_qty "existencia (unidades, supuesto)"
+        timestamptz exi_fup "última actualización"
+    }
+
+    movinv {
+        integer mov_id PK
+        text mov_art FK "artículo; 2 nulos y 2 inexistentes"
+        integer mov_alm FK "almacén; 1 nulo y 1 inexistente"
+        text mov_tip "ENT o SAL"
+        numeric mov_qty "cantidad"
+        text mov_uni "unidad de medida"
+        date mov_fch "fecha del movimiento"
+        text mov_usr "usuario; dato personal"
+    }
+
+    ocpcab {
+        integer ocp_id PK "inferida; 1 fila"
+        text ocp_art FK "artículo"
+        integer ocp_qty "cantidad ordenada (unidades, supuesto)"
+        text ocp_sts "estatus"
+        timestamptz ocp_fcr "fecha de creación"
+    }
+
+    prvcto {
+        integer cto_id PK
+        integer cto_prv FK "proveedor; 1 nulo y 1 inexistente"
+        text cto_nom "nombre; dato personal"
+        text cto_crg "cargo; dato indirecto"
+        text cto_eml "correo; dato personal"
+        text cto_tel "teléfono; dato personal"
+        text cto_rfc "RFC; dato personal"
+        date cto_alt "fecha de alta; dato indirecto"
+    }
+
+    vtadia {
+        text vta_art PK "compuesta, inferida"
+        date vta_fch PK "compuesta, inferida"
+        integer vta_und "unidades vendidas (supuesto)"
+    }

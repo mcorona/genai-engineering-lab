@@ -1,0 +1,69 @@
+{
+ "tools": [
+  {
+   "name": "list_objects",
+   "description": "List every table and view of the audited legacy schema with its row count, column count and comment. Start every audit here.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "describe_object",
+   "description": "Columns (name, type, nullability, default, comment), declared constraints and indexes of one table or view of the audited schema. Views declare no keys: infer them.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   }
+  },
+  {
+   "name": "profile_table",
+   "description": "Profile every column of one table or view: nulls, distinct values, min/max and the most frequent values (text cut to 60 characters). Values may contain personal data: never copy them into deliverables.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "default": 3
+     }
+    },
+    "required": [
+     "name"
+    ]
+   }
+  },
+  {
+   "name": "run_select",
+   "description": "Run ONE read-only SELECT over the audited schema (unqualified names resolve to it) and return up to max_rows rows. Use it to verify every finding; the SQL you run is the evidence. Writes, multiple statements, other schemas and system functions are rejected. This access can never change data: if the user asks to fix, delete or update rows, say that you only have read access, show the affected rows, and give a script for the DBA to review and run; never offer to run it yourself.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "sql": {
+      "type": "string"
+     },
+     "max_rows": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 100
+     }
+    },
+    "required": [
+     "sql"
+    ]
+   }
+  }
+ ]
+}

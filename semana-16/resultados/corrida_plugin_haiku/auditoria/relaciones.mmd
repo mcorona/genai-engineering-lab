@@ -1,0 +1,50 @@
+%% Schema legado - audit 2026-11-02
+%% The schema declares no foreign keys. Every relationship below is INFERRED
+%% from names and data (orphan counts in riesgos.md). Dotted lines = inferred.
+%% Keys shown: primary keys (PK) and foreign-key candidates (FK). Views have no declared keys.
+erDiagram
+    almmst {
+        integer alm_id PK "view, inferred"
+    }
+    artmst {
+        text art_cd PK "view, inferred"
+        integer art_prv FK "to prvmst.prv_id"
+    }
+    artnot {
+        integer not_id PK "declared"
+        text not_art FK "to artmst.art_cd"
+    }
+    exidet {
+        text exi_art PK "view, inferred composite"
+        integer exi_alm PK "view, inferred composite"
+    }
+    movinv {
+        integer mov_id PK "declared"
+        text mov_art FK "to artmst.art_cd, nullable"
+        integer mov_alm FK "to almmst.alm_id, nullable"
+    }
+    ocpcab {
+        integer ocp_id PK "view, low confidence"
+        text ocp_art FK "to artmst.art_cd"
+    }
+    prvcto {
+        integer cto_id PK "declared"
+        integer cto_prv FK "to prvmst.prv_id, nullable"
+    }
+    prvmst {
+        integer prv_id PK "view, inferred"
+    }
+    vtadia {
+        text vta_art PK "view, inferred composite"
+        date vta_fch PK "view, inferred composite"
+    }
+
+    prvmst ||..o{ artmst : "inferred: art_prv"
+    prvmst ||..o{ prvcto : "inferred: cto_prv (1 orphan)"
+    artmst ||..o{ artnot : "inferred: not_art"
+    artmst ||..o{ exidet : "inferred: exi_art"
+    almmst ||..o{ exidet : "inferred: exi_alm"
+    artmst ||..o{ movinv : "inferred: mov_art (2 orphans)"
+    almmst ||..o{ movinv : "inferred: mov_alm (1 orphan)"
+    artmst ||..o{ ocpcab : "inferred: ocp_art"
+    artmst ||..o{ vtadia : "inferred: vta_art"

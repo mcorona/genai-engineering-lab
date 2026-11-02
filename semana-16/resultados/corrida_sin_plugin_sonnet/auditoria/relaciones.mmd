@@ -1,0 +1,94 @@
+%% Diagrama entidad-relación del esquema "legado" - auditoría 2026-11-02
+%%
+%% IMPORTANTE: la base de datos NO declara ninguna clave foránea. Todas las relaciones de este
+%% diagrama están INFERIDAS por nombre y contenido de las columnas y verificadas con SELECT
+%% (ver riesgos.md, R-01). Solo artnot.not_id, movinv.mov_id y prvcto.cto_id son PK declaradas;
+%% el resto de PK son inferidas (únicas y sin nulos en los datos).
+%%
+%% Cardinalidad: "||" = exactamente un padre (FK NOT NULL); "|o" = cero o un padre (FK admite nulo).
+%% Relaciones con huérfanos hoy: movinv->artmst (4 de 44), movinv->almmst (2 de 44), prvcto->prvmst (2 de 15).
+%% Entidades marcadas [V] son vistas (sin restricciones propias); [T] son tablas.
+
+erDiagram
+    prvmst ||--o{ artmst : "art_prv - 0 huerfanos"
+    prvmst |o--o{ prvcto : "cto_prv - 2 huerfanos (1 inexistente, 1 nulo)"
+    artmst ||--o{ exidet : "exi_art - 0 huerfanos"
+    almmst ||--o{ exidet : "exi_alm - 0 huerfanos"
+    artmst ||--o{ vtadia : "vta_art - 0 huerfanos"
+    artmst ||--o{ artnot : "not_art - 0 huerfanos"
+    artmst ||--o{ ocpcab : "ocp_art - 0 huerfanos"
+    artmst |o--o{ movinv : "mov_art - 4 huerfanos (2 inexistentes, 2 nulos)"
+    almmst |o--o{ movinv : "mov_alm - 2 huerfanos (1 inexistente, 1 nulo)"
+
+    almmst {
+        int alm_id PK "inferida [V]"
+        text alm_dsc
+        text alm_cdd
+    }
+
+    prvmst {
+        int prv_id PK "inferida [V]"
+        text prv_nm
+        text prv_pais "ISO-2"
+        int prv_dte "dias de entrega (inferido)"
+    }
+
+    artmst {
+        text art_cd PK "inferida [V]"
+        text art_dsc
+        text art_lin
+        numeric art_cst "numeric(12,2) moneda no documentada"
+        int art_ptr "punto de reorden (inferido)"
+        boolean art_crt "critico (inferido)"
+        int art_prv FK
+    }
+
+    exidet {
+        text exi_art PK, FK "PK compuesta inferida [V]"
+        int exi_alm PK, FK "PK compuesta inferida"
+        int exi_qty
+        timestamptz exi_fup "misma marca en las 600 filas"
+    }
+
+    vtadia {
+        text vta_art PK, FK "PK compuesta inferida [V]"
+        date vta_fch PK "PK compuesta inferida"
+        int vta_und
+    }
+
+    ocpcab {
+        int ocp_id PK "inferida [V]"
+        text ocp_art FK
+        int ocp_qty
+        text ocp_sts "solo APPROVED"
+        timestamptz ocp_fcr
+    }
+
+    artnot {
+        int not_id PK "declarada [T]"
+        text not_art FK "sin constraint"
+        text not_txt "texto libre, ver R-04"
+        date not_fch
+    }
+
+    movinv {
+        int mov_id PK "declarada [T]"
+        text mov_art FK "nullable, sin constraint"
+        int mov_alm FK "nullable, sin constraint"
+        text mov_tip "ENT o SAL"
+        numeric mov_qty "numeric(12,2) segun mov_uni"
+        text mov_uni "PZA pza CJA KG"
+        date mov_fch
+        text mov_usr "dato personal"
+    }
+
+    prvcto {
+        int cto_id PK "declarada [T]"
+        int cto_prv FK "nullable, sin constraint"
+        text cto_nom "dato personal"
+        text cto_crg
+        text cto_eml "dato personal"
+        text cto_tel "dato personal"
+        text cto_rfc "dato personal, nullable"
+        date cto_alt
+    }

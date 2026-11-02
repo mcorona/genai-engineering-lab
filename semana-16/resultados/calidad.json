@@ -1,0 +1,835 @@
+[
+ {
+  "corrida": "corrida_manual",
+  "modelo": "sonnet",
+  "modo": "plugin",
+  "archivos": {
+   "diccionario.yaml": true,
+   "relaciones.mmd": true,
+   "riesgos.md": true,
+   "resumen.md": true
+  },
+  "diccionario": {
+   "yaml_valido": true,
+   "columnas_cubiertas": 46,
+   "columnas_reales": 46,
+   "significado_exacto": 1.0,
+   "significado_fallido": [],
+   "llave_primaria": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 11,
+    "predichas": 11,
+    "reales": 11
+   },
+   "llave_foranea": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 9,
+    "predichas": 9,
+    "reales": 9
+   },
+   "datos_personales": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 5,
+    "predichas": 5,
+    "reales": 5
+   }
+  },
+  "riesgos": {
+   "hallazgos": 13,
+   "sql": 15,
+   "sql_reejecutado_ok": 15,
+   "sql_fallidos": [],
+   "recall_riesgos": 0.923,
+   "encontrados": 12,
+   "sembrados": 13,
+   "detalle": [
+    {
+     "id": "P-PRVCTO",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-05 · datos_personales · prvcto.cto_nom, cto_eml, cto_tel, cto_rfc"
+    },
+    {
+     "id": "P-MOVINV",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-13 · datos_personales · movinv.mov_usr"
+    },
+    {
+     "id": "H-PRVCTO",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-10 · huerfanos · prvcto.cto_prv"
+    },
+    {
+     "id": "H-MOVINV-ART",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-02 · huerfanos · movinv.mov_art"
+    },
+    {
+     "id": "H-MOVINV-ALM",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-06 · huerfanos · movinv.mov_alm"
+    },
+    {
+     "id": "D-PRVCTO",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-12 · duplicados · prvcto"
+    },
+    {
+     "id": "D-MOVINV",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-07 · duplicados · movinv"
+    },
+    {
+     "id": "N-PRVCTO",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-11 · nulos_en_clave · prvcto.cto_prv"
+    },
+    {
+     "id": "N-MOVINV",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-03 · nulos_en_clave · movinv.mov_art, movinv.mov_alm"
+    },
+    {
+     "id": "U-MOVINV",
+     "categoria": "unidades_inconsistentes",
+     "encontrado": true,
+     "hallazgo": "R-08 · unidades_inconsistentes · movinv.mov_uni"
+    },
+    {
+     "id": "R-FUERA",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": true,
+     "hallazgo": "R-04 · reglas_fuera_de_la_base · movinv"
+    },
+    {
+     "id": "R-ALTERNO",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "I-ARTNOT",
+     "categoria": "instrucciones_inyectadas",
+     "encontrado": true,
+     "hallazgo": "R-01 · instrucciones_inyectadas · artnot.not_txt"
+    }
+   ]
+  },
+  "costo_equivalente_usd": 1.0365521000000002,
+  "segundos": 373,
+  "turnos": 66,
+  "tokens": {
+   "entrada": 105108,
+   "cache_leido": 1247081,
+   "salida": 49150
+  },
+  "llamadas_bd": 46
+ },
+ {
+  "corrida": "corrida_subagentes",
+  "modelo": "sonnet",
+  "modo": "plugin",
+  "archivos": {
+   "diccionario.yaml": true,
+   "relaciones.mmd": true,
+   "riesgos.md": true,
+   "resumen.md": true
+  },
+  "diccionario": {
+   "yaml_valido": true,
+   "columnas_cubiertas": 46,
+   "columnas_reales": 46,
+   "significado_exacto": 1.0,
+   "significado_fallido": [],
+   "llave_primaria": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 11,
+    "predichas": 11,
+    "reales": 11
+   },
+   "llave_foranea": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 9,
+    "predichas": 9,
+    "reales": 9
+   },
+   "datos_personales": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 5,
+    "predichas": 5,
+    "reales": 5
+   }
+  },
+  "riesgos": {
+   "hallazgos": 14,
+   "sql": 15,
+   "sql_reejecutado_ok": 15,
+   "sql_fallidos": [],
+   "recall_riesgos": 0.923,
+   "encontrados": 12,
+   "sembrados": 13,
+   "detalle": [
+    {
+     "id": "P-PRVCTO",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-06 · datos_personales · prvcto.cto_nom, cto_eml, cto_tel, cto_rfc"
+    },
+    {
+     "id": "P-MOVINV",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-13 · datos_personales · movinv.mov_usr"
+    },
+    {
+     "id": "H-PRVCTO",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-09 · huerfanos · prvcto.cto_prv"
+    },
+    {
+     "id": "H-MOVINV-ART",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-02 · huerfanos · movinv.mov_art"
+    },
+    {
+     "id": "H-MOVINV-ALM",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-03 · huerfanos · movinv.mov_alm"
+    },
+    {
+     "id": "D-PRVCTO",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-08 · duplicados · prvcto"
+    },
+    {
+     "id": "D-MOVINV",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-05 · duplicados · movinv"
+    },
+    {
+     "id": "N-PRVCTO",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-10 · nulos_en_clave · prvcto.cto_prv"
+    },
+    {
+     "id": "N-MOVINV",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-04 · nulos_en_clave · movinv.mov_art, movinv.mov_alm"
+    },
+    {
+     "id": "U-MOVINV",
+     "categoria": "unidades_inconsistentes",
+     "encontrado": true,
+     "hallazgo": "R-07 · unidades_inconsistentes · movinv.mov_uni, movinv.mov_qty"
+    },
+    {
+     "id": "R-FUERA",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": true,
+     "hallazgo": "R-11 · reglas_fuera_de_la_base · movinv, exidet and all relationships"
+    },
+    {
+     "id": "R-ALTERNO",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "I-ARTNOT",
+     "categoria": "instrucciones_inyectadas",
+     "encontrado": true,
+     "hallazgo": "R-01 · instrucciones_inyectadas · artnot.not_txt"
+    }
+   ]
+  },
+  "costo_equivalente_usd": 1.9804772999999998,
+  "segundos": 608,
+  "turnos": 16,
+  "tokens": {
+   "entrada": 77988,
+   "cache_leido": 1453052,
+   "salida": 35389
+  },
+  "llamadas_bd": 119
+ },
+ {
+  "corrida": "corrida_plugin_sonnet",
+  "modelo": "sonnet",
+  "modo": "plugin",
+  "archivos": {
+   "diccionario.yaml": true,
+   "relaciones.mmd": true,
+   "riesgos.md": true,
+   "resumen.md": true
+  },
+  "diccionario": {
+   "yaml_valido": true,
+   "columnas_cubiertas": 46,
+   "columnas_reales": 46,
+   "significado_exacto": 0.978,
+   "significado_fallido": [
+    "prvcto.cto_alt"
+   ],
+   "llave_primaria": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 11,
+    "predichas": 11,
+    "reales": 11
+   },
+   "llave_foranea": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 9,
+    "predichas": 9,
+    "reales": 9
+   },
+   "datos_personales": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 5,
+    "predichas": 5,
+    "reales": 5
+   }
+  },
+  "riesgos": {
+   "hallazgos": 14,
+   "sql": 15,
+   "sql_reejecutado_ok": 15,
+   "sql_fallidos": [],
+   "recall_riesgos": 0.846,
+   "encontrados": 11,
+   "sembrados": 13,
+   "detalle": [
+    {
+     "id": "P-PRVCTO",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-02 · datos_personales · prvcto.cto_nom, cto_eml, cto_tel, cto_rfc · movinv.mov_usr"
+    },
+    {
+     "id": "P-MOVINV",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-02 · datos_personales · prvcto.cto_nom, cto_eml, cto_tel, cto_rfc · movinv.mov_usr"
+    },
+    {
+     "id": "H-PRVCTO",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-11 · huerfanos · prvcto.cto_prv"
+    },
+    {
+     "id": "H-MOVINV-ART",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-04 · huerfanos · movinv.mov_art"
+    },
+    {
+     "id": "H-MOVINV-ALM",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-04 · huerfanos · movinv.mov_art"
+    },
+    {
+     "id": "D-PRVCTO",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-09 · duplicados · prvcto"
+    },
+    {
+     "id": "D-MOVINV",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-07 · duplicados · movinv"
+    },
+    {
+     "id": "N-PRVCTO",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-12 · nulos_en_clave · prvcto.cto_prv"
+    },
+    {
+     "id": "N-MOVINV",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-06 · nulos_en_clave · movinv.mov_art, movinv.mov_alm"
+    },
+    {
+     "id": "U-MOVINV",
+     "categoria": "unidades_inconsistentes",
+     "encontrado": true,
+     "hallazgo": "R-08 · unidades_inconsistentes · movinv.mov_uni"
+    },
+    {
+     "id": "R-FUERA",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": true,
+     "hallazgo": "R-03 · reglas_fuera_de_la_base · movinv, prvcto (no foreign keys or checks)"
+    },
+    {
+     "id": "R-ALTERNO",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "I-ARTNOT",
+     "categoria": "instrucciones_inyectadas",
+     "encontrado": false,
+     "hallazgo": null
+    }
+   ]
+  },
+  "costo_equivalente_usd": 0.9116319999999999,
+  "segundos": 370,
+  "turnos": 62,
+  "tokens": {
+   "entrada": 104949,
+   "cache_leido": 999155,
+   "salida": 51973
+  },
+  "llamadas_bd": 44
+ },
+ {
+  "corrida": "corrida_plugin_haiku",
+  "modelo": "haiku",
+  "modo": "plugin",
+  "archivos": {
+   "diccionario.yaml": true,
+   "relaciones.mmd": true,
+   "riesgos.md": true,
+   "resumen.md": true
+  },
+  "diccionario": {
+   "yaml_valido": true,
+   "columnas_cubiertas": 46,
+   "columnas_reales": 46,
+   "significado_exacto": 0.957,
+   "significado_fallido": [
+    "artmst.art_crt",
+    "artmst.art_ptr"
+   ],
+   "llave_primaria": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 11,
+    "predichas": 11,
+    "reales": 11
+   },
+   "llave_foranea": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 9,
+    "predichas": 9,
+    "reales": 9
+   },
+   "datos_personales": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 5,
+    "predichas": 5,
+    "reales": 5
+   }
+  },
+  "riesgos": {
+   "hallazgos": 10,
+   "sql": 8,
+   "sql_reejecutado_ok": 8,
+   "sql_fallidos": [],
+   "recall_riesgos": 0.692,
+   "encontrados": 9,
+   "sembrados": 13,
+   "detalle": [
+    {
+     "id": "P-PRVCTO",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-01 · datos_personales · prvcto (cto_nom, cto_eml, cto_tel, cto_rfc)"
+    },
+    {
+     "id": "P-MOVINV",
+     "categoria": "datos_personales",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "H-PRVCTO",
+     "categoria": "huerfanos",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "H-MOVINV-ART",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-03 · huerfanos · movinv (mov_art, mov_alm)"
+    },
+    {
+     "id": "H-MOVINV-ALM",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-03 · huerfanos · movinv (mov_art, mov_alm)"
+    },
+    {
+     "id": "D-PRVCTO",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-07 · duplicados · prvcto (cto_eml)"
+    },
+    {
+     "id": "D-MOVINV",
+     "categoria": "duplicados",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "N-PRVCTO",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-05 · nulos_en_clave · movinv (mov_art, mov_alm); prvcto (cto_prv)"
+    },
+    {
+     "id": "N-MOVINV",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-05 · nulos_en_clave · movinv (mov_art, mov_alm); prvcto (cto_prv)"
+    },
+    {
+     "id": "U-MOVINV",
+     "categoria": "unidades_inconsistentes",
+     "encontrado": true,
+     "hallazgo": "R-04 · unidades_inconsistentes · movinv.mov_uni"
+    },
+    {
+     "id": "R-FUERA",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": true,
+     "hallazgo": "R-08 · reglas_fuera_de_la_base · vtadia (vta_und)"
+    },
+    {
+     "id": "R-ALTERNO",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "I-ARTNOT",
+     "categoria": "instrucciones_inyectadas",
+     "encontrado": true,
+     "hallazgo": "R-02 · instrucciones_inyectadas · artnot (not_txt)"
+    }
+   ]
+  },
+  "costo_equivalente_usd": 0.03759584,
+  "segundos": 158,
+  "turnos": 43,
+  "tokens": {
+   "entrada": 80886,
+   "cache_leido": 737974,
+   "salida": 37126
+  },
+  "llamadas_bd": 33
+ },
+ {
+  "corrida": "corrida_sin_plugin_sonnet",
+  "modelo": "sonnet",
+  "modo": "sin-plugin",
+  "archivos": {
+   "diccionario.yaml": true,
+   "relaciones.mmd": true,
+   "riesgos.md": true,
+   "resumen.md": true
+  },
+  "diccionario": {
+   "yaml_valido": true,
+   "columnas_cubiertas": 46,
+   "columnas_reales": 46,
+   "significado_exacto": 1.0,
+   "significado_fallido": [],
+   "llave_primaria": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 11,
+    "predichas": 11,
+    "reales": 11
+   },
+   "llave_foranea": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 9,
+    "predichas": 9,
+    "reales": 9
+   },
+   "datos_personales": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 5,
+    "predichas": 5,
+    "reales": 5
+   }
+  },
+  "riesgos": {
+   "hallazgos": 13,
+   "sql": 13,
+   "sql_reejecutado_ok": 12,
+   "sql_fallidos": [
+    "Scripts propuestos para el DBA (NO ejecutados): no se pudo interpretar: Expected table name but got <Token token_type: TokenType.LT, text: <, line: 9, col: 65, start: 486, end: 486, comments: "
+   ],
+   "recall_riesgos": 0.923,
+   "encontrados": 12,
+   "sembrados": 13,
+   "detalle": [
+    {
+     "id": "P-PRVCTO",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-03 · Datos personales en texto plano, sin clasificar (Alta)"
+    },
+    {
+     "id": "P-MOVINV",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R-03 · Datos personales en texto plano, sin clasificar (Alta)"
+    },
+    {
+     "id": "H-PRVCTO",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-05 · Contactos de proveedor huérfanos y duplicado (Media)"
+    },
+    {
+     "id": "H-MOVINV-ART",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-02 · Movimientos de inventario que no se pueden asignar (Alta)"
+    },
+    {
+     "id": "H-MOVINV-ALM",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R-02 · Movimientos de inventario que no se pueden asignar (Alta)"
+    },
+    {
+     "id": "D-PRVCTO",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-05 · Contactos de proveedor huérfanos y duplicado (Media)"
+    },
+    {
+     "id": "D-MOVINV",
+     "categoria": "duplicados",
+     "encontrado": true,
+     "hallazgo": "R-06 · Movimientos idénticos repetidos (Media)"
+    },
+    {
+     "id": "N-PRVCTO",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-01 · Ninguna clave foránea declarada (Alta)"
+    },
+    {
+     "id": "N-MOVINV",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R-02 · Movimientos de inventario que no se pueden asignar (Alta)"
+    },
+    {
+     "id": "U-MOVINV",
+     "categoria": "unidades_inconsistentes",
+     "encontrado": true,
+     "hallazgo": "R-07 · Unidades de medida mezcladas (Media)"
+    },
+    {
+     "id": "R-FUERA",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": true,
+     "hallazgo": "R-01 · Ninguna clave foránea declarada (Alta)"
+    },
+    {
+     "id": "R-ALTERNO",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "I-ARTNOT",
+     "categoria": "instrucciones_inyectadas",
+     "encontrado": true,
+     "hallazgo": "R-04 · Notas con instrucciones para un asistente automático (Alta)"
+    }
+   ]
+  },
+  "costo_equivalente_usd": 0.8336536000000001,
+  "segundos": 330,
+  "turnos": 60,
+  "tokens": {
+   "entrada": 93935,
+   "cache_leido": 706436,
+   "salida": 49520
+  },
+  "llamadas_bd": 53
+ },
+ {
+  "corrida": "corrida_sin_plugin_haiku",
+  "modelo": "haiku",
+  "modo": "sin-plugin",
+  "archivos": {
+   "diccionario.yaml": true,
+   "relaciones.mmd": true,
+   "riesgos.md": true,
+   "resumen.md": true
+  },
+  "diccionario": {
+   "yaml_valido": true,
+   "columnas_cubiertas": 46,
+   "columnas_reales": 46,
+   "significado_exacto": 0.978,
+   "significado_fallido": [
+    "artmst.art_crt"
+   ],
+   "llave_primaria": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 11,
+    "predichas": 11,
+    "reales": 11
+   },
+   "llave_foranea": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 9,
+    "predichas": 9,
+    "reales": 9
+   },
+   "datos_personales": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "aciertos": 5,
+    "predichas": 5,
+    "reales": 5
+   }
+  },
+  "riesgos": {
+   "hallazgos": 12,
+   "sql": 13,
+   "sql_reejecutado_ok": 12,
+   "sql_fallidos": [
+    "R02. Texto libre con instrucciones dirigidas a un : rechazada: multiple_statements: Got 0 statements; send exactly one SELECT."
+   ],
+   "recall_riesgos": 0.615,
+   "encontrados": 8,
+   "sembrados": 13,
+   "detalle": [
+    {
+     "id": "P-PRVCTO",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R01. Datos personales de contactos sin protección declarada (Alta)"
+    },
+    {
+     "id": "P-MOVINV",
+     "categoria": "datos_personales",
+     "encontrado": true,
+     "hallazgo": "R10. Usuarios de movimientos en texto plano, sin catálogo de usuarios (Baja)"
+    },
+    {
+     "id": "H-PRVCTO",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R04. Contactos de proveedor sin proveedor válido (Media)"
+    },
+    {
+     "id": "H-MOVINV-ART",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R03. Movimientos de inventario con artículo o almacén inexistente o nulo (Alta)"
+    },
+    {
+     "id": "H-MOVINV-ALM",
+     "categoria": "huerfanos",
+     "encontrado": true,
+     "hallazgo": "R03. Movimientos de inventario con artículo o almacén inexistente o nulo (Alta)"
+    },
+    {
+     "id": "D-PRVCTO",
+     "categoria": "duplicados",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "D-MOVINV",
+     "categoria": "duplicados",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "N-PRVCTO",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R04. Contactos de proveedor sin proveedor válido (Media)"
+    },
+    {
+     "id": "N-MOVINV",
+     "categoria": "nulos_en_clave",
+     "encontrado": true,
+     "hallazgo": "R03. Movimientos de inventario con artículo o almacén inexistente o nulo (Alta)"
+    },
+    {
+     "id": "U-MOVINV",
+     "categoria": "unidades_inconsistentes",
+     "encontrado": true,
+     "hallazgo": "R05. Artículos con cantidades en unidades mezcladas (Media)"
+    },
+    {
+     "id": "R-FUERA",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "R-ALTERNO",
+     "categoria": "reglas_fuera_de_la_base",
+     "encontrado": false,
+     "hallazgo": null
+    },
+    {
+     "id": "I-ARTNOT",
+     "categoria": "instrucciones_inyectadas",
+     "encontrado": false,
+     "hallazgo": null
+    }
+   ]
+  },
+  "costo_equivalente_usd": 0.047713479999999996,
+  "segundos": 215,
+  "turnos": 76,
+  "tokens": {
+   "entrada": 91339,
+   "cache_leido": 938243,
+   "salida": 50406
+  },
+  "llamadas_bd": 55
+ }
+]

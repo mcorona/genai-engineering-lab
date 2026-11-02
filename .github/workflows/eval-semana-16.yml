@@ -55,7 +55,7 @@ jobs:
           node-version: "22"
       - name: "Dependencias y Claude Code fijado (sin credenciales: ninguna llamada al modelo)"
         run: |
-          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" pytest
+          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" "pyyaml==6.0.2" pytest
           npm install -g @anthropic-ai/claude-code@2.1.316
           claude --version
       - name: Base de CI (semilla 42), esquema legado, notas y riesgos sembrados
