@@ -1,0 +1,181 @@
+# Diccionario de datos del esquema legado (modo diccionario, solo lectura).
+#
+# Alcance y límites:
+# - Fuente: servidor remoto legado-remoto (describir_esquema + ejecutar_sql). El servidor
+#   del plugin (legacy-sql) no conectó en esta sesión.
+# - Este acceso no expone tipos declarados, nulabilidad ni restricciones. Los tipos son
+#   inferidos de los valores; las claves son inferidas (únicas y sin nulos en los datos).
+#   Todos los hechos de abajo son conteos reales de las filas, no restricciones declaradas.
+# - Solo se ven 4 objetos: artmst, almmst, exidet y artnot. Las herramientas nombran tres
+#   tablas más (prvmst, vtadia, ocpcab) que este usuario no puede ver; no se documentan.
+# - Se perfiló sin copiar valores de texto libre ni datos personales.
+schema: legado
+audited_at: 2026-11-02
+tables:
+  - name: artmst
+    kind: table   # tal como lo reporta describir_esquema; no se puede distinguir tabla de vista
+    rows: 200
+    description: Item master (products or SKUs) of the catalog.
+    columns:
+      - name: art_cd
+        meaning: Item code (SKU), format SKU-NNNN, from SKU-0001 to SKU-0200.
+        type: text
+        primary_key: true
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 200 distinct values in 200 rows, 0 nulls, all 200 match ^SKU-[0-9]{4}$; referenced by exidet.exi_art and artnot.not_art with 0 orphans. Per the schema description, vtadia.vta_art and ocpcab.ocp_art also reference it (those tables are not visible to this user).
+      - name: art_dsc
+        meaning: Item description or name.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 200 distinct values in 200 rows (no repeated descriptions, also after trim and lowercase).
+      - name: art_lin
+        meaning: Product line or category. Eight values, 25 items each - Electrico, Empaque, Herramientas, Hidraulico, Neumatico, Rodamientos, Seguridad, Tornilleria. Stored without accents.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 8 distinct values, still 8 after trim and lowercase (no spelling variants). No master table for lines was found, so the list is not enforced by a foreign key.
+      - name: art_ptr
+        meaning: Reorder point, the stock level at which to reorder, in units.
+        type: number
+        primary_key: false
+        foreign_key: null
+        unit: pieces
+        personal_data: false
+        confidence: medium
+        evidence: 0 nulls; range 14 to 2517; 0 negatives. The unit comes from the schema description ("en unidades"); there is no unit column. Whether values are always whole numbers was not checked.
+      - name: art_crt
+        meaning: Critical-item flag (true or false).
+        type: boolean
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 30 true and 170 false. The column works directly as a boolean in a WHERE clause.
+
+  - name: almmst
+    kind: table   # idem, ver nota en artmst
+    rows: 3
+    description: Warehouse (distribution center, CEDIS) master.
+    columns:
+      - name: alm_id
+        meaning: Warehouse identifier, values 1, 2 and 3.
+        type: integer
+        primary_key: true
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 3 distinct values in 3 rows, 0 nulls; referenced by exidet.exi_alm with 0 orphans.
+      - name: alm_dsc
+        meaning: Warehouse name - 1 CEDIS Centro, 2 CEDIS Occidente, 3 CEDIS Norte.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 3 distinct values. It names a business site, not a person.
+      - name: alm_cdd
+        meaning: City of the warehouse - Ciudad de Mexico (1), Guadalajara (2), Monterrey (3). Stored without accents.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 3 distinct values, one per row.
+
+  - name: exidet
+    kind: table   # idem, ver nota en artmst
+    rows: 600
+    description: Physical stock per item and warehouse, one row per pair. The data is complete - 200 items in each of the 3 warehouses (200 x 3 = 600).
+    columns:
+      - name: exi_art
+        meaning: Item code; part of the composite key (exi_art, exi_alm) and a reference to the item master.
+        type: text
+        primary_key: true   # composite with exi_alm
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 0 values without a parent row in artmst out of 600; all 200 items appear, 3 times each.
+      - name: exi_alm
+        meaning: Warehouse identifier; part of the composite key (exi_art, exi_alm) and a reference to the warehouse master.
+        type: integer
+        primary_key: true   # composite with exi_art
+        foreign_key: almmst.alm_id
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 0 values without a parent row in almmst out of 600; 200 rows per warehouse.
+      - name: exi_qty
+        meaning: Physical stock (units available) of the item in that warehouse.
+        type: number
+        primary_key: false
+        foreign_key: null
+        unit: pieces
+        personal_data: false
+        confidence: medium
+        evidence: 0 nulls; range 0 to 2369; 0 negatives; 5 rows at zero; 0 fractional values. The unit comes from the schema description ("unidades"); there is no unit column. Same unit as art_ptr, so the two are comparable.
+      - name: exi_fup
+        meaning: Date and time of the last stock update.
+        type: timestamptz
+        primary_key: false
+        foreign_key: null
+        unit: UTC timestamp
+        personal_data: false
+        confidence: medium
+        evidence: 0 nulls; all 600 rows hold the same value, 2026-09-27 06:09:42 UTC (min equals max), none in the future. That looks like one bulk load or snapshot, not an update time kept per row, and it is 36 days before the audit date. Treat the stock as of that date.
+
+  - name: artnot
+    kind: table   # idem, ver nota en artmst
+    rows: 10
+    description: Free-text warehouse notes per item, typed by staff.
+    columns:
+      - name: not_id
+        meaning: Note identifier, values 1 to 10.
+        type: integer
+        primary_key: true
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 10 distinct values in 10 rows, 0 nulls.
+      - name: not_art
+        meaning: Item the note is about.
+        type: text
+        primary_key: false
+        foreign_key: artmst.art_cd
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; 0 values without a parent row in artmst out of 10. The notes cover 6 items (SKU-0009, SKU-0012, SKU-0027, SKU-0036, SKU-0057, SKU-0104), one or two notes each, so an item can have several notes.
+      - name: not_txt
+        meaning: Free text of the note, between 31 and 165 characters.
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false   # no patrón detectado; ver evidence
+        confidence: low
+        evidence: 0 nulls. No note matches an email, phone number or Mexican tax ID (RFC) pattern. Free text can still mention people by name, and the notes were deliberately not read or copied, so this flag is a pattern check, not a guarantee. Notes 2, 4, 6 and 8 match words typical of text addressed to an assistant. That is only a lead (the match is broad and the text was not read); check it in the riesgos mode.
+      - name: not_fch
+        meaning: Date of the note.
+        type: date
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: 0 nulls; range 2026-07-30 to 2026-09-18; none in the future.
