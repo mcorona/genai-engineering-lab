@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "legacy-sql": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/servidor/sql_lectura.py"],
+      "env": {
+        "PG_DSN": "${user_config.pg_dsn}",
+        "AUDIT_SCHEMA": "${user_config.audit_schema}"
+      }
+    }
+  }
+}

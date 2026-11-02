@@ -1,0 +1,78 @@
+%% Schema "legado". No relationship is declared in the database: every line below is inferred
+%% from names and values and confirmed with orphan counts (see riesgos.md).
+%% Dotted line = inferred. Orphans exist on movinv.mov_art, movinv.mov_alm and prvcto.cto_prv.
+erDiagram
+    prvmst ||..o{ artmst : "inferred (art_prv)"
+    prvmst ||..o{ prvcto : "inferred (cto_prv)"
+    artmst ||..o{ exidet : "inferred (exi_art)"
+    almmst ||..o{ exidet : "inferred (exi_alm)"
+    artmst ||..o{ movinv : "inferred (mov_art)"
+    almmst ||..o{ movinv : "inferred (mov_alm)"
+    artmst ||..o{ artnot : "inferred (not_art)"
+    artmst ||..o{ ocpcab : "inferred (ocp_art)"
+    artmst ||..o{ vtadia : "inferred (vta_art)"
+
+    almmst {
+        integer alm_id PK "inferred"
+        text alm_dsc
+        text alm_cdd
+    }
+    artmst {
+        text art_cd PK "inferred"
+        text art_dsc
+        text art_lin
+        numeric art_cst
+        integer art_ptr
+        boolean art_crt
+        integer art_prv FK
+    }
+    artnot {
+        integer not_id PK "declared"
+        text not_art FK
+        text not_txt
+        date not_fch
+    }
+    exidet {
+        text exi_art PK, FK "inferred composite key"
+        integer exi_alm PK, FK "inferred composite key"
+        integer exi_qty
+        timestamptz exi_fup
+    }
+    movinv {
+        integer mov_id PK "declared"
+        text mov_art FK "nullable, 2 orphans"
+        integer mov_alm FK "nullable, 1 orphan"
+        text mov_tip
+        numeric mov_qty
+        text mov_uni
+        date mov_fch
+        text mov_usr
+    }
+    ocpcab {
+        integer ocp_id PK "inferred"
+        text ocp_art FK
+        integer ocp_qty
+        text ocp_sts
+        timestamptz ocp_fcr
+    }
+    prvcto {
+        integer cto_id PK "declared"
+        integer cto_prv FK "nullable, 1 orphan"
+        text cto_nom
+        text cto_crg
+        text cto_eml
+        text cto_tel
+        text cto_rfc
+        date cto_alt
+    }
+    prvmst {
+        integer prv_id PK "inferred"
+        text prv_nm
+        text prv_pais
+        integer prv_dte
+    }
+    vtadia {
+        text vta_art PK, FK "inferred composite key"
+        date vta_fch PK "inferred composite key"
+        integer vta_und
+    }

@@ -1,6 +1,7 @@
 name: eval-semana-16
 
-# Semana 16. Sin API ($0): plugin mínimo de la línea base (validate --strict, marketplace local, guardia) con
+# Semana 16. Sin API ($0): plugin mínimo de la línea base y plugin legacy-schema-audit (validate --strict, guardia SQL,
+# servidor MCP de solo lectura contra la base), con
 # Claude Code fijado, y la verdad de referencia de la auditoría recalculada en la base de CI y comparada con la
 # congelada (manifiesto con hash). La mini eval con API del plugin llega en la actividad 10.
 on:
@@ -54,7 +55,7 @@ jobs:
           node-version: "22"
       - name: "Dependencias y Claude Code fijado (sin credenciales: ninguna llamada al modelo)"
         run: |
-          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" pytest
+          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" pytest
           npm install -g @anthropic-ai/claude-code@2.1.316
           claude --version
       - name: Base de CI (semilla 42), esquema legado, notas y riesgos sembrados
