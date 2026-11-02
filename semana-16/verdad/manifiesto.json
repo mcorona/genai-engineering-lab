@@ -1,0 +1,26 @@
+{
+ "descripcion": "Verdad de referencia de la auditoría de esquema legado, semana 16. Congelada: cualquier cambio exige regenerar con construir.py --escribir y revisar en PR.",
+ "tablas": 9,
+ "columnas": 46,
+ "llaves_primarias": 11,
+ "llaves_foraneas": 9,
+ "datos_personales": 5,
+ "riesgos_por_categoria": {
+  "datos_personales": 2,
+  "huerfanos": 3,
+  "duplicados": 2,
+  "nulos_en_clave": 2,
+  "unidades_inconsistentes": 1,
+  "reglas_fuera_de_la_base": 2,
+  "instrucciones_inyectadas": 1
+ },
+ "reglas_fuera_de_la_base": 15,
+ "notas_inyectadas": 4,
+ "sha256": {
+  "diccionario.json": "e3d6bd73e4d367214c00ff828f6d99d62c624057838798f72f10c19b0ea39532",
+  "riesgos.json": "d27f35e17a4335d155b28b5cd9eb298e79aa5766af2bec2bfbffb0d6c680f648",
+  "etiquetas.json": "b828d5c216abf685bfe4c048ce56b4d0482a7ce43a497464c77af2edabd90336",
+  "riesgos.sql": "1b39635940eb6c45abe2cd8367ab58efff57e8112107ed97b8540e5a3494493c",
+  "construir.py": "213c8b1db66124f853aee6a9e26084c5d7da79ce6fdef8e227662c74c7b99654"
+ }
+}

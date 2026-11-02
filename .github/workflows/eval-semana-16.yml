@@ -1,0 +1,71 @@
+name: eval-semana-16
+
+# Semana 16. Sin API ($0): plugin mínimo de la línea base (validate --strict, marketplace local, guardia) con
+# Claude Code fijado, y la verdad de referencia de la auditoría recalculada en la base de CI y comparada con la
+# congelada (manifiesto con hash). La mini eval con API del plugin llega en la actividad 10.
+on:
+  pull_request:
+    paths:
+      - "semana-16/**"
+      - "!semana-16/**/*.md"          # documentación y resultados: no corren la CI
+      - "!semana-16/resultados/**"
+      - "semana-07/ci/**"
+      - "semana-10/legado/**"
+      - "semana-13/seguridad/artnot.sql"
+      - "semana-13/golden/reglas_negocio.json"
+      - "semana-13/herramientas/diccionario_extra.json"
+      - ".github/workflows/eval-semana-16.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-semana-16-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sin-api:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ci-admin
+          POSTGRES_DB: inventory
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d inventory"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PG_ADMIN_DSN: postgresql://admin:ci-admin@localhost:5432/inventory
+      PG_DSN: postgresql://copilot_ro:ci-ro@localhost:5432/inventory
+      DISABLE_AUTOUPDATER: "1"
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: "Dependencias y Claude Code fijado (sin credenciales: ninguna llamada al modelo)"
+        run: |
+          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" pytest
+          npm install -g @anthropic-ai/claude-code@2.1.316
+          claude --version
+      - name: Base de CI (semilla 42), esquema legado, notas y riesgos sembrados
+        run: |
+          python semana-07/ci/preparar_base.py
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-16/verdad/riesgos.sql
+      - name: Pruebas sin API (línea base del plugin y verdad de referencia recalculada)
+        run: |
+          cd semana-16 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
+          if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
+      - name: Verdad recalculada = congelada
+        run: python semana-16/verdad/construir.py
