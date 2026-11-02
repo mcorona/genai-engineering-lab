@@ -1,0 +1,632 @@
+[
+ {
+  "tabla": "almmst",
+  "columna": "alm_id",
+  "original": {
+   "tabla": "warehouses",
+   "columna": "warehouse_id"
+  },
+  "significado": "Identificador del almacén. Lo referencia exidet.exi_alm.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "almmst",
+  "columna": "alm_dsc",
+  "original": {
+   "tabla": "warehouses",
+   "columna": "name"
+  },
+  "significado": "Nombre del almacén, por ejemplo 'CEDIS Norte'.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "almmst",
+  "columna": "alm_cdd",
+  "original": {
+   "tabla": "warehouses",
+   "columna": "city"
+  },
+  "significado": "Ciudad del almacén: 'Ciudad de Mexico', 'Guadalajara' o 'Monterrey'.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_cd",
+  "original": {
+   "tabla": "products",
+   "columna": "sku"
+  },
+  "significado": "Código del artículo (SKU), por ejemplo 'SKU-0042'. Lo referencian exidet.exi_art, vtadia.vta_art y ocpcab.ocp_art.",
+  "tipo": "text",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_dsc",
+  "original": {
+   "tabla": "products",
+   "columna": "name"
+  },
+  "significado": "Descripción o nombre del artículo.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_lin",
+  "original": {
+   "tabla": "products",
+   "columna": "category"
+  },
+  "significado": "Línea o categoría del artículo, por ejemplo 'Tornilleria', 'Electrico', 'Hidraulico', 'Seguridad'.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_cst",
+  "original": {
+   "tabla": "products",
+   "columna": "unit_cost"
+  },
+  "significado": "Costo unitario en pesos mexicanos.",
+  "tipo": "numeric(12,2)",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "MXN por unidad",
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_ptr",
+  "original": {
+   "tabla": "products",
+   "columna": "reorder_point"
+  },
+  "significado": "Punto de reorden en unidades.",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "unidades (piezas)",
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_crt",
+  "original": {
+   "tabla": "products",
+   "columna": "critical"
+  },
+  "significado": "Indica si el artículo es crítico (verdadero o falso).",
+  "tipo": "boolean",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artmst",
+  "columna": "art_prv",
+  "original": {
+   "tabla": "products",
+   "columna": "supplier_id"
+  },
+  "significado": "Proveedor del artículo; referencia prvmst.prv_id.",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": "prvmst.prv_id",
+  "fuente_llave_foranea": "restriccion_tabla_base",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artnot",
+  "columna": "not_id",
+  "original": null,
+  "significado": "Identificador de la nota.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artnot",
+  "columna": "not_art",
+  "original": null,
+  "significado": "Artículo; referencia artmst.art_cd.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": "artmst.art_cd",
+  "fuente_llave_foranea": "etiqueta",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artnot",
+  "columna": "not_txt",
+  "original": null,
+  "significado": "Texto libre de la nota.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "artnot",
+  "columna": "not_fch",
+  "original": null,
+  "significado": "Fecha de la nota.",
+  "tipo": "date",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "exidet",
+  "columna": "exi_art",
+  "original": {
+   "tabla": "stock",
+   "columna": "sku"
+  },
+  "significado": "Artículo; referencia artmst.art_cd.",
+  "tipo": "text",
+  "llave_primaria": true,
+  "llave_foranea": "artmst.art_cd",
+  "fuente_llave_foranea": "restriccion_tabla_base",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "exidet",
+  "columna": "exi_alm",
+  "original": {
+   "tabla": "stock",
+   "columna": "warehouse_id"
+  },
+  "significado": "Almacén; referencia almmst.alm_id.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": "almmst.alm_id",
+  "fuente_llave_foranea": "restriccion_tabla_base",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "exidet",
+  "columna": "exi_qty",
+  "original": {
+   "tabla": "stock",
+   "columna": "on_hand"
+  },
+  "significado": "Existencia física (unidades disponibles) en ese almacén.",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "unidades (piezas)",
+  "datos_personales": false
+ },
+ {
+  "tabla": "exidet",
+  "columna": "exi_fup",
+  "original": {
+   "tabla": "stock",
+   "columna": "updated_at"
+  },
+  "significado": "Fecha y hora de la última actualización de la existencia.",
+  "tipo": "timestamp with time zone",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_id",
+  "original": null,
+  "significado": "Identificador del movimiento.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_art",
+  "original": null,
+  "significado": "Artículo; referencia artmst.art_cd (sin llave foránea declarada).",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": "artmst.art_cd",
+  "fuente_llave_foranea": "etiqueta",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_alm",
+  "original": null,
+  "significado": "Almacén; referencia almmst.alm_id (sin llave foránea declarada).",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": "almmst.alm_id",
+  "fuente_llave_foranea": "etiqueta",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_tip",
+  "original": null,
+  "significado": "Tipo de movimiento: 'ENT' entrada o 'SAL' salida.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_qty",
+  "original": null,
+  "significado": "Cantidad movida, expresada en la unidad de mov_uni.",
+  "tipo": "numeric(12,2)",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "la de movinv.mov_uni (inconsistente entre filas)",
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_uni",
+  "original": null,
+  "significado": "Unidad de medida capturada para la cantidad ('PZA' pieza, 'CJA' caja, 'KG' kilogramo).",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_fch",
+  "original": null,
+  "significado": "Fecha del movimiento.",
+  "tipo": "date",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "movinv",
+  "columna": "mov_usr",
+  "original": null,
+  "significado": "Usuario (login de una persona) que capturó el movimiento.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": true
+ },
+ {
+  "tabla": "ocpcab",
+  "columna": "ocp_id",
+  "original": {
+   "tabla": "purchase_orders",
+   "columna": "po_id"
+  },
+  "significado": "Identificador de la orden de compra.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "ocpcab",
+  "columna": "ocp_art",
+  "original": {
+   "tabla": "purchase_orders",
+   "columna": "sku"
+  },
+  "significado": "Artículo de la orden; referencia artmst.art_cd.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": "artmst.art_cd",
+  "fuente_llave_foranea": "restriccion_tabla_base",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "ocpcab",
+  "columna": "ocp_qty",
+  "original": {
+   "tabla": "purchase_orders",
+   "columna": "qty"
+  },
+  "significado": "Cantidad pedida.",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "unidades (piezas)",
+  "datos_personales": false
+ },
+ {
+  "tabla": "ocpcab",
+  "columna": "ocp_sts",
+  "original": {
+   "tabla": "purchase_orders",
+   "columna": "status"
+  },
+  "significado": "Estado: 'PENDING_APPROVAL', 'APPROVED' o 'REJECTED'.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "ocpcab",
+  "columna": "ocp_fcr",
+  "original": {
+   "tabla": "purchase_orders",
+   "columna": "created_at"
+  },
+  "significado": "Fecha y hora de creación de la orden.",
+  "tipo": "timestamp with time zone",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_id",
+  "original": null,
+  "significado": "Identificador del contacto.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_prv",
+  "original": null,
+  "significado": "Proveedor del contacto; referencia prvmst.prv_id (sin llave foránea declarada).",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": "prvmst.prv_id",
+  "fuente_llave_foranea": "etiqueta",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_nom",
+  "original": null,
+  "significado": "Nombre completo de la persona de contacto.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": true
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_crg",
+  "original": null,
+  "significado": "Cargo o puesto del contacto.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_eml",
+  "original": null,
+  "significado": "Correo electrónico del contacto.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": true
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_tel",
+  "original": null,
+  "significado": "Teléfono del contacto.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": true
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_rfc",
+  "original": null,
+  "significado": "RFC (Registro Federal de Contribuyentes) del contacto como persona física; vacío en contactos extranjeros.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": true
+ },
+ {
+  "tabla": "prvcto",
+  "columna": "cto_alt",
+  "original": null,
+  "significado": "Fecha de alta del contacto.",
+  "tipo": "date",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvmst",
+  "columna": "prv_id",
+  "original": {
+   "tabla": "suppliers",
+   "columna": "supplier_id"
+  },
+  "significado": "Identificador del proveedor. Lo referencia artmst.art_prv.",
+  "tipo": "integer",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvmst",
+  "columna": "prv_nm",
+  "original": {
+   "tabla": "suppliers",
+   "columna": "name"
+  },
+  "significado": "Nombre del proveedor.",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvmst",
+  "columna": "prv_pais",
+  "original": {
+   "tabla": "suppliers",
+   "columna": "country"
+  },
+  "significado": "País del proveedor, código ISO 3166-1 alfa-2 (por ejemplo 'CN', 'DE', 'US', 'MX').",
+  "tipo": "text",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "prvmst",
+  "columna": "prv_dte",
+  "original": {
+   "tabla": "suppliers",
+   "columna": "lead_time_days"
+  },
+  "significado": "Tiempo de entrega pactado, en días.",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "días",
+  "datos_personales": false
+ },
+ {
+  "tabla": "vtadia",
+  "columna": "vta_art",
+  "original": {
+   "tabla": "sales_daily",
+   "columna": "sku"
+  },
+  "significado": "Artículo; referencia artmst.art_cd.",
+  "tipo": "text",
+  "llave_primaria": true,
+  "llave_foranea": "artmst.art_cd",
+  "fuente_llave_foranea": "restriccion_tabla_base",
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "vtadia",
+  "columna": "vta_fch",
+  "original": {
+   "tabla": "sales_daily",
+   "columna": "day"
+  },
+  "significado": "Fecha de la venta.",
+  "tipo": "date",
+  "llave_primaria": true,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": null,
+  "datos_personales": false
+ },
+ {
+  "tabla": "vtadia",
+  "columna": "vta_und",
+  "original": {
+   "tabla": "sales_daily",
+   "columna": "units"
+  },
+  "significado": "Unidades vendidas ese día.",
+  "tipo": "integer",
+  "llave_primaria": false,
+  "llave_foranea": null,
+  "fuente_llave_foranea": null,
+  "unidad": "unidades (piezas)",
+  "datos_personales": false
+ }
+]
