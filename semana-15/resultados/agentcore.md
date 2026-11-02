@@ -1,6 +1,6 @@
 # Activity 8 (optional): Strands on Bedrock AgentCore
 
-**Result:** the Strands agent from activity 4 runs unchanged on AgentCore Runtime with the **same success (1.000 on the 20-task mini eval) and the same model cost ($0.0031 vs $0.0029 per task)**. What AgentCore adds is operational: isolated microVMs per session, a credential vault, and a deploy that reaches `READY` in about 35 s. What it costs is latency: a **cold start of 5.7–5.9 s** on every new session (3.7 s of it is Python imports), against **263–288 ms** warm. AgentCore Identity does **not** replace Keycloak here. Inbound, it needs a publicly reachable identity provider; outbound, it is a vault for the agent's own secrets, not a login for users. Total cost: **$0.062 in model usage** plus an estimated **< $0.05 in AWS**. Every resource was deleted and verified; only the $2 budget remains until the bill is reviewed.
+**Result:** the Strands agent from activity 4 runs unchanged on AgentCore Runtime with the **same success (1.000 on the 20-task mini eval) and the same model cost ($0.0031 vs $0.0029 per task)**. What AgentCore adds is operational: isolated microVMs per session, a credential vault, and a deploy that reaches `READY` in about 35 s. What it costs is latency: a **cold start of 5.7–5.9 s** on every new session (3.7 s of it is Python imports), against **263–288 ms** warm. AgentCore Identity does **not** replace Keycloak here. Inbound, it needs a publicly reachable identity provider; outbound, it is a vault for the agent's own secrets, not a login for users. Total cost: **$0.062 in model usage** plus **$0.024 in AWS**, actual per Cost Explorer and fully covered by AWS credits. Every resource was deleted and verified, and the budget was deleted after the bill was reviewed.
 
 Code:
 - [`agentcore/main.py`](../agentcore/main.py): the agent entry point on Runtime.
@@ -109,11 +109,12 @@ In production:
 |---|---|
 | Model, run 1 (tasks failed before calling the model) | $0.0000 |
 | Model, run 2 | **$0.0616** |
-| Runtime: about 48 sessions, about 3 min of agent time, 60 s idle cap | < $0.05 (estimate; CPU is not billed while waiting on the LLM or the tools) |
-| Identity, S3, CloudWatch Logs, budget | ≈ $0 (Identity is free through Runtime; storage for minutes; the first 2 budgets are free) |
-| **Total** | **≈ $0.06 model + < $0.05 AWS** (estimate was $0.12–0.25) |
+| AgentCore Runtime: about 48 sessions, about 3 min of agent time, 60 s idle cap | **$0.0204** (actual) |
+| Secrets Manager: the secret behind the Identity API key provider | **$0.0039** (actual) |
+| Identity, S3, CloudWatch Logs, budget | < $0.001 (Identity is free through Runtime; storage for minutes; the first 2 budgets are free) |
+| **Total** | **$0.062 model + $0.024 AWS = $0.086** (estimate was $0.12–0.25) |
 
-The AWS charge is confirmed in Cost Explorer after 24 h, as in week 12. Then the budget is deleted with `python agentcore/infra.py borrar --confirmar --presupuesto`.
+AWS figures are from Cost Explorer (usage records only, 2026-11-01 to 2026-11-03), checked on 2026-11-02. The whole charge was covered by AWS credits, so $0 was paid. Each Cost Explorer API query costs $0.01, so cost checks are run by hand, not in CI. The budget was deleted afterwards with `python agentcore/infra.py borrar --confirmar --presupuesto`.
 
 ## When to recommend AgentCore
 
