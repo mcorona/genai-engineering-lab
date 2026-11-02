@@ -1,0 +1,17 @@
+{
+  "name": "lb-spike",
+  "displayName": "LegacyBridge spike",
+  "version": "0.1.0",
+  "description": "Semana 16, actividad 1: plugin mínimo para verificar skills, subagentes, hooks, userConfig y bin/ en Claude Code",
+  "author": {"name": "Manuel Corona"},
+  "license": "MIT",
+  "keywords": ["legacy", "audit", "spike"],
+  "userConfig": {
+    "dsn_lectura": {
+      "type": "string",
+      "title": "DSN de solo lectura",
+      "description": "Cadena de conexión con un rol sin permisos de escritura",
+      "sensitive": true
+    }
+  }
+}

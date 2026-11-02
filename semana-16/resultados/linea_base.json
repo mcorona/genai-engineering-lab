@@ -1,0 +1,105 @@
+{
+ "fecha": "2026-11-02",
+ "checks": [
+  {
+   "check": "Claude Code instalado",
+   "ok": true,
+   "detalle": "2.1.316 (Claude Code)"
+  },
+  {
+   "check": "Subcomandos de claude plugin",
+   "ok": true,
+   "detalle": "validate, eval, details, configure, marketplace, install"
+  },
+  {
+   "check": "validate --strict del plugin",
+   "ok": true,
+   "detalle": "0 advertencias"
+  },
+  {
+   "check": "validate --strict del marketplace",
+   "ok": true,
+   "detalle": "marketplace lb-local"
+  },
+  {
+   "check": "Negativo: nombre reservado rechazado",
+   "ok": true,
+   "detalle": "claude-legacy-audit"
+  },
+  {
+   "check": "Negativo: ruta con .. rechazada",
+   "ok": true,
+   "detalle": "agents: ../fuera.md"
+  },
+  {
+   "check": "Marketplace local + install + details",
+   "ok": true,
+   "detalle": "Always-on:   ~67 tok   added to every session"
+  },
+  {
+   "check": "userConfig sensible visible sin exponer valor",
+   "ok": true,
+   "detalle": "dsn_lectura (sensitive)"
+  },
+  {
+   "check": "plugin eval init --bare",
+   "ok": true,
+   "detalle": "prompt.md (max_turns, allowed_tools) + graders/criteria.md (type: llm)"
+  },
+  {
+   "check": "Hook PreToolUse: entrada ilegible falla cerrada",
+   "ok": true,
+   "detalle": "exit 2"
+  },
+  {
+   "check": "Hook PreToolUse en forma exec con onFailure: block",
+   "ok": true,
+   "detalle": "si el hook no arranca o se vence, la herramienta no corre"
+  },
+  {
+   "check": "Hook PreToolUse: Write fuera de auditoria/",
+   "ok": true,
+   "detalle": "exit 2 · lb-spike: escritura bloqueada fuera de auditoria/: notas.txt"
+  },
+  {
+   "check": "Hook PreToolUse: Write dentro de auditoria/",
+   "ok": true,
+   "detalle": "exit 0"
+  },
+  {
+   "check": "Hook PreToolUse: Edit con ../ para escapar",
+   "ok": true,
+   "detalle": "exit 2 · lb-spike: escritura bloqueada fuera de auditoria/: auditoria/../x.py"
+  },
+  {
+   "check": "Hook PreToolUse: Bash con DELETE",
+   "ok": true,
+   "detalle": "exit 2 · lb-spike: SQL de escritura bloqueado (solo lectura)"
+  },
+  {
+   "check": "Hook PreToolUse: Bash con SELECT",
+   "ok": true,
+   "detalle": "exit 0"
+  },
+  {
+   "check": "Hook PreToolUse: Bash con lo_import",
+   "ok": true,
+   "detalle": "exit 2 · lb-spike: SQL de escritura bloqueado (solo lectura)"
+  },
+  {
+   "check": "Hook PostToolUse: bitácora JSONL",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "check": "Headless: la skill se dispara con frase natural y bin/ está en el PATH",
+   "ok": true,
+   "detalle": "9 s · skill sí · lb-version sí · exit 0 · success · $0.0057 equiv."
+  },
+  {
+   "check": "Headless: el hook bloquea Write fuera de auditoria/ aunque los permisos lo acepten",
+   "ok": true,
+   "detalle": "11 s · Write intentado sí · mensaje del hook sí · notas.txt no existe"
+  }
+ ]
+}

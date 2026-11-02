@@ -1,0 +1,14 @@
+{
+  "name": "lb-local",
+  "owner": {
+    "name": "Manuel Corona"
+  },
+  "plugins": [
+    {
+      "name": "lb-spike",
+      "source": "./plugin_minimo",
+      "description": "Plugin mínimo de la semana 16 (spike)"
+    }
+  ],
+  "description": "Marketplace local de la semana 16: plugins de auditoría de esquemas legados"
+}
