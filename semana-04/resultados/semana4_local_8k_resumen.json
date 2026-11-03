@@ -1,6 +1,6 @@
 {
   "nombre": "semana4_local_8k",
-  "consultas_archivo": "/Users/manuelcorona/AI-projects-llm-internals/semana-04/consultas.jsonl",
+  "consultas_archivo": "~/AI-projects-llm-internals/semana-04/consultas.jsonl",
   "max_tokens": 8192,
   "temp_local": 0.0,
   "temp_api": null,

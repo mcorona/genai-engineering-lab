@@ -1,8 +1,9 @@
 import math
+import os
 import mlx.core as mx
 from mlx_lm import load
 
-RUTA = "/Users/manuelcorona/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit"
+RUTA = os.path.expanduser("~/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit")
 model, tok = load(RUTA)
 
 mensajes = [{"role": "user", "content": "Di hola"}]

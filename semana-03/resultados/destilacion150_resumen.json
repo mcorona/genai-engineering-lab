@@ -1,5 +1,5 @@
 {
-  "modelo": "/Users/manuelcorona/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-7B-Instruct-MLX-4bit",
+  "modelo": "~/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-7B-Instruct-MLX-4bit",
   "nombre": "destilacion150",
   "pares": 46,
   "ejecuta": 0.848,
