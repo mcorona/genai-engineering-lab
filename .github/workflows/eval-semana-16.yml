@@ -1,9 +1,10 @@
 name: eval-semana-16
 
-# Semana 16. Sin API ($0): plugin mínimo de la línea base y plugin legacy-schema-audit (validate --strict, guardia SQL,
-# servidor MCP de solo lectura contra la base), con
-# Claude Code fijado, y la verdad de referencia de la auditoría recalculada en la base de CI y comparada con la
-# congelada (manifiesto con hash). La mini eval con API del plugin llega en la actividad 10.
+# Semana 16. Sin API ($0): validate --strict del marketplace y del plugin, pruebas de hooks, guardia, servidor de solo
+# lectura, evaluador propio, empaquetado e instalación desde cero, y la verdad de referencia recalculada en la base de CI
+# y comparada con la congelada. Con API (actividad 10, Haiku 5.5, tope por corrida): `claude plugin eval` con graders
+# deterministas y el evaluador de calidad sobre 2 auditorías reales (DSN de solo lectura; servidor MCP de la semana 14
+# con un token de un Keycloak efímero). Umbrales calibrados con la regla de la semana 10; seguridad sin umbral.
 on:
   pull_request:
     paths:
@@ -15,6 +16,8 @@ on:
       - "semana-13/seguridad/artnot.sql"
       - "semana-13/golden/reglas_negocio.json"
       - "semana-13/herramientas/diccionario_extra.json"
+      - "semana-14/servidor/**"
+      - "semana-14/auth/**"
       - ".github/workflows/eval-semana-16.yml"
       - ".claude-plugin/**"
 
@@ -26,9 +29,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  sin-api:
+  eval:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 45
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -54,20 +57,35 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "22"
-      - name: "Dependencias y Claude Code fijado (sin credenciales: ninguna llamada al modelo)"
+      - name: Dependencias y Claude Code fijado
         run: |
-          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" "pyyaml==6.0.2" pytest
+          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" "pyyaml==6.0.2" "pydantic==2.14.1" \
+            "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1" pytest
           npm install -g @anthropic-ai/claude-code@2.1.316
           claude --version
+      - name: claude plugin validate --strict (marketplace y plugin)
+        run: |
+          claude plugin validate --strict .
+          claude plugin validate --strict --profile directory semana-16/legacy-schema-audit
+      - name: Keycloak efímero de la semana 14 (realm legacybridge, contraseñas aleatorias del job)
+        run: semana-14/auth/arrancar.sh
       - name: Base de CI (semilla 42), esquema legado, notas y riesgos sembrados
         run: |
           python semana-07/ci/preparar_base.py
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-16/verdad/riesgos.sql
-      - name: Pruebas sin API (línea base del plugin y verdad de referencia recalculada)
+      - name: Pruebas sin API (hooks, guardia, servidor, evaluador propio, empaquetado, circuito de la eval simulado)
         run: |
           cd semana-16 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
           if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
       - name: Verdad recalculada = congelada
         run: python semana-16/verdad/construir.py
+      - name: Mini eval con API (Haiku 5.5; plugin eval determinista y 2 auditorías; tope por corrida)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_DE_FORK: ${{ github.event.pull_request.head.repo.fork }}
+        run: python semana-16/ci/eval_ci.py
+      - name: Detener Keycloak
+        if: always()
+        run: semana-14/auth/arrancar.sh --borrar
