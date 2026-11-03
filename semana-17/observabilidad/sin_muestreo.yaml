@@ -1,0 +1,6 @@
+# Week 17: the no-op overlay. The Collector always starts with two config files (collector.yaml plus an overlay) so that
+# `./arrancar.sh --muestreo` only changes which overlay is mounted. This one changes nothing: every trace is kept.
+service:
+  telemetry:
+    logs:
+      level: warn

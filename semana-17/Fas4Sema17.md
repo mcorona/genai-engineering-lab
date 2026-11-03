@@ -370,3 +370,11 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   activities: the MCP SDK carries the trace context in `_meta`, not in HTTP headers; `gen_ai.tool.name` turns any span into
   a TOOL in Langfuse; the SDK server emits one orphan root `tools/list` span per call (Collector `filter`, activity 9);
   the optional LangGraph/Strands comparison was not run.
+- 2026-11-03: the two optionals of activities 2 and 3, before activity 4 ($0, no model call).
+  Tail sampling: `observabilidad/muestreo.yaml` is an overlay merged as a second `--config` with `arrancar.sh --muestreo`
+  (errors, tasks not answered and traces over 60 s kept in full, 10 % of the rest); the default stack keeps every trace
+  because activity 7 scores them all. Measured with Langfuse: 11 of 11 critical traces kept, 6 of 40 plain ones, canary
+  absent, default restored (`resultados/muestreo.json`, `resultados/stack.md`). LangGraph/Strands: the same scripted task
+  through both, with the real server (`comparacion/`, `resultados/frameworks.md`). Strands continues the trace into the
+  server out of the box and counts tokens like the lab, but records prompt, SQL and rows by default (its own switch,
+  `gen_ai_unredacted_attributes=`, removes them); LangGraph emits 0 OpenTelemetry spans and the server cannot link its calls.

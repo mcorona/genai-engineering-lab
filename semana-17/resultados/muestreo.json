@@ -1,0 +1,51 @@
+{
+ "fecha": "2026-11-03",
+ "mezcla": {
+  "ok": 40,
+  "con_error": 4,
+  "abstenida": 3,
+  "limite": 2,
+  "lenta": 2
+ },
+ "capa_activa": true,
+ "segundos_hasta_las_criticas": 66,
+ "con_muestreo": {
+  "por_clase": {
+   "ok": {
+    "enviadas": 40,
+    "en_langfuse": 6,
+    "en_archivo": 6
+   },
+   "con_error": {
+    "enviadas": 4,
+    "en_langfuse": 4,
+    "en_archivo": 4
+   },
+   "abstenida": {
+    "enviadas": 3,
+    "en_langfuse": 3,
+    "en_archivo": 3
+   },
+   "limite": {
+    "enviadas": 2,
+    "en_langfuse": 2,
+    "en_archivo": 2
+   },
+   "lenta": {
+    "enviadas": 2,
+    "en_langfuse": 2,
+    "en_archivo": 2
+   }
+  },
+  "criticas_llegaron": true,
+  "langfuse_igual_al_archivo": true,
+  "canario_en_el_archivo": false
+ },
+ "capa_por_omision": true,
+ "sin_muestreo": {
+  "enviadas": 10,
+  "en_langfuse": 10,
+  "todas": true
+ },
+ "ok": true
+}

@@ -132,13 +132,17 @@ services:
   collector:
     image: ${IMG_COLLECTOR}
     restart: unless-stopped
-    command: ["--config=/etc/otelcol/config.yaml"]
+    # two config files: collector.yaml plus an overlay. `./arrancar.sh` mounts the no-op one; `--muestreo` picks muestreo.yaml
+    # (tail sampling, optional of activity 2). The Collector merges the files.
+    command: ["--config=/etc/otelcol/config.yaml", "--config=/etc/otelcol/${COLLECTOR_CAPA:-sin_muestreo}.yaml"]
     user: "${HOST_UID}:${HOST_GID}"      # so the JSONL in ./datos belongs to whoever runs ./arrancar.sh
     mem_limit: 512m
     environment:
       LANGFUSE_AUTH: ${LANGFUSE_AUTH}
     volumes:
       - ./collector.yaml:/etc/otelcol/config.yaml:ro
+      - ./muestreo.yaml:/etc/otelcol/muestreo.yaml:ro
+      - ./sin_muestreo.yaml:/etc/otelcol/sin_muestreo.yaml:ro
       - ./datos:/salida
     ports:
       - 127.0.0.1:4317:4317

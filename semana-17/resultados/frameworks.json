@@ -1,0 +1,1354 @@
+{
+ "fecha": "2026-11-03",
+ "modelo_guionado": true,
+ "modelo": "claude-haiku-5-5",
+ "laboratorio": {
+  "estado": "respondida",
+  "spans_en_la_traza": 15,
+  "operaciones": {
+   "chat": {
+    "spans": 3,
+    "claves": [
+     "gen_ai.operation.name",
+     "gen_ai.provider.name",
+     "gen_ai.request.max_tokens",
+     "gen_ai.request.model",
+     "gen_ai.request.reasoning.level",
+     "gen_ai.response.finish_reasons",
+     "gen_ai.response.id",
+     "gen_ai.response.model",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "lab.cost.usd",
+     "lab.model.scripted",
+     "lab.step",
+     "langfuse.observation.cost_details",
+     "server.address",
+     "server.port"
+    ],
+    "eventos": []
+   },
+   "execute_tool": {
+    "spans": 2,
+    "claves": [
+     "gen_ai.operation.name",
+     "gen_ai.tool.call.id",
+     "gen_ai.tool.name",
+     "gen_ai.tool.type",
+     "lab.step",
+     "lab.tool.args.chars",
+     "lab.tool.args.hmac",
+     "lab.tool.known",
+     "lab.tool.result.chars",
+     "lab.tool.status"
+    ],
+    "eventos": []
+   },
+   "invoke_agent": {
+    "spans": 1,
+    "claves": [
+     "gen_ai.agent.name",
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "lab.budget.max_output_tokens",
+     "lab.budget.max_seconds",
+     "lab.budget.max_steps",
+     "lab.budget.max_tokens_total",
+     "lab.budget.max_tool_calls",
+     "lab.model.scripted",
+     "lab.outcome.reason",
+     "lab.outcome.status",
+     "lab.run.cost_usd",
+     "lab.run.id",
+     "lab.run.steps",
+     "lab.run.tokens.cache_creation",
+     "lab.run.tokens.cache_read",
+     "lab.run.tokens.input",
+     "lab.run.tokens.output",
+     "lab.run.tool_calls",
+     "lab.run.tool_errors",
+     "lab.schema.version",
+     "lab.task.id",
+     "lab.task.language",
+     "lab.tenant.id",
+     "user.id"
+    ],
+    "eventos": []
+   }
+  },
+  "tokens": [
+   {
+    "gen_ai.request.max_tokens": 4000,
+    "gen_ai.usage.cache_creation.input_tokens": 800,
+    "gen_ai.usage.input_tokens": 1980,
+    "gen_ai.usage.output_tokens": 64
+   },
+   {
+    "gen_ai.request.max_tokens": 4000,
+    "gen_ai.usage.cache_read.input_tokens": 800,
+    "gen_ai.usage.input_tokens": 1220,
+    "gen_ai.usage.output_tokens": 96
+   },
+   {
+    "gen_ai.request.max_tokens": 4000,
+    "gen_ai.usage.cache_read.input_tokens": 800,
+    "gen_ai.usage.input_tokens": 1180,
+    "gen_ai.usage.output_tokens": 150
+   }
+  ]
+ },
+ "strands": {
+  "versiones": {
+   "strands-agents": "1.63.0",
+   "mcp": "2.3.0"
+  },
+  "parada": "end_turn",
+  "herramientas": [
+   "buscar_regla_negocio",
+   "describir_esquema",
+   "ejecutar_sql",
+   "muestrear_valores",
+   "proponer_orden_compra",
+   "validar_sql"
+  ],
+  "spans": 13,
+  "spans_en_la_traza_del_agente": 11,
+  "alcances": [
+   "mcp-python-sdk",
+   "strands.telemetry.tracer"
+  ],
+  "nombres": [
+   "MCP send server/discover",
+   "MCP send tools/list",
+   "invoke_agent Strands Agents",
+   "execute_event_loop_cycle",
+   "chat",
+   "execute_tool describir_esquema",
+   "MCP send tools/call describir_esquema",
+   "execute_event_loop_cycle",
+   "chat",
+   "execute_tool ejecutar_sql",
+   "MCP send tools/call ejecutar_sql",
+   "execute_event_loop_cycle",
+   "chat"
+  ],
+  "operaciones": {
+   "MCP send server/discover": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "MCP send tools/call describir_esquema": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "MCP send tools/call ejecutar_sql": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "MCP send tools/list": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "chat": {
+    "spans": 3,
+    "claves": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "gen_ai.server.request.duration",
+     "gen_ai.server.time_to_first_token",
+     "gen_ai.system",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "eventos": [
+     "gen_ai.assistant.message",
+     "gen_ai.choice",
+     "gen_ai.system.message",
+     "gen_ai.tool.message",
+     "gen_ai.user.message"
+    ]
+   },
+   "execute_event_loop_cycle": {
+    "spans": 3,
+    "claves": [
+     "event_loop.cycle_id",
+     "event_loop.parent_cycle_id",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.system"
+    ],
+    "eventos": [
+     "gen_ai.assistant.message",
+     "gen_ai.choice",
+     "gen_ai.tool.message",
+     "gen_ai.user.message"
+    ]
+   },
+   "execute_tool": {
+    "spans": 2,
+    "claves": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.system",
+     "gen_ai.tool.call.id",
+     "gen_ai.tool.description",
+     "gen_ai.tool.json_schema",
+     "gen_ai.tool.name",
+     "gen_ai.tool.status"
+    ],
+    "eventos": [
+     "gen_ai.choice",
+     "gen_ai.tool.message"
+    ]
+   },
+   "invoke_agent": {
+    "spans": 1,
+    "claves": [
+     "gen_ai.agent.name",
+     "gen_ai.agent.tools",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "gen_ai.system",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "eventos": [
+     "gen_ai.choice",
+     "gen_ai.system.message",
+     "gen_ai.user.message"
+    ]
+   }
+  },
+  "cobertura": {
+   "MCP send server/discover": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "MCP send tools/call describir_esquema": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "MCP send tools/call ejecutar_sql": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "MCP send tools/list": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "chat": {
+    "emite": 16,
+    "aceptadas_por_el_esquema": [
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens"
+    ],
+    "fuera_del_esquema": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.server.request.duration",
+     "gen_ai.server.time_to_first_token",
+     "gen_ai.system",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "fuera_de_toda_la_lista": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.server.request.duration",
+     "gen_ai.server.time_to_first_token",
+     "gen_ai.system",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "del_esquema_que_no_emite": [
+     "error.type",
+     "gen_ai.provider.name",
+     "gen_ai.request.max_tokens",
+     "gen_ai.request.reasoning.level",
+     "gen_ai.response.finish_reasons",
+     "gen_ai.response.id",
+     "gen_ai.response.model",
+     "lab.cost.usd",
+     "lab.model.scripted",
+     "lab.step",
+     "langfuse.observation.cost_details",
+     "server.address",
+     "server.port"
+    ]
+   },
+   "execute_event_loop_cycle": {
+    "emite": 6,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "event_loop.cycle_id",
+     "event_loop.parent_cycle_id",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.system"
+    ],
+    "fuera_de_toda_la_lista": [
+     "event_loop.cycle_id",
+     "event_loop.parent_cycle_id",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system"
+    ],
+    "del_esquema_que_no_emite": null
+   },
+   "execute_tool": {
+    "emite": 9,
+    "aceptadas_por_el_esquema": [
+     "gen_ai.operation.name",
+     "gen_ai.tool.call.id",
+     "gen_ai.tool.name"
+    ],
+    "fuera_del_esquema": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.tool.description",
+     "gen_ai.tool.json_schema",
+     "gen_ai.tool.status"
+    ],
+    "fuera_de_toda_la_lista": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.tool.description",
+     "gen_ai.tool.json_schema",
+     "gen_ai.tool.status"
+    ],
+    "del_esquema_que_no_emite": [
+     "error.type",
+     "gen_ai.tool.type",
+     "lab.step",
+     "lab.tool.args.chars",
+     "lab.tool.args.hmac",
+     "lab.tool.known",
+     "lab.tool.result.chars",
+     "lab.tool.status"
+    ]
+   },
+   "invoke_agent": {
+    "emite": 16,
+    "aceptadas_por_el_esquema": [
+     "gen_ai.agent.name",
+     "gen_ai.operation.name",
+     "gen_ai.request.model"
+    ],
+    "fuera_del_esquema": [
+     "gen_ai.agent.tools",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "fuera_de_toda_la_lista": [
+     "gen_ai.agent.tools",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "del_esquema_que_no_emite": [
+     "error.type",
+     "lab.budget.max_output_tokens",
+     "lab.budget.max_seconds",
+     "lab.budget.max_steps",
+     "lab.budget.max_tokens_total",
+     "lab.budget.max_tool_calls",
+     "lab.model.scripted",
+     "lab.outcome.reason",
+     "lab.outcome.status",
+     "lab.run.cost_usd",
+     "lab.run.id",
+     "lab.run.steps",
+     "lab.run.tokens.cache_creation",
+     "lab.run.tokens.cache_read",
+     "lab.run.tokens.input",
+     "lab.run.tokens.output",
+     "lab.run.tool_calls",
+     "lab.run.tool_errors",
+     "lab.schema.version",
+     "lab.task.id",
+     "lab.task.language",
+     "lab.tenant.id",
+     "user.id"
+    ]
+   }
+  },
+  "tokens": [
+   {
+    "gen_ai.server.time_to_first_token": 51,
+    "gen_ai.usage.cache_creation.input_tokens": 800,
+    "gen_ai.usage.cache_write_input_tokens": 800,
+    "gen_ai.usage.completion_tokens": 64,
+    "gen_ai.usage.input_tokens": 1980,
+    "gen_ai.usage.output_tokens": 64,
+    "gen_ai.usage.prompt_tokens": 1980,
+    "gen_ai.usage.total_tokens": 2044
+   },
+   {
+    "gen_ai.server.time_to_first_token": 81,
+    "gen_ai.usage.cache_read.input_tokens": 800,
+    "gen_ai.usage.cache_read_input_tokens": 800,
+    "gen_ai.usage.completion_tokens": 96,
+    "gen_ai.usage.input_tokens": 1220,
+    "gen_ai.usage.output_tokens": 96,
+    "gen_ai.usage.prompt_tokens": 1220,
+    "gen_ai.usage.total_tokens": 1316
+   },
+   {
+    "gen_ai.server.time_to_first_token": 61,
+    "gen_ai.usage.cache_read.input_tokens": 800,
+    "gen_ai.usage.cache_read_input_tokens": 800,
+    "gen_ai.usage.completion_tokens": 150,
+    "gen_ai.usage.input_tokens": 1180,
+    "gen_ai.usage.output_tokens": 150,
+    "gen_ai.usage.prompt_tokens": 1180,
+    "gen_ai.usage.total_tokens": 1330
+   }
+  ],
+  "uso_acumulado": {
+   "inputTokens": 1980,
+   "outputTokens": 310,
+   "totalTokens": 4690,
+   "cacheWriteInputTokens": 800,
+   "cacheReadInputTokens": 1600
+  },
+  "continuidad": {
+   "traza_del_agente": "a3df2c4f081146d1967aa12e9bde610b",
+   "spans_del_servidor_en_la_traza": {
+    "SELECT": 1,
+    "authorize": 2,
+    "handle_tool": 2,
+    "tools/call": 2
+   },
+   "spans_del_servidor_en_otras_trazas": {
+    "authorize": 2,
+    "server/discover": 1,
+    "tools/list": 3
+   },
+   "llamadas_a_herramientas_en_el_servidor": 2,
+   "de_ellas_en_la_traza_del_agente": 2,
+   "padre_de_authorize": [
+    "MCP send tools/call describir_esquema",
+    "MCP send tools/call ejecutar_sql"
+   ],
+   "spans_mcp_del_sdk_en_el_proceso_del_framework": [
+    {
+     "name": "MCP send tools/call describir_esquema",
+     "en_la_traza_del_agente": true,
+     "padre": "execute_tool describir_esquema"
+    },
+    {
+     "name": "MCP send tools/call ejecutar_sql",
+     "en_la_traza_del_agente": true,
+     "padre": "execute_tool ejecutar_sql"
+    }
+   ],
+   "una_sola_traza_hasta_el_sql": true,
+   "arbol": [
+    "0 MCP send server/discover",
+    "0 MCP send tools/list",
+    "0 invoke_agent Strands Agents",
+    "1 execute_event_loop_cycle",
+    "2 chat",
+    "2 execute_tool describir_esquema",
+    "3 MCP send tools/call describir_esquema",
+    "4 authorize",
+    "4 tools/call describir_esquema",
+    "5 handle_tool describir_esquema",
+    "1 execute_event_loop_cycle",
+    "2 chat",
+    "2 execute_tool ejecutar_sql",
+    "3 MCP send tools/call ejecutar_sql",
+    "4 authorize",
+    "4 tools/call ejecutar_sql",
+    "5 handle_tool ejecutar_sql",
+    "6 SELECT legado",
+    "1 execute_event_loop_cycle",
+    "2 chat"
+   ]
+  },
+  "fugas": {
+   "email": true,
+   "rfc": true,
+   "telefono": true,
+   "literal_sql": true,
+   "prompt": true,
+   "sql_completo": true,
+   "token": false,
+   "tarea": true,
+   "filas_devueltas": true
+  },
+  "con_filas": true
+ },
+ "strands_redactado": {
+  "versiones": {
+   "strands-agents": "1.63.0",
+   "mcp": "2.3.0"
+  },
+  "parada": "end_turn",
+  "herramientas": [
+   "buscar_regla_negocio",
+   "describir_esquema",
+   "ejecutar_sql",
+   "muestrear_valores",
+   "proponer_orden_compra",
+   "validar_sql"
+  ],
+  "spans": 13,
+  "spans_en_la_traza_del_agente": 11,
+  "alcances": [
+   "mcp-python-sdk",
+   "strands.telemetry.tracer"
+  ],
+  "nombres": [
+   "MCP send server/discover",
+   "MCP send tools/list",
+   "invoke_agent Strands Agents",
+   "execute_event_loop_cycle",
+   "chat",
+   "execute_tool describir_esquema",
+   "MCP send tools/call describir_esquema",
+   "execute_event_loop_cycle",
+   "chat",
+   "execute_tool ejecutar_sql",
+   "MCP send tools/call ejecutar_sql",
+   "execute_event_loop_cycle",
+   "chat"
+  ],
+  "operaciones": {
+   "MCP send server/discover": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "MCP send tools/call describir_esquema": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "MCP send tools/call ejecutar_sql": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "MCP send tools/list": {
+    "spans": 1,
+    "claves": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "eventos": []
+   },
+   "chat": {
+    "spans": 3,
+    "claves": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "gen_ai.server.request.duration",
+     "gen_ai.server.time_to_first_token",
+     "gen_ai.system",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "eventos": [
+     "gen_ai.assistant.message",
+     "gen_ai.choice",
+     "gen_ai.system.message",
+     "gen_ai.tool.message",
+     "gen_ai.user.message"
+    ]
+   },
+   "execute_event_loop_cycle": {
+    "spans": 3,
+    "claves": [
+     "event_loop.cycle_id",
+     "event_loop.parent_cycle_id",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.system"
+    ],
+    "eventos": [
+     "gen_ai.assistant.message",
+     "gen_ai.choice",
+     "gen_ai.tool.message",
+     "gen_ai.user.message"
+    ]
+   },
+   "execute_tool": {
+    "spans": 2,
+    "claves": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.system",
+     "gen_ai.tool.call.id",
+     "gen_ai.tool.description",
+     "gen_ai.tool.json_schema",
+     "gen_ai.tool.name",
+     "gen_ai.tool.status"
+    ],
+    "eventos": [
+     "gen_ai.choice",
+     "gen_ai.tool.message"
+    ]
+   },
+   "invoke_agent": {
+    "spans": 1,
+    "claves": [
+     "gen_ai.agent.name",
+     "gen_ai.agent.tools",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "gen_ai.system",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "eventos": [
+     "gen_ai.choice",
+     "gen_ai.system.message",
+     "gen_ai.user.message"
+    ]
+   }
+  },
+  "cobertura": {
+   "MCP send server/discover": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "MCP send tools/call describir_esquema": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "MCP send tools/call ejecutar_sql": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "MCP send tools/list": {
+    "emite": 2,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "jsonrpc.request.id",
+     "mcp.method.name"
+    ],
+    "fuera_de_toda_la_lista": [],
+    "del_esquema_que_no_emite": null
+   },
+   "chat": {
+    "emite": 16,
+    "aceptadas_por_el_esquema": [
+     "gen_ai.operation.name",
+     "gen_ai.request.model",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens"
+    ],
+    "fuera_del_esquema": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.server.request.duration",
+     "gen_ai.server.time_to_first_token",
+     "gen_ai.system",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "fuera_de_toda_la_lista": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.server.request.duration",
+     "gen_ai.server.time_to_first_token",
+     "gen_ai.system",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "del_esquema_que_no_emite": [
+     "error.type",
+     "gen_ai.provider.name",
+     "gen_ai.request.max_tokens",
+     "gen_ai.request.reasoning.level",
+     "gen_ai.response.finish_reasons",
+     "gen_ai.response.id",
+     "gen_ai.response.model",
+     "lab.cost.usd",
+     "lab.model.scripted",
+     "lab.step",
+     "langfuse.observation.cost_details",
+     "server.address",
+     "server.port"
+    ]
+   },
+   "execute_event_loop_cycle": {
+    "emite": 6,
+    "aceptadas_por_el_esquema": [],
+    "fuera_del_esquema": [
+     "event_loop.cycle_id",
+     "event_loop.parent_cycle_id",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.operation.name",
+     "gen_ai.system"
+    ],
+    "fuera_de_toda_la_lista": [
+     "event_loop.cycle_id",
+     "event_loop.parent_cycle_id",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system"
+    ],
+    "del_esquema_que_no_emite": null
+   },
+   "execute_tool": {
+    "emite": 9,
+    "aceptadas_por_el_esquema": [
+     "gen_ai.operation.name",
+     "gen_ai.tool.call.id",
+     "gen_ai.tool.name"
+    ],
+    "fuera_del_esquema": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.tool.description",
+     "gen_ai.tool.json_schema",
+     "gen_ai.tool.status"
+    ],
+    "fuera_de_toda_la_lista": [
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.tool.description",
+     "gen_ai.tool.json_schema",
+     "gen_ai.tool.status"
+    ],
+    "del_esquema_que_no_emite": [
+     "error.type",
+     "gen_ai.tool.type",
+     "lab.step",
+     "lab.tool.args.chars",
+     "lab.tool.args.hmac",
+     "lab.tool.known",
+     "lab.tool.result.chars",
+     "lab.tool.status"
+    ]
+   },
+   "invoke_agent": {
+    "emite": 16,
+    "aceptadas_por_el_esquema": [
+     "gen_ai.agent.name",
+     "gen_ai.operation.name",
+     "gen_ai.request.model"
+    ],
+    "fuera_del_esquema": [
+     "gen_ai.agent.tools",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.usage.cache_creation.input_tokens",
+     "gen_ai.usage.cache_read.input_tokens",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.input_tokens",
+     "gen_ai.usage.output_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "fuera_de_toda_la_lista": [
+     "gen_ai.agent.tools",
+     "gen_ai.event.end_time",
+     "gen_ai.event.start_time",
+     "gen_ai.system",
+     "gen_ai.usage.cache_read_input_tokens",
+     "gen_ai.usage.cache_write_input_tokens",
+     "gen_ai.usage.completion_tokens",
+     "gen_ai.usage.prompt_tokens",
+     "gen_ai.usage.total_tokens"
+    ],
+    "del_esquema_que_no_emite": [
+     "error.type",
+     "lab.budget.max_output_tokens",
+     "lab.budget.max_seconds",
+     "lab.budget.max_steps",
+     "lab.budget.max_tokens_total",
+     "lab.budget.max_tool_calls",
+     "lab.model.scripted",
+     "lab.outcome.reason",
+     "lab.outcome.status",
+     "lab.run.cost_usd",
+     "lab.run.id",
+     "lab.run.steps",
+     "lab.run.tokens.cache_creation",
+     "lab.run.tokens.cache_read",
+     "lab.run.tokens.input",
+     "lab.run.tokens.output",
+     "lab.run.tool_calls",
+     "lab.run.tool_errors",
+     "lab.schema.version",
+     "lab.task.id",
+     "lab.task.language",
+     "lab.tenant.id",
+     "user.id"
+    ]
+   }
+  },
+  "tokens": [
+   {
+    "gen_ai.server.time_to_first_token": 51,
+    "gen_ai.usage.cache_creation.input_tokens": 800,
+    "gen_ai.usage.cache_write_input_tokens": 800,
+    "gen_ai.usage.completion_tokens": 64,
+    "gen_ai.usage.input_tokens": 1980,
+    "gen_ai.usage.output_tokens": 64,
+    "gen_ai.usage.prompt_tokens": 1980,
+    "gen_ai.usage.total_tokens": 2044
+   },
+   {
+    "gen_ai.server.time_to_first_token": 80,
+    "gen_ai.usage.cache_read.input_tokens": 800,
+    "gen_ai.usage.cache_read_input_tokens": 800,
+    "gen_ai.usage.completion_tokens": 96,
+    "gen_ai.usage.input_tokens": 1220,
+    "gen_ai.usage.output_tokens": 96,
+    "gen_ai.usage.prompt_tokens": 1220,
+    "gen_ai.usage.total_tokens": 1316
+   },
+   {
+    "gen_ai.server.time_to_first_token": 60,
+    "gen_ai.usage.cache_read.input_tokens": 800,
+    "gen_ai.usage.cache_read_input_tokens": 800,
+    "gen_ai.usage.completion_tokens": 150,
+    "gen_ai.usage.input_tokens": 1180,
+    "gen_ai.usage.output_tokens": 150,
+    "gen_ai.usage.prompt_tokens": 1180,
+    "gen_ai.usage.total_tokens": 1330
+   }
+  ],
+  "uso_acumulado": {
+   "inputTokens": 1980,
+   "outputTokens": 310,
+   "totalTokens": 4690,
+   "cacheWriteInputTokens": 800,
+   "cacheReadInputTokens": 1600
+  },
+  "continuidad": {
+   "traza_del_agente": "3e38446f06bd03f94cd2c0183a6ae793",
+   "spans_del_servidor_en_la_traza": {
+    "SELECT": 1,
+    "authorize": 2,
+    "handle_tool": 2,
+    "tools/call": 2
+   },
+   "spans_del_servidor_en_otras_trazas": {
+    "authorize": 2,
+    "server/discover": 1,
+    "tools/list": 3
+   },
+   "llamadas_a_herramientas_en_el_servidor": 2,
+   "de_ellas_en_la_traza_del_agente": 2,
+   "padre_de_authorize": [
+    "MCP send tools/call describir_esquema",
+    "MCP send tools/call ejecutar_sql"
+   ],
+   "spans_mcp_del_sdk_en_el_proceso_del_framework": [
+    {
+     "name": "MCP send tools/call describir_esquema",
+     "en_la_traza_del_agente": true,
+     "padre": "execute_tool describir_esquema"
+    },
+    {
+     "name": "MCP send tools/call ejecutar_sql",
+     "en_la_traza_del_agente": true,
+     "padre": "execute_tool ejecutar_sql"
+    }
+   ],
+   "una_sola_traza_hasta_el_sql": true,
+   "arbol": [
+    "0 MCP send server/discover",
+    "0 MCP send tools/list",
+    "0 invoke_agent Strands Agents",
+    "1 execute_event_loop_cycle",
+    "2 chat",
+    "2 execute_tool describir_esquema",
+    "3 MCP send tools/call describir_esquema",
+    "4 authorize",
+    "4 tools/call describir_esquema",
+    "5 handle_tool describir_esquema",
+    "1 execute_event_loop_cycle",
+    "2 chat",
+    "2 execute_tool ejecutar_sql",
+    "3 MCP send tools/call ejecutar_sql",
+    "4 authorize",
+    "4 tools/call ejecutar_sql",
+    "5 handle_tool ejecutar_sql",
+    "6 SELECT legado",
+    "1 execute_event_loop_cycle",
+    "2 chat"
+   ]
+  },
+  "fugas": {
+   "email": false,
+   "rfc": false,
+   "telefono": false,
+   "literal_sql": false,
+   "prompt": false,
+   "sql_completo": false,
+   "token": false,
+   "tarea": false,
+   "filas_devueltas": false
+  },
+  "con_filas": true,
+  "configuracion": "OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_unredacted_attributes="
+ },
+ "langgraph": {
+  "versiones": {
+   "langgraph": "1.2.19",
+   "langchain-core": "1.7.3",
+   "langchain-mcp-adapters": "0.3.2",
+   "mcp": "1.30.0"
+  },
+  "servidor_real": true,
+  "motivo_sin_servidor": null,
+  "spans_otel": 0,
+  "nombres_otel": [],
+  "atributos_gen_ai_otel": [],
+  "arboles": [
+   {
+    "name": "LangGraph",
+    "run_type": "chain",
+    "hijos": [
+     {
+      "name": "agent",
+      "run_type": "chain",
+      "hijos": [
+       {
+        "name": "call_model",
+        "run_type": "chain",
+        "hijos": []
+       },
+       {
+        "name": "RunnableSequence",
+        "run_type": "chain",
+        "hijos": [
+         {
+          "name": "Prompt",
+          "run_type": "chain",
+          "hijos": []
+         },
+         {
+          "name": "Guionado",
+          "run_type": "llm",
+          "hijos": []
+         }
+        ]
+       },
+       {
+        "name": "should_continue",
+        "run_type": "chain",
+        "hijos": []
+       }
+      ]
+     },
+     {
+      "name": "tools",
+      "run_type": "chain",
+      "hijos": [
+       {
+        "name": "describir_esquema",
+        "run_type": "tool",
+        "hijos": []
+       }
+      ]
+     },
+     {
+      "name": "agent",
+      "run_type": "chain",
+      "hijos": [
+       {
+        "name": "call_model",
+        "run_type": "chain",
+        "hijos": []
+       },
+       {
+        "name": "RunnableSequence",
+        "run_type": "chain",
+        "hijos": [
+         {
+          "name": "Prompt",
+          "run_type": "chain",
+          "hijos": []
+         },
+         {
+          "name": "Guionado",
+          "run_type": "llm",
+          "hijos": []
+         }
+        ]
+       },
+       {
+        "name": "should_continue",
+        "run_type": "chain",
+        "hijos": []
+       }
+      ]
+     },
+     {
+      "name": "tools",
+      "run_type": "chain",
+      "hijos": [
+       {
+        "name": "ejecutar_sql",
+        "run_type": "tool",
+        "hijos": []
+       }
+      ]
+     },
+     {
+      "name": "agent",
+      "run_type": "chain",
+      "hijos": [
+       {
+        "name": "call_model",
+        "run_type": "chain",
+        "hijos": []
+       },
+       {
+        "name": "RunnableSequence",
+        "run_type": "chain",
+        "hijos": [
+         {
+          "name": "Prompt",
+          "run_type": "chain",
+          "hijos": []
+         },
+         {
+          "name": "Guionado",
+          "run_type": "llm",
+          "hijos": []
+         }
+        ]
+       },
+       {
+        "name": "should_continue",
+        "run_type": "chain",
+        "hijos": []
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "runs": 23,
+  "tipos": [
+   "chain",
+   "llm",
+   "tool"
+  ],
+  "usage_en_el_rastro": true,
+  "fugas": {
+   "email": true,
+   "rfc": true,
+   "telefono": true,
+   "literal_sql": true,
+   "prompt": true,
+   "sql_completo": true,
+   "token": false,
+   "tarea": true,
+   "filas_devueltas": true
+  },
+  "servidor": {
+   "spans": 25,
+   "trazas": 22,
+   "llamadas_a_herramientas": 2,
+   "trazas_de_las_llamadas": 2,
+   "authorize_con_padre": 0,
+   "por_nombre": {
+    "SELECT": 1,
+    "authorize": 11,
+    "handle_tool": 2,
+    "initialize": 3,
+    "notifications/initialized": 3,
+    "tools/call": 2,
+    "tools/list": 3
+   }
+  }
+ },
+ "sin_token_en_el_informe": true,
+ "langfuse_strands": {
+  "observaciones": 18,
+  "esperadas": 18,
+  "tipos": {
+   "AGENT": 1,
+   "GENERATION": 3,
+   "SPAN": 10,
+   "TOOL": 4
+  },
+  "generaciones": [
+   {
+    "modelo": "claude-haiku-5-5",
+    "usageDetails": {
+     "cache_write_input_tokens": 800,
+     "input": 1180,
+     "output": 64,
+     "total": 2044,
+     "input_cache_creation": 800
+    },
+    "costDetails": {
+     "input": 0.000118,
+     "output": 3.2e-05,
+     "input_cache_creation": 0.0001,
+     "total": 0.00025
+    }
+   },
+   {
+    "modelo": "claude-haiku-5-5",
+    "usageDetails": {
+     "input": 420,
+     "output": 96,
+     "total": 1316,
+     "input_cached_tokens": 800
+    },
+    "costDetails": {
+     "input": 4.2e-05,
+     "output": 4.8e-05,
+     "input_cached_tokens": 8e-06,
+     "total": 9.8e-05
+    }
+   },
+   {
+    "modelo": "claude-haiku-5-5",
+    "usageDetails": {
+     "input": 380,
+     "output": 150,
+     "total": 1330,
+     "input_cached_tokens": 800
+    },
+    "costDetails": {
+     "input": 3.8e-05,
+     "output": 7.5e-05,
+     "input_cached_tokens": 8e-06,
+     "total": 0.000121
+    }
+   }
+  ],
+  "con_entrada_o_salida": 9,
+  "usuario_en_el_agente": false,
+  "canarios_en_langfuse": {
+   "email": false,
+   "rfc": false,
+   "telefono": false,
+   "literal_sql": true,
+   "prompt": true
+  },
+  "mascaras": 21
+ },
+ "langfuse_strands_redactado": {
+  "observaciones": 18,
+  "esperadas": 18,
+  "tipos": {
+   "AGENT": 1,
+   "GENERATION": 3,
+   "SPAN": 10,
+   "TOOL": 4
+  },
+  "generaciones": [
+   {
+    "modelo": "claude-haiku-5-5",
+    "usageDetails": {
+     "cache_write_input_tokens": 800,
+     "input": 1180,
+     "output": 64,
+     "total": 2044,
+     "input_cache_creation": 800
+    },
+    "costDetails": {
+     "input": 0.000118,
+     "output": 3.2e-05,
+     "input_cache_creation": 0.0001,
+     "total": 0.00025
+    }
+   },
+   {
+    "modelo": "claude-haiku-5-5",
+    "usageDetails": {
+     "input": 420,
+     "output": 96,
+     "total": 1316,
+     "input_cached_tokens": 800
+    },
+    "costDetails": {
+     "input": 4.2e-05,
+     "output": 4.8e-05,
+     "input_cached_tokens": 8e-06,
+     "total": 9.8e-05
+    }
+   },
+   {
+    "modelo": "claude-haiku-5-5",
+    "usageDetails": {
+     "input": 380,
+     "output": 150,
+     "total": 1330,
+     "input_cached_tokens": 800
+    },
+    "costDetails": {
+     "input": 3.8e-05,
+     "output": 7.5e-05,
+     "input_cached_tokens": 8e-06,
+     "total": 0.000121
+    }
+   }
+  ],
+  "con_entrada_o_salida": 9,
+  "usuario_en_el_agente": false,
+  "canarios_en_langfuse": {
+   "email": false,
+   "rfc": false,
+   "telefono": false,
+   "literal_sql": false,
+   "prompt": false
+  },
+  "mascaras": 0
+ },
+ "completo": true
+}

@@ -109,8 +109,9 @@ A profile that never sees the tool does not reach the server at all: the call di
 
 - **No real model.** The `usage` numbers and the latencies are scripted inputs; the tests check that the spans add up to them and last
   at least as long. Activities 4 to 7 run the real model (each with its own estimate and authorization).
-- **The optional comparison with LangGraph or Strands was not run.** Activity 1 measured them (LangGraph: 0 native OTel spans, Strands:
-  3 spans); the same scripted task through them would need a scripted model per framework and was left out of this activity.
+- **The optional comparison with LangGraph and Strands** was run after this activity, with the same scripted turns and the same
+  real server: see [`frameworks.md`](frameworks.md) (Strands continues the trace into the server out of the box but records the
+  content by default; LangGraph emits no OpenTelemetry).
 - **One process, one resource.** Agent, client and server share `service.name = legacybridge` in the lab; production would export the
   server from its own service. Only the Streamable HTTP transport is instrumented (stdio has no boundary).
 - **Tool calls in one turn run in sequence** (the loop does that); concurrency across tasks is not tested.
