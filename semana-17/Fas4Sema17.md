@@ -389,4 +389,5 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   (`resultados/presupuestos.md`). Findings: Langfuse v4 does not show span events (they reach the Collector's file; the agent span
   carries `lab.outcome.reason = presupuesto_*`, which is what activity 8 must read); a degrade made the loop price the run at the
   original model (found by the Langfuse check, fixed); upper-bound reservations are conservative under concurrency; one failure
-  (`s10-es`) is not explained and is reported as variation, not proved.
+  (`s10-es`) has no budget cause we can find (no response was cut, and even in the worst case the output limit was above the largest
+  output recorded in week 13) and is reported as variation, not proved.

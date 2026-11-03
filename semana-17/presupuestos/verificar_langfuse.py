@@ -150,7 +150,10 @@ def main(argv=None) -> int:
         costo_lf = sum(g["costDetails"]["total"] for g in generaciones)
         costo_ok = ids_ok and abs(costo_lf - c["raiz"]["attrs"]["lab.run.cost_usd"]) < 1e-7
         modelos_ok = ids_ok and sorted(modelos_lf) == sorted(modelos_lab)
-        en_langfuse = any(E.EVENTO_PRESUPUESTO in json.dumps(o, default=str) for o in obs)
+        # the events as Langfuse's own type: the v2 API asked for EVENT observations of this trace (it also has `fields=all`, which adds no events)
+        estado_http, como_evento = vs.peticion(f"{vs.LANGFUSE}/api/public/v2/observations?traceId={traza}&type=EVENT", auth)
+        n_tipo_evento = len(como_evento.get("data", [])) if estado_http == 200 else None
+        en_langfuse = any(E.EVENTO_PRESUPUESTO in json.dumps(o, default=str) for o in obs) or bool(n_tipo_evento)
         ok = all([ids_ok, tipos_ok, archivo_igual, resultado_ok, costo_ok, modelos_ok, len(ev) >= 1])
         informe["escenarios"][nombre] = {
             "estado_agente": r.estado, "motivo": r.motivo, "spans": len(spans), "observaciones_en_langfuse": len(obs),
@@ -158,7 +161,7 @@ def main(argv=None) -> int:
             "alcances": sorted({e["attrs"]["lab.budget.scope"] for e in ev}), "motivos": [e["attrs"]["lab.budget.reason"] for e in ev],
             "eventos_en_el_archivo_del_collector": len(en_archivo), "eventos_del_archivo_iguales_a_los_del_laboratorio": archivo_igual,
             "claves_por_evento": sorted({len(e["attrs"]) for e in en_archivo}),
-            "eventos_en_langfuse": en_langfuse, "tipos_correctos": tipos_ok, "resultado_del_agente_en_langfuse_igual": resultado_ok,
+            "eventos_en_langfuse": en_langfuse, "observaciones_de_tipo_EVENT_en_langfuse": n_tipo_evento, "tipos_correctos": tipos_ok, "resultado_del_agente_en_langfuse_igual": resultado_ok,
             "modelos_de_las_generaciones_en_langfuse_iguales": modelos_ok, "modelos": modelos_lab,
             "costo_en_langfuse_igual_al_del_agente": costo_ok, "ok": bool(ok)}
         todo_ok = todo_ok and bool(ok)
