@@ -12,6 +12,10 @@
 6. A plugin subagent calling a tool outside the `tools:` list of its agents/*.md (hook input has agent_type).
 7. Credentials through the shell (DSN and secret environment variables, environment dumps) or a Grep for them, a
    riesgos.md whose findings lack their SELECT, and a deliverable YAML that does not parse.
+8. Browser tools (activity 7): only Playwright MCP `browser_*` tools that look, on local origins (127.0.0.1,
+   localhost, [::1]). Typing, filling, selecting, key presses, uploads, drag and drop, page scripts and dialogs are
+   blocked, and so is a click on a submit-like control (Guardar, Enviar, Submit, Save...), a tool that writes a file
+   (`filename`), and any tool driving the user's own browser (Claude in Chrome, the app's browser pane).
 
 Every block is logged to auditoria/bloqueos.jsonl (tool, agent, reason, hash of the input).
 
@@ -86,6 +90,44 @@ class Bloqueo(Exception):
     pass
 
 
+# Playwright MCP tools that only look at a page (or move within it). Everything else of the same server is blocked.
+NAVEGADOR_PERMITIDAS = {"browser_navigate", "browser_navigate_back", "browser_snapshot", "browser_take_screenshot",
+                        "browser_find", "browser_click", "browser_hover", "browser_wait_for", "browser_tabs",
+                        "browser_console_messages", "browser_network_requests", "browser_network_request",
+                        "browser_close", "browser_resize"}
+# Tools that drive the user's real browser, with the user's own sessions.
+NAVEGADOR_DEL_USUARIO = re.compile(r"claude-in-chrome|Claude_Browser|Control_Chrome|chrome-devtools", re.I)
+ENVIAR = re.compile(r"guardar|grabar|enviar|submit|save|send|aceptar|confirm|registrar|borrar|eliminar|delete|"
+                    r"export|pagar|comprar|publicar|post\b", re.I)
+HOSTS_LOCALES = {"127.0.0.1", "localhost", "::1"}
+
+
+def origen_local(url: str) -> bool:
+    from urllib.parse import urlsplit
+    try:
+        partes = urlsplit(url.strip())
+        return partes.scheme in ("http", "https") and (partes.hostname or "") in HOSTS_LOCALES
+    except ValueError:
+        return False
+
+
+def revisar_navegador(herramienta: str, entrada: dict) -> None:
+    nombre = comun.corto(herramienta)
+    if NAVEGADOR_DEL_USUARIO.search(herramienta):
+        raise Bloqueo("Driving the user's own browser (their sessions and cookies) is blocked; use the isolated "
+                      "Playwright MCP limited to local origins.")
+    if nombre not in NAVEGADOR_PERMITIDAS:
+        raise Bloqueo(f"{nombre} is blocked: the browser agent only looks (no typing, filling, selecting, keys, "
+                      "uploads, drag and drop, page scripts or dialogs).")
+    if entrada.get("filename"):
+        raise Bloqueo("Browser tools may not write files (filename); read the result inline.")
+    url = entrada.get("url")
+    if (nombre == "browser_navigate" or url) and not origen_local(str(url or "")):
+        raise Bloqueo(f"Only local origins (127.0.0.1, localhost) are allowed: {url}")
+    if nombre == "browser_click" and ENVIAR.search(" ".join(str(entrada.get(k) or "") for k in ("element", "target"))):
+        raise Bloqueo("Clicking a submit-like control is blocked: the browser agent never submits forms.")
+
+
 def lectura_permitida(ruta: str, proyecto: str) -> bool:
     """Reads stay inside the project, the plugin itself, or the large tool outputs Claude Code saves for this session
     (~/.claude/projects/<project>/<session>/tool-results/). Anything else, the home folder included, is outside."""
@@ -138,6 +180,11 @@ def decidir(evento: dict, estado_dir: Path) -> None:
     agente = comun.agente_del_plugin(evento.get("agent_type"))
     if agente and herramienta not in comun.herramientas_de_agentes()[agente]:
         raise Bloqueo(f"Subagent {agente} may not use {herramienta}; its tools are listed in agents/{agente}.md.")
+
+    if NAVEGADOR_DEL_USUARIO.search(herramienta) or (herramienta.startswith("mcp__")
+                                                     and comun.corto(herramienta).startswith("browser_")):
+        revisar_navegador(herramienta, entrada)
+        return
 
     if comun.es_herramienta_bd(herramienta):
         if herramienta in comun.HERRAMIENTAS_PROPIAS:

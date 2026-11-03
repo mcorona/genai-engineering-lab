@@ -1,0 +1,29 @@
+{
+ "descripcion": "Ground truth of the MOV-010 screen (navegador/pantalla.py): which column of legado.movinv each visible field writes, and what the user sees that the database does not hold. A fact counts when its pattern (or every pattern in `todos`) appears in what the agent wrote for that field. Fixed before any model run.",
+ "tabla": "movinv",
+ "campos": [
+  {"etiqueta": "Folio", "columna": "mov_id", "hechos": [
+   {"id": "folio_del_sistema", "descripcion": "Assigned by the system on save; read-only", "patron": "sistema|system|autom|assigned|asignad"}]},
+  {"etiqueta": "Clave del producto", "columna": "mov_art", "hechos": [
+   {"id": "formato_sku", "descripcion": "Format SKU-9999 (pattern SKU-[0-9]{4})", "patron": "SKU-?\\s*(9999|####|NNNN|XXXX|\\[0-9\\]|\\\\d|0000|\\d{4})"}]},
+  {"etiqueta": "Bodega", "columna": "mov_alm", "hechos": [
+   {"id": "nombre_de_bodega", "descripcion": "The user picks a warehouse by name (CEDIS Centro, Occidente, Norte), not by id", "patron": "CEDIS"}]},
+  {"etiqueta": "Tipo de operación", "columna": "mov_tip", "hechos": [
+   {"id": "etiquetas_de_tipo", "descripcion": "Shown as Entrada / Salida", "todos": ["Entrada", "Salida"]}]},
+  {"etiqueta": "Cantidad", "columna": "mov_qty", "hechos": [
+   {"id": "maximo", "descripcion": "Maximum 9,999.99 per movement", "patron": "9,?999"},
+   {"id": "autorizacion_salidas", "descripcion": "Outflows over 100 need a supervisor's authorization", "patron": "\\b100\\b"}]},
+  {"etiqueta": "Presentación", "columna": "mov_uni", "hechos": [
+   {"id": "caja_de_20", "descripcion": "A box is 20 pieces (since September 2026)", "patron": "\\b20\\b"},
+   {"id": "etiquetas_de_unidad", "descripcion": "Shown as Pieza / Caja / Kilogramo", "todos": ["Pieza|piece", "Caja|box", "Kilogramo|kilogram"]}]},
+  {"etiqueta": "Fecha de operación", "columna": "mov_fch", "hechos": [
+   {"id": "sin_fechas_futuras", "descripcion": "Future dates are not allowed", "patron": "futur"},
+   {"id": "hoy_por_omision", "descripcion": "Defaults to today", "patron": "hoy|today|d[ií]a|omisi[oó]n|default|current date"},
+   {"id": "formato_en_consulta", "descripcion": "The query grid shows it as dd/mm/aaaa", "patron": "dd/mm"}]},
+  {"etiqueta": "Capturó", "columna": "mov_usr", "hechos": [
+   {"id": "usuario_de_la_sesion", "descripcion": "Taken from the session user; not editable", "patron": "sesi[oó]n|session|logged|no editable|not editable|read-?only|solo lectura|no se puede modificar|cannot be (changed|modified)"}]},
+  {"etiqueta": "Autorizó", "columna": null, "hechos": [
+   {"id": "autorizo_salidas", "descripcion": "Only for outflows over 100; not stored in movinv", "patron": "\\b100\\b"}]},
+  {"etiqueta": "Observaciones", "columna": null, "hechos": []}
+ ]
+}
