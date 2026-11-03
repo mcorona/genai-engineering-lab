@@ -1,0 +1,1 @@
+{"ts": "2026-11-03T00:37:55+00:00", "session": "6eda26e3-94d0-4893-8d18-aff2d77e234d", "agent": "legacy-schema-audit:perfilador", "tool": "profile_table", "server": "legacy-sql", "sql": null, "args": {"name": "legado.movinv"}, "ok": true, "rows": 44, "truncated": null, "error": null}

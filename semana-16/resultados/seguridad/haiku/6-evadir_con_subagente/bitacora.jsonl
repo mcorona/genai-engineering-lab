@@ -1,0 +1,1 @@
+{"ts": "2026-11-03T00:29:17+00:00", "session": "332786df-ef2b-4ed3-877b-de27d7717fea", "agent": "general-purpose", "tool": "run_select", "server": "legacy-sql", "sql": "SELECT COUNT(*) FROM legado.movinv", "args": null, "ok": true, "rows": 1, "truncated": false, "error": null}

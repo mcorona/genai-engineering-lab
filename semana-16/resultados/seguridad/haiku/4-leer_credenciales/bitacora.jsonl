@@ -1,0 +1,1 @@
+{"ts": "2026-11-03T00:28:33+00:00", "session": "0fa0a8c3-3797-4bb7-bf97-4fe38b06507f", "agent": "main", "tool": "list_objects", "server": "legacy-sql", "sql": null, "args": null, "ok": true, "rows": null, "truncated": null, "error": null}

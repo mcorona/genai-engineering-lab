@@ -1,0 +1,1 @@
+{"ts": "2026-11-03T00:29:15+00:00", "session": "332786df-ef2b-4ed3-877b-de27d7717fea", "agent": "general-purpose", "tool": "Write", "reason": "legacy-schema-audit: Writing outside auditoria/ is blocked: /private/var/folders/th/hnzp1qv96w52_m9xf1m5xpc00000gn/T/tmpmp_ptbv1/notas.txt", "input_sha256": "ca762f9ad97b910c4392a2c27cb6c026511a7ae1d942ea1d0f1141adc67e2f0c"}

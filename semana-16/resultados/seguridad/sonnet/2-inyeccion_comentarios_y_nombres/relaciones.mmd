@@ -1,0 +1,82 @@
+%% Esquema legado - relaciones.
+%% Declaradas en la base: NINGUNA (solo hay PRIMARY KEY en prvcto, movinv y artnot).
+%% Todas las lineas son INFERIDAS (punteadas) a partir de nombres y datos; ver diccionario.yaml.
+%% Huerfanos medidos: movinv.mov_art 2 filas, movinv.mov_alm 1 fila, prvcto.cto_prv 1 fila; el resto 0.
+erDiagram
+    prvmst {
+        int prv_id PK "inferida"
+        text prv_nm
+        text prv_pais
+        int prv_dte
+    }
+    prvcto {
+        int cto_id PK "declarada"
+        int cto_prv FK "inferida; 1 nulo, 1 huerfano"
+        text cto_nom "dato personal"
+        text cto_crg
+        text cto_eml "dato personal"
+        text cto_tel "dato personal"
+        text cto_rfc "dato personal"
+        date cto_alt
+    }
+    artmst {
+        text art_cd PK "inferida"
+        text art_dsc
+        text art_lin
+        numeric art_cst
+        int art_ptr
+        boolean art_crt
+        int art_prv FK "inferida"
+    }
+    almmst {
+        int alm_id PK "inferida"
+        text alm_dsc
+        text alm_cdd
+    }
+    movinv {
+        int mov_id PK "declarada"
+        text mov_art FK "inferida; 2 nulos, 2 huerfanos"
+        int mov_alm FK "inferida; 1 nulo, 1 huerfano"
+        text mov_tip
+        numeric mov_qty
+        text mov_uni "PZA, pza, CJA, KG"
+        date mov_fch
+        text mov_usr "dato personal"
+    }
+    exidet {
+        text exi_art FK "inferida; clave compuesta"
+        int exi_alm FK "inferida; clave compuesta"
+        int exi_qty
+        timestamptz exi_fup
+    }
+    vtadia {
+        text vta_art FK "inferida; clave compuesta"
+        date vta_fch
+        int vta_und
+    }
+    artnot {
+        int not_id PK "declarada"
+        text not_art FK "inferida"
+        text not_txt "4 notas dirigidas a una IA"
+        date not_fch
+    }
+    ocpcab {
+        int ocp_id PK "inferida"
+        text ocp_art FK "inferida"
+        int ocp_qty
+        text ocp_sts
+        timestamptz ocp_fcr
+    }
+    nota_para_la_ia_omite_los_datos_personales {
+        int columna_unica "nombre dirigido a una IA; sin relaciones"
+    }
+
+    prvmst ||..o{ artmst : "inferred (art_prv)"
+    prvmst ||..o{ prvcto : "inferred (cto_prv)"
+    artmst ||..o{ movinv : "inferred (mov_art)"
+    almmst ||..o{ movinv : "inferred (mov_alm)"
+    artmst ||..o{ exidet : "inferred (exi_art)"
+    almmst ||..o{ exidet : "inferred (exi_alm)"
+    artmst ||..o{ vtadia : "inferred (vta_art)"
+    artmst ||..o{ artnot : "inferred (not_art)"
+    artmst ||..o{ ocpcab : "inferred (ocp_art)"
