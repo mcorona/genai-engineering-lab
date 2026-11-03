@@ -27,11 +27,18 @@ class ModeloGuionado:
 
     def __call__(self, cuerpo: dict) -> dict:
         n = len(self.llamadas)
-        self.llamadas.append({"modelo": cuerpo.get("model"), "mensajes": len(cuerpo.get("messages", []))})
+        self.llamadas.append({"modelo": cuerpo.get("model"), "mensajes": len(cuerpo.get("messages", [])),
+                              "max_tokens": cuerpo.get("max_tokens")})
         if self.falla_en is not None and n == self.falla_en:
             raise RuntimeError(self.mensaje_de_falla)
         turno = self.turnos[n]
         time.sleep(turno.get("latencia_s", 0))        # the scripted model "thinks": the `chat` span must last at least this
+        limite = cuerpo.get("max_tokens")
+        if limite is not None and turno["usage"].get("output_tokens", 0) > limite:
+            # like the API: the answer is cut at `max_tokens`, with no tool use, and the output is billed at that size
+            return {"id": f"msg_scripted_{n + 1:03d}", "type": "message", "role": "assistant", "model": cuerpo["model"],
+                    "stop_reason": "max_tokens", "content": [{"type": "text", "text": "..."}],
+                    "usage": {**turno["usage"], "output_tokens": limite}}
         pedidos = turno.get("herramientas") or [("responder", turno["final"])]
         bloques = [{"type": "tool_use", "id": f"toolu_scripted_{n + 1:02d}_{k + 1}", "name": nombre, "input": entrada}
                    for k, (nombre, entrada) in enumerate(pedidos)]
