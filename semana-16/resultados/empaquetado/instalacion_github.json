@@ -1,0 +1,30 @@
+{
+ "fuente": "github:mcorona/genai-engineering-lab",
+ "version": "1.0.0",
+ "checks": {
+  "versions_coinciden": true,
+  "semver": true,
+  "config_vacia_al_inicio": true,
+  "marketplace_valida_strict": true,
+  "plugin_valida_strict_directory": true,
+  "marketplace_agregada": true,
+  "instalado": true,
+  "version_instalada": true,
+  "copia_instalada_fuera_del_checkout": true,
+  "habilitado": true,
+  "componentes": true,
+  "readme_y_changelog_instalados": true,
+  "ejemplo_instalado": true,
+  "guardia_instalada_bloquea_delete": true,
+  "guardia_instalada_bloquea_psql": true,
+  "guardia_instalada_permite_select": true,
+  "sessionstart_instalado_rol_admin_inseguro": true,
+  "sessionstart_instalado_rol_lectura_seguro": true,
+  "desinstalado": true,
+  "sin_rastro_al_final": true
+ },
+ "marketplace_add": "{\"command\":\"marketplace-add\",\"outcome\":\"ok\",\"marketplace\":\"genai-engineering-lab\",\"message\":\"SSH not configured, cloning via HTTPS: https://github.com/mcorona/genai-engineering-lab.git\\nRefreshing marketplace cache (timeout: 120s)…\\nCloning repository (timeout: 120s): https://github.com/mcorona/genai-engineering-lab.git\\nClone complete, validating marketplace…\\nCleaning up old marketplace cache…\\n",
+ "install": "Installing plugin \"legacy-schema-audit@genai-engineering-lab\"...✔ Successfully installed plugin: legacy-schema-audit@genai-engineering-lab (scope: user)\n2 userConfig options not yet set — run /plugin configure legacy-schema-audit@genai-engineering-lab in Claude Code, or pass --config KEY=VALUE.",
+ "details": "Legacy Schema Audit (legacy-schema-audit) 1.0.0\n  Description: Read-only audit of a legacy database schema: data dictionary, ER relationships, risks with SQL evidence, and an executive summary for non-technical buyers.\n  Source: legacy-schema-audit@genai-engineering-lab\n\nComponent inventory\n  Skills (4)  auditar, auditoria-completa, solo-diccionario, solo-riesgos\n  Agents (3)  revisor-riesgos, analista-relaciones, perfilador\n  Hooks (3)  SessionStart, PreToolUse, PostToolUse  (harness-only — no model context cost)\n  MCP servers (1)  legacy-sql  (tool schemas resolved at runtime; not counted)\n  LSP servers (0)\n\nProjected token cost\n  Always-on:   ~322 tok   added to every session\n\nPer-component (rounded)\n  component            always-on  on-invoke\n  solo-riesgos               ~20        ~60\n  solo-diccionario           ~20        ~60\n  auditoria-completa         ~30        ~60\n  auditar                    ~80        ~2k\n  revisor-riesgos            ~50       ~480\n  analista-relaciones        ~50       ~360\n  perfilador                 ~60       ~350\n\n  On-invoke cost is paid each time a skill or agent fires.\n  Token counts are estimates and may differ from actual usage.",
+ "aprobado": true
+}

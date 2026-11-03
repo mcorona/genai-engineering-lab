@@ -36,9 +36,10 @@ checks it and removes it. It passed **20/20** in the cloud container, with Claud
 | Uninstalling and removing the marketplace leave no trace | ✅ |
 
 The same check runs in CI (`tests/test_empaquetado.py`) on every PR that touches week 16 or `.claude-plugin/`.
-After the merge it is repeated from GitHub, the way a client installs it:
-`python empaquetado/instalar_desde_cero.py --github mcorona/genai-engineering-lab`. That run uses the sparse
-checkout from the README: only `.claude-plugin` and the plugin, not the whole lab repository.
+After the merge it was repeated from GitHub on the Mac, the way a client installs it (`main` at 78bc6f2, Claude
+Code 2.1.316): `python empaquetado/instalar_desde_cero.py --github mcorona/genai-engineering-lab`. That run uses
+the sparse checkout from the README, only `.claude-plugin` and the plugin, not the whole lab repository. Result:
+**20/20** ([`empaquetado/instalacion_github.json`](empaquetado/instalacion_github.json)).
 
 ## Client README: what it covers
 
