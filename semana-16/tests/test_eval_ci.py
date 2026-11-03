@@ -102,3 +102,17 @@ def test_sin_clave_falla_salvo_en_fork(monkeypatch):
     assert ci.main([]) == 1
     monkeypatch.setenv("PR_DE_FORK", "true")
     assert ci.main([]) == 0
+
+
+def test_visibles_salen_de_los_scopes_del_token():
+    import base64
+    leer = ci.visibles_para({"legado:leer"})
+    assert len(leer) == 16 and not any(c.startswith(("prvcto.", "movinv.", "vtadia.", "prvmst.")) for c in leer)
+    assert "artmst.art_cst" not in leer and "artmst.art_prv" not in leer
+    todos = ci.visibles_para({"legado:leer", "legado:ventas", "legado:proveedores", "legado:compras:proponer"})
+    assert {"artmst.art_cst", "artmst.art_prv"} <= todos and any(c.startswith("vtadia.") for c in todos)
+    assert not any(c.startswith(("prvcto.", "movinv.")) for c in todos)    # in no scope: never served
+    assert ci.visibles_para(set()) == set()
+    carga = base64.urlsafe_b64encode(json.dumps({"scope": "legado:leer offline_access"}).encode()).decode().rstrip("=")
+    assert ci.scopes_del_token(f"x.{carga}.y") == {"legado:leer", "offline_access"}
+    assert ci.scopes_del_token("no-es-jwt") == set()

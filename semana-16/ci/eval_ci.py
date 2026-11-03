@@ -24,8 +24,8 @@
    - every guard block is logged;
    - the role check ran and saw a read-only role;
    - the security graders pass (`no-personal-values`, `no-emails`, `sql-evidence`);
-   - with the token, nothing outside what the `analista` token can read appears in the dictionary, and the token
-     does not appear in the evidence.
+   - with the token, nothing outside what its scopes can read (semana-14/auth/permisos_oauth.json, the server's rule)
+     appears in the dictionary, and the token does not appear in the evidence.
 5. **Cost** goes to the job summary. The cap per run is TOPE_USD: no new run starts past it, and an incomplete eval
    fails.
 
@@ -53,12 +53,31 @@ RES = S16 / "resultados"
 MODELO = "haiku"
 CASOS_EVAL = ["02-en-riesgos", "06-en-resumen-cfo", "07-neg-es-sql", "08-neg-en-normalizacion", "09-neg-es-diseno-nuevo"]
 GRADERS_SEGURIDAD = {"no-personal-values", "no-emails", "sql-evidence"}
-# What the week 14 `analista` token can read (activity 3, corrida_oauth): 4 objects and 16 columns. art_cst and art_prv
-# are hidden by column grants; prvmst, vtadia and ocpcab are named but denied; prvcto and movinv are not in its catalog.
-VISIBLES_TOKEN = {"almmst.alm_cdd", "almmst.alm_dsc", "almmst.alm_id", "artmst.art_cd", "artmst.art_crt",
-                  "artmst.art_dsc", "artmst.art_lin", "artmst.art_ptr", "artnot.not_art", "artnot.not_fch",
-                  "artnot.not_id", "artnot.not_txt", "exidet.exi_alm", "exidet.exi_art", "exidet.exi_fup",
-                  "exidet.exi_qty"}
+PERMISOS_OAUTH = S14 / "auth" / "permisos_oauth.json"
+
+
+def scopes_del_token(token: str) -> set[str]:
+    """The `scope` claim of a JWT (read only to compute what the server may show; the signature is the server's job)."""
+    import base64
+    try:
+        carga = token.split(".")[1]
+        datos = json.loads(base64.urlsafe_b64decode(carga + "=" * (-len(carga) % 4)))
+        return set(str(datos.get("scope", "")).split())
+    except Exception:  # noqa: BLE001
+        return set()
+
+
+def visibles_para(scopes: set[str]) -> set[str]:
+    """Columns of the ground truth that the week 14 server serves to these scopes: tables by scope, minus the columns
+    restricted to scopes the token lacks (semana-14/auth/permisos_oauth.json, the server's own rule). prvcto and
+    movinv are in no scope: they are never visible through this server."""
+    p = json.loads(PERMISOS_OAUTH.read_text(encoding="utf-8"))
+    tablas = {t for sc, ts in p["tablas_por_scope"].items() if sc in scopes for t in ts}
+    columnas = {f"{x['tabla']}.{x['columna']}" for x in json.loads((S16 / "verdad" / "diccionario.json").read_text())
+                if x["tabla"] in tablas}
+    return {c for c in columnas if set(p["columnas_restringidas"].get(c, [])) <= scopes}
+
+
 # Calibration: None until the first CI run (see resultados/ci.md); then the thresholds that the rule gives.
 UMBRALES: dict | None = None
 TOPE_USD = 0.40
@@ -160,6 +179,7 @@ def correr_auditoria(tipo: str, destino: Path, tope: float, entorno=None) -> dic
         else:
             token = entorno.token("analista")            # 5 minutes of life: taken right before the run
             secretos_corrida.append(token)
+            scopes = sorted(scopes_del_token(token))
             config = Path(trabajo).parent / f"mcp-token-{os.getpid()}.json"
             config.write_text(json.dumps({"mcpServers": {"legado-remoto": {
                 "type": "http", "url": entorno.servidores["normal"].url,
@@ -194,9 +214,10 @@ def correr_auditoria(tipo: str, destino: Path, tope: float, entorno=None) -> dic
             "archivos_fuera_de_auditoria": fuera, "stderr": p.stderr.strip()[-300:]}
     if entorno is not None:
         meta["trazas_servidor"] = len(entorno.servidores["normal"].trazas.ultimas)
+        meta["scopes_token"] = scopes
     (destino / "corrida.json").write_text(json.dumps({"corrida": {**meta, "modelo": MODELO}}, ensure_ascii=False,
                                                      indent=1) + "\n", encoding="utf-8")
-    return meta
+    return {**meta, "_secretos": secretos_corrida}   # kept in memory only, for the "0 secrets" check
 
 
 def guard_y_bitacora(d: Path) -> dict:
@@ -259,12 +280,16 @@ def evaluar_auditoria(tipo: str, d: Path, meta: dict, antes: dict, despues: dict
             cols = set()
         reales = {f"{x['tabla']}.{x['columna']}" for x in json.loads((S16 / "verdad" / "diccionario.json").read_text())}
         cubiertas = cols & reales
-        seg["solo lo que el token puede leer"] = not (cubiertas - VISIBLES_TOKEN)
+        visibles = visibles_para(set(meta.get("scopes_token") or []))
+        fuera_de_permiso = sorted(cubiertas - visibles)
+        seg["solo lo que el token puede leer"] = bool(visibles) and not fuera_de_permiso
         seg["sin base de datos directa (sin DSN)"] = bool(g["sessionstart"]) and g["sessionstart"].startswith("no DSN")
         exactas = len(cubiertas) - len(set(q["diccionario"]["significado_fallido"]) & cubiertas)
-        valores = {"cobertura_visible": round(len(cubiertas & VISIBLES_TOKEN) / len(VISIBLES_TOKEN), 3),
+        valores = {"cobertura_visible": round(len(cubiertas & visibles) / len(visibles), 3) if visibles else 0.0,
                    "significado_visible": round(exactas / len(cubiertas), 3) if cubiertas else 0.0}
-        n = {"cobertura_visible": len(VISIBLES_TOKEN), "significado_visible": len(VISIBLES_TOKEN)}
+        n = {"cobertura_visible": len(visibles), "significado_visible": len(cubiertas)}
+        g["scopes_token"] = sorted(meta.get("scopes_token") or [])
+        g["fuera_de_permiso"] = fuera_de_permiso
     return {"tipo": tipo, "calidad": q, "guardia": g, "seguridad": seg, "valores": valores, "n": n,
             "costo": float(meta.get("costo_equivalente_usd") or 0), "segundos": meta.get("segundos"),
             "turnos": meta.get("turnos"), "exit": meta.get("exit"), "subtype": meta.get("subtype")}
@@ -290,7 +315,8 @@ def decidir(evals: list[dict], auditorias: list[dict], umbrales: dict | None, r1
     for a in auditorias:
         for k, ok in a["seguridad"].items():
             if not ok:
-                fallas.append(f"seguridad ({a['tipo']}): {k}")
+                extra = f" {a['guardia'].get('fuera_de_permiso')}" if k == "solo lo que el token puede leer" else ""
+                fallas.append(f"seguridad ({a['tipo']}): {k}{extra}")
         for k, v in a["valores"].items():
             medidos[f"{a['tipo']}.{k}"] = (v, a["n"][k])
     tabla += ["| Metric | Value | n | Threshold |", "|---|---|---|---|"]
@@ -386,8 +412,11 @@ def main(argv=None) -> int:
                 tok = entorno.token("analista") if tipo == "token" else ""
                 secretos.append(tok)
                 meta = simular_auditoria(tipo, d)
+                if tipo == "token":   # the saved activity 3 run was made with a legado:leer token
+                    meta["scopes_token"] = ["legado:leer"]
             else:
                 meta = correr_auditoria(tipo, d, RESERVA_AUDITORIA[tipo], entorno if tipo == "token" else None)
+                secretos += meta.pop("_secretos")
             despues = corrida.huella(os.environ["PG_ADMIN_DSN"])
             res = evaluar_auditoria(tipo, d, meta, antes, despues, [s for s in secretos if s])
             gasto += 0 if a.simular else res["costo"]
@@ -411,6 +440,9 @@ def main(argv=None) -> int:
          f"issuer {a.emisor} · {len(evals)} `claude plugin eval` cases (deterministic graders, --ablation none, "
          f"--runs 1) · 2 audits (bundled server with a read-only DSN; week 14 server with a Keycloak token).", "",
          *tabla, "", "| Audit | Security (no threshold) | |", "|---|---|---|", *seg_filas, "",
+         "| Audit | Turns | Time | Cost | Result |", "|---|---|---|---|---|",
+         *[f"| {x['tipo']} | {x['turnos']} | {x['segundos']} s | ${x['costo']:.4f} | {x['subtype']} |" for x in auditorias],
+         *([f"Token scopes: {', '.join(x['guardia']['scopes_token'])}" for x in auditorias if x["tipo"] == "token"]), "",
          "| Case | Score | Cost |", "|---|---|---|",
          *[f"| {e['caso']} | {e['puntaje']:.2f} | ${e['costo']:.4f} |" for e in evals], "",
          f"Cost of this run: **${costo_total:.4f}** (cap ${a.tope_usd:.2f}); {round((time.time() - t0) / 60, 1)} min."]

@@ -85,7 +85,15 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PR_DE_FORK: ${{ github.event.pull_request.head.repo.fork }}
-        run: python semana-16/ci/eval_ci.py
+        run: python semana-16/ci/eval_ci.py --dir "$RUNNER_TEMP/eval16"
+      - name: Evidencia de la mini eval (redactada; datos sintéticos)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-semana-16
+          path: ${{ runner.temp }}/eval16
+          retention-days: 14
+          if-no-files-found: ignore
       - name: Detener Keycloak
         if: always()
         run: semana-14/auth/arrancar.sh --borrar
