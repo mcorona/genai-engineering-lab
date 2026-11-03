@@ -71,5 +71,6 @@ jobs:
         run: python semana-17/preparar/verificar_entorno.py --sin-docker
       - name: Pruebas sin API
         run: |
+          set -o pipefail   # sin esto el `| tee` oculta el código de salida de pytest y las pruebas que fallan quedan en verde
           cd semana-17 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
           if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
