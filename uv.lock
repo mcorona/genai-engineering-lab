@@ -43,6 +43,7 @@ semana17 = [
     { name = "opentelemetry-instrumentation-httpx" },
     { name = "opentelemetry-sdk" },
     { name = "opentelemetry-semantic-conventions" },
+    { name = "opentelemetry-util-genai" },
 ]
 
 [package.metadata]
@@ -73,6 +74,7 @@ semana17 = [
     { name = "opentelemetry-instrumentation-httpx", specifier = "==0.66b2" },
     { name = "opentelemetry-sdk", specifier = "==1.45.2" },
     { name = "opentelemetry-semantic-conventions", specifier = "==0.66b2" },
+    { name = "opentelemetry-util-genai", specifier = "==1.3b0" },
 ]
 
 [[package]]
@@ -1729,6 +1731,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/37/3f/50f95972b50e8e353f5b9342034c9cd17730f1956f009ce6a3fbbd89f9ce/opentelemetry_semantic_conventions-0.66b2.tar.gz", hash = "sha256:7da5f1a5dc4383eb66711d4d3d3e71824d9403ac1559fea021cc103c1a4c4976", size = 150246, upload-time = "2026-10-29T17:29:55.682Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/67/bd/6bf33ed31521c565931c037e9e81bac47c1acb000e850c6e24220e2a0c00/opentelemetry_semantic_conventions-0.66b2-py3-none-any.whl", hash = "sha256:4cbe61e5f9275d57ab31708446e7938ef4291ebbe6a7fca6f7a629c5acae87d8", size = 206280, upload-time = "2026-10-29T17:29:35.062Z" },
+]
+
+[[package]]
+name = "opentelemetry-util-genai"
+version = "1.3b0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-semantic-conventions" },
+    { name = "wrapt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cc/ca/e0c67efb27e98f05228884f9ec3b7a807c1633a601d119df9a74c3ae9d47/opentelemetry_util_genai-1.3b0.tar.gz", hash = "sha256:29e7e9cf9b9f4742c178e837237f72356b8903a004b0edcc23e779232da7719f", size = 132472, upload-time = "2026-10-23T03:13:14.73Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/63/08996e24d3ac08598ff749b52d177fd71384343cc65eaa8320eb11bb6535/opentelemetry_util_genai-1.3b0-py3-none-any.whl", hash = "sha256:73ed59f1eeca33d6c41e6aff57b5d2c1133807bfc8832978ba3edeec7eab8cda", size = 74411, upload-time = "2026-10-23T03:13:13.145Z" },
 ]
 
 [[package]]

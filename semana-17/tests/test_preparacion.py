@@ -24,13 +24,12 @@ def test_plan_tiene_10_actividades_con_tiempo_y_costo():
     assert "Criterion 17" in PLAN
 
 
-def test_versiones_fijadas_sin_etiquetas_flotantes():
-    for nombre, imagen in V["imagenes"].items():
-        etiqueta = imagen.rsplit(":", 1)[1]
-        if nombre in V["pendiente_digest"]:
-            continue                                   # pinned by digest in activity 1
-        assert re.fullmatch(r"\d+\.\d+\.\d+(\.\d+)?", etiqueta), (nombre, imagen)
-    assert set(V["pendiente_digest"]) <= set(V["imagenes"])
+def test_versiones_fijadas_y_cada_imagen_con_su_digest():
+    assert set(V["digests"]) == set(V["imagenes"])                  # activity 1 pinned every image by digest
+    for nombre, digest in V["digests"].items():
+        assert re.fullmatch(r"sha256:[0-9a-f]{64}", digest), nombre
+    for nombre in ("langfuse-web", "langfuse-worker", "clickhouse", "otel-collector", "keycloak"):
+        assert re.fullmatch(r"\d+\.\d+\.\d+(\.\d+)?", V["imagenes"][nombre].rsplit(":", 1)[1]), nombre
     for paquete, version in V["python"].items():
         assert re.fullmatch(r"\d+\.\d+(\.\d+|b\d+)", version), paquete
     puertos = list(V["puertos"].values())

@@ -1,12 +1,13 @@
 {
- "nota": "Candidate pins for week 17, found on 2026-11-02 (PyPI, GitHub release tags and the docker-compose.yml of langfuse/langfuse at 0ca8994). Activity 1 verifies each one on the Mac and keeps or replaces it. No floating tags (:4, :latest).",
+ "nota": "Pins verified in activity 1 (2026-11-03) on the Mac and in the container: Python packages from PyPI, images by digest (multi-arch index digests from docker pull on the Mac), release tags from GitHub. No floating tag is used without its digest.",
  "python": {
   "opentelemetry-api": "1.45.2",
   "opentelemetry-sdk": "1.45.2",
   "opentelemetry-exporter-otlp-proto-http": "1.45.2",
   "opentelemetry-semantic-conventions": "0.66b2",
   "opentelemetry-instrumentation-httpx": "0.66b2",
-  "langfuse": "5.1.0"
+  "langfuse": "5.1.0",
+  "opentelemetry-util-genai": "1.3b0"
  },
  "imagenes": {
   "langfuse-web": "docker.langfuse.com/langfuse/langfuse:4.72.0",
@@ -40,12 +41,24 @@
  },
  "semconv_genai": {
   "repo": "open-telemetry/semantic-conventions-genai",
-  "schema": "gen-ai/1.42.0",
+  "commit": "95aff9c",
+  "schema_url": "https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev",
+  "estabilidad": "all 266 entries development",
   "release_etiquetada": false
  },
- "pendiente_digest": {
-  "minio": "Chainguard publishes only :latest for free; activity 1 pins it by digest (image@sha256:...) after pulling it on the Mac.",
-  "postgres": "Major tag as in the Langfuse compose; activity 1 pins the digest.",
-  "redis": "Major tag as in the Langfuse compose; activity 1 pins the digest."
+ "digests": {
+  "langfuse-web": "sha256:c311fd9db4b69f6514fdcb1b86a2a105d5a4ed51fbf0ded033ff2722459c804a",
+  "langfuse-worker": "sha256:aa1724b989a00f1e4ca9930709202489c73deaaf2f1116bbd3d71c77edb8fedb",
+  "clickhouse": "sha256:de3e47c64078aa196dae2349e048fc98ba81947f651f5c20e06e46baea8ae40a",
+  "postgres": "sha256:3b0cda93be7c8dba2ed484d19393d93845dc3dafb88973e248ba8e6d99d784e1",
+  "redis": "sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5",
+  "minio": "sha256:090010a3f73f6aa2dff606c61cd0de3640b22748abe19f4e48cce6dc9de7a53f",
+  "otel-collector": "sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b",
+  "keycloak": "sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332"
+ },
+ "claude_code": {
+  "cli_contenedor": "2.1.317",
+  "cli_ci": "2.1.316",
+  "cli_empaquetado_en_claude-agent-sdk-0.2.175": "2.1.314"
  }
 }

@@ -26,12 +26,13 @@ dependencies = [
 dev = [
     "pytest>=9.2.0",
 ]
-# Week 17: OpenTelemetry GenAI and Langfuse (candidate pins, verified in activity 1; uv sync --group semana17)
+# Week 17: OpenTelemetry GenAI and Langfuse (verified in activity 1; uv sync --group semana17)
 semana17 = [
     "opentelemetry-api==1.45.2",
     "opentelemetry-sdk==1.45.2",
     "opentelemetry-exporter-otlp-proto-http==1.45.2",
     "opentelemetry-semantic-conventions==0.66b2",
     "opentelemetry-instrumentation-httpx==0.66b2",
+    "opentelemetry-util-genai==1.3b0",
     "langfuse==5.1.0",
 ]
