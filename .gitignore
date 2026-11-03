@@ -43,3 +43,7 @@ semana-12/infra/estado_*.json
 
 # Semana 14: secretos locales de Keycloak (los genera semana-14/auth/arrancar.sh)
 semana-14/auth/.secretos.env
+
+# Semana 17: secretos locales del stack de observabilidad y trazas crudas (pueden traer contenido de prompts)
+semana-17/**/.secretos.env
+semana-17/observabilidad/datos/
