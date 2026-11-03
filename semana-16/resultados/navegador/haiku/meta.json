@@ -1,0 +1,11 @@
+{
+ "modelo": "haiku",
+ "tope_usd": 0.5,
+ "exit": 0,
+ "segundos": 45,
+ "canario": "VALIDADO-591c9518",
+ "playwright_mcp": "@playwright/mcp@0.0.84",
+ "huella_intacta": true,
+ "archivos_nuevos_fuera": [],
+ "stderr": ""
+}
