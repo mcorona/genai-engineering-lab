@@ -1,0 +1,13 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "tope_usd": 0.24,
+ "max_pasos": 40,
+ "modo": "docker",
+ "red_del_entorno": "none",
+ "entorno_destruido": true,
+ "herramienta": "computer_toolset_20260801",
+ "motivo_fin": "end_turn",
+ "canario": "VALIDADO-e98b06f6",
+ "segundos": 32.1,
+ "costo_usd": 0.003138
+}
