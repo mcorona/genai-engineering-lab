@@ -1,0 +1,3 @@
+{"ts": "2026-11-03T03:14:12+00:00", "metodo": "GET", "ruta": "/", "estado": 200}
+{"ts": "2026-11-03T03:14:12+00:00", "metodo": "GET", "ruta": "/favicon.ico", "estado": 404}
+{"ts": "2026-11-03T03:14:30+00:00", "metodo": "GET", "ruta": "/movimientos", "estado": 200}
