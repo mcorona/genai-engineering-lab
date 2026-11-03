@@ -116,3 +116,12 @@ def test_visibles_salen_de_los_scopes_del_token():
     carga = base64.urlsafe_b64encode(json.dumps({"scope": "legado:leer offline_access"}).encode()).decode().rstrip("=")
     assert ci.scopes_del_token(f"x.{carga}.y") == {"legado:leer", "offline_access"}
     assert ci.scopes_del_token("no-es-jwt") == set()
+
+
+def test_umbrales_son_los_de_la_regla_sobre_las_corridas_de_calibracion():
+    r14 = ci.regla14()
+    for clave, (valores, n) in ci.CALIBRACION.items():
+        p = 1 - sum(valores) / len(valores)
+        assert ci.UMBRALES[clave] == r14.umbral_calibrado(min(valores), n, p), clave
+        assert r14.falsa_alarma(ci.UMBRALES[clave], n, max(p, r14.P_FALLA_PREVIA)) <= 0.10
+    assert set(ci.UMBRALES) == set(ci.CALIBRACION)

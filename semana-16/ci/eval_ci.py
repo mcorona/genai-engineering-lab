@@ -78,8 +78,20 @@ def visibles_para(scopes: set[str]) -> set[str]:
     return {c for c in columnas if set(p["columnas_restringidas"].get(c, [])) <= scopes}
 
 
-# Calibration: None until the first CI run (see resultados/ci.md); then the thresholds that the rule gives.
-UMBRALES: dict | None = None
+# Calibration (2 CI runs of PR #124, $0.1164 and $0.1099): week 10 rule on the lower of the two values, with the
+# false-alarm control (p = 1 − mean of the two runs, at least 4/120; at most 10 % per run). The token metrics have one
+# valid run (the first one failed a wrong check: the visible set did not follow the token's scopes).
+#   eval 1.000 / 1.000 (n 21) → 0.90 · dsn.significado 0.978 / 0.957 (46) → 0.90 · dsn.pk_recall 0.545 / 0.727 (11)
+#   → 0.45 (6.2 %) · dsn.fk_recall 1.000 / 1.000 (9) → 0.85 · dsn.pii_recall 1.000 / 1.000 (5) → 0.80 ·
+#   dsn.riesgos 0.462 / 0.615 (13) → 0.35 (8.2 %) · token.cobertura_visible 1.000 (30) → 0.90 ·
+#   token.significado_visible 1.000 (30) → 0.90. Haiku's risk recall varies (6 and 8 of 13 here, 9 to 12 in activity
+#   5), so its threshold is low: this gate catches a broken plugin, not a slightly worse audit (resultados/ci.md).
+CALIBRACION = {"eval": ([1.0, 1.0], 21), "dsn.significado": ([0.978, 0.957], 46), "dsn.pk_recall": ([0.545, 0.727], 11),
+               "dsn.fk_recall": ([1.0, 1.0], 9), "dsn.pii_recall": ([1.0, 1.0], 5), "dsn.riesgos": ([0.462, 0.615], 13),
+               "token.cobertura_visible": ([1.0], 30), "token.significado_visible": ([1.0], 30)}
+UMBRALES: dict | None = {"eval": 0.90, "dsn.significado": 0.90, "dsn.pk_recall": 0.45, "dsn.fk_recall": 0.85,
+                         "dsn.pii_recall": 0.80, "dsn.riesgos": 0.35, "token.cobertura_visible": 0.90,
+                         "token.significado_visible": 0.90}
 TOPE_USD = 0.40
 # Upper bound reserved for each audit before it starts (Haiku: $0.04 for the full audit in activity 5).
 RESERVA_AUDITORIA = {"dsn": 0.15, "token": 0.08}
