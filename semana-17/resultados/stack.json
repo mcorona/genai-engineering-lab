@@ -1,0 +1,112 @@
+{
+ "fecha": "2026-11-03",
+ "donde": "mac",
+ "python": "3.13.14",
+ "docker": "29.9.2",
+ "arranque": {
+  "codigo": 0,
+  "segundos_totales": 18,
+  "version_langfuse": "4.72.0",
+  "secretos": {
+   "permisos_600": true,
+   "variables": 11,
+   "longitud_clave_publica": 22,
+   "longitud_clave_secreta": 38
+  },
+  "langfuse_web_healthy": true,
+  "langfuse_salud": 200,
+  "collector_salud": 200,
+  "ok": true
+ },
+ "exposicion": {
+  "publicados": [
+   "127.0.0.1:13133",
+   "127.0.0.1:3100",
+   "127.0.0.1:4317",
+   "127.0.0.1:4318"
+  ],
+  "internos_sin_puerto": [
+   "clickhouse",
+   "langfuse-worker",
+   "minio",
+   "postgres",
+   "redis"
+  ],
+  "por_digest": true,
+  "ok": true
+ },
+ "otlp": {
+  "http_4318_acepta": true,
+  "grpc_4317_escucha": true
+ },
+ "traza_1": {
+  "en_archivo": true,
+  "observaciones": {
+   "n": 3,
+   "tipos": [
+    "AGENT",
+    "GENERATION",
+    "TOOL"
+   ]
+  },
+  "canarios_en_archivo": [],
+  "canarios_en_langfuse": [],
+  "zonas_archivo_con_fuga": {},
+  "campos_langfuse_con_fuga": {},
+  "enmascarado_en_archivo": true,
+  "enmascarado_en_langfuse": true,
+  "hueco_listas": {
+   "archivo": [
+    "dsn_en_lista",
+    "email_en_lista"
+   ],
+   "langfuse": [
+    "dsn_en_lista",
+    "email_en_lista"
+   ]
+  },
+  "ok": true
+ },
+ "memoria_mib_con_carga": 3002,
+ "reinicio": {
+  "codigo": 0,
+  "segundos": 16,
+  "servicios_corriendo": [
+   "clickhouse",
+   "collector",
+   "langfuse-web",
+   "langfuse-worker",
+   "minio",
+   "postgres",
+   "redis"
+  ],
+  "traza_previa_sigue_en_langfuse": true,
+  "traza_previa_sigue_en_archivo": true,
+  "traza_nueva": {
+   "observaciones": 3,
+   "en_archivo": true,
+   "ok": true
+  },
+  "ok": true
+ },
+ "caida_de_langfuse": {
+  "traza_en_archivo_mientras_caido": true,
+  "segundos_hasta_salud": 4,
+  "observaciones_tras_volver": 3,
+  "segundos_hasta_entrega": 9,
+  "entregada": true,
+  "canarios_en_langfuse": [],
+  "ok": true
+ },
+ "borrado": {
+  "codigo": 0,
+  "segundos": 5,
+  "contenedores": 0,
+  "volumenes": 0,
+  "redes": 0,
+  "datos_borrado": true,
+  "secretos_conservados": true,
+  "ok": true
+ },
+ "ok": true
+}
