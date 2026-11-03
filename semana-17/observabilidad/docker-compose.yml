@@ -1,0 +1,153 @@
+# Week 17, activity 2: Langfuse v4 self-hosted + OpenTelemetry Collector. Do not run it directly: use ./arrancar.sh,
+# which writes the random secrets (.secretos.env, git-ignored), resolves the images by digest from
+# ../preparar/versiones.json and waits until everything answers.
+#
+# Only four host ports, all on 127.0.0.1: Langfuse web 3100, the Collector's OTLP gRPC 4317, OTLP HTTP 4318 and its
+# health check 13133. Langfuse's PostgreSQL, ClickHouse, Redis and MinIO have NO host port (Compose network only),
+# so they never clash with the lab's PostgreSQL on 5432 and cannot be reached from outside.
+# Data lives in named volumes (it survives a restart; `./arrancar.sh --borrar` removes it).
+name: s17-observabilidad
+
+x-langfuse-env: &langfuse-env
+  NEXTAUTH_URL: http://localhost:3100
+  DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+  SALT: ${SALT}
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+  TELEMETRY_ENABLED: "false"
+  CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+  CLICKHOUSE_URL: http://clickhouse:8123
+  CLICKHOUSE_USER: clickhouse
+  CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+  CLICKHOUSE_CLUSTER_ENABLED: "false"
+  LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+  LANGFUSE_S3_EVENT_UPLOAD_REGION: auto
+  LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: minio
+  LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+  LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+  LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+  LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+  LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: langfuse
+  LANGFUSE_S3_MEDIA_UPLOAD_REGION: auto
+  LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: minio
+  LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+  LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://minio:9000
+  LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
+  LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: media/
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_AUTH: ${REDIS_AUTH}
+
+services:
+  langfuse-worker:
+    image: ${IMG_LANGFUSE_WORKER}
+    restart: unless-stopped
+    depends_on: &deps
+      postgres: {condition: service_healthy}
+      minio: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      clickhouse: {condition: service_healthy}
+    environment:
+      <<: *langfuse-env
+
+  langfuse-web:
+    image: ${IMG_LANGFUSE_WEB}
+    restart: unless-stopped
+    depends_on: *deps
+    ports:
+      - 127.0.0.1:3100:3000
+    environment:
+      <<: *langfuse-env
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      LANGFUSE_S3_MEDIA_UPLOAD_INTERNAL_ENDPOINT: http://minio:9000
+      LANGFUSE_INIT_ORG_ID: lab-org
+      LANGFUSE_INIT_ORG_NAME: genai-engineering-lab
+      LANGFUSE_INIT_PROJECT_ID: legacybridge
+      LANGFUSE_INIT_PROJECT_NAME: legacybridge
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY}
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: ${LANGFUSE_SECRET_KEY}
+      LANGFUSE_INIT_USER_EMAIL: admin@lab.example
+      LANGFUSE_INIT_USER_NAME: admin
+      LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_USER_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://$$HOSTNAME:3000/api/public/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 15s
+
+  clickhouse:
+    image: ${IMG_CLICKHOUSE}
+    restart: unless-stopped
+    user: "101:101"
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+    volumes: [clickhouse:/var/lib/clickhouse]
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: ${IMG_MINIO}
+    restart: unless-stopped
+    entrypoint: sh
+    command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes: [minio:/data]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: ${IMG_REDIS}
+    restart: unless-stopped
+    command: --requirepass ${REDIS_AUTH} --maxmemory-policy noeviction
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_AUTH}", "ping"]
+      interval: 3s
+      timeout: 10s
+      retries: 20
+
+  postgres:
+    image: ${IMG_POSTGRES}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes: [postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  collector:
+    image: ${IMG_COLLECTOR}
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    user: "${HOST_UID}:${HOST_GID}"      # so the JSONL in ./datos belongs to whoever runs ./arrancar.sh
+    mem_limit: 512m
+    environment:
+      LANGFUSE_AUTH: ${LANGFUSE_AUTH}
+    volumes:
+      - ./collector.yaml:/etc/otelcol/config.yaml:ro
+      - ./datos:/salida
+    ports:
+      - 127.0.0.1:4317:4317
+      - 127.0.0.1:4318:4318
+      - 127.0.0.1:13133:13133
+    depends_on:
+      langfuse-web: {condition: service_started}   # the file exporter must work even while Langfuse is down
+
+volumes:
+  clickhouse:
+  minio:
+  postgres:

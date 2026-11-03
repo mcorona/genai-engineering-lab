@@ -354,3 +354,10 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   (`ClienteSeguro` loses the context), Langfuse subtracts cached tokens from `input_tokens` (so they must be added
   before exporting), and the cache token names differ between libraries. Langfuse data retention is not in the
   self-hosted plans we can use (activity 2).
+- 2026-11-03: activity 2, observability stack. `observabilidad/` has the Compose file (Langfuse v4 with its 5 backing
+  services and the Collector, images by digest, 4 host ports all on 127.0.0.1), the Collector pipeline and `arrancar.sh`
+  (`--estado`, `--detener`, `--reiniciar`, `--borrar`). `verificar_stack.py` measures it end to end on the Mac: a trace
+  reaches Langfuse and the file with 0 of 7 canaries, the stack survives a restart, a Langfuse outage loses nothing and
+  `--borrar` leaves 0 containers, volumes and networks (`resultados/stack.md`). Two findings go to activities 3 and 9:
+  `redaction` does not read span names, status messages or event names (added `transform/redaccion`), and nothing
+  redacts list-valued attributes (known gap; the allowlist mode closes it once the span shape is locked).
