@@ -1,0 +1,267 @@
+{
+ "fecha": "2026-11-03",
+ "plataforma": "macOS-26.7.2",
+ "modelo": "guionado (sin API, $0)",
+ "escenarios": {
+  "principal": {
+   "estado_agente": "respondida",
+   "spans": 15,
+   "observaciones": 15,
+   "ids_iguales": true,
+   "tipos_correctos": true,
+   "nombres_correctos": true,
+   "jerarquia_igual": true,
+   "niveles_error_correctos": true,
+   "uso_igual_al_del_agente": true,
+   "costo_igual_al_del_agente": true,
+   "usuario_seudonimo_en_el_agente": true,
+   "usuario_seudonimo_en_el_servidor": true,
+   "sin_input_ni_output": true,
+   "latencia_de_langfuse_igual_a_la_del_span": true,
+   "ok": true,
+   "tipos": [
+    "AGENT",
+    "GENERATION",
+    "SPAN",
+    "TOOL"
+   ],
+   "observaciones_con_error": [],
+   "generaciones": [
+    {
+     "uso": {
+      "input": 1180,
+      "output": 64,
+      "input_cache_creation": 800,
+      "total": 2044
+     },
+     "costo": {
+      "total": 0.00015
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.056
+    },
+    {
+     "uso": {
+      "input": 420,
+      "output": 96,
+      "input_cached_tokens": 800,
+      "total": 1316
+     },
+     "costo": {
+      "total": 9e-05
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.084
+    },
+    {
+     "uso": {
+      "input": 380,
+      "output": 150,
+      "input_cached_tokens": 800,
+      "total": 1330
+     },
+     "costo": {
+      "total": 0.000113
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.066
+    }
+   ]
+  },
+  "error_sql": {
+   "estado_agente": "respondida",
+   "spans": 16,
+   "observaciones": 16,
+   "ids_iguales": true,
+   "tipos_correctos": true,
+   "nombres_correctos": true,
+   "jerarquia_igual": true,
+   "niveles_error_correctos": true,
+   "uso_igual_al_del_agente": true,
+   "costo_igual_al_del_agente": true,
+   "usuario_seudonimo_en_el_agente": true,
+   "usuario_seudonimo_en_el_servidor": true,
+   "sin_input_ni_output": true,
+   "latencia_de_langfuse_igual_a_la_del_span": true,
+   "ok": true,
+   "tipos": [
+    "AGENT",
+    "GENERATION",
+    "SPAN",
+    "TOOL"
+   ],
+   "observaciones_con_error": [
+    "SPAN SELECT legado",
+    "SPAN handle_tool ejecutar_sql",
+    "TOOL ejecutar_sql",
+    "TOOL legado__ejecutar_sql"
+   ],
+   "generaciones": [
+    {
+     "uso": {
+      "input": 900,
+      "output": 50,
+      "total": 950
+     },
+     "costo": {
+      "total": 0.000115
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.001
+    },
+    {
+     "uso": {
+      "input": 700,
+      "output": 60,
+      "total": 760
+     },
+     "costo": {
+      "total": 0.0001
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.0
+    },
+    {
+     "uso": {
+      "input": 600,
+      "output": 90,
+      "total": 690
+     },
+     "costo": {
+      "total": 0.000105
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.0
+    }
+   ]
+  },
+  "sin_permiso": {
+   "estado_agente": "abstenida",
+   "spans": 6,
+   "observaciones": 6,
+   "ids_iguales": true,
+   "tipos_correctos": true,
+   "nombres_correctos": true,
+   "jerarquia_igual": true,
+   "niveles_error_correctos": true,
+   "uso_igual_al_del_agente": true,
+   "costo_igual_al_del_agente": true,
+   "usuario_seudonimo_en_el_agente": true,
+   "usuario_seudonimo_en_el_servidor": true,
+   "sin_input_ni_output": true,
+   "latencia_de_langfuse_igual_a_la_del_span": true,
+   "ok": true,
+   "tipos": [
+    "AGENT",
+    "GENERATION",
+    "SPAN",
+    "TOOL"
+   ],
+   "observaciones_con_error": [
+    "SPAN MCP send tools/call proponer_orden_compra",
+    "SPAN authorize",
+    "TOOL _unknown"
+   ],
+   "generaciones": [
+    {
+     "uso": {
+      "input": 800,
+      "output": 40,
+      "total": 840
+     },
+     "costo": {
+      "total": 0.0001
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.0
+    },
+    {
+     "uso": {
+      "input": 500,
+      "output": 60,
+      "total": 560
+     },
+     "costo": {
+      "total": 8e-05
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.0
+    }
+   ]
+  },
+  "api_falla": {
+   "estado_agente": "error",
+   "spans": 8,
+   "observaciones": 8,
+   "ids_iguales": true,
+   "tipos_correctos": true,
+   "nombres_correctos": true,
+   "jerarquia_igual": true,
+   "niveles_error_correctos": true,
+   "uso_igual_al_del_agente": true,
+   "costo_igual_al_del_agente": true,
+   "usuario_seudonimo_en_el_agente": true,
+   "usuario_seudonimo_en_el_servidor": true,
+   "sin_input_ni_output": true,
+   "latencia_de_langfuse_igual_a_la_del_span": true,
+   "ok": true,
+   "tipos": [
+    "AGENT",
+    "GENERATION",
+    "SPAN",
+    "TOOL"
+   ],
+   "observaciones_con_error": [
+    "AGENT invoke_agent legacybridge",
+    "GENERATION chat claude-haiku-5-5"
+   ],
+   "generaciones": [
+    {
+     "uso": {
+      "input": 1180,
+      "output": 64,
+      "input_cache_creation": 800,
+      "total": 2044
+     },
+     "costo": {
+      "total": 0.00015
+     },
+     "modelo": "claude-haiku-5-5",
+     "duracion_s": 0.051
+    }
+   ]
+  }
+ },
+ "sondas": {
+  "semconv": {
+   "usageDetails": {
+    "input": 500,
+    "output": 10,
+    "input_cached_tokens": 300,
+    "input_cache_creation": 200,
+    "total": 1010
+   }
+  },
+  "util_genai": {
+   "usageDetails": {
+    "input": 500,
+    "output": 10,
+    "input_cached_tokens": 300,
+    "input_cache_creation": 200,
+    "total": 1010
+   }
+  },
+  "conclusion": {
+   "semconv_cache_creation_se_entiende": true,
+   "util_genai_cache_write_se_entiende": true
+  }
+ },
+ "privacidad": {
+  "canarios_en_langfuse_o_archivo": [],
+  "asteriscos_en_langfuse_o_archivo": false,
+  "trazas_en_el_archivo": 4,
+  "trazas_de_la_corrida": 4,
+  "ok": true
+ },
+ "ok": true
+}

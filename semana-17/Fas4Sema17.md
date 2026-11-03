@@ -361,3 +361,12 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   `--borrar` leaves 0 containers, volumes and networks (`resultados/stack.md`). Two findings go to activities 3 and 9:
   `redaction` does not read span names, status messages or event names (added `transform/redaccion`), and nothing
   redacts list-valued attributes (known gap; the allowlist mode closes it once the span shape is locked).
+- 2026-11-03: activity 3, LegacyBridge instrumented end to end ($0, scripted model). `instrumentacion/` locks the span
+  shape (`esquema.py`: 67 attribute keys with validators, no lists, no free text, keyed hashes for users and arguments)
+  and wraps the week 13 loop (`invoke_agent` / `chat` / `execute_tool`), the week 14 client (it keeps the trace context
+  across its session thread) and the server (`authorize`, `handle_tool`, `SELECT legado`) without editing their files. One
+  task is 15 spans in one trace, the same 15 observations in Langfuse; tokens, cost and latency add up to the run totals;
+  no canary in any span, in Langfuse or in the Collector's file (`resultados/instrumentacion.md`). Findings for later
+  activities: the MCP SDK carries the trace context in `_meta`, not in HTTP headers; `gen_ai.tool.name` turns any span into
+  a TOOL in Langfuse; the SDK server emits one orphan root `tools/list` span per call (Collector `filter`, activity 9);
+  the optional LangGraph/Strands comparison was not run.
