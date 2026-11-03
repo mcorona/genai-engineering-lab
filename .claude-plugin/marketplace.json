@@ -1,0 +1,21 @@
+{
+  "name": "genai-engineering-lab",
+  "owner": {"name": "Manuel Corona"},
+  "metadata": {
+    "description": "Claude Code plugins from the GenAI Engineering Lab: measured, read-only tools for legacy business systems.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "legacy-schema-audit",
+      "source": "./semana-16/legacy-schema-audit",
+      "description": "Read-only audit of a legacy database schema: data dictionary, ER relationships, risks with SQL evidence, and an executive summary for non-technical buyers.",
+      "version": "1.0.0",
+      "author": {"name": "Manuel Corona"},
+      "homepage": "https://github.com/mcorona/genai-engineering-lab/tree/main/semana-16/legacy-schema-audit",
+      "license": "MIT",
+      "category": "database",
+      "keywords": ["legacy", "database", "audit", "data-dictionary", "data-quality", "pii", "postgresql", "read-only"]
+    }
+  ]
+}

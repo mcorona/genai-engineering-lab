@@ -16,6 +16,7 @@ on:
       - "semana-13/golden/reglas_negocio.json"
       - "semana-13/herramientas/diccionario_extra.json"
       - ".github/workflows/eval-semana-16.yml"
+      - ".claude-plugin/**"
 
 permissions:
   contents: read
