@@ -108,3 +108,14 @@ def test_instalacion_desde_cero(tmp_path):
     r = json.loads(salida.read_text())
     assert codigo == 0 and r["aprobado"], {k: v for k, v in r["checks"].items() if not v}
     assert len(r["checks"]) >= 18
+
+
+def test_fuga_de_dsn_sin_falso_positivo_por_contrasena_igual_al_usuario():
+    spec = importlib.util.spec_from_file_location("instalar16b", S16 / "empaquetado" / "instalar_desde_cero.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    dsn = "postgresql://postgres:postgres@localhost:5432/inventory"
+    assert not m.fuga_de_dsn(dsn, "legacy-schema-audit: STOP. role postgres is a superuser.")
+    assert m.fuga_de_dsn(dsn, f"connecting to {dsn}")
+    assert m.fuga_de_dsn(dsn, "error for postgres:postgres@localhost")
+    assert not m.fuga_de_dsn("postgresql://u@h/db", "role u is read-only")

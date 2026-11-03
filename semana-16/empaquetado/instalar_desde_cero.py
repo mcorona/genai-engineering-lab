@@ -39,6 +39,13 @@ def claude(args: list[str], env: dict, cwd: Path, timeout: int = 180) -> subproc
     return subprocess.run(["claude", *args], capture_output=True, text=True, env=env, cwd=cwd, timeout=timeout)
 
 
+def fuga_de_dsn(dsn: str, texto: str) -> bool:
+    """A printed DSN shows up whole or as its `user:password@` part. The password alone is not searched: it can be a
+    common word (on the Mac the admin role is postgres with password postgres, and the hook's message names the role)."""
+    m = re.search(r"://([^:@/]+:[^@]*@)", dsn)
+    return dsn in texto or bool(m and m.group(1) in texto)
+
+
 def evento(herramienta: str, entrada: dict, proyecto: Path, sesion: str = "s") -> str:
     return json.dumps({"session_id": sesion, "cwd": str(proyecto), "hook_event_name": "PreToolUse",
                        "tool_name": herramienta, "tool_input": entrada})
@@ -112,8 +119,7 @@ def main(argv=None) -> int:
                                         "LEGACY_AUDIT_DSN": os.environ[var]})
                 leido = comun.leer_estado(estado, k) or {}
                 c[f"sessionstart_instalado_{k}"] = leido.get("lectura_segura") is esperado
-                clave = re.search(r"://[^:@/]+:([^@]+)@", os.environ[var])
-                if os.environ[var] in p.stdout + p.stderr or (clave and clave.group(1) in p.stdout + p.stderr):
+                if fuga_de_dsn(os.environ[var], p.stdout + p.stderr):
                     c[f"sessionstart_instalado_{k}"] = False  # it must never print the DSN
         p = claude(["plugin", "uninstall", NOMBRE], env, proyecto)
         c["desinstalado"] = p.returncode == 0

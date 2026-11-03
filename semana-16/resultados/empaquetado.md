@@ -76,7 +76,7 @@ fee.
 
 ## Tests
 
-`tests/test_empaquetado.py` adds 21 tests with no API:
+`tests/test_empaquetado.py` adds 22 tests with no API:
 - the marketplace source and the four matching versions;
 - the changelog order;
 - every README section;
@@ -86,6 +86,9 @@ fee.
   with 9 objects and 46 columns;
 - the offer sections and prices;
 - `validate --strict`;
-- the whole installation from scratch.
+- the whole installation from scratch;
+- the DSN-leak check, which looks for the whole DSN or its `user:password@` part, not the password alone. On the
+  Mac the admin role is `postgres` with password `postgres`: the hook's message names the role, which made the first
+  version of the check fail on a correct hook.
 
-Week 16 now has **317 passed**.
+Week 16 now has **318 passed**.
