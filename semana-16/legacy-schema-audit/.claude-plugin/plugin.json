@@ -1,7 +1,7 @@
 {
   "name": "legacy-schema-audit",
   "displayName": "Legacy Schema Audit",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Read-only audit of a legacy database schema: data dictionary, ER relationships, risks with SQL evidence, and an executive summary for non-technical buyers.",
   "author": {"name": "Manuel Corona"},
   "homepage": "https://github.com/mcorona/genai-engineering-lab",

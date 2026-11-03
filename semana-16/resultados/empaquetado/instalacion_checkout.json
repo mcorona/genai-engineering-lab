@@ -1,0 +1,30 @@
+{
+ "fuente": "checkout",
+ "version": "1.0.0",
+ "checks": {
+  "versions_coinciden": true,
+  "semver": true,
+  "config_vacia_al_inicio": true,
+  "marketplace_valida_strict": true,
+  "plugin_valida_strict_directory": true,
+  "marketplace_agregada": true,
+  "instalado": true,
+  "version_instalada": true,
+  "copia_instalada_fuera_del_checkout": true,
+  "habilitado": true,
+  "componentes": true,
+  "readme_y_changelog_instalados": true,
+  "ejemplo_instalado": true,
+  "guardia_instalada_bloquea_delete": true,
+  "guardia_instalada_bloquea_psql": true,
+  "guardia_instalada_permite_select": true,
+  "sessionstart_instalado_rol_admin_inseguro": true,
+  "sessionstart_instalado_rol_lectura_seguro": true,
+  "desinstalado": true,
+  "sin_rastro_al_final": true
+ },
+ "marketplace_add": "{\"command\":\"marketplace-add\",\"outcome\":\"ok\",\"marketplace\":\"genai-engineering-lab\",\"message\":\"Successfully added marketplace: genai-engineering-lab (declared in user settings)\"}",
+ "install": "Installing plugin \"legacy-schema-audit@genai-engineering-lab\"...√ Successfully installed plugin: legacy-schema-audit@genai-engineering-lab (scope: user)\n2 userConfig options not yet set — run /plugin configure legacy-schema-audit@genai-engineering-lab in Claude Code, or pass --config KEY=VALUE.",
+ "details": "Legacy Schema Audit (legacy-schema-audit) 1.0.0\n  Description: Read-only audit of a legacy database schema: data dictionary, ER relationships, risks with SQL evidence, and an executive summary for non-technical buyers.\n  Source: legacy-schema-audit@genai-engineering-lab\n\nComponent inventory\n  Skills (4)  auditar, auditoria-completa, solo-diccionario, solo-riesgos\n  Agents (3)  revisor-riesgos, perfilador, analista-relaciones\n  Hooks (3)  SessionStart, PreToolUse, PostToolUse  (harness-only — no model context cost)\n  MCP servers (1)  legacy-sql  (tool schemas resolved at runtime; not counted)\n  LSP servers (0)\n\nProjected token cost\n  Always-on:   ~474 tok   added to every session\n\nPer-component (rounded)\n  component            always-on  on-invoke\n  auditoria-completa         ~50        ~80\n  auditar                   ~120      ~2.9k\n  solo-riesgos               ~40        ~80\n  solo-diccionario           ~40        ~90\n  revisor-riesgos            ~80       ~700\n  perfilador                 ~80       ~520\n  analista-relaciones        ~80       ~530\n\n  On-invoke cost is paid each time a skill or agent fires.\n  Token counts are estimates and may differ from actual usage.",
+ "aprobado": true
+}
