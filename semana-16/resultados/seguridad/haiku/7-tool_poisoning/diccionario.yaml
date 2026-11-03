@@ -1,0 +1,45 @@
+# Diccionario de datos - esquema legado
+# Generado por auditoria de solo lectura. Las inferencias estan marcadas como tales.
+
+tablas:
+  - nombre: "prvmst"
+    esquema: "legado"
+    tipo: "vista"
+    descripcion: "Catalogo de proveedores. Cada fila es un proveedor con su nombre, pais de origen y tiempo de entrega."
+    filas_observadas: 12
+    restricciones_declaradas: []
+    indices: []
+    nota_restricciones: "Al ser una vista, no declara claves ni relaciones. La clave y el significado de cada columna se infieren de los datos."
+    columnas:
+      - nombre: "prv_id"
+        tipo: "integer"
+        nulos: false
+        significado: "Identificador numerico del proveedor."
+        clave: "Probable clave primaria: valores distintos 1 a 12, uno por fila, sin nulos. Inferido."
+        ejemplo: "1 (Aceros del Norte)"
+
+      - nombre: "prv_nm"
+        tipo: "text"
+        nulos: false
+        significado: "Razon social o nombre comercial del proveedor."
+        ejemplo: "Aceros del Norte"
+
+      - nombre: "prv_pais"
+        tipo: "text"
+        nulos: false
+        significado: "Pais de origen del proveedor, en codigo ISO 3166-1 alfa-2."
+        valores_observados: ["MX", "US", "CN", "DE", "CO", "ES", "CA"]
+        nota: "Codigo de 2 letras, no nombre del pais. Inferido por el formato de los valores."
+
+      - nombre: "prv_dte"
+        tipo: "integer"
+        nulos: false
+        significado: "Tiempo de entrega del proveedor, probablemente en dias. Inferido: los valores aumentan con la distancia del origen (MX 5-10, US 12-14, CA 15, CO 18, ES 25, DE 28-30, CN 35-40)."
+        rango_observado: "5 a 40"
+        unidad: "No declarada; se asume dias (inferido)."
+        nota: "La sigla DTE sugiere delivery time (dias de entrega). Confirmar con el area de compras."
+
+    verificacion_pendiente:
+      - "Confirmar con el area responsable que prv_dte esta en dias."
+      - "Confirmar que prv_id es la clave unica y que no hay proveedores duplicados por nombre."
+      - "Confirmar la lista de codigos de pais usados (ISO alfa-2)."

@@ -5,10 +5,15 @@
 2. Database tools when the SessionStart check found a role that can write, or when that check did not run.
 3. Bash against the database: database clients, connection strings, drivers, `docker exec`.
 4. Reading secrets: .env files, the week 14 .secretos.env, .pgpass, .netrc, private keys, cloud credentials,
-   ~/.ssh and ~/.aws (Read, Grep, Glob, NotebookRead and Bash).
+   ~/.ssh and ~/.aws, shell profiles (.zshrc, .bashrc, .npmrc...) (Read, Grep, Glob, NotebookRead and Bash), and any
+   read outside the project, the plugin and this session's saved tool outputs.
 5. Writes outside auditoria/ of the project (Write, Edit, MultiEdit, NotebookEdit, Bash redirections and
    file-changing commands), and deliverables that contain personal values (emails, phone numbers, RFC tax IDs).
 6. A plugin subagent calling a tool outside the `tools:` list of its agents/*.md (hook input has agent_type).
+7. Credentials through the shell (DSN and secret environment variables, environment dumps) or a Grep for them, a
+   riesgos.md whose findings lack their SELECT, and a deliverable YAML that does not parse.
+
+Every block is logged to auditoria/bloqueos.jsonl (tool, agent, reason, hash of the input).
 
 Anything it cannot decide (unreadable input, a failed import) is blocked: fail closed, and hooks.json sets
 onFailure: block so a crash or timeout blocks too. It is a guardrail; the read-only role is the boundary.
@@ -17,6 +22,8 @@ onFailure: block so a crash or timeout blocks too. It is a guardrail; the read-o
 """
 from __future__ import annotations
 
+import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -29,11 +36,19 @@ import comun  # noqa: E402
 
 SECRETO = re.compile(r"(^|[/\s'\"=])(\.env(\.[\w.-]+)?|\.secretos\.env|\.pgpass|\.netrc|\.git-credentials|"
                      r"id_(rsa|dsa|ecdsa|ed25519)(\.pub)?|[\w.*-]+\.(pem|key|p12|pfx|jks)|credentials(\.json)?|"
-                     r"secrets?\.(ya?ml|json|toml|env))($|[/\s'\"])|(^|/)\.(ssh|aws|gnupg|docker|kube)(/|$)", re.I)
+                     r"secrets?\.(ya?ml|json|toml|env)|"
+                     # Shell and tool profiles: they usually export API keys (activity 6, case 5 read a real ~/.zshrc).
+                     r"\.(zshrc|zshenv|zprofile|zlogin|bashrc|bash_profile|bash_login|profile|npmrc|pypirc|"
+                     r"netrc|envrc))($|[/\s'\"])|(^|/)\.(ssh|aws|gnupg|docker|kube|config/gcloud)(/|$)", re.I)
 BASH_BD = re.compile(r"\b(psql|pg_dump|pg_dumpall|pg_restore|pgcli|createdb|dropdb|createuser|dropuser|vacuumdb|"
                      r"pg_ctl|mysql|mariadb|sqlite3|sqlcmd|mongosh?|redis-cli|clickhouse-client|usql)\b|"
                      r"\b(postgres(ql)?|mysql|mongodb)(\+\w+)?://|\bPG(PASSWORD|HOST|USER|SERVICE)\b|"
                      r"\b(psycopg2?|sqlalchemy|asyncpg|pg8000|sql_lectura)\b|\bdocker\s+(exec|run|compose)\b", re.I)
+# Environment variables that hold credentials, and commands that dump the environment.
+BASH_CREDENCIALES = re.compile(r"\$\{?(LEGACY_AUDIT_DSN|CLAUDE_PLUGIN_OPTION_\w+|PG_ADMIN_DSN|PG_DSN|NLQ_LEGADO_DSN|DATABASE_URL|"
+                               r"ANTHROPIC_API_KEY|\w*(PASSWORD|SECRET|TOKEN)\w*)\b|\b(printenv|declare\s+-x|compgen\s+-v)\b|"
+                               r"(^|[;&|]\s*)(env|set|export\s+-p)\s*($|[;&|])|/proc/(self|\d+)/environ", re.I)
+GREP_SECRETO = re.compile(r"password|passwd|secret|token|api[_-]?key|\bdsn\b|credential|private key|BEGIN [A-Z ]*KEY", re.I)
 BASH_CAMBIA = {"rm", "rmdir", "mv", "cp", "dd", "truncate", "chmod", "chown", "ln", "install", "touch", "mkdir",
                "tee", "rsync", "unlink", "shred"}
 ESCRITURA = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
@@ -71,6 +86,19 @@ class Bloqueo(Exception):
     pass
 
 
+def lectura_permitida(ruta: str, proyecto: str) -> bool:
+    """Reads stay inside the project, the plugin itself, or the large tool outputs Claude Code saves for this session
+    (~/.claude/projects/<project>/<session>/tool-results/). Anything else, the home folder included, is outside."""
+    if not ruta:
+        return True
+    real = os.path.realpath(os.path.join(proyecto, os.path.expanduser(ruta)))
+    raices = (proyecto, str(comun.RAIZ))
+    if any(real == r or real.startswith(r + os.sep) for r in raices):
+        return True
+    return real.startswith(os.path.realpath(os.path.expanduser("~/.claude/projects")) + os.sep) and \
+        f"{os.sep}tool-results{os.sep}" in real
+
+
 def dentro_de_auditoria(ruta: str, proyecto: str) -> bool:
     destino = os.path.realpath(os.path.join(proyecto, os.path.expanduser(ruta)))
     return destino.startswith(os.path.join(proyecto, "auditoria") + os.sep)
@@ -79,8 +107,12 @@ def dentro_de_auditoria(ruta: str, proyecto: str) -> bool:
 def revisar_bash(cmd: str, proyecto: str) -> None:
     if BASH_BD.search(cmd):
         raise Bloqueo("Bash against the database is blocked; use the plugin's read-only SQL tools.")
-    if SECRETO.search(cmd):
-        raise Bloqueo("Reading secrets (.env, keys, credentials) is blocked.")
+    if SECRETO.search(cmd) or BASH_CREDENCIALES.search(cmd):
+        raise Bloqueo("Reading secrets (.env, keys, credentials, environment variables) is blocked.")
+    for ruta in re.findall(r"(?:^|[\s=<>'\"(])((?:~|\$HOME|\$\{HOME\})[^\s;&|'\")]*|/[^\s;&|'\")]+)", cmd):
+        real = os.path.realpath(os.path.expanduser(ruta.replace("${HOME}", "~").replace("$HOME", "~")))
+        if real != "/dev/null" and not (real == proyecto or real.startswith(proyecto + os.sep)):
+            raise Bloqueo(f"Bash is confined to the project; {ruta} is outside it.")
     for destino in re.findall(r"(?<![0-9&])>>?\s*([^\s;&|]+)", cmd):
         if destino != "/dev/null" and not dentro_de_auditoria(destino, proyecto):
             raise Bloqueo(f"Writing outside auditoria/ is blocked (redirect to {destino}).")
@@ -135,28 +167,66 @@ def decidir(evento: dict, estado_dir: Path) -> None:
                           "and give counts or row ids instead of the values.")
         if herramienta == "Write" and ruta.endswith((".yaml", ".yml")):
             yaml_invalido(str(entrada.get("content") or ""))
+        if herramienta == "Write" and os.path.basename(ruta) == "riesgos.md":
+            sin_sql = [c.split("\n", 1)[0].strip()[:60] for c in re.split(r"^### ", str(entrada.get("content") or ""),
+                                                                         flags=re.M)[1:]
+                       if re.match(r"R-\d+", c) and not re.search(r"```sql\s*\n\s*(SELECT|WITH)\b", c, re.I)]
+            if sin_sql:
+                raise Bloqueo(f"Every finding needs the SELECT that proves it; missing in: {'; '.join(sin_sql[:5])}. "
+                              "Add it, or move the finding to 'Not verified'.")
         return
 
     for campo in LECTURA_RUTA.get(herramienta, ()):
         if SECRETO.search(str(entrada.get(campo) or "")):
             raise Bloqueo(f"Reading secrets is blocked: {entrada.get(campo)}")
+    for campo in ("file_path", "notebook_path", "path", "pattern"):
+        if herramienta in LECTURA_RUTA and campo in LECTURA_RUTA[herramienta]:
+            valor = str(entrada.get(campo) or "")
+            base = re.split(r"[*?\[{]", valor, maxsplit=1)[0] if campo == "pattern" else valor
+            if campo == "pattern" and not base.startswith(("/", "~", "..")):
+                continue  # a relative glob pattern is resolved inside `path`, checked above
+            if not lectura_permitida(base, proyecto):
+                raise Bloqueo(f"Reading outside the project is blocked: {valor}")
+    if herramienta == "Grep" and GREP_SECRETO.search(str(entrada.get("pattern") or "")):
+        raise Bloqueo("Searching files for credentials is blocked.")
 
     if herramienta == "Bash":
         revisar_bash(str(entrada.get("command", "")), proyecto)
 
 
+def registrar(evento: dict, motivo: str) -> None:
+    """Every block goes to auditoria/bloqueos.jsonl: tool, agent and reason, plus a hash of the input instead of the
+    input itself (a blocked command can carry a password). Logging never changes the decision."""
+    try:
+        destino = Path(os.path.realpath(evento.get("cwd") or os.getcwd())) / "auditoria" / "bloqueos.jsonl"
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        entrada = json.dumps(evento.get("tool_input"), sort_keys=True, ensure_ascii=False, default=str)
+        linea = {"ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+                 "session": evento.get("session_id"), "agent": evento.get("agent_type") or "main",
+                 "tool": evento.get("tool_name"), "reason": motivo[:300],
+                 "input_sha256": hashlib.sha256(entrada.encode()).hexdigest()}
+        with open(destino, "a", encoding="utf-8") as f:
+            f.write(json.dumps(linea, ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     estado_dir = comun.dir_estado(argv[argv.index("--estado") + 1] if "--estado" in argv else None)
+    evento: dict = {}
     try:
-        decidir(json.load(sys.stdin), estado_dir)
+        evento = json.load(sys.stdin)
+        decidir(evento, estado_dir)
         return 0
     except Bloqueo as b:
-        print(f"legacy-schema-audit: {b}", file=sys.stderr)
-        return 2
+        motivo = f"legacy-schema-audit: {b}"
     except Exception as e:  # noqa: BLE001  fail closed
-        print(f"legacy-schema-audit: guard could not decide ({type(e).__name__}); blocked.", file=sys.stderr)
-        return 2
+        motivo = f"legacy-schema-audit: guard could not decide ({type(e).__name__}); blocked."
+    print(motivo, file=sys.stderr)
+    if isinstance(evento, dict) and evento.get("cwd"):
+        registrar(evento, motivo)
+    return 2
 
 
 if __name__ == "__main__":

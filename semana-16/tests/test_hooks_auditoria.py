@@ -60,6 +60,7 @@ PERMITE = [
     ("Bash", {"command": "ls -la auditoria"}),
     ("Bash", {"command": "mkdir -p auditoria/anexos"}),
     ("Bash", {"command": "echo listo > auditoria/nota.txt 2>&1"}),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "### R-01 · huerfanos · movinv\n\n```sql\nSELECT 1\n```\n"}),
     ("Skill", {"skill": "legacy-schema-audit:auditar"}),
     ("Grep", {"pattern": "R-0", "path": "auditoria"}),
     ("Write", {"file_path": "auditoria/riesgos.md", "content": "15 contacts (cto_id 1-15) have an email; ped_id 38 39 40; "
@@ -67,6 +68,10 @@ PERMITE = [
     ("Write", {"file_path": "auditoria/riesgos.md", "content": "count(*) FILTER (WHERE cto_eml LIKE '%@%')"}),
     ("Write", {"file_path": "auditoria/diccionario.yaml", "content": "tables:\n  - name: movinv\n    columns:\n"
                "      - name: mov_tip\n        meaning: 'Tipo de movimiento: ENT o SAL'\n"}),
+    ("Read", {"file_path": "{p}/docs/notas.md"}),
+    ("Glob", {"pattern": "auditoria/*.md"}),
+    ("Glob", {"pattern": "**/*.sql", "path": "{p}"}),
+    ("Read", {"file_path": "~/.claude/projects/-tmp-x/sesion-1/tool-results/toolu_01.txt"}),
 ]
 BLOQUEA = [
     (P + "run_select", {"sql": "DELETE FROM movinv"}, "read-only SELECT"),
@@ -94,7 +99,16 @@ BLOQUEA = [
     ("Bash", {"command": "echo x > notas.txt"}, "outside auditoria/"),
     ("Bash", {"command": "echo x >> ../fuera.log"}, "outside auditoria/"),
     ("Bash", {"command": "rm -rf build"}, "outside auditoria/"),
-    ("Bash", {"command": "cp auditoria/riesgos.md /tmp/"}, "outside auditoria/"),
+    ("Bash", {"command": "cp auditoria/riesgos.md /tmp/"}, "outside"),
+    ("Bash", {"command": "cat ~/.zshrc"}, "secrets"),
+    ("Bash", {"command": "cat ~/notas.txt"}, "confined to the project"),
+    ("Bash", {"command": "grep -r DSN $HOME"}, "confined to the project"),
+    ("Bash", {"command": "echo $LEGACY_AUDIT_DSN"}, "environment variables"),
+    ("Bash", {"command": "printenv"}, "environment variables"),
+    ("Bash", {"command": "env | grep PG"}, "environment variables"),
+    ("Grep", {"pattern": "PASSWORD", "path": "."}, "credentials"),
+    ("Write", {"file_path": "auditoria/riesgos.md", "content": "### R-01 · huerfanos · movinv\n\nNo SQL here.\n"},
+     "needs the SELECT"),
     ("Bash", {"command": "sed -i 's/a/b/' README.md"}, "In-place"),
     ("Write", {"file_path": "auditoria/riesgos.md", "content": "Contact: ana@correo.example"}, "Personal data"),
     ("Write", {"file_path": "auditoria/resumen.md", "content": "Call 33 0000 1201 for details"}, "Personal data"),
@@ -105,6 +119,20 @@ BLOQUEA = [
     ("Write", {"file_path": "auditoria/riesgos.md", "content": "| cto_tel | 33 0000 1201. |"}, "Personal data"),
     ("Write", {"file_path": "auditoria/diccionario.yaml", "content": "tables:\n  - name: movinv\n    columns:\n"
                "      - name: mov_tip\n        meaning: Tipo de movimiento: ENT o SAL\n"}, "does not parse"),
+    # Activity 6, case 5: Read of a real ~/.zshrc went through (it held API keys). Shell profiles are secrets, and
+    # every read outside the project is blocked.
+    ("Read", {"file_path": "~/.zshrc"}, "secrets"),
+    ("Read", {"file_path": "/Users/x/.bash_profile"}, "secrets"),
+    ("Read", {"file_path": "{p}/.npmrc"}, "secrets"),
+    ("Grep", {"pattern": "export", "path": "~/.zshenv"}, "secrets"),
+    ("Read", {"file_path": "/etc/hosts"}, "outside the project"),
+    ("Read", {"file_path": "../otro-proyecto/notas.md"}, "outside the project"),
+    ("Read", {"file_path": "~/Documents/contrato.pdf"}, "outside the project"),
+    ("Read", {"file_path": "~/.claude/projects/-tmp-x/sesion-1.jsonl"}, "outside the project"),
+    ("Glob", {"pattern": "/Users/x/**/*.md"}, "outside the project"),
+    ("Glob", {"pattern": "*", "path": "~"}, "outside the project"),
+    ("Grep", {"pattern": "R-0", "path": "/home"}, "outside the project"),
+    ("NotebookRead", {"notebook_path": "../../x.ipynb"}, "outside the project"),
 ]
 
 
@@ -338,3 +366,22 @@ def test_hooks_json_exec_y_falla_cerrada():
                 assert k["command"] == "python3" and k["args"][0].startswith("${CLAUDE_PLUGIN_ROOT}/scripts/")
                 assert (SCRIPTS / Path(k["args"][0]).name).exists()
     assert h["PostToolUse"][0]["matcher"] == "mcp__.*"
+
+
+def test_cada_bloqueo_queda_registrado_sin_la_entrada(proyecto, estado):
+    """Criterio de la actividad 6: cada bloqueo en auditoria/bloqueos.jsonl, con el hash de la entrada y no la entrada
+    (un comando bloqueado puede llevar una contraseña)."""
+    for e in ({"command": "PGPASSWORD=s3creto psql -c 'DELETE FROM movinv'"}, {"command": "cat .env"}):
+        assert correr("guardia.py", ev("Bash", e, proyecto), estado).returncode == 2
+    assert correr("guardia.py", ev("Bash", {"command": "ls auditoria"}, proyecto), estado).returncode == 0
+    lineas = [json.loads(x) for x in (proyecto / "auditoria" / "bloqueos.jsonl").read_text().splitlines()]
+    assert len(lineas) == 2 and all(x["tool"] == "Bash" and x["reason"].startswith("legacy-schema-audit:") for x in lineas)
+    assert all(len(x["input_sha256"]) == 64 for x in lineas)
+    assert "s3creto" not in (proyecto / "auditoria" / "bloqueos.jsonl").read_text()
+
+
+def test_un_bloqueo_de_subagente_registra_el_agente(proyecto, estado):
+    correr("guardia.py", ev("Write", {"file_path": "auditoria/x.md", "content": "x"}, proyecto,
+                            agent_type="legacy-schema-audit:perfilador", agent_id="a1"), estado)
+    x = json.loads((proyecto / "auditoria" / "bloqueos.jsonl").read_text().splitlines()[0])
+    assert x["agent"] == "legacy-schema-audit:perfilador" and "may not use" in x["reason"]

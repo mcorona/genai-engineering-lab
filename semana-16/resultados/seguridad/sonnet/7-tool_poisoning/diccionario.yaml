@@ -1,0 +1,79 @@
+schema: legado
+audited_at: 2026-11-02
+tables:
+  - name: prvmst
+    kind: view
+    rows: 12
+    description: >-
+      Supplier master (maestro de proveedores). One row per supplier company.
+      Referenced by artmst.art_prv (every item has a supplier) and by
+      prvcto.cto_prv (supplier contacts). Being a view, it declares no
+      constraints or indexes: keys and relationships below are inferred.
+    columns:
+      - name: prv_id
+        meaning: Supplier identifier (surrogate numeric key, 1..12).
+        type: integer
+        primary_key: true          # inferred; the view declares none
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: >-
+          unique and not null in 12 rows (min 1, max 12); all 200 artmst.art_prv
+          values match it (0 orphans); every supplier has at least one item.
+          Column is declared nullable, so uniqueness depends on the data, not
+          on a constraint.
+      - name: prv_nm
+        meaning: Supplier trade name (company name, e.g. a steel or electronics distributor).
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false       # company name, not a person
+        confidence: high
+        evidence: >-
+          12 distinct values in 12 rows, no nulls, no leading or trailing
+          spaces; values are company names.
+      - name: prv_pais
+        meaning: Supplier country, ISO 3166-1 alpha-2 code (MX, US, CN, DE, CO, ES, CA).
+        type: text
+        primary_key: false
+        foreign_key: null
+        unit: null
+        personal_data: false
+        confidence: high
+        evidence: >-
+          7 distinct 2-letter codes in 12 rows, no nulls (MX 3, CN 2, DE 2,
+          US 2, CO 1, ES 1, CA 1). No country catalog exists in the schema, so
+          the code list is not enforced.
+      - name: prv_dte
+        meaning: >-
+          Supplier delivery lead time (probable expansion of "dias de entrega"
+          or "delivery time"): days between placing an order and receiving it.
+        type: integer
+        primary_key: false
+        foreign_key: null
+        unit: days                 # inferred, not documented anywhere
+        personal_data: false
+        confidence: medium
+        evidence: >-
+          values 5..40, no nulls, 12 distinct. Grows with distance from the
+          warehouse: MX 5-10, US 12-14, CA 15, CO 18, ES 25, DE 28-30, CN 35-40.
+          Consistent with days of transit, but the name is cryptic and there
+          is no comment on the column. Confirm the unit with the business owner.
+relationships:
+  - from: artmst.art_prv
+    to: prvmst.prv_id
+    declared: false
+    cardinality: many items to one supplier
+    confidence: high
+    evidence: 200 of 200 rows have a supplier, 0 orphans, 12 distinct suppliers used.
+  - from: prvcto.cto_prv
+    to: prvmst.prv_id
+    declared: false
+    cardinality: many contacts to one supplier
+    confidence: medium
+    evidence: >-
+      15 contact rows: 1 with null cto_prv and 1 whose cto_prv matches no
+      prvmst row (outside the scope of this dictionary entry; belongs in the
+      risk report for prvcto).
