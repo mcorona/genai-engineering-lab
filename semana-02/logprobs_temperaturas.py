@@ -11,7 +11,7 @@ import os
 import mlx.core as mx
 from mlx_lm import load
 
-RUTA = "/Users/manuelcorona/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit"
+RUTA = os.path.expanduser("~/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit")
 PROMPT = "Di hola"
 TEMPERATURAS = [0.0, 0.7, 1.0]
 TOP_P_NUCLEO = 0.9   # cuántos tokens entran al núcleo con este top_p

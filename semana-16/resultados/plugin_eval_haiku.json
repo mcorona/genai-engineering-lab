@@ -6,7 +6,7 @@
   "costUsd": 0.99686398,
   "partial": false,
   "suite": {
-    "root": "/Users/manuelcorona/AI-projects-llm-internals/semana-16/legacy-schema-audit",
+    "root": "~/AI-projects-llm-internals/semana-16/legacy-schema-audit",
     "ablation": "with-without",
     "modelOverride": "haiku",
     "judgeModel": "haiku",
@@ -16,7 +16,7 @@
       {
         "name": "legacy-schema-audit",
         "version": "0.1.0",
-        "path": "/Users/manuelcorona/AI-projects-llm-internals/semana-16/legacy-schema-audit"
+        "path": "~/AI-projects-llm-internals/semana-16/legacy-schema-audit"
       }
     ]
   },

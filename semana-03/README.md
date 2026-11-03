@@ -153,10 +153,10 @@ uv run python semana-03/estadistica.py base base27b_reglas base27b_rag --compara
 Para el 7B con LoRA, levantar el servidor con el adaptador en otro puerto:
 
 ```bash
-mlx_lm.server --model /Users/manuelcorona/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-7B-Instruct-MLX-4bit \
+mlx_lm.server --model $HOME/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-7B-Instruct-MLX-4bit \
   --adapter-path semana-03/adapters/qwen7b-sql --port 8081
 uv run python semana-03/evaluar_sql.py --nombre lora7b --base-url http://localhost:8081/v1 \
-  --modelo "/Users/manuelcorona/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-7B-Instruct-MLX-4bit"
+  --modelo "$HOME/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-7B-Instruct-MLX-4bit"
 ```
 
 Los resultados ya calculados no requieren modelo; `--reevaluar NOMBRE` recalcula las métricas desde el detalle.

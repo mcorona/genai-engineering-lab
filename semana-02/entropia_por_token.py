@@ -13,7 +13,7 @@ import mlx.core as mx
 from mlx_lm import load
 from mlx_lm.models.cache import make_prompt_cache
 
-RUTA = "/Users/manuelcorona/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit"
+RUTA = os.path.expanduser("~/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit")
 PROMPT = "Explica en tres frases qué es el punto de reorden de un SKU y cuándo conviene revisarlo."
 TEMPERATURAS = [0.7, 1.0]
 SEED = 1

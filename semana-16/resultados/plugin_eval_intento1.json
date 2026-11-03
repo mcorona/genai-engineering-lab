@@ -7,7 +7,7 @@
   "partial": true,
   "partialReason": "cost_ceiling",
   "suite": {
-    "root": "/Users/manuelcorona/AI-projects-llm-internals/semana-16/legacy-schema-audit",
+    "root": "~/AI-projects-llm-internals/semana-16/legacy-schema-audit",
     "ablation": "with-without",
     "modelOverride": "haiku",
     "judgeModel": "sonnet",
@@ -17,7 +17,7 @@
       {
         "name": "legacy-schema-audit",
         "version": "0.1.0",
-        "path": "/Users/manuelcorona/AI-projects-llm-internals/semana-16/legacy-schema-audit"
+        "path": "~/AI-projects-llm-internals/semana-16/legacy-schema-audit"
       }
     ]
   },
