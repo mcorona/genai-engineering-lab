@@ -82,6 +82,7 @@ class Laboratorio:
         self.tenant = tenant
         self.instrumentor = InstrumentorServidor().instrument()
         self.entorno = None
+        self.ultimo_agente = None
         self.clientes: list[ClienteInstrumentado] = []
         try:
             self.entorno = cargar_entorno("prueba")
@@ -91,7 +92,7 @@ class Laboratorio:
 
     def correr(self, turnos: list[dict], *, usuario: str = "analista", tarea: dict | None = None, modelo_falla: int | None = None,
                mensaje_de_falla: str = "scripted API failure", cliente_clase=ClienteInstrumentado,
-               catalogo_obsoleto: dict | None = None, **kw):
+               catalogo_obsoleto: dict | None = None, agente_clase=AgenteInstrumentado, sesion: str | None = None, **kw):
         """One task with the scripted model. Returns (Resultado, ModeloGuionado, client).
         `catalogo_obsoleto` adds tools to the client's name map after the catalog was read, as if the token's scopes had
         shrunk since a cached `tools/list`: the call reaches the server and the boundary answers 403."""
@@ -101,10 +102,11 @@ class Laboratorio:
                                 allowlist={"legado": {"pins": manifiesto()["herramientas"]}}, defensas=True).abrir()
         self.clientes.append(cliente)
         modelo = ModeloGuionado(turnos, falla_en=modelo_falla, mensaje_de_falla=mensaje_de_falla)
-        agente = AgenteInstrumentado(cliente, api=modelo, tenant=self.tenant, simulado=True, **kw)
+        agente = agente_clase(cliente, api=modelo, tenant=self.tenant, simulado=True, **kw)
         if catalogo_obsoleto:
             cliente._mapa.update(catalogo_obsoleto)
-        r = agente.resolver(tarea or TAREA, sujeto_de(token))
+        r = agente.resolver(tarea or TAREA, sujeto_de(token), **({"sesion": sesion} if sesion else {}))
+        self.ultimo_agente = agente
         return r, modelo, cliente
 
     def token(self, usuario: str) -> str:

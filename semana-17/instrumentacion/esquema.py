@@ -84,7 +84,8 @@ COSTO_LANGFUSE = _patron(r'\{"total": [0-9]+(\.[0-9]+)?(e-[0-9]+)?\}')
 
 ESTADOS = ("respondida", "requiere_aclaracion", "abstenida", "limite_alcanzado", "error")
 MOTIVOS = ("responder", "max_pasos", "max_tokens_total", "max_segundos", "max_herramientas", "max_tokens_salida",
-           "sin_responder", "errores_herramienta", "api_error", "otro")
+           "sin_responder", "errores_herramienta", "api_error", "otro",
+           "presupuesto_tarea", "presupuesto_sesion", "presupuesto_tenant_dia")      # activity 4: a budget ended the task
 DECISIONES = ("allow", "deny_no_token", "deny_bad_scheme", "deny_invalid_token", "deny_insufficient_scope")
 METODOS_MCP = ("tools/call", "tools/list", "resources/read", "resources/list", "prompts/get", "prompts/list", "other")
 FINALIZACIONES = ("end_turn", "tool_use", "max_tokens", "stop_sequence", "pause_turn", "refusal", "other")
@@ -176,6 +177,54 @@ ATRIBUTOS_SDK = {
     "mcp_servidor": {"mcp.method.name", "mcp.protocol.version", "jsonrpc.request.id", "gen_ai.operation.name",
                      "gen_ai.tool.name", "error.type"},
 }
+
+
+# Activity 4: the budget decision is a span EVENT on the agent span, one per model call (allow, degrade) or per stop. Its attributes
+# are declared like a span kind's: numbers, enumerations and identifiers only. `spent` and `limit` are those of the scope that
+# limits the call (the tightest one), `estimate` is the upper cost of the call that was or would have been made.
+EVENTO_PRESUPUESTO = "gen_ai.budget.decision"
+ALCANCES_PRESUPUESTO = ("task", "session", "tenant_day")
+ACCIONES_PRESUPUESTO = ("allow", "degrade", "stop")
+MOTIVOS_PRESUPUESTO = ("ok", "degradado", "usd", "tokens")
+ATRIBUTOS_EVENTO: dict[str, dict] = {
+    EVENTO_PRESUPUESTO: {
+        "lab.budget.decision": _enum(*ACCIONES_PRESUPUESTO),
+        "lab.budget.scope": _enum(*ALCANCES_PRESUPUESTO),
+        "lab.budget.reason": _enum(*MOTIVOS_PRESUPUESTO),
+        "lab.budget.step": _entero(),
+        "lab.budget.spent_usd": _numero(), "lab.budget.limit_usd": _numero(), "lab.budget.estimate_usd": _numero(),
+        "lab.budget.spent_tokens": _entero(), "lab.budget.limit_tokens": _entero(), "lab.budget.estimate_tokens": _entero(),
+        "lab.budget.max_tokens": _entero(),
+        "gen_ai.request.model": ID, "lab.budget.model.from": ID,
+    },
+}
+
+
+def claves_de_eventos() -> set[str]:
+    """Every attribute key of the lab's span events. The Collector allowlist of activity 9 is `claves_permitidas()` plus these."""
+    return {k for evento in ATRIBUTOS_EVENTO.values() for k in evento}
+
+
+def fijar_evento(span, nombre: str, atributos: dict) -> None:
+    """Adds a lab event to a span through the locked shape: an unknown event name, key or invalid value is dropped and counted
+    (production) or raises (`ESTRICTO`). The event is added only if every value is valid, so it is never half written."""
+    reglas = ATRIBUTOS_EVENTO.get(nombre)
+    if reglas is None:
+        if ESTRICTO:
+            raise ErrorEsquema(f"event {nombre!r} is not in the locked shape")
+        OMITIDOS[f"evento:{nombre}"] += 1
+        return
+    validos = {}
+    for clave, valor in atributos.items():
+        if valor is None:
+            continue
+        if clave not in reglas or not reglas[clave](valor):
+            if ESTRICTO:
+                raise ErrorEsquema(f"{nombre}: attribute {clave!r} is not in the locked shape or its value is not valid")
+            OMITIDOS[f"evento:{nombre}:{clave}"] += 1
+            continue
+        validos[clave] = valor
+    span.add_event(nombre, attributes=validos)
 
 
 def claves_permitidas() -> set[str]:

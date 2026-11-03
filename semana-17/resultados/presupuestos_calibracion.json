@@ -1,0 +1,351 @@
+{
+ "corrida_base": "eval_haiku_low",
+ "modelo": "claude-haiku-5-5",
+ "distribucion": {
+  "corridas": 252,
+  "tareas": 84,
+  "repeticiones": 3,
+  "exito": 0.9206,
+  "usd_por_corrida": {
+   "n": 252,
+   "p50": 0.002593,
+   "p90": 0.00468,
+   "p95": 0.005237,
+   "p99": 0.006244,
+   "max": 0.007772,
+   "media": 0.002856
+  },
+  "tokens_por_corrida": {
+   "n": 252,
+   "p50": 20996.0,
+   "p90": 34842.0,
+   "p95": 37971.0,
+   "p99": 45624.0,
+   "max": 60308.0,
+   "media": 21665.0
+  },
+  "pasos_por_corrida": {
+   "n": 252,
+   "p50": 4.0,
+   "p90": 5.0,
+   "p95": 5.0,
+   "p99": 6.0,
+   "max": 7.0,
+   "media": 3.69
+  },
+  "salida_por_paso": {
+   "n": 930,
+   "p50": 311.0,
+   "p90": 1051.0,
+   "p95": 1276.0,
+   "p99": 1825.0,
+   "max": 2491.0,
+   "media": 467.0
+  },
+  "entrada_por_paso": {
+   "n": 930,
+   "p50": 5438.0,
+   "p90": 7833.0,
+   "p95": 8651.0,
+   "p99": 10166.0,
+   "max": 12220.0,
+   "media": 5404.0
+  },
+  "por_tipo": {
+   "ambigua": {
+    "corridas": 24,
+    "exito": 0.5,
+    "usd": {
+     "n": 24,
+     "p50": 0.001868,
+     "p90": 0.002775,
+     "p95": 0.004187,
+     "p99": 0.004428,
+     "max": 0.00443,
+     "media": 0.001769
+    }
+   },
+   "compuesta": {
+    "corridas": 48,
+    "exito": 0.917,
+    "usd": {
+     "n": 48,
+     "p50": 0.004375,
+     "p90": 0.005389,
+     "p95": 0.005616,
+     "p99": 0.006118,
+     "max": 0.006559,
+     "media": 0.004127
+    }
+   },
+   "regla": {
+    "corridas": 72,
+    "exito": 0.972,
+    "usd": {
+     "n": 72,
+     "p50": 0.003275,
+     "p90": 0.004933,
+     "p95": 0.0055,
+     "p99": 0.007065,
+     "max": 0.007772,
+     "media": 0.003457
+    }
+   },
+   "simple": {
+    "corridas": 60,
+    "exito": 0.967,
+    "usd": {
+     "n": 60,
+     "p50": 0.00215,
+     "p90": 0.003271,
+     "p95": 0.003435,
+     "p99": 0.0041,
+     "max": 0.004144,
+     "media": 0.002453
+    }
+   },
+   "sin_respuesta": {
+    "corridas": 24,
+    "exito": 1.0,
+    "usd": {
+     "n": 24,
+     "p50": 0.001123,
+     "p90": 0.001786,
+     "p95": 0.001833,
+     "p99": 0.001873,
+     "max": 0.001884,
+     "media": 0.001275
+    }
+   },
+   "valores": {
+    "corridas": 24,
+    "exito": 1.0,
+    "usd": {
+     "n": 24,
+     "p50": 0.002347,
+     "p90": 0.00253,
+     "p95": 0.002536,
+     "p99": 0.002544,
+     "max": 0.002546,
+     "media": 0.002185
+    }
+   }
+  }
+ },
+ "validacion_de_la_estimacion": [
+  {
+   "divisor": 2.0,
+   "margen": 1.0,
+   "primera_llamada": {
+    "llamadas": 252,
+    "subestima": 0,
+    "razon_minima": 1.323,
+    "razon_media": 1.341
+   },
+   "llamadas_siguientes": {
+    "llamadas": 678,
+    "subestima": 2,
+    "razon_minima": 0.99,
+    "razon_media": 1.072
+   }
+  },
+  {
+   "divisor": 2.0,
+   "margen": 1.1,
+   "primera_llamada": {
+    "llamadas": 252,
+    "subestima": 0,
+    "razon_minima": 1.455,
+    "razon_media": 1.475
+   },
+   "llamadas_siguientes": {
+    "llamadas": 678,
+    "subestima": 0,
+    "razon_minima": 1.089,
+    "razon_media": 1.179
+   }
+  },
+  {
+   "divisor": 1.5,
+   "margen": 1.0,
+   "primera_llamada": {
+    "llamadas": 252,
+    "subestima": 0,
+    "razon_minima": 1.763,
+    "razon_media": 1.788
+   },
+   "llamadas_siguientes": {
+    "llamadas": 678,
+    "subestima": 2,
+    "razon_minima": 0.997,
+    "razon_media": 1.158
+   }
+  },
+  {
+   "divisor": 1.5,
+   "margen": 1.1,
+   "primera_llamada": {
+    "llamadas": 252,
+    "subestima": 0,
+    "razon_minima": 1.94,
+    "razon_media": 1.967
+   },
+   "llamadas_siguientes": {
+    "llamadas": 678,
+    "subestima": 0,
+    "razon_minima": 1.096,
+    "razon_media": 1.274
+   }
+  },
+  {
+   "divisor": 1.3,
+   "margen": 1.0,
+   "primera_llamada": {
+    "llamadas": 252,
+    "subestima": 0,
+    "razon_minima": 2.035,
+    "razon_media": 2.063
+   },
+   "llamadas_siguientes": {
+    "llamadas": 678,
+    "subestima": 0,
+    "razon_minima": 1.001,
+    "razon_media": 1.211
+   }
+  },
+  {
+   "divisor": 1.3,
+   "margen": 1.1,
+   "primera_llamada": {
+    "llamadas": 252,
+    "subestima": 0,
+    "razon_minima": 2.239,
+    "razon_media": 2.269
+   },
+   "llamadas_siguientes": {
+    "llamadas": 678,
+    "subestima": 0,
+    "razon_minima": 1.101,
+    "razon_media": 1.332
+   }
+  }
+ ],
+ "estimacion_en_uso": {
+  "divisor": 1.5,
+  "margen": 1.1,
+  "primera_llamada": {
+   "llamadas": 252,
+   "subestima": 0,
+   "razon_minima": 1.94,
+   "razon_media": 1.967
+  },
+  "llamadas_siguientes": {
+   "llamadas": 678,
+   "subestima": 0,
+   "razon_minima": 1.096,
+   "razon_media": 1.274
+  }
+ },
+ "repeticion": {
+  "p90": {
+   "tope_usd": 0.00468,
+   "tope_tokens": 34842,
+   "cortadas": 39,
+   "de_ellas_con_exito": 38,
+   "motivos": {
+    "tokens": 35,
+    "salida_cortada": 3,
+    "usd": 1
+   },
+   "exito_perdido": 0.1508,
+   "usd_con_presupuesto": 0.6525,
+   "usd_original": 0.7196,
+   "gasto_maximo_de_una_corrida": 0.004542,
+   "nunca_pasa_del_tope": true
+  },
+  "p95": {
+   "tope_usd": 0.005237,
+   "tope_tokens": 37971,
+   "cortadas": 17,
+   "de_ellas_con_exito": 17,
+   "motivos": {
+    "usd": 1,
+    "tokens": 15,
+    "salida_cortada": 1
+   },
+   "exito_perdido": 0.0675,
+   "usd_con_presupuesto": 0.6885,
+   "usd_original": 0.7196,
+   "gasto_maximo_de_una_corrida": 0.004942,
+   "nunca_pasa_del_tope": true
+  },
+  "p99": {
+   "tope_usd": 0.006244,
+   "tope_tokens": 45624,
+   "cortadas": 4,
+   "de_ellas_con_exito": 4,
+   "motivos": {
+    "tokens": 3,
+    "usd": 1
+   },
+   "exito_perdido": 0.0159,
+   "usd_con_presupuesto": 0.7109,
+   "usd_original": 0.7196,
+   "gasto_maximo_de_una_corrida": 0.005672,
+   "nunca_pasa_del_tope": true
+  },
+  "max": {
+   "tope_usd": 0.007772,
+   "tope_tokens": 60308,
+   "cortadas": 1,
+   "de_ellas_con_exito": 1,
+   "motivos": {
+    "tokens": 1
+   },
+   "exito_perdido": 0.004,
+   "usd_con_presupuesto": 0.7179,
+   "usd_original": 0.7196,
+   "gasto_maximo_de_una_corrida": 0.006776,
+   "nunca_pasa_del_tope": true
+  },
+  "elegida": {
+   "tope_usd": 0.0063,
+   "tope_tokens": 46000,
+   "cortadas": 4,
+   "de_ellas_con_exito": 4,
+   "motivos": {
+    "tokens": 3,
+    "usd": 1
+   },
+   "exito_perdido": 0.0159,
+   "usd_con_presupuesto": 0.7109,
+   "usd_original": 0.7196,
+   "gasto_maximo_de_una_corrida": 0.005672,
+   "nunca_pasa_del_tope": true
+  }
+ },
+ "politica_elegida": {
+  "_doc": "Written by presupuestos/calibracion.py from the 252 runs of the week 13 Haiku `low` evaluation. Do not edit by hand.",
+  "modelo": "claude-haiku-5-5",
+  "corrida_base": "eval_haiku_low",
+  "nivel_de_la_tarea": "p99",
+  "tarea": {
+   "usd": 0.0063,
+   "tokens": 46000
+  },
+  "sesion": {
+   "usd": 0.039,
+   "tokens": 300000,
+   "tareas": 10
+  },
+  "tenant_dia": {
+   "usd": 0.32,
+   "tokens": 2400000,
+   "tareas": 100
+  },
+  "min_salida": 1300,
+  "max_salida": 4000,
+  "chars_por_token": 1.5,
+  "margen_entrada": 1.1
+ }
+}

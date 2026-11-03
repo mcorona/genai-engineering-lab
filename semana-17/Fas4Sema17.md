@@ -378,3 +378,15 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   through both, with the real server (`comparacion/`, `resultados/frameworks.md`). Strands continues the trace into the
   server out of the box and counts tokens like the lab, but records prompt, SQL and rows by default (its own switch,
   `gen_ai_unredacted_attributes=`, removes them); LangGraph emits 0 OpenTelemetry spans and the server cannot link its calls.
+- 2026-11-03: activity 4, token and cost budgets. `presupuestos/` puts a budget on every model call of the week 13 loop without
+  editing it: per task (memory), per session and per tenant per day (SQLite store, reservations in one `BEGIN IMMEDIATE`
+  transaction), in tokens and USD, checked before each call with an upper estimate of the prompt (never below the real one in
+  930 recorded calls) and capped by a dynamic `max_tokens`. At a limit the task ends with a partial answer that says why; a
+  policy can name a cheaper model; nothing is retried. Each decision is a `gen_ai.budget.decision` span event. The caps come
+  from the week 13 cost distribution (p99 of a task: $0.0063 and 46,000 tokens). Paid run, authorized first: 84 tasks with the
+  budget on cost $0.2344 (the plan said ~$0.15; 84 × the week 13 mean is $0.24): 74 of 84 succeeded (week 13: 78 of 84 on the same
+  repetition), 2 were stopped by the budget (both passed 3 of 3 in week 13), and no task, session or day crossed its cap
+  (`resultados/presupuestos.md`). Findings: Langfuse v4 does not show span events (they reach the Collector's file; the agent span
+  carries `lab.outcome.reason = presupuesto_*`, which is what activity 8 must read); a degrade made the loop price the run at the
+  original model (found by the Langfuse check, fixed); upper-bound reservations are conservative under concurrency; one failure
+  (`s10-es`) is not explained and is reported as variation, not proved.
