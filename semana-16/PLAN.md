@@ -49,7 +49,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Deliverable:** `resultados/linea_base.md` with the capability matrix (measured or documented) and the gaps.
 - **Time:** ~1.5 h. **Cost:** $0 (subscription).
 
-### 2. Audit ground truth
+### 2. Audit ground truth ✅
 - From the week 10 views, generate the "correct dictionary" for every cryptic column: original table and column, meaning, type, primary and foreign key, unit.
 - Label the **seeded risks** the plugin must find:
   - Personal data (suppliers, contacts).
@@ -63,7 +63,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Tests:** the truth is recomputed in the CI database and matches the frozen one.
 - **Time:** ~1.5 h. **Cost:** $0.
 
-### 3. The plugin: audit skill
+### 3. The plugin: audit skill ✅
 - `legacy-schema-audit/` with:
   - A manifest with sensitive `userConfig` for the MCP token or the DSN.
   - An `auditar` skill: object inventory, profiling, dictionary, relationships, risks and report.
@@ -77,7 +77,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Tests:** `claude plugin validate --strict` clean; one manual run on the lab database.
 - **Time:** ~2 h. **Cost:** $0 (subscription).
 
-### 4. Subagents and hooks
+### 4. Subagents and hooks ✅
 - **Subagents** with minimal tools:
   - `perfilador`: read-only and per-column statistics.
   - `analista-relaciones`: keys and cardinalities.
@@ -90,7 +90,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Tests without API:** each hook with scripted inputs (allowed / blocked, exit codes, valid log); a subagent cannot use tools outside its list.
 - **Time:** ~2 h. **Cost:** $0.
 
-### 5. Plugin eval
+### 5. Plugin eval ✅
 - **Behavior with `claude plugin eval`:** 8 to 12 cases with realistic prompts in Spanish and English, including cases that must **not** trigger the plugin. Deterministic graders (`tool_used: Skill`, `file_exists`, `regex` over the dictionary and report, `tool_order`) and a few `llm` graders with a PASS/FAIL rubric. MCP mocks for the behavior cases. A no-plugin baseline to measure Δ.
 - **Quality with the own evaluator** (`eval/calidad.py`), over the outputs of `claude -p` runs against the real read-only database:
   - Dictionary: accuracy of meaning per column, precision and recall of foreign keys and personal data.
@@ -100,7 +100,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Deliverable:** `resultados/eval_plugin.md`.
 - **Time:** ~2 h. **Cost:** $0 with the subscription, or ~$1.50 to $3.00 through the API if run that way (authorized first, cap $4).
 
-### 6. Plugin security
+### 6. Plugin security ✅
 - Cases:
   - Instructions injected in data (`legado.artnot`), in column comments and in object names.
   - A user request to "fix" a value.
@@ -111,20 +111,20 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Deliverable:** `resultados/seguridad.md`.
 - **Time:** ~1.5 h. **Cost:** $0 with the subscription (or ~$0.50 through the API).
 
-### 7. Spike: browser agent on a legacy screen
+### 7. Spike: browser agent on a legacy screen ✅
 - A synthetic "legacy" web screen served locally from the same database (a data-entry form whose labels do not match the columns).
 - The agent (Playwright MCP or Claude in Chrome) walks it to **enrich the dictionary** with what the user sees, which is not in the database.
 - **Measured:** fields mapped correctly against the truth, steps, cost, time.
 - **Security:** an instruction injected in the page is treated as data, only local domains allowed, no form submission.
 - **Time:** ~1.5 h. **Cost:** ~$0.20 (authorized first, cap $0.50).
 
-### 8. Optional: computer use spike
+### 8. Optional: computer use spike ✅
 - The API computer use tool in the isolated reference container, on the same legacy screen or a synthetic desktop application.
 - **Measured:** success, steps, cost and latency vs the browser agent, and when it is justified (applications with no DOM or API).
 - Only with explicit authorization, a cap per run and a disposable environment; if not authorized, documented with its estimated cost.
 - **Time:** ~1.5 h. **Cost:** ~$0.50 to $1.00 (cap $1.50).
 
-### 9. Packaging for clients
+### 9. Packaging for clients ✅
 - **Marketplace:** `.claude-plugin/marketplace.json` with the plugin entry; semantic version and `CHANGELOG`; installation tested from scratch in a clean directory.
 - **Client-facing plugin README:**
   - What it does and what it never does (read-only).
@@ -135,7 +135,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Offer:** how it is used inside the "AI Opportunity & Risk Assessment" service (scope, deliverables, reference price from the program).
 - **Time:** ~1 h. **Cost:** $0.
 
-### 10. CI, README and criterion 16
+### 10. CI, README and criterion 16 ✅
 - `eval-semana-16` workflow:
   - Ephemeral Postgres and Keycloak.
   - `claude plugin validate --strict`.
@@ -161,3 +161,5 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 
 - 2026-11-01: plan created.
 - 2026-11-02: activity 1 merged (PR #111): 20/20 checks on Claude Code 2.1.316. Findings carried into the plan: guard hooks need `onFailure: "block"`; `--bare` skips hooks, so read-only access is enforced by the database role or the MCP server; plugin subagents ignore `hooks`, `mcpServers` and `permissionMode`; no `bin/` in the client plugin (it blocks claude.ai and Cowork distribution); `--allowedTools` is variadic, so headless prompts go through stdin; security evals must isolate the hook (activity 6); every new `semana-NN/` folder goes into the `evals-semana-06` paths, or the required `regresion` check blocks the merge.
+- 2026-11-02: activities 2 to 9 merged (PRs #113 to #123). Ground truth; plugin with skill, commands and read-only server; subagents and hooks; plugin eval (Δ +0.57) and own evaluator; security 14/14, with the `~/.zshrc` leak contained and the guard hardened; browser agent and computer use spikes (10/10 each); marketplace, 1.0.0, client README and offer (Snapshot USD 1,500, Assessment USD 3,500).
+- 2026-11-02: activity 10 merged (PR #124). `eval-semana-16` with ephemeral Postgres and Keycloak, 328 tests without API, and a mini eval with API on every PR. Thresholds calibrated on 2 runs and enforced on a third ($0.34 in total). The first run failed a check of the harness: the token's visible set did not follow its scopes. Haiku's risk and PK recall vary, so their gates are low (0.35 and 0.45). Criterion 16 verified; the documentation went in a separate PR.
