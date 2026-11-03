@@ -27,6 +27,7 @@
     12
    ],
    "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
    "tipos_correctos": true,
    "resultado_del_agente_en_langfuse_igual": true,
    "modelos_de_las_generaciones_en_langfuse_iguales": true,
@@ -63,6 +64,7 @@
     13
    ],
    "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
    "tipos_correctos": true,
    "resultado_del_agente_en_langfuse_igual": true,
    "modelos_de_las_generaciones_en_langfuse_iguales": true,
@@ -96,6 +98,7 @@
     12
    ],
    "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
    "tipos_correctos": true,
    "resultado_del_agente_en_langfuse_igual": true,
    "modelos_de_las_generaciones_en_langfuse_iguales": true,
@@ -127,6 +130,7 @@
     12
    ],
    "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
    "tipos_correctos": true,
    "resultado_del_agente_en_langfuse_igual": true,
    "modelos_de_las_generaciones_en_langfuse_iguales": true,
@@ -156,6 +160,7 @@
     12
    ],
    "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
    "tipos_correctos": true,
    "resultado_del_agente_en_langfuse_igual": true,
    "modelos_de_las_generaciones_en_langfuse_iguales": true,

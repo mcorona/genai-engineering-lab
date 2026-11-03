@@ -620,7 +620,7 @@ def _consola():
         partes = linea.split()
         if len(partes) > 6 and partes[3].startswith("exito="):
             filas[partes[0]] = {"tipo": partes[1], "estado": partes[2], "exito": partes[3] == "exito=si", "usd": float(partes[5].lstrip("$")),
-                                "motivo": partes[6]}
+                                "motivo": partes[6], "pasos": int(partes[4].split("=")[1])}
     return filas
 
 
@@ -694,3 +694,51 @@ def test_los_informes_de_la_actividad_4_no_tienen_rutas_locales_ni_secretos():
     for ruta in (REPORTE_REAL, REPORTE_REPRODUCCION, REPORTE_LANGFUSE, CONSOLA_REAL, S17 / "resultados" / "presupuestos_calibracion.json"):
         texto = ruta.read_text(encoding="utf-8")
         assert "/Users/" not in texto and "sk-ant" not in texto and "ANTHROPIC_API_KEY" not in texto, ruta.name
+
+
+def _peor_caso_de_la_tarea(tarea_id: str, est_in: int = 16_000, otros_en_vuelo: int = 3):
+    """The decision a call would get at the END of `tarea_id` in the paid run, in the worst case the report allows: the task has already
+    spent all it ever spent, its session and the day have spent everything they ended with, and `otros_en_vuelo` other calls (4 tasks
+    in parallel) each hold the largest reservation. Tokens are bounded with the highest tokens-per-dollar ratio of the 252 week 13 runs."""
+    i, pol, filas = json.loads(REPORTE_REAL.read_text(encoding="utf-8")), Politica.desde_archivo(), _consola()
+    ratio = max((r["tokens_in"] + r["tokens_out"]) / r["costo_usd"]
+                for r in map(json.loads, open(S17.parent / "semana-13" / "resultados" / "eval_haiku_low_detalle.jsonl", encoding="utf-8")))
+    sesion_de = {t["id"]: f"sesion-{n // 10:02d}" for n, t in enumerate(
+        [json.loads(x) for lang in ("es", "en") for x in open(S17.parent / "semana-13" / "golden" / f"tareas_{lang}.jsonl", encoding="utf-8")])}
+    p_in, p_out = EST.precio(M, est_in)
+    reserva_usd, reserva_tok = (est_in * p_in + pol.max_salida * p_out) / 1e6, est_in + pol.max_salida
+    t_usd = filas[tarea_id]["usd"]
+    ses = i["garantias"]["contabilidad"]["sesiones_en_el_almacen"][sesion_de[tarea_id]]
+    dia = i["costo"]["total_usd"]
+    restante = {
+        "task": Gasto(pol.tarea.usd - t_usd, pol.tarea.tokens - int(t_usd * ratio)),
+        "session": Gasto(pol.sesion.usd - ses - otros_en_vuelo * reserva_usd, pol.sesion.tokens - int(ses * ratio) - otros_en_vuelo * reserva_tok),
+        "tenant_day": Gasto(pol.tenant_dia.usd - dia - otros_en_vuelo * reserva_usd,
+                            pol.tenant_dia.tokens - int(dia * ratio) - otros_en_vuelo * reserva_tok)}
+    return pol, decidir(pol, M, est_in, restante, Gasto(t_usd, int(t_usd * ratio)))
+
+
+def test_el_presupuesto_no_trunco_ninguna_respuesta_de_la_tarea_que_fallo_sin_explicacion():
+    """`s10-es` failed without a budget stop. Two facts, one observed and one bounded:
+
+    * observed: it ended `respondida` by its own `responder`; a response cut by a budget `max_tokens` below the loop's 4,000 ends the
+      task as a budget stop (`recortada`), so none of its responses was cut;
+    * bounded: in the worst case the report allows (est_in 16,000 and three other calls of its session in flight, each holding the
+      largest reservation) the tightest scope still left 2,750 output tokens, above the largest output of any of the 930 calls
+      recorded in week 13 (2,491). Pure arithmetic does not close it (the task could, in theory, have produced about 2,870 tokens
+      across its 4 calls), so this is an empirical bound, not a proof.
+
+    What is left is the model's sampling variance, under one assumption we did not test: that its answer does not depend on the
+    `max_tokens` it is sent. The task was not run again."""
+    pol, d = _peor_caso_de_la_tarea("s10-es")
+    f = _consola()["s10-es"]
+    mayor_salida = max(e["tokens_out"] for e in map(json.loads, open(S17.parent / "semana-13" / "resultados" / "trazas" / "eval_haiku_low.jsonl",
+                                                                       encoding="utf-8")) if e["tipo"] == "modelo")
+    assert (f["estado"], f["motivo"], f["pasos"]) == ("respondida", "responder", 4)
+    assert d.accion == "allow" and mayor_salida < d.max_tokens <= pol.max_salida
+
+
+def test_la_misma_cuenta_si_distingue_a_las_tareas_que_el_presupuesto_corto():
+    """Control for the test above: the same calculation on the task cut by its own budget does not leave room for the full 4,000."""
+    pol, d = _peor_caso_de_la_tarea("r07-es")
+    assert d.accion == "stop" or d.max_tokens < pol.max_salida
