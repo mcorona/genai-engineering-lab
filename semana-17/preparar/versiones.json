@@ -1,0 +1,51 @@
+{
+ "nota": "Candidate pins for week 17, found on 2026-11-02 (PyPI, GitHub release tags and the docker-compose.yml of langfuse/langfuse at 0ca8994). Activity 1 verifies each one on the Mac and keeps or replaces it. No floating tags (:4, :latest).",
+ "python": {
+  "opentelemetry-api": "1.45.2",
+  "opentelemetry-sdk": "1.45.2",
+  "opentelemetry-exporter-otlp-proto-http": "1.45.2",
+  "opentelemetry-semantic-conventions": "0.66b2",
+  "opentelemetry-instrumentation-httpx": "0.66b2",
+  "langfuse": "5.1.0"
+ },
+ "imagenes": {
+  "langfuse-web": "docker.langfuse.com/langfuse/langfuse:4.72.0",
+  "langfuse-worker": "docker.langfuse.com/langfuse/langfuse-worker:4.72.0",
+  "clickhouse": "docker.io/clickhouse/clickhouse-server:26.3.62.3",
+  "postgres": "docker.io/postgres:17",
+  "redis": "docker.io/redis:7",
+  "minio": "cgr.dev/chainguard/minio:latest",
+  "otel-collector": "docker.io/otel/opentelemetry-collector-contrib:0.164.0",
+  "keycloak": "quay.io/keycloak/keycloak:26.8.1"
+ },
+ "puertos": {
+  "langfuse-web": 3100,
+  "otlp-grpc": 4317,
+  "otlp-http": 4318,
+  "collector-salud": 13133,
+  "keycloak": 8180,
+  "mcp-semana-14": 8014,
+  "postgres-laboratorio": 5432
+ },
+ "solo_red_interna": [
+  "langfuse-worker",
+  "clickhouse",
+  "postgres (Langfuse)",
+  "redis",
+  "minio"
+ ],
+ "recursos_docker": {
+  "memoria_gib_min": 6,
+  "disco_libre_gb_min": 15
+ },
+ "semconv_genai": {
+  "repo": "open-telemetry/semantic-conventions-genai",
+  "schema": "gen-ai/1.42.0",
+  "release_etiquetada": false
+ },
+ "pendiente_digest": {
+  "minio": "Chainguard publishes only :latest for free; activity 1 pins it by digest (image@sha256:...) after pulling it on the Mac.",
+  "postgres": "Major tag as in the Langfuse compose; activity 1 pins the digest.",
+  "redis": "Major tag as in the Langfuse compose; activity 1 pins the digest."
+ }
+}

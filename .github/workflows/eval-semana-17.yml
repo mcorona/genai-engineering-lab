@@ -1,0 +1,66 @@
+name: eval-semana-17
+
+# Semana 17 (confiabilidad: human-in-the-loop, guardrails, presupuestos de tokens, evals de trayectoria y observabilidad
+# con OpenTelemetry GenAI y Langfuse). Por ahora sin API ($0): las pruebas de semana-17/tests con la base de CI y el
+# esquema legado, y el verificador de preparación sin Docker. Cada actividad agrega sus pruebas aquí; la mini eval con
+# API, el Collector y Keycloak efímeros llegan en la actividad 10 (Langfuse queda fuera de CI: se valida el archivo OTLP).
+on:
+  pull_request:
+    paths:
+      - "semana-17/**"
+      - "!semana-17/**/*.md"          # documentación y resultados: no corren la CI
+      - "!semana-17/resultados/**"
+      - "semana-13/golden/**"
+      - "semana-13/agente/**"
+      - "semana-14/servidor/**"
+      - "semana-14/cliente/**"
+      - "pyproject.toml"
+      - ".github/workflows/eval-semana-17.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-semana-17-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sin-api:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ci-admin
+          POSTGRES_DB: inventory
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d inventory"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PG_ADMIN_DSN: postgresql://admin:ci-admin@localhost:5432/inventory
+      PG_DSN: postgresql://copilot_ro:ci-ro@localhost:5432/inventory
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Dependencias (las mismas versiones candidatas del grupo semana17 de pyproject.toml)
+        run: |
+          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" "pyyaml==6.0.2" pytest \
+            "opentelemetry-api==1.45.2" "opentelemetry-sdk==1.45.2" "opentelemetry-exporter-otlp-proto-http==1.45.2" \
+            "opentelemetry-semantic-conventions==0.66b2" "opentelemetry-instrumentation-httpx==0.66b2" "langfuse==5.1.0"
+      - name: Base de CI (semilla 42) y esquema legado
+        run: |
+          python semana-07/ci/preparar_base.py
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
+      - name: Preparación (sin Docker)
+        run: python semana-17/preparar/verificar_entorno.py --sin-docker
+      - name: Pruebas sin API
+        run: |
+          cd semana-17 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
+          if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
