@@ -14,6 +14,8 @@ on:
       - "semana-13/agente/**"
       - "semana-14/servidor/**"
       - "semana-14/cliente/**"
+      - "semana-14/seguridad/**"
+      - "semana-15/resultados/sonda_trazas.json"
       - "pyproject.toml"
       - ".github/workflows/eval-semana-17.yml"
 
@@ -48,16 +50,23 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - name: Dependencias (las mismas versiones candidatas del grupo semana17 de pyproject.toml)
+      - name: Dependencias (las mismas versiones del grupo semana17 de pyproject.toml)
         run: |
           pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" "pyyaml==6.0.2" pytest \
             "opentelemetry-api==1.45.2" "opentelemetry-sdk==1.45.2" "opentelemetry-exporter-otlp-proto-http==1.45.2" \
-            "opentelemetry-semantic-conventions==0.66b2" "opentelemetry-instrumentation-httpx==0.66b2" "langfuse==5.1.0"
+            "opentelemetry-semantic-conventions==0.66b2" "opentelemetry-instrumentation-httpx==0.66b2" "opentelemetry-util-genai==1.3b0" "langfuse==5.1.0" \
+            "pydantic==2.14.1" "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1"
       - name: Base de CI (semilla 42) y esquema legado
         run: |
           python semana-07/ci/preparar_base.py
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
+      - name: Collector contrib 0.164.0 (binario de la release, verificado por sha256)
+        run: |
+          curl -sSfL -o /tmp/otelcol.tgz https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.164.0/otelcol-contrib_0.164.0_linux_amd64.tar.gz
+          echo "f0c1ce9f661399beb4a58b711924716e08ea70c3802db0715fcfde3cbbada2d4  /tmp/otelcol.tgz" | sha256sum -c -
+          mkdir -p /tmp/otelcol && tar -xzf /tmp/otelcol.tgz -C /tmp/otelcol otelcol-contrib
+          echo "OTELCOL_BIN=/tmp/otelcol/otelcol-contrib" >> "$GITHUB_ENV"
       - name: Preparación (sin Docker)
         run: python semana-17/preparar/verificar_entorno.py --sin-docker
       - name: Pruebas sin API

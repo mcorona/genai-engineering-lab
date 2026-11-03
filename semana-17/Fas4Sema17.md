@@ -347,3 +347,10 @@ observability (needs the stack and the instrumentation), and CI with API (last).
 - 2026-11-02: preparation. Candidate pins, the `semana17` dependency group, the readiness check, image pre-pull, the
   `regresion` paths and an `eval-semana-17` workflow without API. Activities 4 to 7 have parts that can start in parallel
   with activity 1 (see Dependencies).
+- 2026-11-03: activity 1, baseline. `linea_base/verificar.py` runs 10 probes with no model: 9/9 on the Mac (with a
+  throwaway Langfuse v4), 8/8 in the container, and Claude Code telemetry on the subscription. `resultados/linea_base.md`
+  has the M/D/N matrix, checked by `tests/test_linea_base.py`. Pins are verified and all 8 images carry a digest.
+  Three findings go to activity 3: the agent span and the MCP client spans land in different traces
+  (`ClienteSeguro` loses the context), Langfuse subtracts cached tokens from `input_tokens` (so they must be added
+  before exporting), and the cache token names differ between libraries. Langfuse data retention is not in the
+  self-hosted plans we can use (activity 2).

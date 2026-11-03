@@ -1,0 +1,38 @@
+# Week 17, activity 1: the same pipeline as collector_prueba.yaml plus Langfuse (verificar.py --langfuse).
+# OTLP in → redaction → batch → JSON file and Langfuse's OTLP endpoint (Basic auth with the project keys).
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: ${env:OTLP_HTTP_ENDPOINT}
+processors:
+  redaction:
+    allow_all_keys: true
+    blocked_values:
+      - "postgres(ql)?://[^\\s\"']+"                       # DSNs
+      - "(?i)bearer\\s+[A-Za-z0-9._~+/=-]{12,}"           # bearer tokens
+      - "eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]+"   # JWTs
+      - "sk-ant-[A-Za-z0-9_-]{10,}"                       # Anthropic keys
+      - "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"  # emails
+      - "\\b[A-ZÑ&]{3,4}\\d{6}[A-Z0-9]{3}\\b"              # Mexican RFC tax IDs
+      - "\\b\\d{2} \\d{4} \\d{4}\\b"                       # MX phone numbers (lab format)
+    summary: info
+  batch:
+    timeout: 200ms
+exporters:
+  file:
+    path: ${env:OTLP_ARCHIVO}
+    flush_interval: 200ms
+  otlp_http/langfuse:
+    endpoint: http://langfuse-web:3000/api/public/otel
+    headers:
+      Authorization: "Basic ${env:LANGFUSE_AUTH}"
+service:
+  telemetry:
+    logs:
+      level: warn
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [redaction, batch]
+      exporters: [file, otlp_http/langfuse]
