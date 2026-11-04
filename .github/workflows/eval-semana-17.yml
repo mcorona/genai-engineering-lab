@@ -1,9 +1,12 @@
 name: eval-semana-17
 
 # Semana 17 (confiabilidad: human-in-the-loop, guardrails, presupuestos de tokens, evals de trayectoria y observabilidad
-# con OpenTelemetry GenAI y Langfuse). Por ahora sin API ($0): las pruebas de semana-17/tests con la base de CI y el
-# esquema legado, y el verificador de preparación sin Docker. Cada actividad agrega sus pruebas aquí; la mini eval con
-# API, el Collector y Keycloak efímeros llegan en la actividad 10 (Langfuse queda fuera de CI: se valida el archivo OTLP).
+# con OpenTelemetry GenAI y Langfuse). Sin API ($0): todas las pruebas de semana-17/tests (esquema de spans, propagación,
+# redacción con el Collector real, presupuestos, guardrails, máquina de HITL, evaluadores de trayectoria, tablero) con la
+# base de CI. Keycloak efímero de la semana 14 con los roles de aprobador (tokens reales por PKCE). Con API (actividad 10,
+# Haiku 5.5, tope por corrida): 10 tareas x ES/EN, 3 ataques, 1 caso HITL y 1 de presupuesto agotado, con los spans por el
+# Collector real (exportador de archivo). Umbrales calibrados con la regla de la semana 10; seguridad sin umbral.
+# Langfuse queda fuera de CI (su ClickHouse es pesado): las trazas se revisan en el archivo OTLP.
 on:
   pull_request:
     paths:
@@ -20,6 +23,8 @@ on:
       - "semana-14/ataques/**"        # actividad 5: los servidores maliciosos de los 38 casos
       - "semana-14/auth/**"
       - "semana-15/resultados/sonda_trazas.json"
+      - "semana-07/ci/**"
+      - "semana-10/legado/**"
       - "pyproject.toml"
       - ".github/workflows/eval-semana-17.yml"
 
@@ -31,9 +36,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  sin-api:
+  sin-api:          # el nombre se conserva aunque el job ya llama a la API: `sin-api` es un check requerido de main
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 40
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -73,8 +78,32 @@ jobs:
           echo "OTELCOL_BIN=/tmp/otelcol/otelcol-contrib" >> "$GITHUB_ENV"
       - name: Preparación (sin Docker)
         run: python semana-17/preparar/verificar_entorno.py --sin-docker
+      - name: Keycloak efímero de la semana 14 (realm legacybridge, contraseñas aleatorias del job)
+        run: semana-14/auth/arrancar.sh
       - name: Pruebas sin API
         run: |
           set -o pipefail   # sin esto el `| tee` oculta el código de salida de pytest y las pruebas que fallan quedan en verde
           cd semana-17 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
           if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
+      - name: Roles de aprobador en el Keycloak real (importación parcial, tokens por PKCE, verificador de aprobaciones)
+        env:
+          SALIDA_KEYCLOAK: ${{ runner.temp }}/eval17/aprobaciones_keycloak.json
+        run: |
+          mkdir -p "$RUNNER_TEMP/eval17"
+          cd semana-17 && python -m aprobaciones.keycloak
+      - name: Mini eval con API (Haiku 5.5; tope por corrida; seguridad sin umbral)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_DE_FORK: ${{ github.event.pull_request.head.repo.fork }}
+        run: python semana-17/ci/eval_ci.py --dir "$RUNNER_TEMP/eval17"
+      - name: Evidencia de la mini eval (redactada; datos sintéticos)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-semana-17
+          path: ${{ runner.temp }}/eval17
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Detener Keycloak
+        if: always()
+        run: semana-14/auth/arrancar.sh --borrar

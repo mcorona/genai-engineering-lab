@@ -1,0 +1,18 @@
+{
+ "emisor": "http://127.0.0.1:8180/realms/legacybridge",
+ "audiencia": "legacybridge-aprobaciones",
+ "gerente": {
+  "roles_de_aprobador": [
+   "legado-aprobador-gerente"
+  ],
+  "nivel": "gerente",
+  "puede_aprobar_56462_mxn": true
+ },
+ "analista": {
+  "nivel": null,
+  "roles_de_aprobador": []
+ },
+ "token_del_mcp": "rechazado (InvalidAudienceError)",
+ "sujetos_distintos": true,
+ "ok": true
+}
