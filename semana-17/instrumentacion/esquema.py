@@ -82,11 +82,13 @@ HEX12 = _patron(r"[0-9a-f]{12}")                   # the agent's run id
 LISTA_SCOPES = _patron(r"(legado:[a-z]+(:[a-z]+)?)?( legado:[a-z]+(:[a-z]+)?)*")   # sorted, space separated, fixed vocabulary
 COSTO_LANGFUSE = _patron(r'\{"total": [0-9]+(\.[0-9]+)?(e-[0-9]+)?\}')
 
-ESTADOS = ("respondida", "requiere_aclaracion", "abstenida", "limite_alcanzado", "error")
+ESTADOS = ("respondida", "requiere_aclaracion", "abstenida", "limite_alcanzado", "error",
+           "en_espera")                                                               # activity 6: paused for an approval
 MOTIVOS = ("responder", "max_pasos", "max_tokens_total", "max_segundos", "max_herramientas", "max_tokens_salida",
            "sin_responder", "errores_herramienta", "api_error", "otro",
            "presupuesto_tarea", "presupuesto_sesion", "presupuesto_tenant_dia",      # activity 4: a budget ended the task
-           "guardrail_entrada", "guardrail_salida")                                  # activity 5: a guardrail ended the task
+           "guardrail_entrada", "guardrail_salida",                                  # activity 5: a guardrail ended the task
+           "espera_aprobacion")                                                     # activity 6: the run waits for a person
 DECISIONES = ("allow", "deny_no_token", "deny_bad_scheme", "deny_invalid_token", "deny_insufficient_scope")
 METODOS_MCP = ("tools/call", "tools/list", "resources/read", "resources/list", "prompts/get", "prompts/list", "other")
 FINALIZACIONES = ("end_turn", "tool_use", "max_tokens", "stop_sequence", "pause_turn", "refusal", "other")
@@ -208,6 +210,18 @@ MOTIVOS_GUARDRAIL = (
     # the answer
     "correo", "rfc", "curp", "telefono", "tarjeta", "clabe", "clave_api", "cifra_sin_fundamento", "sin_evidencia")
 
+# Activity 6: human approval of a purchase-order proposal. Three events, all numbers, words of fixed lists and keyed hashes:
+# `request` on the agent span of the run that pauses; `decision` on a `hitl decide` span, one per attempt (refused ones too), in the
+# same trace as the paused run; `resume` on the agent span of the run that resumes. Who asked and who decided are keyed hashes; what was
+# asked (SKU, reason, evidence) stays in the approvals store, never in the trace.
+EVENTO_HITL_SOLICITUD = "gen_ai.hitl.request"
+EVENTO_HITL_DECISION = "gen_ai.hitl.decision"
+EVENTO_HITL_REANUDACION = "gen_ai.hitl.resume"
+NIVELES_HITL = ("comprador", "gerente", "director")
+ESTADOS_HITL = ("pendiente", "aprobada", "rechazada", "expirada")
+DECISIONES_HITL = ("approve", "reject", "expire")
+MOTIVOS_HITL = ("ok", "mismo_usuario", "sin_nivel", "token_invalido", "vencida", "ya_decidida", "no_existe", "decision_invalida")
+
 ATRIBUTOS_EVENTO: dict[str, dict] = {
     EVENTO_PRESUPUESTO: {
         "lab.budget.decision": _enum(*ACCIONES_PRESUPUESTO),
@@ -225,6 +239,31 @@ ATRIBUTOS_EVENTO: dict[str, dict] = {
         "lab.guardrail.decision": _enum(*ACCIONES_GUARDRAIL),
         "lab.guardrail.reason": _enum(*MOTIVOS_GUARDRAIL),
         "lab.guardrail.step": _entero(),
+    },
+    EVENTO_HITL_SOLICITUD: {
+        "lab.hitl.request_id": HEX12,
+        "lab.hitl.requester": HEX16,
+        "lab.hitl.level": _enum(*NIVELES_HITL),
+        "lab.hitl.amount_mxn": _numero(10**10),
+        "lab.hitl.quantity": _entero(),
+        "lab.hitl.evidence": _entero(1000),
+        "lab.hitl.ttl_s": _numero(10**7),
+        "lab.hitl.step": _entero(),
+    },
+    EVENTO_HITL_DECISION: {
+        "lab.hitl.request_id": HEX12,
+        "lab.hitl.decision": _enum(*DECISIONES_HITL),
+        "lab.hitl.applied": _bool,
+        "lab.hitl.reason": _enum(*MOTIVOS_HITL),
+        "lab.hitl.approver": HEX16,
+        "lab.hitl.approver_level": _enum(*NIVELES_HITL),
+        "lab.hitl.state": _enum(*ESTADOS_HITL),
+        "lab.hitl.wait_ms": _entero(10**11),
+    },
+    EVENTO_HITL_REANUDACION: {
+        "lab.hitl.request_id": HEX12,
+        "lab.hitl.state": _enum(*ESTADOS_HITL),
+        "lab.hitl.wait_ms": _entero(10**11),
     },
 }
 

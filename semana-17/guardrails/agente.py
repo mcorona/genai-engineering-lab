@@ -169,21 +169,33 @@ class AgenteGuardado(AgentePresupuestado):
     """`AgentePresupuestado` with the guardrails. `resolver(tarea, sujeto, sesion=None)`: `sujeto` is the token subject; the scopes the
     guardrails enforce come from it (`nucleo.SCOPES_DE`), never from the request."""
 
-    def __init__(self, herramientas, *, api, tenant: str, servidores_permitidos=None, fundamentacion: str = "auditar", **kw):
+    def __init__(self, herramientas, *, api, tenant: str, servidores_permitidos=None, fundamentacion: str = "auditar",
+                 agente_clase=None, capa_interna=None, scopes_de=None, **kw):
+        """`agente_clase` (a subclass of `AgenteConGuardrails`) and `capa_interna` (a tools wrapper that runs AFTER the guardrails
+        allowed a call) are where activity 6's approvals go."""
         if fundamentacion not in N.MODOS_FUNDAMENTACION:
             raise ValueError(f"fundamentacion must be one of {N.MODOS_FUNDAMENTACION}")
         self.fundamentacion = fundamentacion
-        super().__init__(herramientas, api=api, tenant=tenant, agente_clase=AgenteConGuardrails,
-                         envolver=lambda h: HerramientasGuardadas(h, servidores_permitidos), **kw)
+        # Where the scopes come from. Default: the lab's map by subject (`nucleo.SCOPES_DE`, what the activity 5 runners use). A
+        # deployment passes a function that reads the VERIFIED token's `scope` claim; the activity 6 bench does exactly that.
+        self.scopes_de = scopes_de or (lambda sujeto: N.SCOPES_DE.get(sujeto, frozenset({N.SCOPE_BASE})))
+        super().__init__(herramientas, api=api, tenant=tenant, agente_clase=agente_clase or AgenteConGuardrails,
+                         envolver=lambda h: HerramientasGuardadas(capa_interna(h) if capa_interna else h, servidores_permitidos),
+                         **kw)
         self.ultima_guardia: EstadoGuardia | None = None
 
-    def resolver(self, tarea: dict, sujeto: str, sesion: str | None = None):
+    def resolver(self, tarea: dict, sujeto: str, sesion: str | None = None, resultados_previos=(), **kw):
+        """`resultados_previos` (activity 6): the tool results a paused run already had, so the output guardrails of the resumed run
+        see the same evidence."""
         texto = tarea.get("tarea", "")
-        alcance = N.Alcance(sujeto, self.tenant, N.SCOPES_DE.get(sujeto, frozenset({N.SCOPE_BASE})), _idioma(tarea))
+        alcance = N.Alcance(sujeto, self.tenant, frozenset(self.scopes_de(sujeto)), _idioma(tarea))
         est = EstadoGuardia(alcance, texto, R.Conocidas(texto), fundamentacion=self.fundamentacion)
+        for previo in resultados_previos:
+            est.conocidas.agregar_resultado({k: v for k, v in previo.items() if k != "sql_normalizado"})
+            est.herramientas_ok += 1
         token = _GUARDIA.set(est)
         try:
-            r = super().resolver(tarea, sujeto, sesion)
+            r = super().resolver(tarea, sujeto, sesion, **kw)
         finally:
             _GUARDIA.reset(token)
         self.ultima_guardia = est

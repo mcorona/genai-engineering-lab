@@ -1,0 +1,34 @@
+{
+  "nota": "Week 17, activity 6: partial import for the week 14 realm (legacybridge), so the week 14 file is not edited. Import with the admin API: POST /admin/realms/legacybridge/partialImport with ifResourceExists=SKIP. Three approver roles, one per R-OC-APRUEBA level, three approver users that hold ONLY an approver role (none of them can propose), and a public PKCE client whose tokens carry the approvals service audience. Passwords are lab-only placeholders and must be replaced; no user can both propose and approve.",
+  "ifResourceExists": "SKIP",
+  "roles": {
+    "realm": [
+      {"name": "legado-aprobador-comprador", "description": "Approves purchase-order proposals below 50,000 MXN (R-OC-APRUEBA: category buyer)"},
+      {"name": "legado-aprobador-gerente", "description": "Approves proposals from 50,000 to 250,000 MXN inclusive (R-OC-APRUEBA: purchasing manager)"},
+      {"name": "legado-aprobador-director", "description": "Approves proposals above 250,000 MXN (R-OC-APRUEBA: operations director)"}
+    ]
+  },
+  "users": [
+    {"username": "comprador", "enabled": true, "email": "comprador@legacybridge.invalid", "emailVerified": true,
+     "credentials": [{"type": "password", "value": "cambia-esta-clave-lab", "temporary": true}],
+     "realmRoles": ["legado-aprobador-comprador"]},
+    {"username": "gerente", "enabled": true, "email": "gerente@legacybridge.invalid", "emailVerified": true,
+     "credentials": [{"type": "password", "value": "cambia-esta-clave-lab", "temporary": true}],
+     "realmRoles": ["legado-aprobador-gerente"]},
+    {"username": "director", "enabled": true, "email": "director@legacybridge.invalid", "emailVerified": true,
+     "credentials": [{"type": "password", "value": "cambia-esta-clave-lab", "temporary": true}],
+     "realmRoles": ["legado-aprobador-director"]}
+  ],
+  "clients": [
+    {"clientId": "legacybridge-aprobaciones", "name": "LegacyBridge approvals", "publicClient": true, "standardFlowEnabled": true,
+     "directAccessGrantsEnabled": false, "implicitFlowEnabled": false, "serviceAccountsEnabled": false,
+     "redirectUris": ["http://127.0.0.1:8765/callback"], "webOrigins": [],
+     "attributes": {"pkce.code.challenge.method": "S256"},
+     "protocolMappers": [
+       {"name": "audiencia-aprobaciones", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper",
+        "config": {"included.custom.audience": "legacybridge-aprobaciones", "access.token.claim": "true", "id.token.claim": "false"}},
+       {"name": "roles-del-realm", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-realm-role-mapper",
+        "config": {"claim.name": "realm_access.roles", "multivalued": "true", "access.token.claim": "true", "jsonType.label": "String"}}
+     ]}
+  ]
+}

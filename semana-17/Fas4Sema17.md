@@ -405,3 +405,13 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   $0 replay only (77 to 77, paired). Findings: the rules are in-sample (the held-out set, written by the same author before them, gave 18 of 18 detected and
   1 of 12 benign blocked in its one run, and 17 of 18 after a later rule fix, not tuned back); sanitizing removes the whole field; definitions are screened once when the
   tools source is built; Langfuse still shows no span events. Real API spend of the activity: $0.2972, each run authorized first (`resultados/guardrails.md`).
+- 2026-11-03: activity 6, human approval of purchase-order proposals. `aprobaciones/` makes a proposal pause the run (the next model call is not
+  made; the transcript, counters, spend and trace context go to a PostgreSQL checkpoint), records a request (what, why, how much computed by the
+  system, which evidence, who asked, the R-OC-APRUEBA level, a deadline), and lets only a verified approver token with that level, not the
+  requester, decide. The order is created in the same transaction as the approval, and the database repeats the rules as constraints and triggers.
+  `reanudar` takes the checkpoint once and resumes the same week 13 loop in the same trace. Simulated approver, 7 scenarios x ES/EN, scripted ($0)
+  and Haiku ($0.0494): 0 orders without an approval, 0 effects of a rejection, 0 "auto-approve" instructions followed, 14 of 14 scenarios as
+  expected. The pause adds no model call and about 10 ms to persist. Findings: activity 5's guardrails took scopes from a subject name, not the
+  token (fixed with `scopes_de`); the four-eyes check is only as good as one issuer for both tokens; Haiku answers English tasks in Spanish on this
+  stack with or without the pause; Keycloak was not running, so the approver roles are a partial-import file and the token checks ran on an
+  ephemeral key (`resultados/aprobaciones.md`). Real API spend: $0.0553.

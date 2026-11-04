@@ -199,7 +199,7 @@ class AgentePresupuestado(AgenteInstrumentado):
 
     def __init__(self, herramientas, *, api, tenant: str, politica: Politica | None = None, almacen: AlmacenGasto | None = None,
                  modelo: str = "claude-haiku-5-5", esfuerzo: str = "low", simulado: bool = False, reloj=time.time,
-                 agente_clase=None, envolver=None, **kw):
+                 agente_clase=None, envolver=None, api_externa=None, **kw):
         self.politica = politica or Politica.desde_archivo()
         self.almacen, self.reloj = almacen, reloj
         limites = kw.pop("limites", None)
@@ -209,9 +209,11 @@ class AgentePresupuestado(AgenteInstrumentado):
                          simulado=simulado, **kw)
         # `agente_clase` and `envolver` are the two places a layer outside the budget (activity 5's guardrails) goes: the loop class (a
         # subclass of `AgenteConPresupuesto`) and a wrapper of the instrumented tools. Both default to this activity's own.
+        # `api_externa` (activity 6) wraps the budgeted call from outside: a layer that must act BEFORE the budget decides (a pause).
         fuente = envolver(self.herramientas) if envolver else self.herramientas
+        llamada = api_presupuestada(api_instrumentada(api, simulado=simulado))
         self.agente = (agente_clase or AgenteConPresupuesto)(fuente, modelo, esfuerzo, self.limites,
-                                                              api=api_presupuestada(api_instrumentada(api, simulado=simulado)),
+                                                              api=api_externa(llamada) if api_externa else llamada,
                                                               trazas=kw.get("trazas"))
         self.ultimo: EstadoPresupuesto | None = None
 
@@ -223,9 +225,12 @@ class AgentePresupuestado(AgenteInstrumentado):
             cuentas["tenant_day"] = ("tenant_day", self.tenant, datetime.fromtimestamp(self.reloj(), timezone.utc).strftime("%Y-%m-%d"))
         return cuentas
 
-    def resolver(self, tarea: dict, sujeto: str, sesion: str | None = None):
+    def resolver(self, tarea: dict, sujeto: str, sesion: str | None = None, gasto_previo: Gasto | None = None):
+        """`gasto_previo` (activity 6): what the same task already spent before a pause, so resuming never resets the task budget."""
         cuentas = self._cuentas(sujeto, sesion)
         est = EstadoPresupuesto(self.politica, self.almacen if cuentas else None, cuentas, modelo=None)
+        if gasto_previo is not None:
+            est.gasto = gasto_previo
         token = _PRES.set(est)
         try:
             r = super().resolver(tarea, sujeto)
