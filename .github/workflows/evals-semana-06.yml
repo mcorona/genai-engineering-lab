@@ -17,6 +17,7 @@ on:
       - "semana-15/**"
       - "semana-16/**"
       - "semana-17/**"
+      - "semana-18/**"
       - "README.md"
       - "**/prompts/**"
       - ".github/workflows/evals-semana-06.yml"
