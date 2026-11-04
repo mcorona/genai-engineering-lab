@@ -187,15 +187,19 @@ def main(argv=None) -> int:
     ap.add_argument("--confirmo-gasto", action="store_true", help="real model (costs money)")
     ap.add_argument("--escenarios", nargs="*", default=list(C.ESCENARIOS))
     ap.add_argument("--salida", default=None)
+    ap.add_argument("--esquema", help="keep the store in this schema (replaced if it exists) instead of a throwaway one")
+    ap.add_argument("--otlp", action="store_true", help="also export the spans to the Collector (and on to Langfuse and its file)")
     a = ap.parse_args(argv)
     real = a.confirmo_gasto
     if real and not os.environ.get("ANTHROPIC_API_KEY"):
         print("ANTHROPIC_API_KEY is not set")
         return 2
-    exp = configurar_trazas()
+    exp = configurar_trazas("http://127.0.0.1:4318/v1/traces" if a.otlp else None)
     E.ESTRICTO = True
     reloj = Reloj()
-    alm = Almacen(esquema="hitl_eval_" + uuid.uuid4().hex[:8], reloj=reloj)
+    alm = Almacen(esquema=a.esquema or "hitl_eval_" + uuid.uuid4().hex[:8], reloj=reloj)
+    if a.esquema:
+        alm.borrar()
     alm.crear()
     emisor = EmisorDePrueba()
     srv = Aprobaciones(alm, emisor.verificador())
@@ -209,6 +213,7 @@ def main(argv=None) -> int:
                     f = un_escenario(lab, alm, srv, emisor, reloj, esc, lang, real)
                     sp = resumen(exp.get_finished_spans())
                     f["traza"] = {"trazas": len({x["trace"] for x in sp if x["name"].startswith(("invoke_agent", "hitl"))}),
+                                  "ids": sorted({x["trace"] for x in sp if x["name"].startswith(("invoke_agent", "hitl"))}),
                                   "eventos": sorted({e["name"] for x in sp for e in x["eventos"] if e["name"].startswith("gen_ai.hitl")})}
                     filas.append(f)
                     print(f"{esc:15s} {lang} pause={f['pausa']['estado']:10s} req={(f['solicitud'] or {}).get('estado', '-'):9s} "
@@ -220,7 +225,8 @@ def main(argv=None) -> int:
         audit = alm.auditoria()
     finally:
         _nota(alm.dsn, False)
-        alm.borrar()
+        if not a.esquema:
+            alm.borrar()
     pares = [f for f in filas if f["escenario"] == "aprobada" and f["reanudacion"]]
     costo = sum((f["reanudacion"] or {}).get("costo_total_usd", f["pausa"]["costo_usd"]) for f in filas) + sum(c["costo_usd"] for c in controles)
     informe = {

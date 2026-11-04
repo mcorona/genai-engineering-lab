@@ -425,3 +425,13 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   not worse than the loop (+0.020). No LLM judge: on the ambiguous tasks the deterministic verdict agrees with the golden one 8 of 8
   (93 of 96 recorded). Part 1 was started by a parallel agent that stopped on a billing error; its files were reviewed and finished
   (`resultados/trayectorias.md`).
+- 2026-11-04: activity 8, the trace dashboard ($0). `tablero/langfuse_tablero.py` defines the Langfuse dashboard as code (11 widgets through
+  the `unstable` dashboards API, idempotent): cost per day and model, latency p50/p95 by step type and p95 by tool, tokens, tool errors,
+  runs that did not answer, trajectory and answer scores. `tablero/exportar.py` writes a self-contained snapshot to `resultados/tablero/`
+  for a fixed run (activity 7's 84 paid tasks and 14 approval runs) from the Langfuse API plus the Collector's file, because Langfuse has no
+  task or tenant dimension and does not show span events: guardrail blocks, budget stops and HITL decisions come from the OTel backend.
+  `runbook.md` answers the five operator questions with one command each in about 1.2 s. Findings: the dashboard shows what was traced,
+  not what was billed (runs that did not export are invisible; scripted runs must be excluded), and each evaluation used its own budget
+  store, so activity 4's tenant-day cap was enforced per process, not across the day; who approved an order is answered by the approvals
+  store, since the trace only has keyed hashes; the Collector's file still holds message content from the optional Strands run, for
+  activity 9 (`resultados/tablero.md`).
