@@ -1,0 +1,164 @@
+{
+ "fecha": "2026-11-03",
+ "modo": "modelo real",
+ "modelo": "claude-haiku-5-5",
+ "esfuerzo": "low",
+ "tareas": 2,
+ "repeticiones": 1,
+ "paralelo": 2,
+ "segundos": 8.4,
+ "politica": {
+  "_doc": "Written by presupuestos/calibracion.py from the 252 runs of the week 13 Haiku `low` evaluation. Do not edit by hand.",
+  "modelo": "claude-haiku-5-5",
+  "corrida_base": "eval_haiku_low",
+  "nivel_de_la_tarea": "p99",
+  "tarea": {
+   "usd": 0.0063,
+   "tokens": 46000
+  },
+  "sesion": {
+   "usd": 0.039,
+   "tokens": 300000,
+   "tareas": 10
+  },
+  "tenant_dia": {
+   "usd": 0.32,
+   "tokens": 2400000,
+   "tareas": 100
+  },
+  "min_salida": 1300,
+  "max_salida": 4000,
+  "chars_por_token": 1.5,
+  "margen_entrada": 1.1
+ },
+ "resultado": {
+  "exito": 1.0,
+  "exitos": 2,
+  "respuestas_parciales": 0,
+  "motivos_de_parada": {},
+  "de_ellas_esperaban_responder": 0,
+  "estados": {
+   "respondida": 2
+  },
+  "decisiones": {
+   "degrade": 2,
+   "allow": 4
+  },
+  "modelos_de_las_llamadas": {
+   "claude-haiku-5-5": 6
+  },
+  "por_tipo": {
+   "simple": {
+    "tareas": 2,
+    "exito": 1.0,
+    "parciales": 0
+   }
+  }
+ },
+ "costo": {
+  "total_usd": 0.005002,
+  "por_tarea": {
+   "media": 0.002501,
+   "p50": 0.002501,
+   "p95": 0.002507,
+   "max": 0.002508
+  },
+  "estimado_antes_usd": 0.0057,
+  "maximo_posible_usd": 0.32
+ },
+ "garantias": {
+  "ninguna_tarea_pasa_de_su_tope": true,
+  "gasto_maximo_de_una_tarea_usd": 0.0025076,
+  "tokens_maximos_de_una_tarea": 17807,
+  "ninguna_sesion_pasa_de_su_tope": true,
+  "gasto_maximo_de_una_sesion_usd": 0.0050019,
+  "el_dia_no_pasa_de_su_tope": true,
+  "subestimaciones_de_la_entrada": 0,
+  "llamadas_mas_caras_que_su_estimado": 0,
+  "gasto_del_bucle_igual_al_del_presupuesto": true,
+  "un_evento_por_decision": true,
+  "omisiones_del_esquema": {},
+  "contabilidad": {
+   "dia_del_tenant_en_el_almacen": 0.0050019,
+   "suma_de_las_tareas": 0.0050019,
+   "sesiones_en_el_almacen": {
+    "sesion-00": 0.0050019
+   },
+   "reservas_vivas": 0
+  },
+  "la_contabilidad_coincide": true
+ },
+ "base_semana_13": {
+  "repeticion_0": {
+   "corridas": 84,
+   "exito": 0.9286,
+   "usd": {
+    "media": 0.002855,
+    "p50": 0.00259,
+    "p95": 0.004778,
+    "max": 0.007772,
+    "total": 0.2399
+   }
+  },
+  "k3": {
+   "corridas": 252,
+   "exito": 0.9206,
+   "usd": {
+    "media": 0.002856,
+    "p50": 0.002593,
+    "p95": 0.005237,
+    "max": 0.007772,
+    "total": 0.7196
+   }
+  }
+ },
+ "tareas_cortadas": [],
+ "por_corrida": [
+  {
+   "id": "s01-en",
+   "rep": 0,
+   "estado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "tokens": 17688,
+   "usd": 0.0025076,
+   "decisiones": {
+    "degrade": 1,
+    "allow": 2
+   },
+   "modelos": {
+    "claude-haiku-5-5": 3
+   },
+   "max_tokens_minimo": 4000
+  },
+  {
+   "id": "s01-es",
+   "rep": 0,
+   "estado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "tokens": 17807,
+   "usd": 0.0024943,
+   "decisiones": {
+    "degrade": 1,
+    "allow": 2
+   },
+   "modelos": {
+    "claude-haiku-5-5": 3
+   },
+   "max_tokens_minimo": 4000
+  }
+ ],
+ "degradacion": {
+  "modelo_del_agente": "claude-sonnet-5-5",
+  "modelo_barato": "claude-haiku-5-5",
+  "corridas": 2,
+  "corridas_con_una_degradacion": 2,
+  "llamadas_hechas_con_el_modelo_caro": 0,
+  "costo_de_la_corrida_al_precio_del_modelo_que_respondio": true,
+  "ok": true
+ },
+ "ok": true
+}

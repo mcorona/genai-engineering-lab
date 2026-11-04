@@ -388,6 +388,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   repetition), 2 were stopped by the budget (both passed 3 of 3 in week 13), and no task, session or day crossed its cap
   (`resultados/presupuestos.md`). Findings: Langfuse v4 does not show span events (they reach the Collector's file; the agent span
   carries `lab.outcome.reason = presupuesto_*`, which is what activity 8 must read); a degrade made the loop price the run at the
-  original model (found by the Langfuse check, fixed); upper-bound reservations are conservative under concurrency; one failure
-  (`s10-es`) has no budget cause we can find (no response was cut, and even in the worst case the output limit was above the largest
-  output recorded in week 13) and is reported as variation, not proved.
+  original model (found by the Langfuse check, fixed); upper-bound reservations are conservative under concurrency; `s10` fails
+  today with or without the budget (3 of 6 with it, 3 of 6 through the plain week 13 loop, against 6 of 6 in week 13), so the layer is not
+  the cause and the model's behavior on that task has moved since week 13. Degrading was also run on the real API (2 tasks, Sonnet agent,
+  0 Sonnet calls). Real API spend of the activity: $0.2715, each run authorized first.

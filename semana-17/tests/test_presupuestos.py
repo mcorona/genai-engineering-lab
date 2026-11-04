@@ -691,7 +691,7 @@ def test_los_eventos_de_presupuesto_llegan_al_archivo_del_collector_y_no_a_langf
 
 
 def test_los_informes_de_la_actividad_4_no_tienen_rutas_locales_ni_secretos():
-    for ruta in (REPORTE_REAL, REPORTE_REPRODUCCION, REPORTE_LANGFUSE, CONSOLA_REAL, S17 / "resultados" / "presupuestos_calibracion.json"):
+    for ruta in (REPORTE_REAL, REPORTE_REPRODUCCION, REPORTE_LANGFUSE, CONSOLA_REAL, REPORTE_DEGRADACION, REPORTE_S10, REPORTE_CONTROL, S17 / "resultados" / "presupuestos_calibracion.json"):
         texto = ruta.read_text(encoding="utf-8")
         assert "/Users/" not in texto and "sk-ant" not in texto and "ANTHROPIC_API_KEY" not in texto, ruta.name
 
@@ -728,8 +728,8 @@ def test_el_presupuesto_no_trunco_ninguna_respuesta_de_la_tarea_que_fallo_sin_ex
       recorded in week 13 (2,491). Pure arithmetic does not close it (the task could, in theory, have produced about 2,870 tokens
       across its 4 calls), so this is an empirical bound, not a proof.
 
-    What is left is the model's sampling variance, under one assumption we did not test: that its answer does not depend on the
-    `max_tokens` it is sent. The task was not run again."""
+    This was the argument before the task was run again. Now there are observations: 6 more runs with the budget on (`max_tokens` 4,000
+    on every call) and a control through the plain week 13 loop, both 3 of 6 (`test_el_control_sin_presupuesto_falla_s10_como_con_presupuesto`)."""
     pol, d = _peor_caso_de_la_tarea("s10-es")
     f = _consola()["s10-es"]
     mayor_salida = max(e["tokens_out"] for e in map(json.loads, open(S17.parent / "semana-13" / "resultados" / "trazas" / "eval_haiku_low.jsonl",
@@ -742,3 +742,45 @@ def test_la_misma_cuenta_si_distingue_a_las_tareas_que_el_presupuesto_corto():
     """Control for the test above: the same calculation on the task cut by its own budget does not leave room for the full 4,000."""
     pol, d = _peor_caso_de_la_tarea("r07-es")
     assert d.accion == "stop" or d.max_tokens < pol.max_salida
+
+
+# --- the three checks added after the paid run: degrade on the real API, the repetition of `s10` and its control ---------------------
+
+REPORTE_DEGRADACION = S17 / "resultados" / "presupuestos_degradacion.json"
+REPORTE_S10 = S17 / "resultados" / "presupuestos_s10_repeticiones.json"
+REPORTE_CONTROL = S17 / "resultados" / "presupuestos_s10_control.json"
+
+
+def test_la_degradacion_con_la_api_real_no_hizo_ninguna_llamada_con_el_modelo_caro():
+    i, pol = json.loads(REPORTE_DEGRADACION.read_text(encoding="utf-8")), Politica.desde_archivo()
+    d = i["degradacion"]
+    assert i["modo"] == "modelo real" and i["ok"] is True and i["tareas"] == 2 and d["modelo_del_agente"] == S and d["modelo_barato"] == M
+    assert d["ok"] and d["corridas_con_una_degradacion"] == 2 and d["llamadas_hechas_con_el_modelo_caro"] == 0
+    assert i["resultado"]["modelos_de_las_llamadas"] == {M: sum(c["pasos"] for c in i["por_corrida"])}
+    assert i["resultado"]["decisiones"]["degrade"] == 2 and "stop" not in i["resultado"]["decisiones"]
+    assert d["costo_de_la_corrida_al_precio_del_modelo_que_respondio"] and i["garantias"]["gasto_del_bucle_igual_al_del_presupuesto"]
+    assert all(c["usd"] <= pol.tarea.usd and c["modelos"] == {M: c["pasos"]} for c in i["por_corrida"])      # priced at Haiku: the fix of finding 2
+
+
+def test_la_repeticion_de_s10_con_presupuesto_nunca_toco_el_max_tokens():
+    i, pol = json.loads(REPORTE_S10.read_text(encoding="utf-8")), Politica.desde_archivo()
+    assert i["modo"] == "modelo real" and i["ok"] is True and i["tareas"] == 6 and i["repeticiones"] == 3
+    assert {(c["id"], c["rep"]) for c in i["por_corrida"]} == {(t, r) for t in ("s10-es", "s10-en") for r in range(3)}
+    assert all(c["max_tokens_minimo"] == pol.max_salida and set(c["decisiones"]) == {"allow"} for c in i["por_corrida"])
+    assert i["resultado"]["respuestas_parciales"] == 0 and all(c["usd"] <= pol.tarea.usd for c in i["por_corrida"])
+    assert i["garantias"]["subestimaciones_de_la_entrada"] == 0 and i["garantias"]["la_contabilidad_coincide"]
+
+
+def test_el_control_sin_presupuesto_falla_s10_como_con_presupuesto():
+    """The question was whether the budget layer made `s10` fail. The plain week 13 loop, today, fails it at the same rate."""
+    i = json.loads(REPORTE_CONTROL.read_text(encoding="utf-8"))
+    t = i["totales"]
+    assert t["semana_13_haiku_low"] == {"exitos": 6, "corridas": 6}
+    assert t["repeticion_con_presupuesto"] == {"exitos": 3, "corridas": 6}
+    assert t["control_bucle_de_la_semana_13_sin_presupuesto"] == {"exitos": 3, "corridas": 6}
+    assert t["corrida_de_84_con_presupuesto"] == {"exitos": 1, "corridas": 2}
+    assert i["repeticion_con_presupuesto"]["max_tokens_minimo_enviado"] == Politica.desde_archivo().max_salida
+    # the control and the budgeted repetition agree with each other (within one run) and both are below week 13's 6 of 6
+    assert abs(t["control_bucle_de_la_semana_13_sin_presupuesto"]["exitos"] - t["repeticion_con_presupuesto"]["exitos"]) <= 1
+    assert t["control_bucle_de_la_semana_13_sin_presupuesto"]["exitos"] < t["semana_13_haiku_low"]["exitos"]
+    assert "final" not in json.dumps(i) and "/Users/" not in json.dumps(i)
