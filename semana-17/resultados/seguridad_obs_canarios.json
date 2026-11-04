@@ -1,0 +1,64 @@
+{
+ "fecha": "2026-11-03",
+ "canarios": [
+  "bearer",
+  "clave_api",
+  "dsn",
+  "dsn_en_lista",
+  "email",
+  "email_en_lista",
+  "oauth",
+  "rfc",
+  "telefono"
+ ],
+ "sembrados_en": [
+  "prompt",
+  "tool argument",
+  "tool result",
+  "model answer",
+  "a capturing library's span: content attributes, a list, an event, an allowed key"
+ ],
+ "por_modo": {
+  "off": {
+   "captura_de_contenido": "NO_CONTENT",
+   "estado_del_agente": "respondida",
+   "agente": {
+    "spans_en_archivo": 16,
+    "observaciones_en_langfuse": 16,
+    "canarios_en_archivo": [],
+    "canarios_en_langfuse": [],
+    "claves_de_contenido_que_llegaron": [],
+    "enmascarado_en_archivo": true
+   },
+   "biblioteca": {
+    "spans_en_archivo": 1,
+    "observaciones_en_langfuse": 1,
+    "canarios_en_archivo": [],
+    "canarios_en_langfuse": [],
+    "claves_de_contenido_que_llegaron": [],
+    "enmascarado_en_archivo": true
+   }
+  },
+  "on": {
+   "captura_de_contenido": "SPAN_AND_EVENT",
+   "estado_del_agente": "respondida",
+   "agente": {
+    "spans_en_archivo": 16,
+    "observaciones_en_langfuse": 16,
+    "canarios_en_archivo": [],
+    "canarios_en_langfuse": [],
+    "claves_de_contenido_que_llegaron": [],
+    "enmascarado_en_archivo": true
+   },
+   "biblioteca": {
+    "spans_en_archivo": 1,
+    "observaciones_en_langfuse": 1,
+    "canarios_en_archivo": [],
+    "canarios_en_langfuse": [],
+    "claves_de_contenido_que_llegaron": [],
+    "enmascarado_en_archivo": true
+   }
+  }
+ },
+ "ok": true
+}

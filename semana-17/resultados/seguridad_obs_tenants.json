@@ -1,0 +1,23 @@
+{
+ "fecha": "2026-11-03",
+ "proyectos_que_ve_cada_llave": {
+  "a": 1,
+  "b": 1
+ },
+ "las_llaves_ven_un_solo_proyecto_y_distinto": true,
+ "observaciones": {
+  "a_ve_a": 1,
+  "b_ve_b": 1,
+  "a_ve_b": 0,
+  "b_ve_a": 0
+ },
+ "borrado_con_la_llave_ajena_http": {
+  "a_borra_b": 200,
+  "b_borra_a": 200
+ },
+ "despues_del_borrado_ajeno": {
+  "b_sigue_viendo_b": 1,
+  "a_sigue_viendo_a": 1
+ },
+ "ok": true
+}

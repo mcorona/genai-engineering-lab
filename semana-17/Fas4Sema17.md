@@ -435,3 +435,12 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   store, so activity 4's tenant-day cap was enforced per process, not across the day; who approved an order is answered by the approvals
   store, since the trace only has keyed hashes; the Collector's file still holds message content from the optional Strands run, for
   activity 9 (`resultados/tablero.md`).
+- 2026-11-04: activity 9, security and privacy of the observability ($0). The Collector's `redaction` runs in allowlist mode with exactly
+  the 105 keys of the locked shape (a test pins it to `esquema.py`), which closes activity 2's list gap and drops any captured content.
+  Canaries (9) in the prompt, an SQL argument, a tool result, the answer and a capturing library's span: 0 in Langfuse and in the Collector's
+  file, with content capture off and on. A second Langfuse project for another tenant: its keys and the first project's cannot see or
+  delete each other's traces. Langfuse OSS has no project API and no per-project retention (both Enterprise), so the project was created
+  through the UI's own API and retention is a deletion job (30 days), proven on the second project (asynchronous, 101 s). Week 16's
+  injection payloads never reach a span, and nothing that reads traces is an LLM. Findings: a delete with the wrong keys answers 200 and
+  removes nothing; the Collector checks keys, not value shapes; the raw file still holds the optional Strands run's content until it
+  rotates (`resultados/seguridad_obs.md`).

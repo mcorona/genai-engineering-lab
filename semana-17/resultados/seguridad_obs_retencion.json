@@ -1,0 +1,19 @@
+{
+ "fecha": "2026-11-03",
+ "proyecto": "tenant B",
+ "dias": 7,
+ "antes": {
+  "vieja": 1,
+  "nueva": 1
+ },
+ "candidatas": 1,
+ "la_vieja_era_candidata": true,
+ "la_nueva_era_candidata": false,
+ "borradas": 1,
+ "despues": {
+  "vieja": 0,
+  "nueva": 1,
+  "segundos_hasta_desaparecer": 101
+ },
+ "ok": true
+}
