@@ -77,8 +77,10 @@ an injected clock). With one run per language and per scenario the cost differen
 
 ## What it does not cover
 
-* A live Keycloak: the realm file was not imported and no token was minted by Keycloak (it was not running). The verification code is the same for
-  both (`PyJWKClient` for the JWKS), but that path was not exercised.
+* ~~A live Keycloak~~ **closed in activity 10**: `aprobaciones/keycloak.py` imports `realm_aprobadores.json` into week 14's ephemeral realm,
+  gets real tokens with authorization code + PKCE and verifies them against the realm's JWKS: `gerente` carries its level, `analista` has
+  none, and an MCP token is refused for its audience (`aprobaciones_keycloak.json`; it also runs in CI). Two fixes came out of it: Keycloak
+  26 asks approvers for a complete profile, and puts `sub` in the token only through the `basic` client scope, so the import now declares both.
 * A user interface for the approver, notifications, or an approval that needs several people (R-OC-COTIZA's three quotes above 100,000 MXN is a
   separate rule and is not enforced).
 * More than one pending request per task: a second proposal while one waits gets `una_aprobacion_a_la_vez`.

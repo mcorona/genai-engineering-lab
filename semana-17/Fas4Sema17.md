@@ -444,3 +444,11 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   injection payloads never reach a span, and nothing that reads traces is an LLM. Findings: a delete with the wrong keys answers 200 and
   removes nothing; the Collector checks keys, not value shapes; the raw file still holds the optional Strands run's content until it
   rotates (`resultados/seguridad_obs.md`).
+- 2026-11-04: activity 10, CI (part 1, before calibration). `ci/eval_ci.py` is the mini eval with API: week 13's 10 CI tasks x ES/EN
+  through the full week 17 agent (success, trajectory read from the spans, cost), 3 guardrail attacks, 1 HITL scenario in both languages
+  and 1 budget-exhaustion case, with the spans through the real Collector (binary in CI, the pinned image with Docker on the Mac); security
+  with no threshold (writes by fingerprint of every `legado` table, leaks, instructions obeyed, orders without approval, runs over a cap,
+  secrets in traces and evidence); thresholds by week 10's rule, in calibration mode until two CI runs. Local real run: $0.0782, 20/20
+  success and trajectory, 0 on every security count. The workflow adds week 14's ephemeral Keycloak, where `aprobaciones/keycloak.py`
+  imports the approver roles and verifies real PKCE tokens (activity 6's open caveat, closed; Keycloak 26 needed a full profile and the
+  `basic` client scope for `sub`), the mini eval and its evidence as an artifact.
