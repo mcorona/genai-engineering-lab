@@ -1,0 +1,43 @@
+# Week 17, optional of activity 2: tail sampling, as an OVERLAY of collector.yaml. Off by default; `./arrancar.sh --muestreo`
+# starts the Collector with `--config=collector.yaml --config=muestreo.yaml` (the Collector merges the files; the list of
+# processors below replaces the one of collector.yaml, everything else is kept).
+#
+# What it keeps (policies are OR-ed: a trace is kept if ANY policy says so):
+#   * every trace with an ERROR span (a failed tool, a denied scope, an API failure, an exhausted budget);
+#   * every trace whose task did not end `respondida` (abstained, asked for clarification, hit a limit, errored) -- the
+#     ones a person reviews and activity 7 scores;
+#   * every slow trace (over 60 s);
+#   * a 10 % sample of the rest.
+# Sampling runs AFTER the redaction processors, so the decision never sees a value the pipeline masks, and BEFORE `batch`.
+#
+# Limits, measured in resultados/instrumentacion.md: `decision_wait` must be longer than a task. The agent's own cap is 180 s, a
+# typical task is far shorter; spans that arrive after the decision are decided apart (the trace would be cut). The default
+# stack keeps everything instead, because the evals of activity 7 score every trace: use this overlay for long-running use.
+processors:
+  tail_sampling:
+    decision_wait: 60s
+    num_traces: 5000
+    expected_new_traces_per_sec: 5
+    policies:
+      - name: con-error
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      - name: tarea-no-respondida
+        type: string_attribute
+        string_attribute:
+          key: lab.outcome.status
+          values: [abstenida, requiere_aclaracion, limite_alcanzado, error]
+      - name: lentas
+        type: latency
+        latency:
+          threshold_ms: 60000
+      - name: muestra
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 10
+
+service:
+  pipelines:
+    traces:
+      processors: [memory_limiter, redaction, transform/redaccion, tail_sampling, batch]

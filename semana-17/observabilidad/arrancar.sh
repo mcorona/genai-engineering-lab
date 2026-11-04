@@ -7,6 +7,7 @@
 #   ./arrancar.sh --estado     muestra los contenedores y la salud de Langfuse y del Collector
 #   ./arrancar.sh --detener    detiene los contenedores (conserva volúmenes y datos)
 #   ./arrancar.sh --reiniciar  detiene y vuelve a arrancar (los datos persisten)
+#   ./arrancar.sh --muestreo   arranca con muestreo por cola (errores, tareas no respondidas y lentas se conservan; el resto 10 %)
 #   ./arrancar.sh --borrar     borra contenedores, volúmenes, red y datos/ (conserva .secretos.env)
 #   ./arrancar.sh --borrar --secretos   lo mismo y además .secretos.env (el siguiente arranque genera claves nuevas)
 set -euo pipefail
@@ -20,21 +21,25 @@ PUERTOS="3100 4317 4318 13133"
 LANGFUSE=http://127.0.0.1:3100
 COLLECTOR_SALUD=http://127.0.0.1:13133
 
-uso() { sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
+uso() { sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
 
 accion=arrancar
 con_secretos=no
+con_muestreo=no
 for a in "$@"; do
   case "$a" in
     --estado) accion=estado ;;
     --detener) accion=detener ;;
     --reiniciar) accion=reiniciar ;;
+    --muestreo) con_muestreo=si ;;
     --borrar) accion=borrar ;;
     --secretos) con_secretos=si ;;
     -h|--help) uso ;;
     *) echo "opción desconocida: $a" >&2; uso ;;
   esac
 done
+if [[ "$con_muestreo" == si && "$accion" != arrancar && "$accion" != reiniciar ]]; then echo "--muestreo solo se usa al arrancar o reiniciar" >&2; exit 2; fi
+if [[ "$con_muestreo" == si ]]; then export COLLECTOR_CAPA=muestreo; else export COLLECTOR_CAPA=sin_muestreo; fi
 if [[ "$con_secretos" == si && "$accion" != borrar ]]; then echo "--secretos solo se usa con --borrar" >&2; exit 2; fi
 
 command -v docker >/dev/null || { echo "[stack] falta Docker" >&2; exit 1; }
@@ -112,6 +117,7 @@ arrancar() {
   esperar
   echo "[stack] Langfuse:   $LANGFUSE (usuario admin@lab.example; contraseña y claves del proyecto en .secretos.env)"
   echo "[stack] OTLP HTTP:  http://127.0.0.1:4318/v1/traces   OTLP gRPC: 127.0.0.1:4317   salud: $COLLECTOR_SALUD"
+  echo "[stack] muestreo por cola: $([[ "$con_muestreo" == si ]] && echo activado || echo 'apagado (se conserva todo)')"
   echo "[stack] trazas (ya redactadas): $DATOS/trazas.jsonl"
 }
 

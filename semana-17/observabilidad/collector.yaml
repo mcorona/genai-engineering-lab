@@ -14,7 +14,9 @@
 # Message content capture is OFF by default in the instrumentation; this pipeline is the second layer, not the first.
 #
 # The same seven patterns appear in `redaction` and in every `transform/redaccion` statement (a test checks that).
-# Tail sampling is left out on purpose: it is optional in the plan and would drop traces that activity 7 scores.
+# Tail sampling is not in this file on purpose: it would drop traces that activity 7 scores. It is an overlay,
+# `muestreo.yaml`, merged as a second `--config` when the stack starts with `arrancar.sh --muestreo`; the default is
+# `sin_muestreo.yaml` (a no-op), so the default stack keeps every trace.
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133

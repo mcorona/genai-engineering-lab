@@ -8,7 +8,8 @@ Docker, so it runs on the Mac and not in CI), or from [`tests/test_stack.py`](..
 |---|---|
 | [`observabilidad/docker-compose.yml`](../observabilidad/docker-compose.yml) | Langfuse web and worker, PostgreSQL, ClickHouse, Redis, MinIO and the Collector. Images by digest (`IMG_*`), named volumes, `restart: unless-stopped` |
 | [`observabilidad/collector.yaml`](../observabilidad/collector.yaml) | OTLP (HTTP 4318, gRPC 4317) → `memory_limiter` → `redaction` → `transform/redaccion` → `batch` → JSONL file and Langfuse |
-| [`observabilidad/arrancar.sh`](../observabilidad/arrancar.sh) | Writes the random secrets once, resolves the digests from `versiones.json`, starts and waits. Options: `--estado`, `--detener`, `--reiniciar`, `--borrar [--secretos]` |
+| [`observabilidad/muestreo.yaml`](../observabilidad/muestreo.yaml), [`sin_muestreo.yaml`](../observabilidad/sin_muestreo.yaml) | Optional tail sampling as a second `--config` overlay (see below); the default overlay is a no-op |
+| [`observabilidad/arrancar.sh`](../observabilidad/arrancar.sh) | Writes the random secrets once, resolves the digests from `versiones.json`, starts and waits. Options: `--estado`, `--detener`, `--reiniciar`, `--borrar [--secretos]`, `--muestreo` (with start or restart) |
 | `observabilidad/.secretos.env` | 11 random variables, mode 600, git-ignored, never printed (only the count and the key lengths) |
 
 ```bash
@@ -54,6 +55,39 @@ processors.
 | **Span attributes that are lists** | **leaks** | **leaks: known gap** |
 
 In Langfuse, the same canaries are absent from `name`, `statusMessage`, `metadata`, `input` and `output` of the 3 observations.
+
+## Optional: tail sampling in the Collector
+
+`./arrancar.sh --muestreo` merges [`muestreo.yaml`](../observabilidad/muestreo.yaml) over `collector.yaml` (a second `--config`; lists are
+replaced, so the overlay restates the pipeline's processor list with `tail_sampling` after `redaction` and `transform/redaccion` and before
+`batch`). Without the flag the stack loads `sin_muestreo.yaml`, which changes nothing: **the default stack keeps every trace**, because
+activity 7 scores them all. The policies are OR-ed, so a trace is kept if any one matches:
+
+| Policy | Keeps |
+|---|---|
+| `con-error` | any trace with a span in `ERROR` |
+| `tarea-no-respondida` | `lab.outcome.status` in `abstenida`, `requiere_aclaracion`, `limite_alcanzado`, `error` (everything but `respondida`) |
+| `lentas` | traces longer than 60 s |
+| `muestra` | 10 % of the rest, by trace id |
+
+`decision_wait` is 60 s (longer than a task), `num_traces` 5000. Measured on the Mac with the activity 2 stack, **$0**
+([`muestreo.json`](muestreo.json), written by [`observabilidad/verificar_muestreo.py`](../observabilidad/verificar_muestreo.py)): 51 synthetic
+traces, 40 plain and 11 critical (4 with an error, 3 abstained, 2 at the limit, 2 slow).
+
+| Check | Result |
+|---|---|
+| Critical traces kept | **11 of 11** in Langfuse and in the file; they arrived 66 s after sending (the 60 s wait) |
+| Plain traces | **6 of 40** kept (the 10 % policy is by trace id, so a small batch is not exact) |
+| Langfuse and the file agree | the same set of traces in both |
+| Redaction ran first | the canary is not in the file, kept traces included |
+| Back to the default | the Collector's arguments name `sin_muestreo.yaml`, and **10 of 10** traces arrive |
+
+[`tests/test_muestreo.py`](../tests/test_muestreo.py) runs the same merge in CI against the real Collector (binary in CI, Docker image
+locally) with `decision_wait` at 3 s: 120 plain and 17 critical traces, every critical one kept, between 1 and 36 of the plain ones, no
+canary, and with the no-op overlay every trace kept. It also checks that `--muestreo` with `--detener` or `--borrar` is refused.
+
+Cost of the optional: a kept trace waits `decision_wait` before it reaches Langfuse (measured above), and the processor holds the
+traces it has not decided on in memory, so a Collector restart would lose them (that was not measured); the default stack has neither.
 
 ## Findings that change later activities
 
