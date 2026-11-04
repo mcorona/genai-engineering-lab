@@ -452,3 +452,8 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   success and trajectory, 0 on every security count. The workflow adds week 14's ephemeral Keycloak, where `aprobaciones/keycloak.py`
   imports the approver roles and verifies real PKCE tokens (activity 6's open caveat, closed; Keycloak 26 needed a full profile and the
   `basic` client scope for `sub`), the mini eval and its evidence as an artifact.
+- 2026-11-04: activity 10 closed. The mini eval was calibrated on two CI runs of PR #138 (success 0.95 and 0.90, trajectory 1.00 and 0.95;
+  security 0 in both): thresholds 0.85 and 0.90 by week 10's rule with a false alarm of at most 10 % (`resultados/ci_calibracion.md`); the
+  first enforcing run passed with 0.95 and 0.95 and security 0. PRs #134 to #138 merged with the three required checks green. `README.md`
+  of the week, the root README (criterion 17 verified, phase status) in a separate documentation PR. Real API spend of the week: $1.18
+  ($0.61 of it under the standing $2 authorization for activities 6 to 10).
