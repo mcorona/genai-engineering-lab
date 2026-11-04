@@ -1,0 +1,36 @@
+{
+ "fecha": "2026-11-04T04:10Z",
+ "metodo": "sha256 of the brief file (a random salt inside)",
+ "casos": {
+  "caso-1": {
+   "uso": "rehearsal 1",
+   "sha256": "f613048c9d25fec3074dd3cb9451baf3f1d9ec7219253c23eedc42814f1dd979",
+   "revelado": null
+  },
+  "caso-2": {
+   "uso": "rehearsal 2",
+   "sha256": "61c03b1069e16bbd3b3d5496ea4dd124b960a5a2d0331cd0da74827e2155f594",
+   "revelado": null
+  },
+  "caso-3": {
+   "uso": "rehearsal 3",
+   "sha256": "254a2f5cb181525093a851ee4a3712349a06c752ba30ea86045a391862273b42",
+   "revelado": null
+  },
+  "caso-4": {
+   "uso": "final",
+   "sha256": "43f7d5664667d3f3bc9303ad30614221e4f2ae4e68cb20f5bb897c3806fd71e3",
+   "revelado": null
+  },
+  "caso-5": {
+   "uso": "spare",
+   "sha256": "b5090e398f1c4cbb944c338e05114bb30551b4a8c7f600e40f9f94d12f6d5ac0",
+   "revelado": null
+  },
+  "caso-6": {
+   "uso": "spare",
+   "sha256": "8110d091fa40b30ba95224b2cc46c0cab4500506fdeb63ea835019bb21608268",
+   "revelado": null
+  }
+ }
+}
