@@ -1,0 +1,71 @@
+{
+  "calibracion": {
+    "archivo": "semana-13/resultados/eval_haiku_medium_detalle.jsonl",
+    "corridas": 252,
+    "exitosas": 230,
+    "holgura_minima": 1,
+    "maximo_del_bucle": 12,
+    "percentil": 0.9,
+    "por_tipo": {
+      "ambigua": {
+        "corridas": 12,
+        "holgura": 2,
+        "maximo": 2,
+        "p90": 2
+      },
+      "compuesta": {
+        "corridas": 42,
+        "holgura": 1,
+        "maximo": 1,
+        "p90": 0
+      },
+      "regla": {
+        "corridas": 72,
+        "holgura": 3,
+        "maximo": 4,
+        "p90": 3
+      },
+      "simple": {
+        "corridas": 56,
+        "holgura": 3,
+        "maximo": 4,
+        "p90": 3
+      },
+      "sin_respuesta": {
+        "corridas": 24,
+        "holgura": 2,
+        "maximo": 2,
+        "p90": 2
+      },
+      "valores": {
+        "corridas": 24,
+        "holgura": 1,
+        "maximo": 1,
+        "p90": 1
+      }
+    },
+    "sha256": "6e6ed2aeb10b128f7868efd7c34f077516fac4d27c1fb0d1dcd96f57e4623f5e"
+  },
+  "descripcion": "Reference trajectories of the 84 golden tasks (week 17, activity 7). Frozen: a change needs to be regenerated and reviewed in a PR.",
+  "evaluadas": [
+    "eval_haiku_low",
+    "eval_sdk_low",
+    "eval_sonnet_low_sub"
+  ],
+  "origen": {
+    "tareas_en.jsonl": "82ea5906a192299542c182b27883e722c2f31ca4aa6441839057b113242d6a53",
+    "tareas_es.jsonl": "ec5b5efce32776bf8bd4dc0f8901811d22d40dbebc8c7a6ffc22254afcedaede"
+  },
+  "por_tipo": {
+    "ambigua": 8,
+    "compuesta": 16,
+    "regla": 24,
+    "simple": 20,
+    "sin_respuesta": 8,
+    "valores": 8
+  },
+  "sha256": {
+    "referencias.jsonl": "16d680d466144d5ae7d0496c7c099f931023e009111299dae10fd83a50b564b8"
+  },
+  "tareas": 84
+}

@@ -415,3 +415,13 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   token (fixed with `scopes_de`); the four-eyes check is only as good as one issuer for both tokens; Haiku answers English tasks in Spanish on this
   stack with or without the pause; Keycloak was not running, so the approver roles are a partial-import file and the token checks ran on an
   ephemeral key (`resultados/aprobaciones.md`). Real API spend: $0.0553.
+- 2026-11-03: activity 7, trajectory eval. `trayectorias/` freezes a reference per golden task (required, allowed and forbidden tools,
+  order where one tool feeds another, a step ceiling whose margin is the p90 of a calibration set only) with a hash manifest, and scores
+  trajectories with eight pure graders, validated first on 17 hand-made bad and 14 good trajectories. The trajectory is read from the spans
+  (`execute_tool`, `chat`), checked against the loop's own lines on every run (84 of 84 equal), and 9 scores per trace are written to Langfuse
+  (`POST /api/public/scores`, read back with v3: 84 of 84). Paid run (84 tasks, guardrails and budgets on, $0.2356): 91.7 % of trajectories
+  pass [0.857, 0.964]. Analysis with week 13's bootstrap: guardrails and budgets did not change the paths (−0.004 [−0.044, +0.032]); the
+  Agent SDK fails the steps rule on 172 of 252 runs because it always makes one model call after `responder`, and without that rule it is
+  not worse than the loop (+0.020). No LLM judge: on the ambiguous tasks the deterministic verdict agrees with the golden one 8 of 8
+  (93 of 96 recorded). Part 1 was started by a parallel agent that stopped on a billing error; its files were reviewed and finished
+  (`resultados/trayectorias.md`).

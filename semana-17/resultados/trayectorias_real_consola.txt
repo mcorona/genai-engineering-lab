@@ -1,0 +1,2 @@
+84 runs · REAL model · langfuse=on
+adapter vs loop lines {'igual': 84} · trajectory ok 91.7% · answers ok 74/84 · failing {'precision_herramientas': 4, 'orden': 2, 'pasos': 1, 'recall_herramientas': 1} · cost $0.235641 · langfuse {'escritos': 756, 'esperados': 756, 'errores_http': {}, 'lectura_api': 'v3', 'trazas_con_score_leido': 84, 'valores_que_coinciden': 84, 'trazas': 84}

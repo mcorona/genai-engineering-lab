@@ -1,0 +1,115 @@
+{
+ "metodo": "bootstrap over tasks, 2,000 resamples, seed 13 (week 13's `boot`); differences by paired bootstrap over tasks",
+ "series": {
+  "bucle_semana13_k3": {
+   "tareas": 84,
+   "corridas": 252,
+   "trayectoria_ok": 0.9206,
+   "ic95_trayectoria": [
+    0.8651,
+    0.9683
+   ],
+   "respuesta_ok": 0.9206,
+   "ic95_respuesta": [
+    0.8611,
+    0.9722
+   ],
+   "respuesta_ok_con_trayectoria_mala": 8,
+   "respuesta_mala_con_trayectoria_ok": 8,
+   "pares": 252
+  },
+  "sdk_semana13_k3": {
+   "tareas": 84,
+   "corridas": 252,
+   "trayectoria_ok": 0.3175,
+   "ic95_trayectoria": [
+    0.2341,
+    0.4087
+   ],
+   "respuesta_ok": 0.8889,
+   "ic95_respuesta": [
+    0.8254,
+    0.9444
+   ],
+   "respuesta_ok_con_trayectoria_mala": 148,
+   "respuesta_mala_con_trayectoria_ok": 4,
+   "pares": 252
+  },
+  "sdk_semana13_k3_sin_regla_de_pasos": {
+   "tareas": 84,
+   "corridas": 252,
+   "trayectoria_ok": 0.9405,
+   "ic95_trayectoria": [
+    0.8889,
+    0.9841
+   ],
+   "respuesta_ok": 0.8889,
+   "ic95_respuesta": [
+    0.8254,
+    0.9444
+   ],
+   "respuesta_ok_con_trayectoria_mala": 4,
+   "respuesta_mala_con_trayectoria_ok": 17,
+   "pares": 252
+  },
+  "bucle_con_guardrails_y_presupuesto_k1": {
+   "tareas": 84,
+   "corridas": 84,
+   "trayectoria_ok": 0.9167,
+   "ic95_trayectoria": [
+    0.8571,
+    0.9643
+   ],
+   "respuesta_ok": 0.881,
+   "ic95_respuesta": [
+    0.8095,
+    0.9524
+   ],
+   "respuesta_ok_con_trayectoria_mala": 2,
+   "respuesta_mala_con_trayectoria_ok": 5,
+   "pares": 84
+  }
+ },
+ "comparaciones": {
+  "sdk_menos_bucle_trayectoria": {
+   "diferencia": -0.6032,
+   "ic95": [
+    -0.6905,
+    -0.5119
+   ],
+   "tareas": 84
+  },
+  "sdk_sin_pasos_menos_bucle_trayectoria": {
+   "diferencia": 0.0198,
+   "ic95": [
+    0.004,
+    0.0397
+   ],
+   "tareas": 84
+  },
+  "sdk_menos_bucle_respuesta": {
+   "diferencia": -0.0317,
+   "ic95": [
+    -0.0714,
+    0.004
+   ],
+   "tareas": 84
+  },
+  "despues_menos_antes_trayectoria": {
+   "diferencia": -0.004,
+   "ic95": [
+    -0.0437,
+    0.0317
+   ],
+   "tareas": 84
+  },
+  "despues_menos_antes_respuesta": {
+   "diferencia": -0.0397,
+   "ic95": [
+    -0.0952,
+    0.0119
+   ],
+   "tareas": 84
+  }
+ }
+}
