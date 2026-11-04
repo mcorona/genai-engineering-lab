@@ -8,9 +8,9 @@
 #   * `redaction` masks string values of span, resource and span-event attributes;
 #   * `transform/redaccion` masks what `redaction` does not read: the span name, the span status message and the
 #     span event names (it also masks string attributes again, as a second layer).
-# KNOWN GAP, measured: neither reads LIST-valued attributes (e.g. ["a@b.com", "postgresql://..."]). The lab keeps
-# free text out of lists by locking the span shape (activity 3). When that shape is final, `redaction` switches to
-# `allow_all_keys: false` with an `allowed_keys` list, which also drops lists (measured in activity 2).
+# The gap measured in activity 2 (neither reads LIST-valued attributes) is closed since activity 9: `redaction` runs in
+# allowlist mode with exactly the keys of the locked span shape, so an unknown key, a list or captured content is dropped
+# whole before any pattern is needed.
 # Message content capture is OFF by default in the instrumentation; this pipeline is the second layer, not the first.
 #
 # The same seven patterns appear in `redaction` and in every `transform/redaccion` statement (a test checks that).
@@ -35,7 +35,117 @@ processors:
     limit_mib: 400
     spike_limit_mib: 100
   redaction:
-    allow_all_keys: true
+    # Activity 9: ALLOWLIST mode. Only the keys of the locked span shape (instrumentacion/esquema.py: span kinds, SDK spans and the
+    # lab's events) and six resource keys pass; every other attribute is dropped whole, lists included (the gap measured in
+    # activity 2), and so is any content a library captures (gen_ai.input.messages, prompts, completions). tests/test_seguridad_obs.py
+    # checks this list equals the schema, so a new key needs both. blocked_values below still mask what an ALLOWED key carries.
+    allow_all_keys: false
+    allowed_keys:
+      - db.namespace
+      - db.operation.name
+      - db.response.returned_rows
+      - db.system.name
+      - error.type
+      - gen_ai.agent.name
+      - gen_ai.operation.name
+      - gen_ai.provider.name
+      - gen_ai.request.max_tokens
+      - gen_ai.request.model
+      - gen_ai.request.reasoning.level
+      - gen_ai.response.finish_reasons
+      - gen_ai.response.id
+      - gen_ai.response.model
+      - gen_ai.tool.call.id
+      - gen_ai.tool.name
+      - gen_ai.tool.type
+      - gen_ai.usage.cache_creation.input_tokens
+      - gen_ai.usage.cache_read.input_tokens
+      - gen_ai.usage.input_tokens
+      - gen_ai.usage.output_tokens
+      - jsonrpc.request.id
+      - lab.authz.client
+      - lab.authz.decision
+      - lab.authz.scopes.granted
+      - lab.authz.scopes.missing
+      - lab.authz.scopes.required
+      - lab.budget.decision
+      - lab.budget.estimate_tokens
+      - lab.budget.estimate_usd
+      - lab.budget.limit_tokens
+      - lab.budget.limit_usd
+      - lab.budget.max_output_tokens
+      - lab.budget.max_seconds
+      - lab.budget.max_steps
+      - lab.budget.max_tokens
+      - lab.budget.max_tokens_total
+      - lab.budget.max_tool_calls
+      - lab.budget.model.from
+      - lab.budget.reason
+      - lab.budget.scope
+      - lab.budget.spent_tokens
+      - lab.budget.spent_usd
+      - lab.budget.step
+      - lab.cost.usd
+      - lab.db.query.chars
+      - lab.db.query.hmac
+      - lab.db.role
+      - lab.db.tables
+      - lab.guardrail.decision
+      - lab.guardrail.name
+      - lab.guardrail.reason
+      - lab.guardrail.stage
+      - lab.guardrail.step
+      - lab.hitl.amount_mxn
+      - lab.hitl.applied
+      - lab.hitl.approver
+      - lab.hitl.approver_level
+      - lab.hitl.decision
+      - lab.hitl.evidence
+      - lab.hitl.level
+      - lab.hitl.quantity
+      - lab.hitl.reason
+      - lab.hitl.request_id
+      - lab.hitl.requester
+      - lab.hitl.state
+      - lab.hitl.step
+      - lab.hitl.ttl_s
+      - lab.hitl.wait_ms
+      - lab.model.scripted
+      - lab.outcome.reason
+      - lab.outcome.status
+      - lab.run.cost_usd
+      - lab.run.id
+      - lab.run.steps
+      - lab.run.tokens.cache_creation
+      - lab.run.tokens.cache_read
+      - lab.run.tokens.input
+      - lab.run.tokens.output
+      - lab.run.tool_calls
+      - lab.run.tool_errors
+      - lab.schema.version
+      - lab.step
+      - lab.task.id
+      - lab.task.language
+      - lab.tenant.id
+      - lab.tool.args.chars
+      - lab.tool.args.hmac
+      - lab.tool.known
+      - lab.tool.name
+      - lab.tool.result.chars
+      - lab.tool.status
+      - langfuse.observation.cost_details
+      - mcp.method.name
+      - mcp.protocol.version
+      - rpc.response.status_code
+      - server.address
+      - server.port
+      - service.instance.id
+      - service.name
+      - service.version
+      - telemetry.sdk.language
+      - telemetry.sdk.name
+      - telemetry.sdk.version
+      - user.id
     blocked_values:
       - "postgres(ql)?://[^\\s\"']+"                       # DSNs
       - "(?i)bearer\\s+[A-Za-z0-9._~+/=-]{12,}"           # bearer tokens

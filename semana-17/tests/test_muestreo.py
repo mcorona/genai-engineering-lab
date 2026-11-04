@@ -182,8 +182,9 @@ def test_el_muestreo_real_conserva_lo_que_importa_y_solo_muestrea_lo_demas(tmp_p
     ok = len(ids["ok"] & conservadas)
     assert 0 < ok < mezcla["ok"], ok                                               # a sample: not none, not all (10 % of 120)
     assert ok <= 0.3 * mezcla["ok"]
-    # redaction ran before sampling: not even the kept traces carry the canary
-    assert CANARIO not in texto and "****" in texto
+    # redaction ran before sampling: not even the kept traces carry the canary. Since activity 9 the key that carried it
+    # (`prueba.canario`) is not in the allowlist, so it is dropped whole instead of masked.
+    assert CANARIO not in texto and '"prueba.canario"' not in texto
     assert not (conservadas - set().union(*ids.values()))
 
 

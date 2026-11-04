@@ -52,7 +52,7 @@ processors.
 | **Span name** | **leaks** (email, tax ID) | masked |
 | **Span status message** | **leaks** (phone, API key) | masked |
 | **Span event name** | **leaks** (email) | masked |
-| **Span attributes that are lists** | **leaks** | **leaks: known gap** |
+| **Span attributes that are lists** | **leaks** | **leaks: known gap** (closed in activity 9: the allowlist drops them, [seguridad_obs.md](seguridad_obs.md)) |
 
 In Langfuse, the same canaries are absent from `name`, `statusMessage`, `metadata`, `input` and `output` of the 3 observations.
 
@@ -91,7 +91,7 @@ traces it has not decided on in memory, so a Collector restart would lose them (
 
 ## Findings that change later activities
 
-1. **List attributes are not redacted** (activity 3 and activity 9). Neither `redaction` nor OTTL's `replace_all_patterns` reads a
+1. **List attributes are not redacted** (activity 3 and activity 9). **Closed in activity 9**: `redaction` now runs in allowlist mode with the locked shape's keys, and the measurement below is kept as it was taken. Neither `redaction` nor OTTL's `replace_all_patterns` reads a
    list, so `["a@b.com", "postgresql://..."]` reaches the file and Langfuse intact (`hueco_listas` in `stack.json`; a test pins
    it, and fails the day it is closed). The fix is measured: with `allow_all_keys: false` and an `allowed_keys` list,
    `redaction` drops every key that is not allowed, lists included. It needs the final span shape, so activity 3 locks the

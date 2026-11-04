@@ -121,7 +121,7 @@ def test_collector_pipeline_redacta_antes_de_exportar():
 
 def test_collector_los_siete_patrones_estan_en_redaction_y_en_cada_regla_transform():
     red = COLECTOR["processors"]["redaction"]
-    assert red["allow_all_keys"] is True and len(red["blocked_values"]) == 7
+    assert red["allow_all_keys"] is False and len(red["blocked_values"]) == 7          # allowlist since activity 9
     fragmentos = ["postgres(ql)?://", "bearer", "eyJ", "sk-ant-", "@", "[A-ZÑ&]{3,4}", "\\d{2} \\d{4} \\d{4}"]
     for f in fragmentos:
         assert any(f in b for b in red["blocked_values"]), f
@@ -225,9 +225,9 @@ def test_collector_config_real_enmascara_cada_zona(tmp_path):
     assert not vs.filtrados(texto, vs.CANARIOS), {z: vs.filtrados(t, vs.CANARIOS) for z, t in zonas.items()}
     assert all(not vs.filtrados(t, vs.CANARIOS) for t in zonas.values())
     assert "****" in texto
-    # KNOWN GAP (measured in activity 2): list-valued attributes are not redacted by `redaction` nor by `transform`.
-    # If this assertion starts to fail the gap is closed: update collector.yaml, resultados/stack.md and stack.json.
-    assert vs.filtrados(texto, vs.CANARIOS_LISTA) == ["dsn_en_lista", "email_en_lista"]
+    # The gap measured in activity 2 (list-valued attributes were not redacted) is closed by the allowlist of activity 9:
+    # the list attribute is not in the locked shape, so it is dropped whole.
+    assert vs.filtrados(texto, vs.CANARIOS_LISTA) == []
 
 
 def test_redaction_sola_no_cubre_nombre_estado_ni_eventos(tmp_path):
