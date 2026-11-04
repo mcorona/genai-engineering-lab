@@ -50,3 +50,4 @@ semana-17/observabilidad/datos/
 
 # Semana 18: los casos de pizarra sellados (solo sus huellas se versionan, en sellos.json)
 semana-18/pizarra/.sellados/
+semana-18/**/.secretos.env

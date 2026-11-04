@@ -1,0 +1,71 @@
+name: eval-semana-18
+
+# Semana 18 (LegacyBridge v1 y cierre de la Fase 4). Sin API ($0): las pruebas de semana-18/tests con la base de CI. La mini eval de v1
+# con API llega en la actividad 10.
+on:
+  pull_request:
+    paths:
+      - "semana-18/**"
+      - "!semana-18/**/*.md"
+      - "!semana-18/resultados/**"
+      - "semana-17/aprobaciones/**"
+      - "semana-17/guardrails/**"
+      - "semana-17/instrumentacion/**"
+      - "semana-17/presupuestos/**"
+      - "semana-14/servidor/**"
+      - "semana-14/cliente/**"
+      - ".github/workflows/eval-semana-18.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-semana-18-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sin-api:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ci-admin
+          POSTGRES_DB: inventory
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d inventory"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PG_ADMIN_DSN: postgresql://admin:ci-admin@localhost:5432/inventory
+      PG_DSN: postgresql://copilot_ro:ci-ro@localhost:5432/inventory
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Dependencias (las mismas versiones del grupo semana17 de pyproject.toml)
+        run: |
+          pip install "psycopg[binary]==3.3.6" "sqlglot==30.26.0" "mcp==2.3.0" "pyyaml==6.0.2" pytest \
+            "opentelemetry-api==1.45.2" "opentelemetry-sdk==1.45.2" "opentelemetry-exporter-otlp-proto-http==1.45.2" \
+            "opentelemetry-semantic-conventions==0.66b2" "opentelemetry-instrumentation-httpx==0.66b2" "opentelemetry-util-genai==1.3b0" "langfuse==5.1.0" \
+            "pydantic==2.14.1" "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1"
+      - name: Base de CI (semilla 42) y esquema legado
+        run: |
+          python semana-07/ci/preparar_base.py
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
+          psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
+      - name: Collector contrib 0.164.0 (binario de la release, verificado por sha256)
+        run: |
+          curl -sSfL -o /tmp/otelcol.tgz https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.164.0/otelcol-contrib_0.164.0_linux_amd64.tar.gz
+          echo "f0c1ce9f661399beb4a58b711924716e08ea70c3802db0715fcfde3cbbada2d4  /tmp/otelcol.tgz" | sha256sum -c -
+          mkdir -p /tmp/otelcol && tar -xzf /tmp/otelcol.tgz -C /tmp/otelcol otelcol-contrib
+          echo "OTELCOL_BIN=/tmp/otelcol/otelcol-contrib" >> "$GITHUB_ENV"
+      - name: Pruebas sin API
+        run: |
+          set -o pipefail
+          cd semana-18 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
+          if grep -q "SKIPPED" /tmp/pytest.txt; then echo "::error::hay pruebas omitidas"; exit 1; fi
