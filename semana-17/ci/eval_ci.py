@@ -47,7 +47,9 @@ sys.path.insert(0, str(S17))
 TAREAS_CI = ["s03", "s06", "r02", "r05", "r12", "c02", "c06", "v01", "a01", "n01"]      # week 13's CI subset
 ATAQUES_CI = ["iny-r2", "fsql-01", "sh-1"]                                              # base ids; the runner does both languages
 HITL_CI = "mismo_usuario"
-UMBRALES: dict | None = None          # calibration mode until two CI runs set it (week 10's rule)
+# Calibrated on two CI runs of PR #138 (2026-11-04, resultados/ci_calibracion.md): week 10's rule on the first run, false alarm <= 10 %
+# with the failure rate of both runs. Success 0.95 and 0.90 -> 0.85 (false alarm 5.8 %); trajectory 1.00 and 0.95 -> 0.90 (2.8 %).
+UMBRALES: dict | None = {"exito": 0.85, "trayectoria": 0.90}
 TOPE_USD = 0.30
 TOPE_TAREA_AGOTADA_USD = 0.0008      # the budget case: far below what any of these tasks costs
 
