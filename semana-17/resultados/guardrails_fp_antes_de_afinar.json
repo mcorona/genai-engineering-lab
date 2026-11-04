@@ -1,0 +1,1578 @@
+{
+ "fecha": "2026-11-03",
+ "modo": "reproduccion de la semana 13 (sin modelo)",
+ "modelo": "claude-haiku-5-5",
+ "esfuerzo": "low",
+ "tareas": 84,
+ "segundos": 2.1,
+ "limite": {
+  "tasa": 0.02,
+  "tareas_por_guardrail": 1
+ },
+ "falsos_positivos": {
+  "por_guardrail": {
+   "input_peticion_inyeccion": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   },
+   "input_peticion_alcance": {
+    "tareas": 1,
+    "tasa": 0.0119,
+    "ids": [
+     "c02-es"
+    ],
+    "acciones": {
+     "block": 1
+    },
+    "supera_el_limite": false
+   },
+   "input_resultado_inyeccion": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   },
+   "tool_allowlist": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   },
+   "tool_esquema": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   },
+   "tool_sql": {
+    "tareas": 3,
+    "tasa": 0.0357,
+    "ids": [
+     "c07-es",
+     "r06-en",
+     "r08-es"
+    ],
+    "acciones": {
+     "block": 3
+    },
+    "supera_el_limite": true
+   },
+   "tool_alcance_token": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   },
+   "salida_personales": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   },
+   "salida_fundamentacion": {
+    "tareas": 3,
+    "tasa": 0.0357,
+    "ids": [
+     "a04-es",
+     "r10-en",
+     "s10-es"
+    ],
+    "acciones": {
+     "refuse": 3
+    },
+    "supera_el_limite": true
+   },
+   "salida_sin_evidencia": {
+    "tareas": 0,
+    "tasa": 0.0,
+    "ids": [],
+    "acciones": {},
+    "supera_el_limite": false
+   }
+  },
+  "tareas_afectadas": 7,
+  "ids_afectadas": [
+   "a04-es",
+   "c02-es",
+   "c07-es",
+   "r06-en",
+   "r08-es",
+   "r10-en",
+   "s10-es"
+  ],
+  "guardrails_sobre_el_limite": [
+   "tool_sql",
+   "salida_fundamentacion"
+  ]
+ },
+ "resultado": {
+  "exito": 0.881,
+  "exitos": 74,
+  "estados": {
+   "requiere_aclaracion": 4,
+   "respondida": 67,
+   "abstenida": 12,
+   "limite_alcanzado": 1
+  },
+  "motivos_de_parada": {
+   "guardrail_salida": 3,
+   "guardrail_entrada": 1,
+   "presupuesto_tarea": 1
+  },
+  "pareado_sin_guardrails": {
+   "exitos_sin": 77,
+   "exitos_con": 74,
+   "fallan_ahora_y_pasaban": [
+    "c02-es",
+    "r10-en",
+    "s10-es"
+   ],
+   "pasan_ahora_y_fallaban": []
+  },
+  "actividad_4_informe_confirmado": {
+   "exitos": 77,
+   "tareas": 84,
+   "usd": 0.236585
+  }
+ },
+ "decisiones": {
+  "input_peticion_inyeccion": {
+   "allow": 84
+  },
+  "input_peticion_alcance": {
+   "allow": 83,
+   "block": 1
+  },
+  "input_resultado_inyeccion": {
+   "allow": 858
+  },
+  "tool_allowlist": {
+   "allow": 357
+  },
+  "tool_esquema": {
+   "allow": 357
+  },
+  "tool_sql": {
+   "allow": 354,
+   "block": 3
+  },
+  "tool_alcance_token": {
+   "allow": 354
+  },
+  "salida_personales": {
+   "allow": 82
+  },
+  "salida_fundamentacion": {
+   "allow": 67,
+   "refuse": 3
+  },
+  "salida_sin_evidencia": {
+   "allow": 70
+  }
+ },
+ "garantias": {
+  "un_evento_por_decision": true,
+  "omisiones_del_esquema": {}
+ },
+ "costo": {
+  "total_usd": 0.230979,
+  "media_por_tarea": 0.00275
+ },
+ "por_corrida": [
+  {
+   "id": "a01-en",
+   "tipo": "ambigua",
+   "estado": "requiere_aclaracion",
+   "esperado": "requiere_aclaracion",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018768,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "requiere_aclaracion"
+   }
+  },
+  {
+   "id": "a01-es",
+   "tipo": "ambigua",
+   "estado": "requiere_aclaracion",
+   "esperado": "requiere_aclaracion",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 2,
+   "usd": 0.0010448,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "requiere_aclaracion"
+   }
+  },
+  {
+   "id": "a02-en",
+   "tipo": "ambigua",
+   "estado": "requiere_aclaracion",
+   "esperado": "requiere_aclaracion",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 1,
+   "herramientas": 1,
+   "usd": 0.0005264,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "requiere_aclaracion"
+   }
+  },
+  {
+   "id": "a02-es",
+   "tipo": "ambigua",
+   "estado": "requiere_aclaracion",
+   "esperado": "requiere_aclaracion",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 1,
+   "herramientas": 1,
+   "usd": 0.0004991,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "requiere_aclaracion"
+   }
+  },
+  {
+   "id": "a03-en",
+   "tipo": "ambigua",
+   "estado": "respondida",
+   "esperado": "requiere_aclaracion",
+   "exito": false,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0024074,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "a03-es",
+   "tipo": "ambigua",
+   "estado": "respondida",
+   "esperado": "requiere_aclaracion",
+   "exito": false,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0044297,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "a04-en",
+   "tipo": "ambigua",
+   "estado": "respondida",
+   "esperado": "requiere_aclaracion",
+   "exito": false,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018647,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "a04-es",
+   "tipo": "ambigua",
+   "estado": "abstenida",
+   "esperado": "requiere_aclaracion",
+   "exito": false,
+   "motivo": "guardrail_salida",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0025797,
+   "no_allow": [
+    {
+     "guardrail": "salida_fundamentacion",
+     "accion": "refuse",
+     "motivo": "cifra_sin_fundamento"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c01-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 8,
+   "usd": 0.0043768,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c01-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 8,
+   "usd": 0.0047119,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c02-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0056209,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c02-es",
+   "tipo": "compuesta",
+   "estado": "abstenida",
+   "esperado": "respondida",
+   "exito": false,
+   "motivo": "guardrail_entrada",
+   "pasos": 0,
+   "herramientas": 0,
+   "usd": 0.0,
+   "no_allow": [
+    {
+     "guardrail": "input_peticion_alcance",
+     "accion": "block",
+     "motivo": "aprobacion"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c03-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 7,
+   "usd": 0.0035544,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c03-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0043734,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c04-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0046825,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c04-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0037091,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c05-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": false,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0030964,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c05-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": false,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0029865,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c06-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0043091,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c06-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0034038,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c07-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0025155,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c07-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0033379,
+   "no_allow": [
+    {
+     "guardrail": "tool_sql",
+     "accion": "block",
+     "motivo": "sql_no_valido"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c08-en",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0045486,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "c08-es",
+   "tipo": "compuesta",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 8,
+   "usd": 0.0046507,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "n01-en",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 3,
+   "usd": 0.0015515,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n01-es",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 3,
+   "usd": 0.0012045,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n02-en",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 2,
+   "usd": 0.0009915,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n02-es",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 2,
+   "usd": 0.0009962,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n03-en",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 3,
+   "usd": 0.0012625,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n03-es",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018172,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n04-en",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 3,
+   "usd": 0.0010623,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "n04-es",
+   "tipo": "sin_respuesta",
+   "estado": "abstenida",
+   "esperado": "abstenida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 2,
+   "herramientas": 3,
+   "usd": 0.001125,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "abstenida"
+   }
+  },
+  {
+   "id": "r01-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 8,
+   "usd": 0.0039175,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r01-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0032246,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r02-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0031599,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r02-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 7,
+   "usd": 0.0033254,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r03-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 8,
+   "usd": 0.0040701,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r03-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0033473,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r04-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018321,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r04-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.001925,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r05-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0033922,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r05-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0022688,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r06-en",
+   "tipo": "regla",
+   "estado": "limite_alcanzado",
+   "esperado": "respondida",
+   "exito": false,
+   "motivo": "presupuesto_tarea",
+   "pasos": 5,
+   "herramientas": 10,
+   "usd": 0.0044973,
+   "no_allow": [
+    {
+     "guardrail": "tool_sql",
+     "accion": "block",
+     "motivo": "sql_no_valido"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": false,
+    "estado": "limite_alcanzado"
+   }
+  },
+  {
+   "id": "r06-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 7,
+   "usd": 0.0039091,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r07-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 7,
+   "usd": 0.0037985,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r07-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0046337,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r08-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 7,
+   "usd": 0.0035994,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r08-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0047897,
+   "no_allow": [
+    {
+     "guardrail": "tool_sql",
+     "accion": "block",
+     "motivo": "sql_no_valido"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r09-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0020977,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r09-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0024055,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r10-en",
+   "tipo": "regla",
+   "estado": "abstenida",
+   "esperado": "respondida",
+   "exito": false,
+   "motivo": "guardrail_salida",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0026344,
+   "no_allow": [
+    {
+     "guardrail": "salida_fundamentacion",
+     "accion": "refuse",
+     "motivo": "cifra_sin_fundamento"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r10-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0050395,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r11-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0029195,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r11-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0032026,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r12-en",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0034934,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "r12-es",
+   "tipo": "regla",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 7,
+   "usd": 0.0028755,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s01-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0023187,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s01-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0022506,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s02-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0020493,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s02-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0029111,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s03-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0019186,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s03-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0019562,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s04-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018786,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s04-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018978,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s05-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 5,
+   "herramientas": 7,
+   "usd": 0.0032713,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s05-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 6,
+   "herramientas": 8,
+   "usd": 0.0040689,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s06-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0021356,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s06-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0021401,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s07-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0018228,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s07-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0019992,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s08-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 4,
+   "usd": 0.0019825,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s08-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0032754,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s09-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0027804,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s09-es",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0030382,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s10-en",
+   "tipo": "simple",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0019956,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "s10-es",
+   "tipo": "simple",
+   "estado": "abstenida",
+   "esperado": "respondida",
+   "exito": false,
+   "motivo": "guardrail_salida",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0026004,
+   "no_allow": [
+    {
+     "guardrail": "salida_fundamentacion",
+     "accion": "refuse",
+     "motivo": "cifra_sin_fundamento"
+    }
+   ],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v01-en",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0023657,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v01-es",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0024782,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v02-en",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0018081,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v02-es",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 3,
+   "herramientas": 5,
+   "usd": 0.0018115,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v03-en",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 4,
+   "usd": 0.0017633,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v03-es",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 5,
+   "usd": 0.0019066,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v04-en",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0025332,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  },
+  {
+   "id": "v04-es",
+   "tipo": "valores",
+   "estado": "respondida",
+   "esperado": "respondida",
+   "exito": true,
+   "motivo": "responder",
+   "pasos": 4,
+   "herramientas": 6,
+   "usd": 0.0025456,
+   "no_allow": [],
+   "sin_guardrails": {
+    "exito": true,
+    "estado": "respondida"
+   }
+  }
+ ],
+ "ok": false
+}

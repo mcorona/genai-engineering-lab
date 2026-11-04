@@ -85,7 +85,8 @@ COSTO_LANGFUSE = _patron(r'\{"total": [0-9]+(\.[0-9]+)?(e-[0-9]+)?\}')
 ESTADOS = ("respondida", "requiere_aclaracion", "abstenida", "limite_alcanzado", "error")
 MOTIVOS = ("responder", "max_pasos", "max_tokens_total", "max_segundos", "max_herramientas", "max_tokens_salida",
            "sin_responder", "errores_herramienta", "api_error", "otro",
-           "presupuesto_tarea", "presupuesto_sesion", "presupuesto_tenant_dia")      # activity 4: a budget ended the task
+           "presupuesto_tarea", "presupuesto_sesion", "presupuesto_tenant_dia",      # activity 4: a budget ended the task
+           "guardrail_entrada", "guardrail_salida")                                  # activity 5: a guardrail ended the task
 DECISIONES = ("allow", "deny_no_token", "deny_bad_scheme", "deny_invalid_token", "deny_insufficient_scope")
 METODOS_MCP = ("tools/call", "tools/list", "resources/read", "resources/list", "prompts/get", "prompts/list", "other")
 FINALIZACIONES = ("end_turn", "tool_use", "max_tokens", "stop_sequence", "pause_turn", "refusal", "other")
@@ -186,6 +187,27 @@ EVENTO_PRESUPUESTO = "gen_ai.budget.decision"
 ALCANCES_PRESUPUESTO = ("task", "session", "tenant_day")
 ACCIONES_PRESUPUESTO = ("allow", "degrade", "stop")
 MOTIVOS_PRESUPUESTO = ("ok", "degradado", "usd", "tokens")
+# Activity 5: every guardrail decision is a span EVENT on the agent span: which guardrail, at which stage, what it did and WHY as a word
+# from a fixed list (never the text that triggered it). One event per guardrail that looked at something, `allow` included.
+# An `allow` whose reason is not `ok` is an OBSERVATION: the guardrail saw something and, in audit mode, did not act.
+EVENTO_GUARDRAIL = "gen_ai.guardrail.decision"
+GUARDRAILS = ("input_peticion_inyeccion", "input_peticion_alcance", "input_resultado_inyeccion", "tool_allowlist", "tool_esquema",
+              "tool_sql", "tool_alcance_token", "salida_personales", "salida_fundamentacion", "salida_sin_evidencia")
+ETAPAS_GUARDRAIL = ("input", "tool", "output")
+ACCIONES_GUARDRAIL = ("allow", "block", "sanitize", "redact", "refuse")
+MOTIVOS_GUARDRAIL = (
+    "ok",
+    # instructions in data and in the request (`guardrails/reglas.py`)
+    "ignorar_instrucciones", "dirigido_a_la_ia", "bloque_important", "orden_de_herramienta", "orden_de_escritura", "ocultar_al_usuario",
+    "exfiltracion", "cambio_de_modo", "caracteres_invisibles",
+    "exfiltrar_instrucciones", "cambio_de_rol", "escritura", "aprobacion", "otro_tenant_o_esquema", "varias_sentencias",
+    # the call
+    "herramienta_desconocida", "herramienta_retirada", "argumentos_invalidos", "propuesta_sin_pedido",
+    "sql_no_valido", "sql_varias_sentencias", "sql_escritura", "sql_funcion",
+    "scope_insuficiente", "esquema_ajeno", "otro_tenant", "sujeto_distinto",
+    # the answer
+    "correo", "rfc", "curp", "telefono", "tarjeta", "clabe", "clave_api", "cifra_sin_fundamento", "sin_evidencia")
+
 ATRIBUTOS_EVENTO: dict[str, dict] = {
     EVENTO_PRESUPUESTO: {
         "lab.budget.decision": _enum(*ACCIONES_PRESUPUESTO),
@@ -196,6 +218,13 @@ ATRIBUTOS_EVENTO: dict[str, dict] = {
         "lab.budget.spent_tokens": _entero(), "lab.budget.limit_tokens": _entero(), "lab.budget.estimate_tokens": _entero(),
         "lab.budget.max_tokens": _entero(),
         "gen_ai.request.model": ID, "lab.budget.model.from": ID,
+    },
+    EVENTO_GUARDRAIL: {
+        "lab.guardrail.name": _enum(*GUARDRAILS),
+        "lab.guardrail.stage": _enum(*ETAPAS_GUARDRAIL),
+        "lab.guardrail.decision": _enum(*ACCIONES_GUARDRAIL),
+        "lab.guardrail.reason": _enum(*MOTIVOS_GUARDRAIL),
+        "lab.guardrail.step": _entero(),
     },
 }
 

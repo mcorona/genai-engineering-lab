@@ -198,7 +198,8 @@ class AgentePresupuestado(AgenteInstrumentado):
     the task draws on (none: only the task and the tenant's day apply)."""
 
     def __init__(self, herramientas, *, api, tenant: str, politica: Politica | None = None, almacen: AlmacenGasto | None = None,
-                 modelo: str = "claude-haiku-5-5", esfuerzo: str = "low", simulado: bool = False, reloj=time.time, **kw):
+                 modelo: str = "claude-haiku-5-5", esfuerzo: str = "low", simulado: bool = False, reloj=time.time,
+                 agente_clase=None, envolver=None, **kw):
         self.politica = politica or Politica.desde_archivo()
         self.almacen, self.reloj = almacen, reloj
         limites = kw.pop("limites", None)
@@ -206,8 +207,12 @@ class AgentePresupuestado(AgenteInstrumentado):
         limites = replace(limites or Limites(), max_tokens_total=min((limites or Limites()).max_tokens_total, self.politica.tarea.tokens))
         super().__init__(herramientas, api=api, tenant=tenant, modelo=modelo, esfuerzo=esfuerzo, limites=limites,
                          simulado=simulado, **kw)
-        self.agente = AgenteConPresupuesto(self.herramientas, modelo, esfuerzo, self.limites,
-                                           api=api_presupuestada(api_instrumentada(api, simulado=simulado)), trazas=kw.get("trazas"))
+        # `agente_clase` and `envolver` are the two places a layer outside the budget (activity 5's guardrails) goes: the loop class (a
+        # subclass of `AgenteConPresupuesto`) and a wrapper of the instrumented tools. Both default to this activity's own.
+        fuente = envolver(self.herramientas) if envolver else self.herramientas
+        self.agente = (agente_clase or AgenteConPresupuesto)(fuente, modelo, esfuerzo, self.limites,
+                                                              api=api_presupuestada(api_instrumentada(api, simulado=simulado)),
+                                                              trazas=kw.get("trazas"))
         self.ultimo: EstadoPresupuesto | None = None
 
     def _cuentas(self, sujeto: str, sesion: str | None) -> dict[str, Cuenta]:

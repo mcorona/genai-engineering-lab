@@ -12,9 +12,12 @@ on:
       - "!semana-17/resultados/**"
       - "semana-13/golden/**"
       - "semana-13/agente/**"
+      - "semana-13/seguridad/**"      # actividad 5: artnot.sql y los casos de seguridad que los guardrails miden
       - "semana-14/servidor/**"
       - "semana-14/cliente/**"
       - "semana-14/seguridad/**"
+      - "semana-14/ataques/**"        # actividad 5: los servidores maliciosos de los 38 casos
+      - "semana-14/auth/**"
       - "semana-15/resultados/sonda_trazas.json"
       - "pyproject.toml"
       - ".github/workflows/eval-semana-17.yml"
