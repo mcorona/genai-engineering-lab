@@ -485,7 +485,7 @@ def test_los_eventos_son_solo_numeros_y_vocabulario_fijo(banco):
     c = correr(banco, uso_turnos(), Politica(TAREA_TOPE, min_salida=500))
     claves = set(E.ATRIBUTOS_EVENTO[E.EVENTO_PRESUPUESTO])
     assert len(claves) == 13                                                                        # the budget event: still these 13 keys
-    assert len(E.claves_de_eventos()) == 18                                                         # plus the 5 of activity 5's guardrail event
+    assert len(E.claves_de_eventos()) == 33                                                         # plus 5 (guardrails, activity 5) and 15 (approvals, activity 6)
     assert not (E.claves_de_eventos() & E.claves_permitidas() - {"gen_ai.request.model"})          # events have their own keys
     for e in eventos(c):
         assert set(e["attrs"]) <= claves
