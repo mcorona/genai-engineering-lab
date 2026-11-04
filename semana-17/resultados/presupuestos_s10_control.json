@@ -1,0 +1,161 @@
+{
+ "fecha": "2026-11-03",
+ "modelo": "claude-haiku-5-5",
+ "esfuerzo": "low",
+ "pregunta": "s10 pasaba 6 de 6 en la semana 13 y falló en la corrida con presupuesto: ¿es la capa de presupuesto o es el modelo?",
+ "semana_13_haiku_low": {
+  "resumen": {
+   "s10-es": {
+    "corridas": 3,
+    "exitos": 3
+   },
+   "s10-en": {
+    "corridas": 3,
+    "exitos": 3
+   }
+  }
+ },
+ "corrida_de_84_con_presupuesto": {
+  "resumen": {
+   "s10-es": {
+    "corridas": 1,
+    "exitos": 0
+   },
+   "s10-en": {
+    "corridas": 1,
+    "exitos": 1
+   }
+  }
+ },
+ "repeticion_con_presupuesto": {
+  "resumen": {
+   "s10-es": {
+    "corridas": 3,
+    "exitos": 2
+   },
+   "s10-en": {
+    "corridas": 3,
+    "exitos": 1
+   }
+  },
+  "corridas": [
+   {
+    "id": "s10-en",
+    "rep": 0,
+    "exito": false,
+    "pasos": 4,
+    "usd": 0.002527
+   },
+   {
+    "id": "s10-en",
+    "rep": 1,
+    "exito": false,
+    "pasos": 4,
+    "usd": 0.002593
+   },
+   {
+    "id": "s10-en",
+    "rep": 2,
+    "exito": true,
+    "pasos": 4,
+    "usd": 0.002819
+   },
+   {
+    "id": "s10-es",
+    "rep": 0,
+    "exito": true,
+    "pasos": 4,
+    "usd": 0.002752
+   },
+   {
+    "id": "s10-es",
+    "rep": 1,
+    "exito": true,
+    "pasos": 4,
+    "usd": 0.002714
+   },
+   {
+    "id": "s10-es",
+    "rep": 2,
+    "exito": false,
+    "pasos": 4,
+    "usd": 0.002576
+   }
+  ],
+  "max_tokens_minimo_enviado": 4000
+ },
+ "control_bucle_de_la_semana_13_sin_presupuesto": {
+  "resumen": {
+   "s10-es": {
+    "corridas": 3,
+    "exitos": 1
+   },
+   "s10-en": {
+    "corridas": 3,
+    "exitos": 2
+   }
+  },
+  "corridas": [
+   {
+    "id": "s10-en",
+    "rep": 0,
+    "exito": false,
+    "pasos": 4,
+    "usd": 0.002596
+   },
+   {
+    "id": "s10-es",
+    "rep": 0,
+    "exito": false,
+    "pasos": 4,
+    "usd": 0.002632
+   },
+   {
+    "id": "s10-es",
+    "rep": 1,
+    "exito": true,
+    "pasos": 4,
+    "usd": 0.002733
+   },
+   {
+    "id": "s10-en",
+    "rep": 1,
+    "exito": true,
+    "pasos": 4,
+    "usd": 0.002765
+   },
+   {
+    "id": "s10-es",
+    "rep": 2,
+    "exito": false,
+    "pasos": 4,
+    "usd": 0.00259
+   },
+   {
+    "id": "s10-en",
+    "rep": 2,
+    "exito": true,
+    "pasos": 4,
+    "usd": 0.002748
+   }
+  ]
+ },
+ "totales": {
+  "semana_13_haiku_low": {
+   "exitos": 6,
+   "corridas": 6
+  },
+  "corrida_de_84_con_presupuesto": {
+   "exitos": 1,
+   "corridas": 2
+  },
+  "repeticion_con_presupuesto": {
+   "exitos": 3,
+   "corridas": 6
+  },
+  "control_bucle_de_la_semana_13_sin_presupuesto": {
+   "exitos": 3,
+   "corridas": 6
+  }
+ }
+}
