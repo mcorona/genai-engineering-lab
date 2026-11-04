@@ -392,3 +392,16 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   today with or without the budget (3 of 6 with it, 3 of 6 through the plain week 13 loop, against 6 of 6 in week 13), so the layer is not
   the cause and the model's behavior on that task has moved since week 13. Degrading was also run on the real API (2 tasks, Sonnet agent,
   0 Sonnet calls). Real API spend of the activity: $0.2715, each run authorized first.
+- 2026-11-03: activity 5, guardrails. `guardrails/` puts three deterministic layers around the week 13 loop and the activity 4 budget without
+  editing them: input (the request, the tool results and the tool descriptions), tool (allowlist, argument schema, SQL guard, scopes of the token
+  subject, reusing week 14's tables) and output (personal values, grounded figures, refusal without evidence). Every decision is a
+  `gen_ai.guardrail.decision` span event (5 attributes, `reason` from a fixed list; the schema now has 18 event keys). The criteria (0 obeyed, 2 %
+  false positives per guardrail = 1 task of 84) and a 30-case held-out set were committed before any rule was written. Attacks, real model (38 runs,
+  $0.0636): 0 obeyed, 0 writes, 0 leaks. With a model scripted to obey everything the guardrails stop 44 of 44 dangerous actions (26 run without them,
+  18 more are refused by the legitimate server anyway). False positives on the 84 golden tasks, paid run ($0.2336): nine of ten guardrails never fired
+  on a benign task (one `tool_alcance_token` block, at the limit); `salida_fundamentacion` refused 3 of 84 against a limit of 1, so it was rejected as an
+  enforcing guardrail and ships in audit mode (the decision is an event with `allow` and `cifra_sin_fundamento`, the answer is delivered). Success 70 of 84
+  against 74 of 84 in activity 4's run (3 of the 4 are that refusal; the rest is within run-to-run variation). The shipped audit mode was measured on the
+  $0 replay only (77 to 77, paired). Findings: the rules are in-sample (the held-out set, written by the same author before them, gave 18 of 18 detected and
+  1 of 12 benign blocked in its one run, and 17 of 18 after a later rule fix, not tuned back); sanitizing removes the whole field; definitions are screened once when the
+  tools source is built; Langfuse still shows no span events. Real API spend of the activity: $0.2972, each run authorized first (`resultados/guardrails.md`).

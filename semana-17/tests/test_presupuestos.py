@@ -483,8 +483,10 @@ def test_un_error_de_la_api_en_el_agente_no_se_reintenta_ni_deja_reservas(banco)
 
 def test_los_eventos_son_solo_numeros_y_vocabulario_fijo(banco):
     c = correr(banco, uso_turnos(), Politica(TAREA_TOPE, min_salida=500))
-    claves = E.claves_de_eventos()
-    assert len(claves) == 13 and not (claves & E.claves_permitidas() - {"gen_ai.request.model"})   # events have their own keys
+    claves = set(E.ATRIBUTOS_EVENTO[E.EVENTO_PRESUPUESTO])
+    assert len(claves) == 13                                                                        # the budget event: still these 13 keys
+    assert len(E.claves_de_eventos()) == 18                                                         # plus the 5 of activity 5's guardrail event
+    assert not (E.claves_de_eventos() & E.claves_permitidas() - {"gen_ai.request.model"})          # events have their own keys
     for e in eventos(c):
         assert set(e["attrs"]) <= claves
         for k, v in e["attrs"].items():
