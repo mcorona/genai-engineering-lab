@@ -1,0 +1,311 @@
+{
+ "generado": "2026-11-04T02:01Z",
+ "conjunto": {
+  "activity 7 paid run": 84,
+  "activity 6 approval runs": 14
+ },
+ "costo": {
+  "limite_tarea_usd": 0.0063,
+  "limite_tenant_dia_usd": 0.32,
+  "por_tarea_p50_usd": 0.0025,
+  "por_tarea_p95_usd": 0.0047,
+  "por_tarea_max_usd": 0.0054676,
+  "tareas_sobre_el_limite": 0,
+  "por_tenant_y_dia": [
+   {
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "usd": 0.235641
+   }
+  ],
+  "langfuse_contra_el_bucle_max_diferencia_usd": 0.0,
+  "tareas": [
+   {
+    "traza": "1396d015d025e5dae032153834efaaca",
+    "tarea": "c08-en",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0054676,
+    "costo_langfuse_usd": 0.0054676,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "449aeebc64d28fad4f35e13a8cb6d398",
+    "tarea": "c01-en",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0053411,
+    "costo_langfuse_usd": 0.0053411,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "e5c96eeaa6ba5a953d23bd54e37fff2a",
+    "tarea": "c04-es",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0050584,
+    "costo_langfuse_usd": 0.0050584,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "85395b5d711b0820c7fabe7ddec0e54a",
+    "tarea": "c02-es",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0049248,
+    "costo_langfuse_usd": 0.0049248,
+    "estado": "limite_alcanzado",
+    "motivo": "presupuesto_tarea",
+    "segmentos": 1
+   },
+   {
+    "traza": "edb46086d84ca5d5e0448723a6324cc8",
+    "tarea": "r07-es",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0048915,
+    "costo_langfuse_usd": 0.0048915,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "dc1446a2db78218cf19b7bba23878e8b",
+    "tarea": "c03-es",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0046659,
+    "costo_langfuse_usd": 0.0046659,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "72355ac15a7c4ed440dd496f4720228a",
+    "tarea": "c04-en",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0045829,
+    "costo_langfuse_usd": 0.0045829,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "310ace021400ae732e8caee4522b4284",
+    "tarea": "c02-en",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0044086,
+    "costo_langfuse_usd": 0.0044086,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "851b287fe382bf5edaf9abf9f229a339",
+    "tarea": "c01-es",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0043903,
+    "costo_langfuse_usd": 0.0043903,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   },
+   {
+    "traza": "f55b76e464cf81c3c15c997668b1ed03",
+    "tarea": "r01-es",
+    "tenant": "lab",
+    "dia": "2026-11-04",
+    "costo_usd": 0.0043579,
+    "costo_langfuse_usd": 0.0043579,
+    "estado": "respondida",
+    "motivo": "responder",
+    "segmentos": 1
+   }
+  ]
+ },
+ "latencia": {
+  "por_tipo_de_paso": {
+   "MCP server": {
+    "n": 30,
+    "p50_s": 0.0,
+    "p95_s": 0.001
+   },
+   "SQL": {
+    "n": 30,
+    "p50_s": 0.003,
+    "p95_s": 0.004
+   },
+   "approval decision": {
+    "n": 20,
+    "p50_s": 0.007,
+    "p95_s": 0.009
+   },
+   "model": {
+    "n": 348,
+    "p50_s": 1.473,
+    "p95_s": 4.526
+   },
+   "other": {
+    "n": 60,
+    "p50_s": 0.007,
+    "p95_s": 0.009
+   },
+   "tool (client)": {
+    "n": 415,
+    "p50_s": 0.003,
+    "p95_s": 0.014
+   },
+   "whole run (agent)": {
+    "n": 112,
+    "p50_s": 6.272,
+    "p95_s": 12.154
+   }
+  },
+  "por_herramienta": {
+   "buscar_regla_negocio": {
+    "n": 121,
+    "p50_s": 0.001,
+    "p95_s": 0.002
+   },
+   "describir_esquema": {
+    "n": 81,
+    "p50_s": 0.0,
+    "p95_s": 0.001
+   },
+   "ejecutar_sql": {
+    "n": 110,
+    "p50_s": 0.007,
+    "p95_s": 0.018
+   },
+   "legado__ejecutar_sql": {
+    "n": 16,
+    "p50_s": 0.01,
+    "p95_s": 0.012
+   },
+   "legado__proponer_orden_compra": {
+    "n": 14,
+    "p50_s": 0.009,
+    "p95_s": 0.01
+   },
+   "muestrear_valores": {
+    "n": 55,
+    "p50_s": 0.007,
+    "p95_s": 0.01
+   },
+   "proponer_orden_compra": {
+    "n": 14,
+    "p50_s": 0.003,
+    "p95_s": 0.003
+   },
+   "validar_sql": {
+    "n": 4,
+    "p50_s": 0.007,
+    "p95_s": 0.009
+   }
+  }
+ },
+ "tokens": {
+  "input": 1730173,
+  "output": 132148,
+  "total": 1862321
+ },
+ "errores_de_herramienta": {
+  "muestrear_valores": {
+   "errores": 2,
+   "recuperados": 2
+  }
+ },
+ "guardrails": {
+  "bloqueos": {
+   "input_resultado_inyeccion: sanitize (dirigido_a_la_ia)": 3,
+   "tool_allowlist: block (herramienta_desconocida)": 2
+  },
+  "observaciones": {
+   "salida_fundamentacion (cifra_sin_fundamento)": 3
+  }
+ },
+ "presupuesto": {
+  "stop (task)": 1,
+  "stop (session)": 2
+ },
+ "hitl": {
+  "solicitudes": 14,
+  "niveles": {
+   "gerente": 14
+  },
+  "monto_mxn_p50": 56462,
+  "decisiones": {
+   "approve: applied (ok)": 8,
+   "reject: applied (ok)": 2,
+   "expire: refused (vencida)": 2,
+   "approve: refused (mismo_usuario)": 2,
+   "approve: refused (sin_nivel)": 2,
+   "reject: refused (ya_decidida)": 2,
+   "expire: applied (vencida)": 2
+  },
+  "espera_ms_p50": 480000,
+  "espera_ms_max": 3660000,
+  "reanudaciones": {
+   "aprobada": 8,
+   "rechazada": 2,
+   "expirada": 4
+  }
+ },
+ "scores": {
+  "trayectoria.ok": {
+   "activity 7 paid run": {
+    "n": 84,
+    "media": 0.9167
+   },
+   "activity 6 approval runs": {
+    "n": 0,
+    "media": null
+   }
+  },
+  "trayectoria.puntaje": {
+   "activity 7 paid run": {
+    "n": 84,
+    "media": 0.954
+   },
+   "activity 6 approval runs": {
+    "n": 0,
+    "media": null
+   }
+  },
+  "respuesta.ok": {
+   "activity 7 paid run": {
+    "n": 84,
+    "media": 0.881
+   },
+   "activity 6 approval runs": {
+    "n": 0,
+    "media": null
+   }
+  }
+ },
+ "scores_en_el_tiempo": [
+  {
+   "corrida": "week 13 turns replayed (activity 7, $0)",
+   "cuando": "2026-11-04T01:47:01.566Z",
+   "trayectoria_ok": 0.9167,
+   "respuesta_ok": 0.9167,
+   "n": 84
+  },
+  {
+   "corrida": "paid run (activity 7)",
+   "cuando": "2026-11-04T01:50:18.044Z",
+   "trayectoria_ok": 0.9167,
+   "respuesta_ok": 0.881,
+   "n": 84
+  }
+ ]
+}
