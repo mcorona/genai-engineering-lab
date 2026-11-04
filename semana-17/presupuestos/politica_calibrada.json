@@ -1,0 +1,24 @@
+{
+ "_doc": "Written by presupuestos/calibracion.py from the 252 runs of the week 13 Haiku `low` evaluation. Do not edit by hand.",
+ "modelo": "claude-haiku-5-5",
+ "corrida_base": "eval_haiku_low",
+ "nivel_de_la_tarea": "p99",
+ "tarea": {
+  "usd": 0.0063,
+  "tokens": 46000
+ },
+ "sesion": {
+  "usd": 0.039,
+  "tokens": 300000,
+  "tareas": 10
+ },
+ "tenant_dia": {
+  "usd": 0.32,
+  "tokens": 2400000,
+  "tareas": 100
+ },
+ "min_salida": 1300,
+ "max_salida": 4000,
+ "chars_por_token": 1.5,
+ "margen_entrada": 1.1
+}

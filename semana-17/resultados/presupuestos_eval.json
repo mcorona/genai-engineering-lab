@@ -1,0 +1,167 @@
+{
+ "fecha": "2026-11-03",
+ "modo": "modelo real",
+ "modelo": "claude-haiku-5-5",
+ "esfuerzo": "low",
+ "tareas": 84,
+ "paralelo": 4,
+ "segundos": 163.6,
+ "politica": {
+  "_doc": "Written by presupuestos/calibracion.py from the 252 runs of the week 13 Haiku `low` evaluation. Do not edit by hand.",
+  "modelo": "claude-haiku-5-5",
+  "corrida_base": "eval_haiku_low",
+  "nivel_de_la_tarea": "p99",
+  "tarea": {
+   "usd": 0.0063,
+   "tokens": 46000
+  },
+  "sesion": {
+   "usd": 0.039,
+   "tokens": 300000,
+   "tareas": 10
+  },
+  "tenant_dia": {
+   "usd": 0.32,
+   "tokens": 2400000,
+   "tareas": 100
+  },
+  "min_salida": 1300,
+  "max_salida": 4000,
+  "chars_por_token": 1.5,
+  "margen_entrada": 1.1
+ },
+ "resultado": {
+  "exito": 0.881,
+  "exitos": 74,
+  "respuestas_parciales": 2,
+  "motivos_de_parada": {
+   "presupuesto_sesion": 1,
+   "presupuesto_tarea": 1
+  },
+  "de_ellas_esperaban_responder": 2,
+  "estados": {
+   "requiere_aclaracion": 4,
+   "respondida": 70,
+   "limite_alcanzado": 2,
+   "abstenida": 8
+  },
+  "por_tipo": {
+   "ambigua": {
+    "tareas": 8,
+    "exito": 0.5,
+    "parciales": 0
+   },
+   "compuesta": {
+    "tareas": 16,
+    "exito": 0.812,
+    "parciales": 1
+   },
+   "regla": {
+    "tareas": 24,
+    "exito": 0.958,
+    "parciales": 1
+   },
+   "simple": {
+    "tareas": 20,
+    "exito": 0.9,
+    "parciales": 0
+   },
+   "sin_respuesta": {
+    "tareas": 8,
+    "exito": 1.0,
+    "parciales": 0
+   },
+   "valores": {
+    "tareas": 8,
+    "exito": 1.0,
+    "parciales": 0
+   }
+  }
+ },
+ "costo": {
+  "total_usd": 0.234407,
+  "por_tarea": {
+   "media": 0.002791,
+   "p50": 0.002681,
+   "p95": 0.004795,
+   "max": 0.005548
+  },
+  "estimado_antes_usd": 0.2399,
+  "maximo_posible_usd": 0.32
+ },
+ "garantias": {
+  "ninguna_tarea_pasa_de_su_tope": true,
+  "gasto_maximo_de_una_tarea_usd": 0.0055483,
+  "tokens_maximos_de_una_tarea": 42915,
+  "ninguna_sesion_pasa_de_su_tope": true,
+  "gasto_maximo_de_una_sesion_usd": 0.0372793,
+  "el_dia_no_pasa_de_su_tope": true,
+  "subestimaciones_de_la_entrada": 0,
+  "llamadas_mas_caras_que_su_estimado": 0,
+  "gasto_del_bucle_igual_al_del_presupuesto": true,
+  "un_evento_por_decision": true,
+  "omisiones_del_esquema": {},
+  "contabilidad": {
+   "dia_del_tenant_en_el_almacen": 0.2344071,
+   "suma_de_las_tareas": 0.2344071,
+   "sesiones_en_el_almacen": {
+    "sesion-00": 0.0252245,
+    "sesion-01": 0.0322174,
+    "sesion-02": 0.0372793,
+    "sesion-03": 0.0187138,
+    "sesion-04": 0.0232087,
+    "sesion-05": 0.0337652,
+    "sesion-06": 0.0350217,
+    "sesion-07": 0.0237466,
+    "sesion-08": 0.0052299
+   },
+   "reservas_vivas": 0
+  },
+  "la_contabilidad_coincide": true
+ },
+ "base_semana_13": {
+  "repeticion_0": {
+   "corridas": 84,
+   "exito": 0.9286,
+   "usd": {
+    "media": 0.002855,
+    "p50": 0.00259,
+    "p95": 0.004778,
+    "max": 0.007772,
+    "total": 0.2399
+   }
+  },
+  "k3": {
+   "corridas": 252,
+   "exito": 0.9206,
+   "usd": {
+    "media": 0.002856,
+    "p50": 0.002593,
+    "p95": 0.005237,
+    "max": 0.007772,
+    "total": 0.7196
+   }
+  }
+ },
+ "tareas_cortadas": [
+  {
+   "id": "c08-es",
+   "tipo": "compuesta",
+   "esperado": "respondida",
+   "motivo": "presupuesto_sesion",
+   "pasos": 3,
+   "tokens": 19811,
+   "usd": 0.0025955
+  },
+  {
+   "id": "r07-es",
+   "tipo": "regla",
+   "esperado": "respondida",
+   "motivo": "presupuesto_tarea",
+   "pasos": 4,
+   "tokens": 32457,
+   "usd": 0.0042145
+  }
+ ],
+ "ok": true
+}

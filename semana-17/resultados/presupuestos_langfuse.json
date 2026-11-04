@@ -1,0 +1,179 @@
+{
+ "fecha": "2026-11-03",
+ "plataforma": "macOS-26.7.2",
+ "modelo": "guionado (sin API, $0)",
+ "escenarios": {
+  "permite": {
+   "estado_agente": "respondida",
+   "motivo": "responder",
+   "spans": 15,
+   "observaciones_en_langfuse": 15,
+   "decisiones": [
+    "allow",
+    "allow",
+    "allow"
+   ],
+   "alcances": [
+    "task"
+   ],
+   "motivos": [
+    "ok",
+    "ok",
+    "ok"
+   ],
+   "eventos_en_el_archivo_del_collector": 3,
+   "eventos_del_archivo_iguales_a_los_del_laboratorio": true,
+   "claves_por_evento": [
+    12
+   ],
+   "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
+   "tipos_correctos": true,
+   "resultado_del_agente_en_langfuse_igual": true,
+   "modelos_de_las_generaciones_en_langfuse_iguales": true,
+   "modelos": [
+    "claude-haiku-5-5",
+    "claude-haiku-5-5",
+    "claude-haiku-5-5"
+   ],
+   "costo_en_langfuse_igual_al_del_agente": true,
+   "ok": true
+  },
+  "degrada": {
+   "estado_agente": "respondida",
+   "motivo": "responder",
+   "spans": 15,
+   "observaciones_en_langfuse": 15,
+   "decisiones": [
+    "degrade",
+    "allow",
+    "allow"
+   ],
+   "alcances": [
+    "task"
+   ],
+   "motivos": [
+    "degradado",
+    "ok",
+    "ok"
+   ],
+   "eventos_en_el_archivo_del_collector": 3,
+   "eventos_del_archivo_iguales_a_los_del_laboratorio": true,
+   "claves_por_evento": [
+    12,
+    13
+   ],
+   "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
+   "tipos_correctos": true,
+   "resultado_del_agente_en_langfuse_igual": true,
+   "modelos_de_las_generaciones_en_langfuse_iguales": true,
+   "modelos": [
+    "claude-haiku-5-5",
+    "claude-haiku-5-5",
+    "claude-haiku-5-5"
+   ],
+   "costo_en_langfuse_igual_al_del_agente": true,
+   "ok": true
+  },
+  "para_tarea": {
+   "estado_agente": "limite_alcanzado",
+   "motivo": "presupuesto_tarea",
+   "spans": 7,
+   "observaciones_en_langfuse": 7,
+   "decisiones": [
+    "allow",
+    "stop"
+   ],
+   "alcances": [
+    "task"
+   ],
+   "motivos": [
+    "ok",
+    "usd"
+   ],
+   "eventos_en_el_archivo_del_collector": 2,
+   "eventos_del_archivo_iguales_a_los_del_laboratorio": true,
+   "claves_por_evento": [
+    12
+   ],
+   "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
+   "tipos_correctos": true,
+   "resultado_del_agente_en_langfuse_igual": true,
+   "modelos_de_las_generaciones_en_langfuse_iguales": true,
+   "modelos": [
+    "claude-haiku-5-5"
+   ],
+   "costo_en_langfuse_igual_al_del_agente": true,
+   "ok": true
+  },
+  "para_sesion_1": {
+   "estado_agente": "limite_alcanzado",
+   "motivo": "presupuesto_sesion",
+   "spans": 7,
+   "observaciones_en_langfuse": 7,
+   "decisiones": [
+    "allow",
+    "stop"
+   ],
+   "alcances": [
+    "session"
+   ],
+   "motivos": [
+    "ok",
+    "usd"
+   ],
+   "eventos_en_el_archivo_del_collector": 2,
+   "eventos_del_archivo_iguales_a_los_del_laboratorio": true,
+   "claves_por_evento": [
+    12
+   ],
+   "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
+   "tipos_correctos": true,
+   "resultado_del_agente_en_langfuse_igual": true,
+   "modelos_de_las_generaciones_en_langfuse_iguales": true,
+   "modelos": [
+    "claude-haiku-5-5"
+   ],
+   "costo_en_langfuse_igual_al_del_agente": true,
+   "ok": true
+  },
+  "para_sesion_2": {
+   "estado_agente": "limite_alcanzado",
+   "motivo": "presupuesto_sesion",
+   "spans": 1,
+   "observaciones_en_langfuse": 1,
+   "decisiones": [
+    "stop"
+   ],
+   "alcances": [
+    "session"
+   ],
+   "motivos": [
+    "usd"
+   ],
+   "eventos_en_el_archivo_del_collector": 1,
+   "eventos_del_archivo_iguales_a_los_del_laboratorio": true,
+   "claves_por_evento": [
+    12
+   ],
+   "eventos_en_langfuse": false,
+   "observaciones_de_tipo_EVENT_en_langfuse": 0,
+   "tipos_correctos": true,
+   "resultado_del_agente_en_langfuse_igual": true,
+   "modelos_de_las_generaciones_en_langfuse_iguales": true,
+   "modelos": [],
+   "costo_en_langfuse_igual_al_del_agente": true,
+   "ok": true
+  }
+ },
+ "canarios": {
+  "revisados": 2,
+  "fugas": []
+ },
+ "trazas_revisadas": 5,
+ "los_eventos_llegan_a_langfuse": false,
+ "ok": true
+}
