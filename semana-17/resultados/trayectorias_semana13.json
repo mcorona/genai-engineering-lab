@@ -1,0 +1,130 @@
+{
+ "referencias": "trayectorias/referencias.jsonl (frozen, manifiesto.json)",
+ "calibracion": "eval_haiku_medium",
+ "series": {
+  "eval_haiku_medium": {
+   "corridas": 252,
+   "trayectoria_ok": 0.9008,
+   "puntaje_medio": 0.9476,
+   "pasa_por_evaluador": {
+    "recall_herramientas": 1.0,
+    "precision_herramientas": 0.9524,
+    "orden": 0.9683,
+    "llamadas_redundantes": 1.0,
+    "recuperacion": 1.0,
+    "pasos": 0.9603,
+    "herramientas_prohibidas": 1.0
+   },
+   "fallas_por_evaluador": {
+    "precision_herramientas": 12,
+    "pasos": 10,
+    "orden": 8
+   },
+   "ok_por_tipo": {
+    "ambigua": 0.5,
+    "compuesta": 1.0,
+    "regla": 0.9444,
+    "simple": 0.9833,
+    "sin_respuesta": 1.0,
+    "valores": 0.6667
+   },
+   "cruce_con_la_respuesta": {
+    "trayectoria_falla__respuesta_falla": 12,
+    "trayectoria_falla__respuesta_ok": 13,
+    "trayectoria_ok__respuesta_falla": 10,
+    "trayectoria_ok__respuesta_ok": 217
+   }
+  },
+  "eval_haiku_low": {
+   "corridas": 252,
+   "trayectoria_ok": 0.9206,
+   "puntaje_medio": 0.9553,
+   "pasa_por_evaluador": {
+    "recall_herramientas": 1.0,
+    "precision_herramientas": 0.9524,
+    "orden": 0.9802,
+    "llamadas_redundantes": 1.0,
+    "recuperacion": 1.0,
+    "pasos": 0.9683,
+    "herramientas_prohibidas": 1.0
+   },
+   "fallas_por_evaluador": {
+    "precision_herramientas": 12,
+    "pasos": 8,
+    "orden": 5
+   },
+   "ok_por_tipo": {
+    "ambigua": 0.5,
+    "compuesta": 1.0,
+    "regla": 0.9722,
+    "simple": 0.9833,
+    "sin_respuesta": 1.0,
+    "valores": 0.7917
+   },
+   "cruce_con_la_respuesta": {
+    "trayectoria_falla__respuesta_falla": 12,
+    "trayectoria_falla__respuesta_ok": 8,
+    "trayectoria_ok__respuesta_falla": 8,
+    "trayectoria_ok__respuesta_ok": 224
+   }
+  },
+  "eval_sdk_low": {
+   "corridas": 252,
+   "trayectoria_ok": 0.3175,
+   "puntaje_medio": 0.918,
+   "pasa_por_evaluador": {
+    "recall_herramientas": 0.9881,
+    "precision_herramientas": 0.9524,
+    "orden": 1.0,
+    "llamadas_redundantes": 1.0,
+    "recuperacion": 1.0,
+    "pasos": 0.3175,
+    "herramientas_prohibidas": 1.0
+   },
+   "fallas_por_evaluador": {
+    "pasos": 172,
+    "precision_herramientas": 12,
+    "recall_herramientas": 3
+   },
+   "ok_por_tipo": {
+    "ambigua": 0.375,
+    "compuesta": 0.2708,
+    "regla": 0.4306,
+    "simple": 0.3667,
+    "sin_respuesta": 0.2083,
+    "valores": 0.0
+   },
+   "cruce_con_la_respuesta": {
+    "trayectoria_falla__respuesta_falla": 24,
+    "trayectoria_falla__respuesta_ok": 148,
+    "trayectoria_ok__respuesta_falla": 4,
+    "trayectoria_ok__respuesta_ok": 76
+   }
+  },
+  "eval_sonnet_low_sub": {
+   "corridas": 30,
+   "trayectoria_ok": 0.9333,
+   "puntaje_medio": 0.9675,
+   "pasa_por_evaluador": {
+    "recall_herramientas": 1.0,
+    "precision_herramientas": 0.9333,
+    "orden": 1.0,
+    "llamadas_redundantes": 1.0,
+    "recuperacion": 1.0,
+    "pasos": 1.0,
+    "herramientas_prohibidas": 1.0
+   },
+   "fallas_por_evaluador": {
+    "precision_herramientas": 2
+   },
+   "ok_por_tipo": {
+    "ambigua": 0.9167,
+    "compuesta": 1.0
+   },
+   "cruce_con_la_respuesta": {
+    "trayectoria_falla__respuesta_ok": 2,
+    "trayectoria_ok__respuesta_ok": 28
+   }
+  }
+ }
+}
