@@ -3,6 +3,7 @@
 **English** · [Español](README.es.md)
 
 [![Client plugin (week 16)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-16.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-16.yml)
+[![Agent reliability (week 17)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-17.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-17.yml)
 [![Agent frameworks (week 15)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-15.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-15.yml)
 [![MCP server (week 14)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-14.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-14.yml)
 [![Agent eval (week 13)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-13.yml/badge.svg)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-13.yml)
@@ -46,6 +47,7 @@ Author: **Manuel Corona**, independent AI architect and consultant. The lab span
 | **Remote MCP server with OAuth** | MCP 2026-07-28 over Streamable HTTP; Keycloak as authorization server (PKCE, RFC 8707 audience); least privilege in three layers (scopes, filtered catalogs, a PostgreSQL role per profile). 13/13 threats covered. Tool poisoning: **38/38** with client defenses (without them, shadowing captured 100% of queries). Agent over HTTP + OAuth: same success and cost as in-process, +7 ms per tool call, 0/8 leaks for roles without the scope | [`semana-14`](semana-14/README.md) |
 | **Same agent in four frameworks** | LangGraph and Strands score **0.900 / 0.900** on 40 tasks with identical failures and **38/38** poisoning cases each, through an MCP gateway; OpenAI Agents SDK and Google ADK 0.950 on 20. The framework does not change quality; it changes cost (ADK +53% from full MCP results), protocols, observability and hosting. Multi-agent over A2A (Keycloak audience per agent) ties the single agent at 1.7× cost and 3× latency. On Bedrock AgentCore: same 1.000, cold start 5.7 s. A [client decision matrix](semana-15/resultados/matriz_decision.md) links every score to its evidence | [`semana-15`](semana-15/README.md) |
 | **Client plugin with its own eval** | [`legacy-schema-audit`](semana-16/legacy-schema-audit/README.md) 1.0.0, installable from this repo's marketplace: a read-only audit of a legacy schema (dictionary, ER diagram, risks with SQL evidence, executive summary). With Sonnet: PK/FK/PII 1.00 and **12 of 13** seeded risks for ~$1; behavior suite **Δ +0.57** over no plugin; security **14/14** (injection, data changes, credentials, hook bypass, tool poisoning). Browser agent and computer use spikes on a legacy screen: 10/10 fields. CI runs a mini eval with calibrated thresholds on every PR (~$0.11) | [`semana-16`](semana-16/README.md) |
+| **Agent reliability in production** | One task is one OpenTelemetry GenAI trace (agent, model, MCP client and server, SQL) in a self-hosted Langfuse, through a Collector that redacts by **allowlist** (0 of 9 canaries with content capture off and on). Budgets per task, session and tenant-day (**0 caps crossed** in 84 paid tasks); input, tool and output guardrails (**0 obeyed** in 38 attacks, false positives measured on 84 tasks); human approval of purchase orders with an approver level from Keycloak (**0 orders without approval**); trajectory eval read from the spans (91.7 %) with scores in Langfuse; a dashboard as code and a runbook. CI runs a mini eval with calibrated thresholds on every PR (~$0.08) | [`semana-17`](semana-17/README.md) |
 
 ## LegacyBridge: the reference system
 
@@ -80,7 +82,7 @@ Folders are named `semana-NN` (week NN). Each week has its own `README.md` with 
 | LLM fundamentals | [1](semana-01/README.md) · [2](semana-02/README.md) · [3](semana-03/README.md) · [4](semana-04/README.md) | Mini-GPT in MLX; token cost and sampling variability by language; a documented *don't fine-tune* decision (LoRA vs prompt); local quantized inference vs API (the API is about 13× faster at p50) |
 | Prompts and evals | [5](semana-05/README.md) · [6](semana-06/README.md) · [7](semana-07/README.md) | Versioned prompt library; regression evals as a required PR check; bilingual NLQ measured by execution |
 | RAG and data | [8](semana-08/README.md) · [9](semana-09/README.md) · [10](semana-10/README.md) · [11](semana-11/README.md) · [12](semana-12/README.md) | Chunking, embeddings and vector DBs; advanced RAG and multi-tenancy; legacy schema, PDFs, OCR and images; RAG evaluation; managed RAG on AWS and Google Cloud |
-| Agents and MCP | [13](semana-13/README.md) · [14](semana-14/README.md) · [15](semana-15/README.md) · [16](semana-16/README.md) | Agentic patterns and the Claude Agent SDK; remote MCP server with OAuth, least privilege and tool-poisoning tests; the same agent in LangGraph, Strands, OpenAI Agents SDK and Google ADK, multi-agent with A2A, Bedrock AgentCore, and a client decision matrix; a Claude Code plugin for clients with its own eval, browser and computer use spikes |
+| Agents and MCP | [13](semana-13/README.md) · [14](semana-14/README.md) · [15](semana-15/README.md) · [16](semana-16/README.md) · [17](semana-17/README.md) | Agentic patterns and the Claude Agent SDK; remote MCP server with OAuth, least privilege and tool-poisoning tests; the same agent in LangGraph, Strands, OpenAI Agents SDK and Google ADK, multi-agent with A2A, Bedrock AgentCore, and a client decision matrix; a Claude Code plugin for clients with its own eval, browser and computer use spikes; reliability in production: tracing, budgets, guardrails, human approval, trajectory eval and a trace dashboard |
 
 ## Quickstart
 
@@ -111,7 +113,7 @@ Evals that call a model need `ANTHROPIC_API_KEY`. Each one prints its estimated 
 | 1. LLM fundamentals | 1–4 | Complete |
 | 2. Prompts, evals and NLQ | 5–7 | Complete |
 | 3. RAG and data | 8–12 | Complete, with all 11 exit criteria verified |
-| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 16 complete (exit criteria 13, 14, 15 and 16 verified) |
+| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 17 complete (exit criteria 13, 14, 15, 16 and 17 verified) |
 
 The detailed exit criteria for each phase, with the PR that verified each one, are kept in [README.es.md](README.es.md).
 
