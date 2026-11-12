@@ -120,7 +120,7 @@ def sesion(perfil: str) -> dict:
     arn = datos.get("Arn", "")
     rol = arn.split("/")[-2] if arn.count("/") >= 2 else arn.split("/")[-1]
     return {"perfil": perfil, "sesion": True, "cuenta": "<account>", "tipo": arn.split(":")[5].split("/")[0] if ":" in arn else None,
-            "rol": rol, "region": REGION, "fecha": FECHA}
+            "identidad": rol, "region": REGION, "fecha": FECHA}
 
 
 def main() -> int:
