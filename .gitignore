@@ -51,3 +51,9 @@ semana-17/observabilidad/datos/
 # Semana 18: los casos de pizarra sellados (solo sus huellas se versionan, en sellos.json)
 semana-18/pizarra/.sellados/
 semana-18/**/.secretos.env
+
+# Semana 19: stacks de CDK y estado de Terraform (locales, se regeneran con cdk synth y terraform plan)
+cdk.out/
+.terraform/
+*.tfstate*
+semana-19/**/.secretos.env

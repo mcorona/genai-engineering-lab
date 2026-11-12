@@ -114,8 +114,24 @@ Evals that call a model need `ANTHROPIC_API_KEY`. Each one prints its estimated 
 | 2. Prompts, evals and NLQ | 5–7 | Complete |
 | 3. RAG and data | 8–12 | Complete, with all 11 exit criteria verified |
 | 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 17 complete (exit criteria 13, 14, 15, 16 and 17 verified) |
+| 5. LLMOps and multicloud production | 19–24 | In progress: week 19 preparation and baseline; no exit criterion verified yet |
 
 The detailed exit criteria for each phase, with the PR that verified each one, are kept in [README.es.md](README.es.md).
+
+### Phase 5: LLMOps and multicloud production
+
+LegacyBridge goes from demo to production in the client's cloud, with IaC, security, monitoring and controlled costs. The phase closes with the AWS Certified Generative AI Developer – Professional (AIP-C01) exam.
+
+| Criterion | Week | Status |
+|---|---|---|
+| 19. LegacyBridge deployed on AWS from IaC: reference architecture diagram, least-privilege IAM, KMS at rest, private networking through VPC endpoints, a Bedrock Guardrail and versioned prompts, the golden mini eval passing against the deployed endpoint, measured cost per query, and a verified teardown | 19 | Pending (week 19 preparation and baseline in progress) |
+| 20. Cost-per-query dashboard and budget alarm, with prompt caching, batch and routing measured against the week 19 baseline | 20 | Pending |
+| 21. Red-teaming report for the deployed API with findings and mitigations (OWASP Top 10 for LLM) | 21 | Pending |
+| 22. AWS ↔ Azure ↔ GCP service matrix and a minimal deployment in a second cloud | 22 | Pending |
+
+Two cross-cutting criteria apply every week:
+- **Cost:** the error of the monthly quote against the real cost is measured, within ±20%. Pending: the first measurement comes with the week 19 deployment.
+- **Security:** no unsuppressed scanner finding, and no public resource except the API. Pending: the first check comes with the week 19 IaC.
 
 ## Security and credentials
 

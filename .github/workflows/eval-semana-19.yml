@@ -1,0 +1,45 @@
+name: eval-semana-19
+
+# Semana 19 (LLMOps y producción en AWS, preparación y línea base). Sin AWS ($0): el verificador de entorno en modo CI
+# (datos de la semana 13, pines instalados, rutas de CI) y las pruebas de semana-19/tests. Ningún job llama a AWS ni a un
+# modelo; los despliegues se hacen desde el Mac, con el perfil admin. Sin pruebas omitidas.
+on:
+  pull_request:
+    paths:
+      - "semana-19/**"
+      - "!semana-19/**/*.md"          # documentación y resultados: no corren la CI
+      - "!semana-19/resultados/**"
+      - "semana-13/golden/**"         # la verificación de datos lee los golden y su hash
+      - "semana-07/ci/**"
+      - "semana-10/legado/**"
+      - "semana-13/seguridad/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/eval-semana-19.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-semana-19-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sin-aws:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Dependencias (los pines del grupo semana19 de pyproject.toml)
+        run: |
+          pip install "boto3==1.43.122" "botocore==1.43.122" "moto==5.2.5" "pytest==9.2.0"
+      - name: Preparación en modo CI (sin AWS)
+        run: python semana-19/preparar/verificar_entorno.py --ci
+      - name: Pruebas sin AWS
+        run: |
+          set -o pipefail
+          python -m pytest -q semana-19/tests -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest.txt"
+          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
