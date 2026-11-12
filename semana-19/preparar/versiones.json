@@ -1,0 +1,49 @@
+{
+  "consultado": "2026-11-12",
+  "criterio": "Candidatas: la versión más nueva publicada al menos dos semanas antes de la consulta (corte 2026-10-29), salvo donde se indica. La actividad 1 verifica cada una contra el registro y fija los pines definitivos. Ninguna se toma por 'latest'.",
+  "python": {
+    "boto3": "1.43.122",
+    "botocore": "1.43.122",
+    "moto": "5.2.5",
+    "pytest": "9.2.0"
+  },
+  "python_candidatas_sin_fijar": {
+    "aws-cdk-lib": {"candidata": "2.275.0", "ultima_publicada": "2.276.0", "fuente": "PyPI aws-cdk-lib / npm aws-cdk-lib", "nota": "la versión de la librería CDK en Python; se fija en la actividad 1"},
+    "constructs": {"candidata": "10.8.1", "ultima_publicada": "10.8.1", "fuente": "PyPI constructs"},
+    "cdk-nag": {"candidata": "3.0.2", "ultima_publicada": "3.0.2", "fuente": "PyPI cdk-nag"}
+  },
+  "npm": {
+    "aws-cdk": {"candidata": "2.1146.1", "ultima_publicada": "2.1148.1", "fuente": "npm aws-cdk (CLI)"},
+    "aws-cdk-lib": {"candidata": "2.275.0", "ultima_publicada": "2.276.0", "fuente": "npm aws-cdk-lib"},
+    "constructs": {"candidata": "10.8.1", "ultima_publicada": "10.8.1", "fuente": "npm constructs"},
+    "cdk-nag": {"candidata": "3.0.2", "ultima_publicada": "3.0.2", "fuente": "npm cdk-nag"}
+  },
+  "alpha_cdk_bedrock_agentcore": {
+    "@aws-cdk/aws-bedrock-agentcore-alpha": {"ultima_publicada": "2.276.0-alpha.0", "fuente": "npm; se revisa en la actividad 1 si existe L2 de AgentCore y su madurez"},
+    "@aws-cdk/aws-bedrock-alpha": {"ultima_publicada": "2.276.0-alpha.0", "fuente": "npm; alpha, se revisa en la actividad 1"}
+  },
+  "node": {
+    "lts_publicada": "v26.13.1",
+    "fecha_publicacion": "2026-11-10",
+    "instalada_en_el_mac": "v24.19.0",
+    "fuente": "nodejs.org/dist/index.json"
+  },
+  "terraform_provider_aws": {
+    "ultima_publicada": "6.73.0",
+    "fecha_publicacion": "2026-11-11",
+    "fuente": "registry.terraform.io/v1/providers/hashicorp/aws"
+  },
+  "checkov": {
+    "ultima_publicada": "3.4.4",
+    "fecha_publicacion": "2026-11-11",
+    "fuente": "github.com/bridgecrewio/checkov releases"
+  },
+  "aws_cli": {
+    "instalada_en_el_mac": "2.37.4",
+    "fuente": "aws --version (verificar_entorno.py)"
+  },
+  "uv": {
+    "instalada_en_el_mac": "0.13.1",
+    "nota": "uv 0.13.1 escribe uv.lock revision 5 (el lock anterior era revision 3)"
+  }
+}

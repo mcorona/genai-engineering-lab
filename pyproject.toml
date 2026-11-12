@@ -36,3 +36,10 @@ semana17 = [
     "opentelemetry-util-genai==1.3b0",
     "langfuse==5.1.0",
 ]
+# Week 19: AWS reference architecture (preparation: boto3, moto, pytest; CDK and AgentCore pins are set in activity 1)
+semana19 = [
+    "boto3==1.43.122",
+    "botocore==1.43.122",
+    "moto==5.2.5",
+    "pytest==9.2.0",
+]
