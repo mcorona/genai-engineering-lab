@@ -261,7 +261,7 @@ def contar(valor) -> int:
 # Leftovers that are allowed after a teardown, by category. The bootstrap and the control stack are allowed only
 # when they are kept (--con-control). A pending-deletion key is allowed with its date (free while pending: D, see
 # resultados/base.md). The read-only role of activity 1 is registered as an exception (linea_base.md section 9).
-def permitidos(con_control: bool) -> dict:
+def permitidos(con_control: bool, con_base: bool = False) -> dict:
     base = {
         "roles_iam": {"semana19-lectura"},
         "llaves_pendientes_borrado": None,  # any name; the date is in the name
@@ -276,10 +276,19 @@ def permitidos(con_control: bool) -> dict:
             # With the control kept, the tag search also finds the control's own resources: reported, not judged.
             "etiquetados_tagging_api": None,
         })
+    if con_base:
+        # Before the teardown only: the base stack is up on purpose, so its resources are listed as expected.
+        # After the teardown this flag is not passed, and any leftover is reported as unexpected.
+        base.update({
+            "stacks_cloudformation": {"semana19-control", "semana19-base", "semana19-cdktoolkit"},
+            "roles_iam": None, "lambdas": None, "vpcs": None, "subredes": None, "security_groups": None,
+            "endpoints_vpc": None, "endpoints_por_vpc": None, "log_groups": None, "flow_logs": None,
+            "llaves_kms_por_alias": None,
+        })
     return base
 
 
-def inventario(sesion, region: str, con_control: bool = False) -> dict:
+def inventario(sesion, region: str, con_control: bool = False, con_base: bool = False) -> dict:
     resultado, no_medido = {}, []
     for nombre, fn in categorias(sesion, region).items():
         try:
@@ -287,7 +296,7 @@ def inventario(sesion, region: str, con_control: bool = False) -> dict:
             resultado[nombre] = {"conteo": contar(valor), "nombres": valor}
         except Exception as exc:  # noqa: BLE001 - recorded, never counted as zero
             no_medido.append({"categoria": nombre, "error": type(exc).__name__, "detalle": str(exc)[:120]})
-    reglas = permitidos(con_control)
+    reglas = permitidos(con_control, con_base)
     esperados, inesperados = {}, {}
     for cat, datos in resultado.items():
         if not datos["nombres"]:
@@ -317,10 +326,11 @@ def main() -> int:
     ap.add_argument("--perfil", required=True, help="perfil de solo lectura (operador)")
     ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--con-control", action="store_true", help="el stack de control se queda (no fue --todo)")
+    ap.add_argument("--con-base", action="store_true", help="antes del teardown: el stack base está arriba a propósito")
     a = ap.parse_args()
     import boto3
     sesion = boto3.Session(profile_name=a.perfil, region_name=a.region)
-    informe = inventario(sesion, a.region, con_control=a.con_control)
+    informe = inventario(sesion, a.region, con_control=a.con_control, con_base=a.con_base)
     print(json.dumps(informe, indent=2, ensure_ascii=False))
     return 0 if informe["quedan"] == "nada" else 1
 

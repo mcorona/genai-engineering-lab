@@ -459,3 +459,8 @@ def test_inventario_permitidos_son_explicitos():
     con_control = inv.permitidos(True)
     assert con_control["stacks_cloudformation"] == {"semana19-control"}
     assert not any("cdktoolkit" in str(v) for v in con_control.values())
+    antes = inv.permitidos(True, con_base=True)
+    assert antes["stacks_cloudformation"] == {"semana19-control", "semana19-base", "semana19-cdktoolkit"}
+    assert antes["vpcs"] is None and antes["lambdas"] is None
+    despues = inv.permitidos(True)
+    assert "vpcs" not in despues and "semana19-base" not in despues["stacks_cloudformation"]
