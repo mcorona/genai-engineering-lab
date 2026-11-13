@@ -464,3 +464,21 @@ def test_inventario_permitidos_son_explicitos():
     assert antes["vpcs"] is None and antes["lambdas"] is None
     despues = inv.permitidos(True)
     assert "vpcs" not in despues and "semana19-base" not in despues["stacks_cloudformation"]
+
+
+def test_destruir_no_pasa_toolkit_a_cdk_destroy_y_usa_python_con_boto():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    destroy = [l for l in texto.splitlines() if "cdk destroy" in l]
+    assert destroy and not any("--toolkit-stack-name" in l for l in destroy)
+    assert "PYTHON_BOTO" in texto and '"$PYTHON_BOTO" "$RAIZ/semana-19/infra/inventario.py"' in texto
+    assert '"$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_bootstrap.py"' in texto
+
+
+def test_vaciar_borra_el_bucket_retenido_despues_de_vaciarlo():
+    texto = (SCRIPTS / "vaciar_bootstrap.py").read_text(encoding="utf-8")
+    assert "delete_bucket(Bucket=r[\"bucket\"])" in texto
+
+
+def test_vaciar_no_pagina_operaciones_no_paginables():
+    texto = (SCRIPTS / "vaciar_bootstrap.py").read_text(encoding="utf-8")
+    assert 'get_paginator("describe_stack_resources")' not in texto
