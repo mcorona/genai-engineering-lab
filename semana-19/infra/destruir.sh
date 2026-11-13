@@ -16,6 +16,7 @@ PERFIL_ADMIN="${S19_PERFIL_ADMIN:-manuel-admin}"
 PERFIL_DESPLIEGUE="${S19_PERFIL_DESPLIEGUE:-semana19-despliegue}"
 PERFIL_LECTURA="${S19_PERFIL_LECTURA:-semana19-lectura}"
 PYTHON_CDK="${S19_PYTHON:-$RAIZ/.venv-cdk/bin/python}"
+PYTHON_BOTO="${S19_PYTHON_BOTO:-$RAIZ/.venv/bin/python}"  # boto3: inventario y vaciado (venv-cdk no lo tiene)
 APP="$RAIZ/semana-19/infra/cdk/app.py"
 REGISTRO="$RAIZ/semana-19/resultados/tiempos_despliegue.jsonl"
 REGION="us-east-1"
@@ -45,7 +46,7 @@ inventario() {
   local con_control="--con-control"
   if [[ "$TODO" == "1" ]]; then con_control=""; fi
   # shellcheck disable=SC2086
-  "$PYTHON_CDK" "$RAIZ/semana-19/infra/inventario.py" --perfil "$PERFIL_LECTURA" --region "$REGION" $con_control
+  "$PYTHON_BOTO" "$RAIZ/semana-19/infra/inventario.py" --perfil "$PERFIL_LECTURA" --region "$REGION" $con_control
 }
 
 if [[ "$MODO" == "simulacion" ]]; then
@@ -77,8 +78,7 @@ existe_stack() {
 if existe_stack semana19-base; then
   inicio=$(date +%s)
   echo "== Paso 1: cdk destroy semana19-base"
-  cdk destroy semana19-base --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
-    --toolkit-stack-name semana19-cdktoolkit
+  cdk destroy semana19-base --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
   registrar "destruir-base" $(( $(date +%s) - inicio ))
 else
   echo "== Paso 1: semana19-base no existe"
@@ -86,7 +86,7 @@ fi
 
 if existe_stack semana19-cdktoolkit; then
   echo "== Paso 2: vaciar el bucket y el ECR del bootstrap"
-  "$PYTHON_CDK" "$RAIZ/semana-19/infra/vaciar_bootstrap.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
+  "$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_bootstrap.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
   inicio=$(date +%s)
   echo "== Paso 3: borrar semana19-cdktoolkit (programa el borrado de su llave KMS)"
   aws cloudformation delete-stack --stack-name semana19-cdktoolkit --region "$REGION" --profile "$PERFIL_ADMIN"
