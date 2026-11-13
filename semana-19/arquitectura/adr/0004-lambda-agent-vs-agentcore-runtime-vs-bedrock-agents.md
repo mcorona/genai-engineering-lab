@@ -31,6 +31,6 @@ The LegacyBridge agent runs a loop of model calls and tool calls. Week 15 measur
 ## Costs (from `precios.json`)
 
 - Lambda arm64, per GB-second: **0.0000106667 USD** (M, `Lambda-GB-Second-ARM`). One query at 512 MB × 3 s = 1.5 GB-s = 0.000016 USD (model assumption, declared).
-- Lambda per request: **N**. Not in the lab total.
+- Lambda per request, x86: **0.0000002 USD** (M, usagetype `Request`, SKU `GU2ZS9HVP6QTQ7KE`, Price List, 2026-11-13). Included in the lab total.
 - AgentCore Runtime, c5.large, per hour: **0.0102 USD** (M, `Runtime:Instance-based:c5.large:Management-Hours`, 2026-11-12), the instance-based price from linea_base.md.
 - Bedrock Agents: **N**. Not measured.

@@ -73,10 +73,13 @@ def test_creditos_no_dejan_numeros_negativos():
 
 
 def test_partidas_n_no_suman_y_marcan_parcial():
-    r = correr(perfil="lab", consultas_dia=10, horas_dia=8)
-    assert r["parcial"] is True
-    assert "Endpoints de interfaz de VPC (endpoints x AZ-hora)" in r["partidas_no_medidas"]
-    assert all(l["costo_usd"] is None for l in r["fijas_por_hora"] + r["fijas_por_mes"] + r["por_consulta"] if l["marca"] == "N")
+    lab = correr(perfil="lab", consultas_dia=10, horas_dia=8)
+    prod = correr(perfil="prod", consultas_dia=10, horas_dia=8)
+    # Lab: todo medido. Prod: solo RDS Multi-AZ queda N, y no suma al total.
+    assert lab["parcial"] is False and lab["partidas_no_medidas"] == []
+    assert prod["parcial"] is True
+    assert prod["partidas_no_medidas"] == ["RDS Multi-AZ, instancia adicional"]
+    assert all(l["costo_usd"] is None for g in ("fijas_por_hora", "fijas_por_mes", "por_consulta") for l in prod[g] if l["marca"] == "N")
 
 
 def test_todo_precio_tiene_fuente_y_marca_valida():

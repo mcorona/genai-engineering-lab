@@ -2,25 +2,145 @@
   "consultado": "2026-11-13",
   "nota": "Cada precio lleva su fuente. valor null = no medido (marca N); no se usa en la suma. Marca M = Price List API con id de catálogo; D = página oficial (enlace y fecha); N = no medido.",
   "precios": {
-    "lambda_arm_gb_s": {"valor": 0.0000106667, "unidad": "USD por GB-s", "marca": "M", "fuente": "Price List API, AWSLambda, usagetype Lambda-GB-Second-ARM (linea_base.md §2)", "fecha": "2026-11-12"},
-    "lambda_solicitud": {"valor": null, "unidad": "USD por solicitud", "marca": "N", "fuente": "https://aws.amazon.com/lambda/pricing/ leída el 2026-11-13: la cifra no aparece completa en el texto consultado", "fecha": "2026-11-13"},
-    "apigw_http_solicitud": {"valor": 0.0000009, "unidad": "USD por solicitud", "marca": "M", "fuente": "Price List API, usagetype USE1-ApiGatewayHttpRequest (linea_base.md §2)", "fecha": "2026-11-12"},
-    "cognito_mau": {"valor": 0.015, "unidad": "USD por MAU", "marca": "M", "fuente": "Price List API, usagetype USE1-CognitoEssentialsMAU (linea_base.md §2)", "fecha": "2026-11-12"},
-    "rds_t4g_micro_hora": {"valor": 0.016, "unidad": "USD por hora", "marca": "M", "fuente": "Price List API, InstanceUsage:db.t4g.micro, Single-AZ (linea_base.md §2)", "fecha": "2026-11-12"},
-    "rds_multi_az_hora": {"valor": null, "unidad": "USD por hora", "marca": "N", "fuente": "no medido en la línea base; el perfil prod usa Multi-AZ y su partida queda N", "fecha": "2026-11-13"},
-    "rds_gp3_gb_mes": {"valor": 0.115, "unidad": "USD por GB-mes", "marca": "M", "fuente": "Price List API, RDS:GP3-Storage (linea_base.md §2)", "fecha": "2026-11-12"},
-    "aurora_acu_hora": {"valor": 0.12, "unidad": "USD por ACU-hora", "marca": "M", "fuente": "Price List API, Aurora:ServerlessV2Usage (linea_base.md §2)", "fecha": "2026-11-12"},
-    "ipv4_hora": {"valor": 0.005, "unidad": "USD por hora", "marca": "M", "fuente": "Price List API, USE1-PublicIPv4:InUseAddress (linea_base.md §2)", "fecha": "2026-11-12"},
-    "kms_llave_mes": {"valor": 1.0, "unidad": "USD por llave-mes", "marca": "M", "fuente": "Price List API, us-east-1-KMS-Keys (linea_base.md §2)", "fecha": "2026-11-12"},
-    "cloudwatch_ingesta_gb": {"valor": 0.5, "unidad": "USD por GB", "marca": "M", "fuente": "Price List API, DataProcessing-Bytes, clase Standard (linea_base.md §2)", "fecha": "2026-11-12"},
-    "cloudwatch_almacenamiento_gb_mes": {"valor": 0.03, "unidad": "USD por GB-mes", "marca": "M", "fuente": "Price List API, TimedStorage-ByteHrs (linea_base.md §2)", "fecha": "2026-11-12"},
-    "endpoint_interfaz_hora_az": {"valor": null, "unidad": "USD por endpoint por AZ-hora", "marca": "N", "fuente": "https://aws.amazon.com/privatelink/pricing/ leída el 2026-11-13: la tarifa por hora no aparece en la página consultada; no está en AmazonVPC de la Price List (linea_base.md §2)", "fecha": "2026-11-13"},
-    "endpoint_interfaz_gb_procesado": {"valor": 0.01, "unidad": "USD por GB procesado (primer PB)", "marca": "D", "fuente": "https://aws.amazon.com/privatelink/pricing/ leída el 2026-11-13: tabla 'First 1 PB: $0.01'; la página indica us-east-1 en el ejemplo de recursos", "fecha": "2026-11-13"},
-    "step_functions_transicion": {"valor": 0.000025, "unidad": "USD por transición de estado (Standard)", "marca": "D", "fuente": "https://aws.amazon.com/step-functions/pricing/ leída el 2026-11-13: el ejemplo de us-east-1 muestra $0.000025 por transición; la tabla de tarifas no se renderizó", "fecha": "2026-11-13"},
-    "titan_v2_1k_tokens": {"valor": 0.00002, "unidad": "USD por 1K tokens de entrada", "marca": "M", "fuente": "Price List API, USE1-TitanEmbeddingV2-Text-input-tokens (linea_base.md §2)", "fecha": "2026-11-12"},
-    "haiku45_entrada_1m": {"valor": 1.10, "unidad": "USD por 1M tokens de entrada (regional, us.)", "marca": "M", "fuente": "Price List API, AmazonBedrockFoundationModels, USE1-MP:USE1_InputTokenCount-Units, Claude Haiku 4.5 (semana-12/resultados/precios_catalogo_2026-10-28.csv). Re-consulta de 2026-11-13 pendiente de login de AWS", "fecha": "2026-10-28"},
-    "haiku45_salida_1m": {"valor": 5.50, "unidad": "USD por 1M tokens de salida (regional, us.)", "marca": "M", "fuente": "Price List API, AmazonBedrockFoundationModels, USE1-MP:USE1_OutputTokenCount-Units, Claude Haiku 4.5 (semana-12/resultados/precios_catalogo_2026-10-28.csv). Re-consulta de 2026-11-13 pendiente de login de AWS", "fecha": "2026-10-28"},
-    "haiku45_cache_lectura_1m": {"valor": null, "unidad": "USD por 1M tokens de caché (lectura)", "marca": "N", "fuente": "la semana 12 medió la cache de lectura solo para perfil global; el regional no está en el catálogo medido", "fecha": "2026-10-28"},
-    "agentcore_gateway_invocacion": {"valor": 0.000005, "unidad": "USD por invocación", "marca": "M", "fuente": "Price List API, USE1-Gateway:Consumption-based:API-Invocations (linea_base.md §2)", "fecha": "2026-11-12"}
+    "lambda_arm_gb_s": {
+      "valor": 1.06667e-05,
+      "unidad": "USD por GB-s",
+      "marca": "M",
+      "fuente": "Price List API, AWSLambda, usagetype Lambda-GB-Second-ARM (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "lambda_solicitud": {
+      "valor": 2e-07,
+      "unidad": "USD por solicitud (x86, us-east-1)",
+      "marca": "M",
+      "fuente": "Price List API, AWSLambda, usagetype USE1 Request (x86), SKU GU2ZS9HVP6QTQ7KE; ARM Request-ARM SKU K7BX6567RJ67A2KE, mismo precio",
+      "fecha": "2026-11-13"
+    },
+    "apigw_http_solicitud": {
+      "valor": 9e-07,
+      "unidad": "USD por solicitud",
+      "marca": "M",
+      "fuente": "Price List API, usagetype USE1-ApiGatewayHttpRequest (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "cognito_mau": {
+      "valor": 0.015,
+      "unidad": "USD por MAU",
+      "marca": "M",
+      "fuente": "Price List API, usagetype USE1-CognitoEssentialsMAU (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "rds_t4g_micro_hora": {
+      "valor": 0.016,
+      "unidad": "USD por hora",
+      "marca": "M",
+      "fuente": "Price List API, InstanceUsage:db.t4g.micro, Single-AZ (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "rds_multi_az_hora": {
+      "valor": null,
+      "unidad": "USD por hora",
+      "marca": "N",
+      "fuente": "Price List API, AmazonRDS, db.t4g.micro PostgreSQL: el filtro no devolvió filas Multi-AZ de us-east-1 el 2026-11-13. Partida N",
+      "fecha": "2026-11-13"
+    },
+    "rds_gp3_gb_mes": {
+      "valor": 0.115,
+      "unidad": "USD por GB-mes",
+      "marca": "M",
+      "fuente": "Price List API, RDS:GP3-Storage (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "aurora_acu_hora": {
+      "valor": 0.12,
+      "unidad": "USD por ACU-hora",
+      "marca": "M",
+      "fuente": "Price List API, Aurora:ServerlessV2Usage (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "ipv4_hora": {
+      "valor": 0.005,
+      "unidad": "USD por hora",
+      "marca": "M",
+      "fuente": "Price List API, USE1-PublicIPv4:InUseAddress (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "kms_llave_mes": {
+      "valor": 1.0,
+      "unidad": "USD por llave-mes",
+      "marca": "M",
+      "fuente": "Price List API, us-east-1-KMS-Keys (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "cloudwatch_ingesta_gb": {
+      "valor": 0.5,
+      "unidad": "USD por GB",
+      "marca": "M",
+      "fuente": "Price List API, DataProcessing-Bytes, clase Standard (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "cloudwatch_almacenamiento_gb_mes": {
+      "valor": 0.03,
+      "unidad": "USD por GB-mes",
+      "marca": "M",
+      "fuente": "Price List API, TimedStorage-ByteHrs (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "endpoint_interfaz_hora_az": {
+      "valor": 0.01,
+      "unidad": "USD por endpoint-hora (una ENI por AZ)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonVPC, usagetype USE1-VpcEndpoint-Hours, SKU EN2N5TATXE673A3B. El cobro por AZ viene de https://aws.amazon.com/privatelink/pricing/ (D)",
+      "fecha": "2026-11-13"
+    },
+    "endpoint_interfaz_gb_procesado": {
+      "valor": 0.01,
+      "unidad": "USD por GB procesado (primer PB)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonVPC, usagetype USE1-VpcEndpoint-Bytes, SKU DQYYEZBCWSW5XS2R (tramo hasta 1 PB)",
+      "fecha": "2026-11-13"
+    },
+    "step_functions_transicion": {
+      "valor": 2.5e-05,
+      "unidad": "USD por transición de estado (Standard)",
+      "marca": "D",
+      "fuente": "https://aws.amazon.com/step-functions/pricing/ leída el 2026-11-13: el ejemplo de us-east-1 muestra $0.000025 por transición. El Price List no tiene el código de servicio (AWSStepFunctions devuelve 0 filas el 2026-11-13)",
+      "fecha": "2026-11-13"
+    },
+    "titan_v2_1k_tokens": {
+      "valor": 2e-05,
+      "unidad": "USD por 1K tokens de entrada",
+      "marca": "M",
+      "fuente": "Price List API, USE1-TitanEmbeddingV2-Text-input-tokens (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    },
+    "haiku45_entrada_1m": {
+      "valor": 1.1,
+      "unidad": "USD por 1M tokens de entrada (regional, us.)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonBedrockFoundationModels, model Claude Haiku 4.5, usagetype USE1-MP:USE1_InputTokenCount-Units, SKU JQDUC8Q4K8C6GSGH",
+      "fecha": "2026-11-13"
+    },
+    "haiku45_salida_1m": {
+      "valor": 5.5,
+      "unidad": "USD por 1M tokens de salida (regional, us.)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonBedrockFoundationModels, model Claude Haiku 4.5, usagetype USE1-MP:USE1_OutputTokenCount-Units, SKU X629GDA2GXAP6R54",
+      "fecha": "2026-11-13"
+    },
+    "haiku45_cache_lectura_1m": {
+      "valor": null,
+      "unidad": "USD por 1M tokens de caché (lectura)",
+      "marca": "N",
+      "fuente": "la semana 12 medió la cache de lectura solo para perfil global; el regional no está en el catálogo medido",
+      "fecha": "2026-10-28"
+    },
+    "agentcore_gateway_invocacion": {
+      "valor": 5e-06,
+      "unidad": "USD por invocación",
+      "marca": "M",
+      "fuente": "Price List API, USE1-Gateway:Consumption-based:API-Invocations (linea_base.md §2)",
+      "fecha": "2026-11-12"
+    }
   }
 }
