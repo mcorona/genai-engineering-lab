@@ -506,3 +506,10 @@ def test_categoria_vacia_con_subclaves_no_cuenta_como_recurso():
     inv_vacia = importlib.util.module_from_spec(spec); spec.loader.exec_module(inv_vacia)
     assert inv_vacia.contar({"instancias": [], "clusters": []}) == 0
     assert inv_vacia.contar({"instancias": ["x"], "clusters": []}) == 1
+
+
+def test_destruir_reintenta_base_en_delete_failed_reteniendo_solo_el_custom_resource():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    assert "DELETE_FAILED" in texto and "--retain-resources" in texto
+    assert "Custom::VpcRestrictDefaultSG" in texto
+    assert "--retain-resources \"$retenidos\"" in texto or "--retain-resources \\\"$retenidos" in texto or "--retain-resources" in texto
