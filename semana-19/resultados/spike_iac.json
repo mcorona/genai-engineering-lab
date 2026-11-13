@@ -90,8 +90,31 @@
     "terraform_plan_s": "~1.2"
   },
   "pendiente": [
-    "Knowledge Base en ambas herramientas",
-    "AgentCore Gateway en ambas herramientas",
-    "decision de IaC en ADR 0001 (esperando KB y AgentCore Gateway)"
-  ]
+    "decision de IaC: cerrada en ADR 0001 (CDK)",
+    "resto de ADRs, diagrama, modelo de costos, cotizacion, CI y log"
+  ],
+  "ia": {
+    "consultado": "2026-11-13",
+    "cdk": {
+      "guardrail": "L1 CfnGuardrail y L2 alpha Guardrail: synth OK",
+      "knowledge_base": "L1 CfnKnowledgeBase + CfnVectorBucket + CfnIndex: synth OK. L2 alpha KnowledgeBase: solo acepta VectorStore.open_search_serverless; no S3 Vectors",
+      "agentcore_gateway": "L1 stable CfnGateway: synth OK. L2 alpha Gateway: synth OK",
+      "checkov_l1": {
+        "pasan": 24,
+        "fallan": 0
+      }
+    },
+    "terraform": {
+      "validate": "OK",
+      "plan_sin_refresh": "24 por crear, 0 por cambiar, 0 por destruir",
+      "checkov": {
+        "pasan": 127,
+        "fallan": 0,
+        "suprimidos": 7
+      }
+    },
+    "pendiente": [
+      "cotizar el costo de Gateway e invocaciones con el Price List (requiere login)"
+    ]
+  }
 }
