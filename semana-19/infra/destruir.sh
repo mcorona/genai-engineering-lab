@@ -80,6 +80,23 @@ if existe_stack semana19-base; then
   echo "== Paso 1: cdk destroy semana19-base"
   cdk destroy semana19-base --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
   registrar "destruir-base" $(( $(date +%s) - inicio ))
+elif [[ "$(aws cloudformation describe-stacks --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
+      --query 'Stacks[0].StackStatus' --output text 2>/dev/null)" == "DELETE_FAILED" ]]; then
+  # Known case (2026-11-13): the custom resource that restricts the default SG cannot be deleted, because its Lambda
+  # role has no Authorize* rights under the permissions boundary. It is an AWS-less CloudFormation resource: retaining
+  # it leaves nothing in the account. Nothing else is retained; the rest of the stack is deleted.
+  echo "== Paso 1b: semana19-base en DELETE_FAILED: se retiene solo el custom resource del SG por defecto"
+  retenidos=$(aws cloudformation describe-stack-events --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
+    --query "StackEvents[?ResourceStatus=='DELETE_FAILED' && ResourceType=='Custom::VpcRestrictDefaultSG'].LogicalResourceId" \
+    --output text | tr '\t' '\n' | sort -u | paste -sd, -)
+  if [[ -z "$retenidos" ]]; then
+    echo "No se identificó el custom resource fallido; revisa los eventos del stack antes de continuar." >&2
+    exit 1
+  fi
+  aws cloudformation delete-stack --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
+    --retain-resources "$retenidos"
+  aws cloudformation wait stack-delete-complete --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN"
+  registrar "destruir-base-retenido" 0
 else
   echo "== Paso 1: semana19-base no existe"
 fi

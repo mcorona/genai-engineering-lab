@@ -118,3 +118,39 @@ into the first real session as measured values, not estimates.
 5. ~~Decide the freeze limitation~~ (done: option B, see the freeze section).
 6. Then, with your OK for each `--si`: deploy (control, bootstrap, base), measure times, inventory before and after,
    teardown, and one Cost Explorer call the next day (2 calls authorized at most, each with your OK).
+
+## Results (2026-11-13): deploy and teardown
+
+Measured in the lab account, with `semana19-lectura` for the inventory:
+
+| Step | Result | Source |
+|---|---|---|
+| Control stack deploy | 43-44 s (several runs; the first attempt failed on the budget email parameter) | `tiempos_despliegue.jsonl` |
+| Bootstrap `s19` deploy | created once, then reused | log |
+| `semana19-base` deploy to `CREATE_COMPLETE` | 97 s | `tiempos_despliegue.jsonl` |
+| Base stack up, approximately | about 2 h (cap: 2 h); estimated cost about 0.05 USD at 0.02273973 USD/h | log, estimate |
+| `semana19-base` delete | not recorded by the script (the first `cdk destroy` hit a `cdk.out` lock; the stack then ended in `DELETE_FAILED`) | events |
+| Bootstrap delete | 32 s | `tiempos_despliegue.jsonl` |
+| Inventory after teardown | `quedan: nada`, no unexpected items (control kept, as planned) | `inventario.py` |
+| Cost Explorer, next day | pending (max 2 calls, each with approval) | - |
+
+### Failures found and what they taught (each one cost a stack rollback)
+
+1. `cdk diff` and `cdk destroy` do not accept `--toolkit-stack-name`.
+2. The CDK bootstrap roles lacked, in order: `iam:GetRole`/`DeleteRole` on the flow-logs role, `iam:PassRole` for the flow log
+   and for the custom resource Lambda, `iam:PutRolePolicy`/`AttachRolePolicy` on roles the stack creates (they do not carry the
+   boundary key in those calls), `s3:GetObject` on the assets bucket and `kms:Decrypt` through S3 (the bucket uses `aws/s3`),
+   and `ssm:GetParameter` on `/cdk-bootstrap/s19/version`.
+3. The permissions simulator (`simulate-custom-policy`) catches these before a deploy, read-only and free. It should have run
+   before the first deploy attempt, not after.
+4. Teardown: `vaciar_bootstrap.py` used a non-paginable operation; the bootstrap bucket has `DeletionPolicy: Retain`
+   and is deleted explicitly after emptying; `destruir.sh` needs the Python with `boto3`.
+5. **Known limit, not fixed on purpose:** the default-SG custom resource's Lambda role has `Authorize*` on the default SG,
+   but the permissions boundary (`semana19-limite`) allows only `Describe` and `Revoke*`. Creation works; deletion does
+   not. The boundary is the security cap and was kept. `destruir.sh` now retains only that custom resource (it is not an
+   AWS resource) when the base stack ends in `DELETE_FAILED`. Revisit before any future base deploy.
+
+### Freeze
+
+The budget action attaches `semana19-congelar` to `semana19-despliegue` always, and to the `cdk-s19-*` roles once the
+bootstrap exists. It denies create and update, not delete, so the teardown still worked.
