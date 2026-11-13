@@ -127,3 +127,19 @@ Consultas gratuitas y de solo lectura, hechas después de la medición principal
 | 7 | Servicios que permite el plan | La cuenta es **PAID** (Free Tier API). Un plan pagado no está limitado por el plan gratuito de la lista de servicios; la lista exacta se confirma en la consola de Free Tier | D | Free Tier API `get_account_plan_state` (M, 2026-11-12) y https://docs.aws.amazon.com/accounts/latest/reference/bcm-lite-free-tier.html |
 
 **Lo que queda N después de este cierre:** la cuota de solicitudes de Haiku 5.5 (fila 2). Su consulta directa en la consola de Service Quotas es la única forma de confirmarla.
+
+## 9. Actualización 2026-11-13: excepción registrada del operador y estado de la cuota
+
+Medición repetida con el perfil de solo lectura `semana19-lectura` (rol con la política administrada `ReadOnlyAccess`, creado para el operador). Sustituye al perfil `semana19-operador`, que tenía la misma identidad que el admin.
+
+| Tema | Estado | Marca | Fuente y fecha |
+|---|---|---|---|
+| Identidad del operador | El rol `semana19-lectura` asume el rol de solo lectura; la identidad ya no es `manuel-admin`. Política adjunta: `ReadOnlyAccess`. | M | `sts get-caller-identity` y `iam list-attached-role-policies` (admin), 2026-11-13 |
+| Línea base | Precios: 15 M, 7 D, 0 N. Plan PAID y gasto del mes medidos (el gasto viene de la llamada de Cost Explorer autorizada, sin repetirla). | M | `linea_base/verificar.py` con `semana19-lectura`, 2026-11-13 |
+| Inventario | **1 recurso**: el rol `semana19-lectura`. Resultado `"quedan": "revisar"`. | M | `infra/inventario.py` con `semana19-lectura`, 2026-11-13 |
+| Cuota Haiku 5.5, tokens por minuto (cross-region) | Valor aplicado: 0. Solicitud de aumento a 10 500 000, estado **CASE_OPENED** (ID `6670b8faf0f14f63bd40d5afe73363fcI74dzeGW`). | M | Service Quotas, 2026-11-13 |
+| Cuota Haiku 5.5, tokens por minuto (global) | Valor aplicado: 0. Solicitud de aumento a 10 500 000, estado **CASE_OPENED** (ID `f17c261db70949c18f08491b231e66f5nF5XFLwF`). | M | Service Quotas, 2026-11-13 |
+
+**Excepción registrada del inventario.** El rol `semana19-lectura` es el único recurso que queda. Se conserva como excepción del inventario, igual que el presupuesto `semana19` y la llave KMS pendiente de borrado en las actividades siguientes. Motivo: es el operador de solo lectura que pide el plan. No tiene costo. Su teardown se hace al cerrar la semana, con `destruir.sh` y la excepción declarada.
+
+**Lo que sigue abierto:** la cuota de Haiku 5.5 se actualiza cuando AWS responda (APPROVED o DENIED). Las llaves de acceso del perfil `default` siguen pendientes de decisión de Manuel.

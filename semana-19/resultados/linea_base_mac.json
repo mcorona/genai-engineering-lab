@@ -1466,16 +1466,22 @@
         "fecha": "2026-11-12"
       },
       "agentcore_policy": {
-        "marca": "N",
+        "marca": "M",
+        "precio_usd": "0.0000250000",
+        "unidad": "Invocations",
+        "usagetype": "USE1-Policy:Consumption-based:Authorization-API-Invocations",
+        "sku": "6Y7YGE8SHNY5HHFT",
+        "descripcion": "$0.000025 per Invocation for Policy:Consumption-based:Authorization-API-Invocations in US East (N. Virginia)",
         "nota": "sin coincidencia en la búsqueda del 2026-11-12; se revisa",
+        "fuente": "AWS Price List API, servicio AmazonBedrockAgentCore, us-east-1",
         "fecha": "2026-11-12"
       }
     },
     "errores": {},
     "conteo": {
-      "M": 14,
+      "M": 15,
       "D": 7,
-      "N": 1
+      "N": 0
     }
   },
   "herramientas": {
@@ -1527,9 +1533,9 @@
       "nota": "no instalada"
     },
     "checkov": {
-      "instalada": null,
+      "instalada": "3.4.4",
       "marca": "M",
-      "nota": "no instalada"
+      "fecha": "2026-11-12"
     }
   },
   "repo": {
