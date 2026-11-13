@@ -17,12 +17,12 @@ STACK = "semana19-cdktoolkit"
 
 def recursos(cfn) -> dict:
     salida = {"bucket": None, "ecr": None}
-    for p in cfn.get_paginator("describe_stack_resources").paginate(StackName=STACK):
-        for r in p["StackResources"]:
-            if r["ResourceType"] == "AWS::S3::Bucket":
-                salida["bucket"] = r["PhysicalResourceId"]  # the bootstrap stack has exactly one bucket
-            if r["ResourceType"] == "AWS::ECR::Repository":
-                salida["ecr"] = r["PhysicalResourceId"]
+    # describe_stack_resources is not paginable in boto3; one call returns the stack's resources (under 100).
+    for r in cfn.describe_stack_resources(StackName=STACK)["StackResources"]:
+        if r["ResourceType"] == "AWS::S3::Bucket":
+            salida["bucket"] = r["PhysicalResourceId"]  # the bootstrap stack has exactly one bucket
+        if r["ResourceType"] == "AWS::ECR::Repository":
+            salida["ecr"] = r["PhysicalResourceId"]
     return salida
 
 
@@ -52,6 +52,11 @@ def main() -> int:
     informe = {"stack": STACK, "bucket_encontrado": bool(r["bucket"]), "ecr_encontrado": bool(r["ecr"])}
     if r["bucket"]:
         informe["bucket"] = vaciar(s3, r["bucket"], a.si)
+        # The stack keeps the bucket (DeletionPolicy Retain): once empty, it is deleted here.
+        informe["bucket"]["bucket_borrado"] = False
+        if a.si:
+            s3.delete_bucket(Bucket=r["bucket"])
+            informe["bucket"]["bucket_borrado"] = True
     if r["ecr"]:
         imagenes = sum(len(p["imageIds"]) for p in ecr.get_paginator("list_images").paginate(
             repositoryName=r["ecr"]))
