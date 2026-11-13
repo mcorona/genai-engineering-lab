@@ -118,11 +118,20 @@ fi
 CUENTA="$(aws sts get-caller-identity --profile "$PERFIL_ADMIN" --query Account --output text)"
 echo "== Cuenta: <account> (resuelta en ejecución, no se imprime)"
 
+desplegar_control() {
+  local bootstrap_creado="$1"
+  aws cloudformation deploy --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN" \
+    --template-file "$OUT/semana19-control.template.json" --capabilities CAPABILITY_NAMED_IAM \
+    --parameter-overrides "CorreoAlerta=$ALERTA_EMAIL" "BootstrapCreado=$bootstrap_creado" \
+    --no-fail-on-empty-changeset
+}
+
+BOOTSTRAP_ANTES="false"
+if existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then BOOTSTRAP_ANTES="true"; fi
+
 inicio=$(date +%s)
-echo "== Paso 1: semana19-control (sin assets, por CLI)"
-aws cloudformation deploy --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN" \
-  --template-file "$OUT/semana19-control.template.json" --capabilities CAPABILITY_NAMED_IAM \
-  --parameter-overrides "CorreoAlerta=$ALERTA_EMAIL" --no-fail-on-empty-changeset
+echo "== Paso 1: semana19-control (sin assets, por CLI; BootstrapCreado=$BOOTSTRAP_ANTES)"
+desplegar_control "$BOOTSTRAP_ANTES"
 registrar "control" $(( $(date +%s) - inicio ))
 
 ARN_DESPLIEGUE="$(aws cloudformation describe-stacks --stack-name semana19-control --region "$REGION" \
@@ -138,6 +147,8 @@ if ! existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then
     --cloudformation-execution-policies "$ARN_EJECUCION" \
     --trust "$ARN_DESPLIEGUE"
   registrar "bootstrap" $(( $(date +%s) - inicio ))
+  echo "== Paso 2b: congelación también de los roles cdk-s19-* (BootstrapCreado=true)"
+  desplegar_control "true"
 else
   echo "== Paso 2: bootstrap s19 ya existe; no se toca"
 fi

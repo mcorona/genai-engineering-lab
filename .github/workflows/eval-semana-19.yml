@@ -55,7 +55,7 @@ jobs:
           python-version: "3.13"
       - name: Dependencias CDK (pines de semana-19/spike/cdk/requirements.txt) y checkov 3.4.4
         run: |
-          pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4" "pytest==9.2.0"
+          pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4" "pytest==8.4.2"  # 8.4.2: pytest 9 needs packaging>=24, checkov needs <24
       - name: Sintetizar CDK, perfiles lab y prod (sin AWS)
         run: |
           CDK_OUTDIR="$RUNNER_TEMP/cdk-out" python semana-19/spike/cdk/app.py

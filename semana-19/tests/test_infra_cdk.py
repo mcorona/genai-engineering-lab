@@ -279,7 +279,17 @@ def test_accion_del_presupuesto_congela_al_100_por_ciento(perfil):
     p = accion["Properties"]
     assert p["ActionType"] == "APPLY_IAM_POLICY"
     assert p["ActionThreshold"] == {"Type": "PERCENTAGE", "Value": 100}
-    assert p["Definition"]["IamActionDefinition"]["Roles"] == ["semana19-despliegue"]
+    roles = json.dumps(p["Definition"]["IamActionDefinition"]["Roles"])
+    assert "semana19-despliegue" in roles
+    assert "cdk-s19-deploy-role-" in roles and "cdk-s19-cfn-exec-role-" in roles
+    assert "Fn::If" in roles and "HayBootstrap" in roles
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_bootstrap_creado_es_parametro_y_por_omision_es_false(perfil):
+    pl = de_control(perfil)
+    p = pl["Parameters"]["BootstrapCreado"]
+    assert p["Default"] == "false" and set(p["AllowedValues"]) == {"true", "false"}
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -337,7 +347,7 @@ def test_no_hay_cuenta_ni_correo_en_las_plantillas(perfil):
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_control_sin_assets_ni_version_de_bootstrap(perfil):
     pl = de_control(perfil)
-    assert set(pl.get("Parameters", {})) == {"CorreoAlerta"}
+    assert set(pl.get("Parameters", {})) == {"CorreoAlerta", "BootstrapCreado"}
 
 
 # ---------------------------------------------------------------- profiles

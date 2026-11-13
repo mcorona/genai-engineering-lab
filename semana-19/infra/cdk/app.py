@@ -198,6 +198,15 @@ class Control(Stack):
         super().__init__(scope, id, synthesizer=cdk.LegacyStackSynthesizer(), **kwargs)
         correo = CfnParameter(self, "CorreoAlerta", type="String", default="",
                               description="Correo de alertas (se pasa al desplegar con ALERTA_EMAIL; no va en el repo).")
+        bootstrap = CfnParameter(self, "BootstrapCreado", type="String", default="false",
+                                 allowed_values=["true", "false"],
+                                 description="true cuando el bootstrap s19 ya existe: la acción congela también los roles cdk-s19-*.")
+        hay_bootstrap = cdk.CfnCondition(self, "HayBootstrap", expression=cdk.Fn.condition_equals(
+            bootstrap.value_as_string, "true"))
+        roles_congelados = cdk.Token.as_list(cdk.Fn.condition_if(
+            hay_bootstrap.logical_id,
+            [DESPLIEGUE, f"cdk-s19-deploy-role-{Aws.ACCOUNT_ID}-{REGION}", f"cdk-s19-cfn-exec-role-{Aws.ACCOUNT_ID}-{REGION}"],
+            [DESPLIEGUE]))
 
         limite = iam.ManagedPolicy(self, "Limite", managed_policy_name=LIMITE, statements=politica_limite(),
                                    description="Permission boundary of every role created by the week 19 stacks.")
@@ -272,7 +281,7 @@ class Control(Stack):
             action_threshold=budgets.CfnBudgetsAction.ActionThresholdProperty(type="PERCENTAGE", value=100),
             definition=budgets.CfnBudgetsAction.DefinitionProperty(
                 iam_action_definition=budgets.CfnBudgetsAction.IamActionDefinitionProperty(
-                    policy_arn=congelar.managed_policy_arn, roles=[DESPLIEGUE])),
+                    policy_arn=congelar.managed_policy_arn, roles=roles_congelados)),
             execution_role_arn=rol_presupuesto.role_arn, approval_model="AUTOMATIC",
             subscribers=[budgets.CfnBudgetsAction.SubscriberProperty(address=correo.value_as_string,
                                                                      type="EMAIL")])

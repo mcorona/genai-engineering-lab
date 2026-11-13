@@ -24,15 +24,21 @@ that control created) → base (CDK, through the deploy role).
 - **Cost Explorer: 0 calls so far.** The inventory does not call Cost Explorer: the anomaly monitor is checked through its stack. Whether a Cost Anomaly API call costs $0.01 is not confirmed (see prices).
 - **Pending-deletion keys:** the base key uses the lab window of 7 days. The bootstrap key has no window in its template, so CloudFormation uses its default of 30 days. A key pending deletion is not billed (official page, quoted below), so it stays in the inventory as an allowed exception with its date.
 
-## Freeze limitation (not fully met)
+## Freeze (option B, chosen by Manuel 2026-11-13)
 
-The budget action at 100 % attaches the freeze policy to **`semana19-despliegue` only**. The paste asks that
-it block create and update actions; for CDK deployments the actions run through the bootstrap roles `cdk-s19-*`
-(deploy and execution), which the action does not reach. So with the action active, a direct create by the deploy
-role is denied, but a `cdk deploy` through the bootstrap roles is **not** blocked. Closing it means also attaching the freeze to those
-two roles, with their names (they include the account, which is resolved at deploy time). That needs a second
-action with those role names after the bootstrap exists. Not done; it is the first item to decide before a real
-deployment.
+The budget action at 100 % attaches `semana19-congelar` (create and update denied, delete allowed) to:
+
+- `semana19-despliegue` always;
+- `cdk-s19-deploy-role-<account>-us-east-1` and `cdk-s19-cfn-exec-role-<account>-us-east-1` **when the parameter
+  `BootstrapCreado` is `true`**. Those names contain the account, so they are resolved by a CloudFormation `Fn::If`
+  at deploy time and never written in the repo.
+
+`desplegar.sh` deploys the control with `BootstrapCreado=false` before the bootstrap exists, and again with `true`
+right after the bootstrap is created (step 2b). Until step 2b, the CDK roles are not frozen; that window is only the
+bootstrap itself.
+
+Consequence to know: with the action active, a `cdk deploy` is denied, while `cdk destroy` keeps working (delete is not
+in the freeze). To deploy again, detach the policy from the roles in the IAM console or by CLI (a manual step).
 
 ## Checks (no AWS, run in CI)
 
@@ -109,6 +115,6 @@ into the first real session as measured values, not estimates.
 3. **Set the alert address** in the shell (`ALERTA_EMAIL`). It is never written to the repo.
 4. **After the control stack exists**, add a profile to `~/.aws/config` that assumes `semana19-despliegue` (the bootstrap
    trusts only that role). Run `aws configure`-style editing yourself; I do not edit that file.
-5. Decide the freeze limitation above.
+5. ~~Decide the freeze limitation~~ (done: option B, see the freeze section).
 6. Then, with your OK for each `--si`: deploy (control, bootstrap, base), measure times, inventory before and after,
    teardown, and one Cost Explorer call the next day (2 calls authorized at most, each with your OK).
