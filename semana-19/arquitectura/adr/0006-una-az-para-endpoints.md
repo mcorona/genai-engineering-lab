@@ -20,6 +20,7 @@ Interface endpoints are billed per AZ-hour (ADR 0005). Running them in every AZ 
 
 ## Costs (from `modelo.py`)
 
-- Lab: 2 endpoints × 1 AZ × endpoint AZ-hour = **N** (not priced).
-- Prod: 2 endpoints × 3 AZ × endpoint AZ-hour = **N**.
-- The model's partial total for lab is 5.44 USD per month with 8 h/day and 0 queries, and 245.12 USD with 100 queries/day; both exclude the endpoint lines.
+- Lab: 2 endpoints × 1 AZ × 0.01 USD per endpoint-hour = **0.02 USD per hour** (M).
+- Prod: 2 endpoints × 3 AZ × 0.01 USD = **0.06 USD per hour** (M). The prod total stays partial because RDS Multi-AZ is N (ADR 0003).
+- Lab total with 8 h per day: 10.24 USD per month with 0 queries, and 249.92 USD with 100 queries per day (both measured, no N).
+- Prod total: 22.69 USD per month with 0 queries and 262.37 USD with 100 queries per day, partial (RDS Multi-AZ N).

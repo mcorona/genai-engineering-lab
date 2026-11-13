@@ -27,6 +27,6 @@ Anything the database does not need stays outside the VPC: the agent Lambda call
 
 ## Costs (from `precios.json` and `modelo.py`)
 
-- Interface endpoint, per endpoint per AZ-hour: **N**. The official page (`privatelink/pricing`, read 2026-11-13) does not state the us-east-1 rate. The model lists the line as N and does not add it to the total.
-- Interface endpoint, per GB processed: **0.01 USD** (D, same page, "First 1 PB"). The model uses 1 GB per month as a placeholder: 0.01 USD.
-- With two endpoints in one AZ, the hourly cost is **2 × N**. It cannot be quoted yet: the total of the lab is partial until it is measured.
+- Interface endpoint, per endpoint-hour: **0.01 USD** (M, `USE1-VpcEndpoint-Hours`, SKU `EN2N5TATXE673A3B`, Price List, 2026-11-13). The per-AZ multiplier comes from the official page (D): billing is per hour per AZ where the endpoint is provisioned.
+- Interface endpoint, per GB processed: **0.01 USD** (M, `USE1-VpcEndpoint-Bytes`, SKU `DQYYEZBCWSW5XS2R`, first 1 PB tier, 2026-11-13). The model counts 1 GB per month as a placeholder: 0.01 USD.
+- Lab: 2 endpoints × 1 AZ × 0.01 USD = **0.02 USD per hour**. Prod: 2 × 3 × 0.01 = **0.06 USD per hour**.

@@ -34,8 +34,8 @@ Flow: client → API Gateway HTTP API (Cognito JWT, groups `analista` and `aprob
 ## Limitations of the lab
 
 - The lab does not deploy prod. The prod profile is synthesized and costed; its Multi-AZ database and endpoints are N.
-- The endpoint hourly rate and Lambda request price are N: the lab total is partial and says so.
-- Haiku 4.5 prices come from the week 12 catalog (2026-10-28). The re-query of 2026-11-13 needs an AWS login and is pending.
+- The lab total is complete (all its prices are M). Prod is partial: RDS Multi-AZ is N, and Step Functions transitions stay D (the Price List has no service code for them).
+- Haiku 4.5 prices were re-queried on 2026-11-13 from the Price List (M).
 - The Haiku token distribution comes from week 13 runs with Haiku 5.5; it is an approximation for Haiku 4.5.
 - cdk-nag does not run in this stack; checkov covers both tools.
 - The Cognito discovery URL in the Gateway is a placeholder; it is replaced in activity 3.
