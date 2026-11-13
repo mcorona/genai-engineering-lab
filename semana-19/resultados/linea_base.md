@@ -111,3 +111,19 @@ Nota: la identidad del operador es la misma que la del admin (`manuel-admin`). V
 - **Créditos:** no medidos (D, pendiente de la pantalla de Billing).
 - **Servicios permitidos por el plan `PAID`:** N, no medido.
 - **La llamada a `aws-cdk-lib` en Python** se fija en la actividad 2 (candidata 2.275.0 en `versiones.json`; la última es 2.276.0).
+
+## 8. Cierre de las viñetas pendientes (2026-11-13)
+
+Consultas gratuitas y de solo lectura, hechas después de la medición principal. Cada fila dice cuál era el N anterior y qué lo resuelve.
+
+| # | Viñeta (antes N o sin verificar) | Resultado | Marca | Fuente y fecha |
+|---|---|---|---|---|
+| 1 | Acceso por modelo (`get-foundation-model-availability`) | Haiku 4.5 (`anthropic.claude-haiku-4-5-20251001-v1:0`), Haiku 5.5 (`anthropic.claude-haiku-5-5`) y Titan Text Embeddings V2 (`amazon.titan-embed-text-v2:0`): acuerdo, región, entitlement y autorización en **AVAILABLE / AUTHORIZED** | M | Bedrock `get_foundation_model_availability`, 2026-11-13 |
+| 2 | Cuota de Haiku 5.5 en solicitudes por minuto | Sigue sin aparecer en la lista de Service Quotas (la de tokens sí: 0). Queda N | N | Service Quotas `list_service_quotas`, 2026-11-13 |
+| 3 | Precio de AgentCore Policy | Autorización: **0.000025 USD por invocación** (`USE1-Policy:Consumption-based:Authorization-API-Invocations`). Generación: **130 USD por 1M tokens de entrada** (`USE1-Policy:Consumption-based:Generation-Input-Tokens`) | M | Price List `AmazonBedrockAgentCore`, 2026-11-13 |
+| 4 | Recursos de Terraform: `aws_bedrockagentcore_*` y `aws_bedrock_guardrail` | Existen en el provider: `bedrockagentcore_agent_runtime`, `bedrockagentcore_gateway`, `bedrockagentcore_evaluator` y otros; `bedrock_guardrail`, `bedrock_guardrail_version` y `bedrock_guardrail_resource_policy` | M | Repositorio `hashicorp/terraform-provider-aws`, `website/docs/r`, 2026-11-13 |
+| 5 | Versiones instaladas frente a las últimas publicadas | AWS CLI: 2.37.4 instalada frente a **2.40.2** (última etiqueta del repo). uv: 0.13.1 frente a **0.13.8** (PyPI). npm: 11.17.0 frente a **12.2.2** (npm registry). Node: v24.19.0 frente a LTS **v26.13.1** | M | `git ls-remote` del repo aws-cli, PyPI, npm registry y nodejs.org, 2026-11-13 |
+| 6 | Free tier por fila (antes N) | Lambda, Step Functions, Cognito, KMS y CloudWatch tienen nivel gratuito permanente con límites mensuales. API Gateway y RDS aparecen en el plan de créditos. Límites puntuales: Lambda 1 M solicitudes/mes; Step Functions 4 000 transiciones/mes; Cognito 50 000 MAU; KMS 20 000 solicitudes/mes; CloudWatch 5 GB de ingesta/mes; RDS: instancias db.t3.micro y db.t4g.micro en el plan gratuito de créditos | D | https://aws.amazon.com/free/serverless/, https://aws.amazon.com/free/security/, https://aws.amazon.com/rds/free/ (fuentes oficiales, 2026-11-13). Los límites se confirman en la cuenta: la documentación de free tier difiere entre cuentas nuevas y anteriores |
+| 7 | Servicios que permite el plan | La cuenta es **PAID** (Free Tier API). Un plan pagado no está limitado por el plan gratuito de la lista de servicios; la lista exacta se confirma en la consola de Free Tier | D | Free Tier API `get_account_plan_state` (M, 2026-11-12) y https://docs.aws.amazon.com/accounts/latest/reference/bcm-lite-free-tier.html |
+
+**Lo que queda N después de este cierre:** la cuota de solicitudes de Haiku 5.5 (fila 2). Su consulta directa en la consola de Service Quotas es la única forma de confirmarla.
