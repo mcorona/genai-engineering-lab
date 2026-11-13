@@ -19,8 +19,20 @@
       "suprimidos": 1
     },
     "cdk_nag": {
-      "estado": "no medido",
-      "motivo": "cdk-nag 3.0.2 registra el aspecto pero el reporte sale vacio; aplicarlo como aspecto de app falla con 'aspectApplication.aspect.visit is not a function'. Decision del usuario: usar checkov."
+      "version": "2.38.2",
+      "evaluadas": 15,
+      "cumplen": 13,
+      "suprimidas": [
+        "IAM5 Frontera: comodín sobre objetos de este bucket",
+        "IAM5 Rol/DefaultPolicy: solo s3:GetObject sobre objetos de este bucket"
+      ],
+      "no_cumplen": 0,
+      "antes": {
+        "evaluadas": 18,
+        "no_cumplen": 5,
+        "detalle": "IAM5 por grant_read (s3:GetObject*, s3:List*) y por el comodín de objetos"
+      },
+      "3.0.2": "falla en synth: aspectApplication.aspect.visit is not a function"
     },
     "tf_checkov_antes": {
       "pasan": 69,
@@ -31,7 +43,8 @@
       "pasan": 82,
       "fallan": 0,
       "suprimidos": 7
-    }
+    },
+    "cdk_nag_motivo_anterior": "cdk-nag 3.0.2 registra el aspecto y falla al sintetizar; el reporte de validación estaba vacío porque se revisaba el archivo equivocado (el CSV es AwsSolutions--<stack>-NagReport.csv)."
   },
   "supresiones": [
     {
@@ -115,6 +128,60 @@
     },
     "pendiente": [
       "cotizar el costo de Gateway e invocaciones con el Price List (requiere login)"
+    ]
+  },
+  "perfil_prod": {
+    "consultado": "2026-11-13",
+    "archivo": "semana-19/spike/perfiles.json",
+    "sintetizado": {
+      "lab": "OK",
+      "prod": "OK"
+    },
+    "diferencias_sintetizadas": {
+      "KMS DeletionPolicy": {
+        "lab": "Delete",
+        "prod": "Retain"
+      },
+      "KMS PendingWindowInDays": {
+        "lab": 7,
+        "prod": 30
+      },
+      "buckets DeletionPolicy": {
+        "lab": "Delete",
+        "prod": "Retain"
+      }
+    },
+    "cdk_nag": {
+      "lab": {
+        "cumplen": 13,
+        "suprimidas": 2,
+        "no_cumplen": 0
+      },
+      "prod": {
+        "cumplen": 13,
+        "suprimidas": 2,
+        "no_cumplen": 0
+      }
+    },
+    "checkov_cdk": {
+      "lab": {
+        "pasan": 39,
+        "fallan": 0,
+        "suprimidos": 1
+      },
+      "prod": {
+        "pasan": 39,
+        "fallan": 0,
+        "suprimidos": 1
+      }
+    },
+    "declaradas_no_sintetizadas": [
+      "waf",
+      "api REST",
+      "azs",
+      "multi_az_bd",
+      "proteccion_borrado_bd",
+      "retencion_logs_dias"
     ]
   }
 }

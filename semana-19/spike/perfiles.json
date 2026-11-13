@@ -1,0 +1,25 @@
+{
+  "consultado": "2026-11-13",
+  "nota": "Un solo archivo con las diferencias lab y prod. El stack del spike usa las claves marcadas (usado_en_spike: true); las demás describen el diseño de prod (ADR 0002, 0003, 0006) y no se sintetizan aquí.",
+  "lab": {
+    "politica_borrado": "DESTROY",
+    "ventana_borrado_llave_dias": 7,
+    "retencion_logs_dias": 14,
+    "azs": 1,
+    "multi_az_bd": false,
+    "api": "HTTP",
+    "waf": false,
+    "proteccion_borrado_bd": false
+  },
+  "prod": {
+    "politica_borrado": "RETAIN",
+    "ventana_borrado_llave_dias": 30,
+    "retencion_logs_dias": 365,
+    "azs": 3,
+    "multi_az_bd": true,
+    "api": "REST",
+    "waf": true,
+    "proteccion_borrado_bd": true
+  },
+  "claves_usadas_en_spike": ["politica_borrado", "ventana_borrado_llave_dias"]
+}

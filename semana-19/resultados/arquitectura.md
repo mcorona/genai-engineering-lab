@@ -24,7 +24,7 @@ Flow: client → API Gateway HTTP API (Cognito JWT, groups `analista` and `aprob
 | Lines of code, base stack | 45 | 193 |
 | checkov, base stack | 39 pass, 0 fail, 1 suppressed | 82 pass, 0 fail, 7 suppressed |
 | checkov, Bedrock stack | 24 pass, 0 fail (L1) | 127 pass, 0 fail, 7 suppressed (base + IA) |
-| cdk-nag 3.0.2 | not measured (the aspect does not apply in this combination) | not applicable |
+| cdk-nag 2.38.2 (AwsSolutions) | 13 compliant, 2 suppressed with reason, 0 non-compliant | not applicable |
 | Guardrail, KB on S3 Vectors, AgentCore Gateway | L1 stable: synth OK. The L2 alpha KB does not support S3 Vectors | validate and plan OK |
 | Synth or plan time | ~0.95 s synth | ~1.2 s plan (no refresh, no credentials) |
 | Bootstrap account footprint | 17 resource types; KMS 1.00 USD/month (M); S3 and ECR storage N | none (local state) |
@@ -34,9 +34,9 @@ Flow: client → API Gateway HTTP API (Cognito JWT, groups `analista` and `aprob
 ## Limitations of the lab
 
 - The lab does not deploy prod. The prod profile is synthesized and costed; its Multi-AZ database and endpoints are N.
-- The endpoint hourly rate and Lambda request price are N: the lab total is partial and says so.
-- Haiku 4.5 prices come from the week 12 catalog (2026-10-28). The re-query of 2026-11-13 needs an AWS login and is pending.
+- The lab total is complete (all its prices are M). Prod is partial: RDS Multi-AZ is N, and Step Functions transitions stay D (the Price List has no service code for them).
+- Haiku 4.5 prices were re-queried on 2026-11-13 from the Price List (M).
 - The Haiku token distribution comes from week 13 runs with Haiku 5.5; it is an approximation for Haiku 4.5.
-- cdk-nag does not run in this stack; checkov covers both tools.
+- cdk-nag 3.0.2 (the candidate pin) fails on synth in this combination; the stack uses 2.38.2. Checkov covers both tools.
 - The Cognito discovery URL in the Gateway is a placeholder; it is replaced in activity 3.
 - AgentCore Gateway and the KB are synthesized and validated, not deployed.

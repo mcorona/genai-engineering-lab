@@ -109,8 +109,8 @@
       "fuente": "PyPI"
     },
     "cdk-nag (Python)": {
-      "version": "3.0.2",
-      "fuente": "PyPI; no aplica reglas en esta combinación"
+      "version": "2.38.2",
+      "fuente": "PyPI; 3.0.2 falla en synth con aws-cdk-lib 2.276.0 (ver ADR 0001)"
     },
     "aws-cdk.aws-bedrock-alpha (Python)": {
       "version": "2.276.0a0",
