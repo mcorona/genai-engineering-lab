@@ -1,5 +1,8 @@
 """Week 19, preparation: the `semana19` monthly budget ($5) with alerts, dry run by default.
 
+SUPERSEDED in activity 3: the budget and its action are now declared in the semana19-control stack
+(semana-19/infra/cdk/app.py). Do not run --si here: it would create a budget with the same name first.
+
 Alerts (email subscribers): ACTUAL at 50%, ACTUAL at 100%, FORECASTED at 100% of the limit.
 The filter is the cost allocation tag `proyecto=semana19`. That tag must be activated in Billing before the budget sees
 any cost; AWS takes up to 24 hours to show a newly activated tag.
