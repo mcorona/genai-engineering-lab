@@ -38,6 +38,6 @@ Each row: concept → where the lab shows it → evidence. Status: **medido** (M
 | Endpoint policy limited by `aws:PrincipalAccount` | D3 | `politica_cuenta` in `Base` | `test_endpoints_limitados_a_la_cuenta` | synth tested |
 | VPC flow logs to an encrypted group with short retention | D3 | `GrupoFlowLogs`, `FlujosDeLaRed` | `test_flow_logs_con_retencion_del_perfil` | synth tested |
 | Budget action (APPLY_IAM_POLICY at 100 %) and why it must not block deletes | D3 | `AccionPresupuesto`, `CREAR_Y_ACTUALIZAR` | `test_la_congelacion_no_bloquea_borrar` | synth tested; limitation (bootstrap roles) in `resultados/base.md` |
-| Cost Anomaly Detection (monitor + daily subscription, threshold 1 USD) | D3 | `MonitorAnomalias`, `SuscripcionAnomalias` | `test_anomalias_con_monitor_y_suscripcion` | price N |
+| Cost Anomaly Detection (not deployed: its price is N) | D3 | not in the stack | `test_sin_monitor_de_anomalias_hasta_confirmar_su_precio` | price N |
 | Log retention in every group | D3 | `RetencionDeLogs` aspect | `test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion` | tested |
 | Deploy in two steps: control by CLI (no assets, no bootstrap) and the bootstrap after it, trusting only the deploy role | D2 | `desplegar.sh` | `test_desplegar_sin_si_no_llama_a_aws` | simulation tested; real run pending |

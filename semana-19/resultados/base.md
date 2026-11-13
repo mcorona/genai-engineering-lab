@@ -9,7 +9,7 @@ Two stacks per profile (`semana-19/infra/cdk/app.py`, profile values in `semana-
 
 | Stack | Persists | Contents | How it is deployed |
 |---|---|---|---|
-| `semana19-control` | yes, $0/h | boundary `semana19-limite`, freeze `semana19-congelar`, CDK execution policy `semana19-cfn-exec`, deploy role `semana19-despliegue`, budget `semana19` ($5, alerts ACTUAL 50 %, ACTUAL 100 %, FORECASTED 100 %), budget action (APPLY_IAM_POLICY at 100 % ACTUAL), role of the action, Cost Anomaly monitor and daily subscription | `aws cloudformation deploy` (no assets, so no bootstrap needed) |
+| `semana19-control` | yes, $0/h | boundary `semana19-limite`, freeze `semana19-congelar`, CDK execution policy `semana19-cfn-exec`, deploy role `semana19-despliegue`, budget `semana19` ($5, alerts ACTUAL 50 %, ACTUAL 100 %, FORECASTED 100 %), budget action (APPLY_IAM_POLICY at 100 % ACTUAL), role of the action. The Cost Anomaly monitor is **not** in the stack: its price is N (decision b, 2026-11-13) | `aws cloudformation deploy` (no assets, so no bootstrap needed) |
 | `semana19-base` | no, per session | KMS key `alias/semana19` (rotation on), VPC (2 private isolated subnets in lab, 3 in prod, no IGW, no NAT, default SG restricted), S3 gateway endpoint, interface endpoints CloudWatch Logs and Step Functions (ADR 0005) in 1 AZ in lab and 3 in prod (ADR 0006), security groups (tools Lambda SG empty; endpoint SG 443 only from it), VPC flow logs to an encrypted group (1 day in lab, 365 in prod), flow-log role | `cdk deploy` with the `s19` qualifier after the bootstrap |
 | bootstrap `semana19-cdktoolkit` | no | CDK bootstrap, qualifier `s19`, execution policy `semana19-cfn-exec` (not AdministratorAccess), trust only `semana19-despliegue` | `cdk bootstrap` with the admin profile |
 
@@ -97,7 +97,7 @@ Authorized estimate: **0.02273973 USD per hour** (activity 2). The breakdown bel
 | Flow logs, ingestion | 0.50 USD per GB, first 10 TB, Standard class | Price List, `USE1-VendedLog-Bytes`, SKU GHRXAWYBWDN7X39F | M price; **volume N** (not measured) |
 | Flow logs, storage | not priced here | — | N |
 | Bootstrap storage (S3 assets, ECR) | not priced here | — | N |
-| Cost Anomaly Detection | not in the Price List (`AWSCostExplorer` has no anomaly product); not on the official page | — | **N** |
+| Cost Anomaly Detection | not in the Price List (`AWSCostExplorer` has no anomaly product); not on the official page. Not deployed (decision b) | — | **N** |
 
 Figure without the N lines: 0.02273973 USD/h. The flow-log ingestion, storage and anomaly lines are N and go
 into the first real session as measured values, not estimates.

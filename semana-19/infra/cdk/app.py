@@ -21,7 +21,6 @@ import aws_cdk as cdk
 import jsii
 from aws_cdk import Aspects, Aws, CfnParameter, Duration, IAspect, RemovalPolicy, Stack, Tags
 from aws_cdk import aws_budgets as budgets
-from aws_cdk import aws_ce as ce
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_kms as kms
@@ -287,19 +286,10 @@ class Control(Stack):
                                                                      type="EMAIL")])
         presupuesto.add_dependency(rol_presupuesto.node.default_child)
 
-        monitor = ce.CfnAnomalyMonitor(self, "MonitorAnomalias", monitor_name="semana19-anomalias",
-                                       monitor_type="DIMENSIONAL", monitor_dimension="SERVICE")
-        ce.CfnAnomalySubscription(
-            self, "SuscripcionAnomalias", subscription_name="semana19-anomalias-correo", frequency="DAILY",
-            monitor_arn_list=[monitor.attr_monitor_arn],
-            subscribers=[ce.CfnAnomalySubscription.SubscriberProperty(address=correo.value_as_string, type="EMAIL")],
-            threshold_expression=json.dumps({"Dimensions": {"Key": "ANOMALY_TOTAL_IMPACT_ABSOLUTE",
-                                                            "MatchOptions": ["GREATER_THAN_OR_EQUAL"], "Values": ["1"]}}))
-
         suprimir_iam5(limite, ["LogsDelGrupoDelProyecto", "LogsDescribir", "CdkAssumeRoles", "CloudFormationLeer",
                                "RestringirSgPorDefecto"])
-        suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
+        suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
                                   "FuncionesDeCustomResourceDelProyecto", "RolesConLimite"])
         saltar_checkov(ejecucion, {

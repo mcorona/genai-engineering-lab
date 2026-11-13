@@ -314,11 +314,10 @@ def test_la_congelacion_no_bloquea_borrar(perfil):
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
-def test_anomalias_con_monitor_y_suscripcion(perfil):
-    pl = de_control(perfil)
-    assert len(recursos(pl, "AWS::CE::AnomalyMonitor")) == 1
-    (suscripcion,) = recursos(pl, "AWS::CE::AnomalySubscription").values()
-    assert suscripcion["Properties"]["Frequency"] == "DAILY"
+def test_sin_monitor_de_anomalias_hasta_confirmar_su_precio(perfil):
+    # Cost Anomaly Detection price is N (not in the Price List, not on the official page): not in the stack.
+    assert recursos(de_control(perfil), "AWS::CE::AnomalyMonitor") == {}
+    assert recursos(de_control(perfil), "AWS::CE::AnomalySubscription") == {}
 
 
 # ---------------------------------------------------------------- wildcards and naming

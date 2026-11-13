@@ -25,10 +25,6 @@
       "AWS::IAM::ManagedPolicy"
     ],
     [
-      "MonitorAnomalias",
-      "AWS::CE::AnomalyMonitor"
-    ],
-    [
       "Presupuesto",
       "AWS::Budgets::Budget"
     ],
@@ -39,10 +35,6 @@
     [
       "RolPresupuestoDefaultPolicy",
       "AWS::IAM::Policy"
-    ],
-    [
-      "SuscripcionAnomalias",
-      "AWS::CE::AnomalySubscription"
     ]
   ],
   "semana19-base": [
