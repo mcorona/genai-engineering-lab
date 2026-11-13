@@ -185,7 +185,12 @@ def test_verificar_entorno_ci_sin_aws():
 def test_semana19_sin_correos_ni_rutas_personales():
     correo = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
     rutas = re.compile(r"/Users/|/home/")
-    for ruta in S19.rglob("*"):
+    # Lo que se publicaría: archivos versionados o no ignorados. Las cachés ignoradas (p. ej. .terraform/) no se publican.
+    r = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "--", "semana-19"],
+                       cwd=RAIZ, capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr
+    candidatos = [RAIZ / f for f in r.stdout.split() if f]
+    for ruta in candidatos:
         if not ruta.is_file() or ruta.suffix in {".pyc"} or ruta.resolve() == Path(__file__).resolve():
             continue
         if "__pycache__" in ruta.parts or ".pytest_cache" in ruta.parts:

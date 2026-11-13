@@ -9,7 +9,7 @@ Week 19 deploys the LegacyBridge demo with infrastructure as code. The spike (`s
 - **CDK, Python.** Stable L1 constructs exist for every resource the spike needs (`CfnGuardrail`, `CfnKnowledgeBase`, `CfnVectorBucket`, `CfnIndex`, `CfnGateway`). The alpha L2 packages (`aws-cdk.aws-bedrock-alpha`, `aws-cdk.aws-bedrock-agentcore-alpha`, 2.276.0a0) exist but do not cover S3 Vectors for the Knowledge Base, and the AgentCore alpha already marks some classes as deprecated in favour of `aws-cdk-lib`.
 - **Terraform.** Native resources exist and validate: `aws_bedrock_guardrail`, `aws_bedrockagent_knowledge_base` (with `S3_VECTORS`), `aws_s3vectors_vector_bucket`, `aws_s3vectors_index`, `aws_bedrockagentcore_gateway`.
 
-## Measurements (`spike_iac.json`)
+### Measurements (`spike_iac.json`)
 
 | Measure | CDK (Python) | Terraform |
 |---|---|---|

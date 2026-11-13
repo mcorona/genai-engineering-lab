@@ -14,3 +14,15 @@ Each row: concept → where the lab shows it → evidence. Status: **medido** (M
 | Least-privilege readiness: named admin and operator profiles, no access keys | D3 | `preparar/verificar_entorno.py` | operador y admin son la misma identidad (`linea_base.md` §7): excepción abierta | falla |
 | Tag-based resource inventory and a teardown proof | D3 | `infra/inventario.py` (Tagging API plus name prefix) | `"quedan": "nada"` from the Mac run | medido 2026-11-12 |
 | KMS key pending deletion billing | D3 | KMS pricing doc (no es artículo del catálogo) | `resultados/linea_base.md` §3 (D con enlace) | D |
+
+## Activity 2 (D1, D2, D4)
+
+| Concept | Domain | Where the lab shows it | Evidence | Status |
+|---|---|---|---|---|
+| Model choice by cost per token against fixed cost per hour | D4 | `semana-19/costos/modelo.py` (per query and per hour, two profiles) | `resultados/cotizacion.md`, per query 0.0799 USD and per hour 0.0219 USD (lab, partial) | medido (partial: endpoints N) |
+| Inference profiles (`us.`) and quotas as a model choice constraint | D1 | `semana-19/costos/precios.json` (Haiku 4.5 regional, `us.`); Haiku 5.5 quota 0 | `resultados/linea_base.md` H1, H2; cuota Haiku 5.5 en CASE_OPENED | medido |
+| Converse API with Guardrail | D2 | `semana-19/arquitectura/diagrama.mmd` (agent → Converse); Guardrail in both IaC tools | `resultados/spike_iac.json` (`guardrail_y_kb`) | diseño y synth; no invocado |
+| Prompt Management versions in the request path | D2 | diagram node "versión de Prompt Management" | `arquitectura/diagrama.svg` | diseño |
+| Serverless patterns: Lambda outside the VPC, HTTP API with JWT, Step Functions with `waitForTaskToken` | D2 | `arquitectura/adr/0002`, `0004`, `0005` | ADRs and the diagram | diseño; prices M or N per item |
+| Fixed cost versus variable cost (zero queries is only the fixed part) | D4 | `costos/modelo.py` and `tests/test_costos.py` (zero queries test) | `cotizacion.md`: 5.44 USD/month lab with 0 queries (partial) | medido |
+| Knowledge Base on S3 Vectors with Titan V2 | D1 | `spike/cdk/app_ia.py`, `spike/terraform/ia.tf` | `spike_iac.json` (`ia`), validate and synth | sintetizado; no desplegado |
