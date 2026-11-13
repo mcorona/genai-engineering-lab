@@ -56,15 +56,28 @@ jobs:
       - name: Dependencias CDK (pines de semana-19/spike/cdk/requirements.txt) y checkov 3.4.4
         run: |
           pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4"
-      - name: Sintetizar CDK (sin AWS)
-        env:
-          CDK_OUTDIR: ${{ runner.temp }}/cdk-out
+      - name: Sintetizar CDK, perfiles lab y prod (sin AWS)
         run: |
-          python semana-19/spike/cdk/app.py
-          python semana-19/spike/cdk/app_ia.py
-      - name: Escanear la plantilla de CDK con checkov
+          CDK_OUTDIR="$RUNNER_TEMP/cdk-out" python semana-19/spike/cdk/app.py
+          PERFIL=prod CDK_OUTDIR="$RUNNER_TEMP/cdk-out-prod" python semana-19/spike/cdk/app.py
+          CDK_OUTDIR="$RUNNER_TEMP/cdk-ia" python semana-19/spike/cdk/app_ia.py
+      - name: cdk-nag (AwsSolutions) sin incumplimientos
+        run: |
+          python - "$RUNNER_TEMP/cdk-out" "$RUNNER_TEMP/cdk-out-prod" <<'PY'
+          import csv, glob, sys
+          informes = [f for d in sys.argv[1:] for f in glob.glob(d + "/*NagReport.csv")]
+          assert len(informes) == 2, "debe haber informe de cdk-nag para lab y prod"
+          filas = [r for f in informes for r in csv.DictReader(open(f, encoding="utf-8"))]
+          malas = [r for r in filas if r["Compliance"] == "Non-Compliant"]
+          for r in malas: print("::error::", r["Rule ID"], r["Resource ID"], r["Rule Info"])
+          print("reglas:", len(filas), "suprimidas:", sum(r["Compliance"] == "Suppressed" for r in filas))
+          sys.exit(1 if malas else 0)
+          PY
+      - name: Escanear las plantillas de CDK (lab y prod) con checkov
         run: |
           checkov -d "$RUNNER_TEMP/cdk-out" --framework cloudformation --quiet --compact
+          checkov -d "$RUNNER_TEMP/cdk-out-prod" --framework cloudformation --quiet --compact
+          checkov -d "$RUNNER_TEMP/cdk-ia" --framework cloudformation --quiet --compact
       - name: Instalar Terraform 1.17.2 (sha256 verificado)
         run: |
           cd "$RUNNER_TEMP"

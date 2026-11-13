@@ -16,7 +16,7 @@ Week 19 deploys the LegacyBridge demo with infrastructure as code. The spike (`s
 | Lines of code, base stack (no comments, no blank lines) | 45 | 193 (base only) |
 | checkov, base stack after fixes | 39 pass, 0 fail, 1 suppressed | 82 pass, 0 fail, 7 suppressed |
 | checkov, IA stack | 24 pass, 0 fail (L1 template) | 127 pass, 0 fail, 7 suppressed (base + IA) |
-| cdk-nag 3.0.2 | not measured: it registers the aspect, the report is empty, and applying it to the app fails with `aspectApplication.aspect.visit is not a function` | not applicable |
+| cdk-nag (AwsSolutions) | 2.38.2 with `aws-cdk-lib` 2.276.0, applied as a stack aspect: 15 rules, 13 compliant, 2 suppressed with reason, 0 non-compliant. Before the wildcard fixes: 5 IAM5 findings. cdk-nag 3.0.2 fails on synth with `aspectApplication.aspect.visit is not a function` | not applicable |
 | Guardrail | L1 `CfnGuardrail` synthesizes; L2 alpha `Guardrail` synthesizes | `aws_bedrock_guardrail` validates and plans |
 | Knowledge Base on S3 Vectors | L1 `CfnKnowledgeBase` + `CfnVectorBucket` + `CfnIndex` synthesizes. The L2 alpha `KnowledgeBase` accepts only `VectorStore.open_search_serverless`, so it cannot use S3 Vectors | `aws_bedrockagent_knowledge_base` + `aws_s3vectors_*` validates and plans |
 | AgentCore Gateway | L1 stable `CfnGateway` synthesizes; L2 alpha `Gateway` synthesizes | `aws_bedrockagentcore_gateway` validates and plans |
@@ -28,13 +28,13 @@ Week 19 deploys the LegacyBridge demo with infrastructure as code. The spike (`s
 
 **CDK in Python**, following the default. The Bedrock and AgentCore constructs needed by the stack exist in the stable `aws-cdk-lib` (L1). The alpha L2 classes are not used in code that will deploy: the KB L2 cannot express S3 Vectors, and the AgentCore alpha already points to `aws-cdk-lib` for some classes.
 
-The rule that would have changed the default (constructs missing or unstable) does not hold for the stable L1 constructs. The failing piece is cdk-nag 3.0.2 as a scanner, which the plan does not use: checkov covers the same stack in both tools.
+The rule that would have changed the default (constructs missing or unstable) does not hold for the stable L1 constructs. cdk-nag 3.0.2 does not run in this combination; 2.38.2 does, and it is the version that the plan's scanner checks use (with checkov on the same stack). This pin deviates from the candidate 3.0.2 of `preparar/versiones.json`, and the reason is recorded here.
 
 **Reason against it, recorded:** `cdk bootstrap` puts resources in the account (a KMS key at 1.00 USD/month, plus S3 and ECR storage) that Terraform with local state would not create. The lab must account for them in the teardown of activity 9.
 
 ## Consequences
 
-- The IaC code is Python with pinned versions in `semana-19/spike/cdk/requirements.txt` (`aws-cdk-lib` 2.276.0, `constructs` 10.8.1, `cdk-nag` 3.0.2, both alpha packages 2.276.0a0). Scanning uses checkov 3.4.4, not cdk-nag.
+- The IaC code is Python with pinned versions in `semana-19/spike/cdk/requirements.txt` (`aws-cdk-lib` 2.276.0, `constructs` 10.8.1, `cdk-nag` 2.38.2, both alpha packages 2.276.0a0). Scanning uses checkov 3.4.4, not cdk-nag.
 - The Knowledge Base uses L1 `CfnKnowledgeBase` with S3 Vectors. If the L2 alpha gains S3 Vectors support, the decision should be reviewed.
 - The bootstrap resources are declared in the teardown plan: the KMS key has a deletion window, and its billing until deletion is marked D (see `linea_base.md` §3).
 - The AgentCore Gateway in the lab uses an example Cognito discovery URL (placeholder). It must be replaced when the Cognito user pool exists (activity 3).
