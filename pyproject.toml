@@ -42,4 +42,5 @@ semana19 = [
     "botocore==1.43.122",
     "moto==5.2.5",
     "pytest==9.2.0",
+    "awscrt==0.38.0",
 ]

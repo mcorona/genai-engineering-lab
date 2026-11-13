@@ -1,0 +1,32 @@
+{
+  "fecha": "2026-11-12",
+  "region": "us-east-1",
+  "por_categoria": {
+    "stacks_cloudformation": 0,
+    "roles_iam": 0,
+    "llaves_kms_por_alias": 0,
+    "vpcs": 0,
+    "subredes": 0,
+    "security_groups": 0,
+    "endpoints_vpc": 0,
+    "lambdas": 0,
+    "state_machines": 0,
+    "apis_http": 0,
+    "apis_rest": 0,
+    "user_pools": 0,
+    "rds": 0,
+    "buckets_s3": 0,
+    "vector_buckets_s3vectors": 0,
+    "knowledge_bases": 0,
+    "guardrails": 0,
+    "prompts": 0,
+    "gateways_agentcore": 0,
+    "runtimes_agentcore": 0,
+    "log_groups": 0,
+    "etiquetados_tagging_api": 0
+  },
+  "nombres": {},
+  "no_medido": [],
+  "total": 0,
+  "quedan": "nada"
+}

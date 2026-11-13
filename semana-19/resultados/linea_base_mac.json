@@ -1,0 +1,1550 @@
+{
+  "fecha": "2026-11-12",
+  "donde": "mac",
+  "region": "us-east-1",
+  "cuenta": {
+    "fecha": "2026-11-12",
+    "fuentes": {},
+    "plan": {
+      "marca": "M",
+      "plan": "PAID",
+      "estado": "ACTIVE",
+      "fuente": "Free Tier API get_account_plan_state",
+      "fecha": "2026-11-12"
+    },
+    "creditos": {
+      "marca": "D",
+      "nota": "la API no da saldo ni vencimiento; se confirma con la pantalla de Billing",
+      "pendiente": "captura o dato de Manuel"
+    },
+    "servicios_del_plan": {
+      "marca": "N",
+      "nota": "pendiente de medir con el plan y la lista de la documentación de Free Tier"
+    }
+  },
+  "bedrock": {
+    "fecha": "2026-11-12",
+    "modelos": [
+      "amazon.nova-2-multimodal-embeddings-v1:0",
+      "amazon.titan-embed-g1-text-02",
+      "amazon.titan-embed-image-v1",
+      "amazon.titan-embed-image-v1:0",
+      "amazon.titan-embed-text-v1",
+      "amazon.titan-embed-text-v1:2:8k",
+      "amazon.titan-embed-text-v2:0",
+      "amazon.titan-embed-text-v2:0:8k",
+      "anthropic.claude-fable-5",
+      "anthropic.claude-fable-5-1",
+      "anthropic.claude-fable-5-2",
+      "anthropic.claude-haiku-4-5-20251001-v1:0",
+      "anthropic.claude-haiku-5-5",
+      "anthropic.claude-opus-4-1-20250805-v1:0",
+      "anthropic.claude-opus-4-5-20251101-v1:0",
+      "anthropic.claude-opus-4-6-v1",
+      "anthropic.claude-opus-4-7",
+      "anthropic.claude-opus-4-8",
+      "anthropic.claude-opus-5",
+      "anthropic.claude-opus-5-5",
+      "anthropic.claude-sonnet-4-5-20250929-v1:0",
+      "anthropic.claude-sonnet-4-6",
+      "anthropic.claude-sonnet-5",
+      "anthropic.claude-sonnet-5-5",
+      "cohere.embed-english-v3",
+      "cohere.embed-english-v3:0:512",
+      "cohere.embed-multilingual-v3",
+      "cohere.embed-multilingual-v3:0:512",
+      "cohere.embed-v4:0",
+      "twelvelabs.marengo-embed-2-7-v1:0",
+      "twelvelabs.marengo-embed-3-0-v1:0"
+    ],
+    "modelos_marca": "M",
+    "inference_profiles": {
+      "marca": "M",
+      "ids": [
+        "global.anthropic.claude-fable-5",
+        "global.anthropic.claude-fable-5-1",
+        "global.anthropic.claude-fable-5-2",
+        "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "global.anthropic.claude-haiku-5-5",
+        "global.anthropic.claude-opus-4-5-20251101-v1:0",
+        "global.anthropic.claude-opus-4-6-v1",
+        "global.anthropic.claude-opus-4-7",
+        "global.anthropic.claude-opus-4-8",
+        "global.anthropic.claude-opus-5",
+        "global.anthropic.claude-opus-5-5",
+        "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "global.anthropic.claude-sonnet-4-6",
+        "global.anthropic.claude-sonnet-5",
+        "global.anthropic.claude-sonnet-5-5",
+        "us.anthropic.claude-3-haiku-20240307-v1:0",
+        "us.anthropic.claude-3-sonnet-20240229-v1:0",
+        "us.anthropic.claude-fable-5",
+        "us.anthropic.claude-fable-5-1",
+        "us.anthropic.claude-fable-5-2",
+        "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "us.anthropic.claude-haiku-5-5",
+        "us.anthropic.claude-opus-4-1-20250805-v1:0",
+        "us.anthropic.claude-opus-4-5-20251101-v1:0",
+        "us.anthropic.claude-opus-4-6-v1",
+        "us.anthropic.claude-opus-4-7",
+        "us.anthropic.claude-opus-4-8",
+        "us.anthropic.claude-opus-5",
+        "us.anthropic.claude-opus-5-5",
+        "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "us.anthropic.claude-sonnet-4-6",
+        "us.anthropic.claude-sonnet-5",
+        "us.anthropic.claude-sonnet-5-5"
+      ]
+    },
+    "disponibilidad_list": {
+      "guardrails": {
+        "marca": "M",
+        "respuesta": 200
+      },
+      "evaluation_jobs": {
+        "marca": "M",
+        "respuesta": 200
+      },
+      "prompt_management": {
+        "marca": "M",
+        "respuesta": 200
+      },
+      "knowledge_bases": {
+        "marca": "M",
+        "respuesta": 200
+      },
+      "bedrock_agents": {
+        "marca": "M",
+        "respuesta": 200
+      },
+      "agentcore_gateway": {
+        "marca": "M",
+        "respuesta": 200
+      },
+      "agentcore_runtime": {
+        "marca": "M",
+        "respuesta": 200
+      }
+    },
+    "agentcore_policy": {
+      "marca": "M",
+      "respuesta": 200
+    }
+  },
+  "cuotas": {
+    "marca": "M",
+    "filas": [
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Opus 4.6 V1",
+        "valor": 3000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Claude Opus 4.5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Anthropic Claude Sonnet 4.6",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Claude 3-5-Haiku v1 Fine-tuning job",
+        "valor": 10000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude Sonnet 4.5",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Anthropic Claude Haiku 4.5",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Amazon Titan Text Express",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Amazon Titan Text Premier",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Fable 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Opus 4.7",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Fable 5.1",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Sonnet 4.5 V1 1M Context Length",
+        "valor": 1000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Opus 4.8",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model invocation max tokens per day for Anthropic Claude Sonnet 4.5 V1 1M Context Length (doubled for cross-region calls)",
+        "valor": 27000000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Text Premier V1 32K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude Sonnet 4.6",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Cohere Embed English",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model invocation max tokens per day for Anthropic Claude Opus 4.5 (doubled for cross-region calls)",
+        "valor": 6750000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Text Embeddings V2",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude Opus 4.5",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Titan Text Embeddings V2",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Multimodal Embeddings G1 v1 Fine-tuning job",
+        "valor": 50000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Anthropic Claude Sonnet 4.5 V1 1M Context Length",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Opus 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Haiku 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Fable 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Opus 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Anthropic Claude Opus 4.5",
+        "valor": 25.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a custom model for Titan Multimodal Embeddings G1",
+        "valor": 3.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude V2 100K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Anthropic Claude 3.5 Haiku",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Text Embeddings",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude 3.5 Haiku 16K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Opus 4.5",
+        "valor": 2000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per day for Cohere Embed V4",
+        "valor": 16200000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Fable 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude Opus 5",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Text Premier",
+        "valor": 10.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per batch inference job for Claude Opus 5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Titan Text Embeddings V2",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Opus 4.8",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a custom model for Titan Text Embeddings V2",
+        "valor": 3.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Haiku 4.5",
+        "valor": 5000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Text G1 - Lite v1 Continued Pre-Training job",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Amazon Titan Text Embeddings",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Haiku 4.5",
+        "valor": 5000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude V2.1 200K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Sonnet 4.5 V1 1M Context Length",
+        "valor": 1000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Cohere Embed V4",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude Haiku 4.5",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model invocation max tokens per day for Anthropic Claude 3.5 Haiku (doubled for cross-region calls)",
+        "valor": 19584001.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per batch inference job for Claude Sonnet 4.5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude 3.5 Haiku",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Image Generator G2",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Opus 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Titan Multimodal Embeddings G1",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude Opus 5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand latency-optimized model inference requests per minute for Anthropic Claude 3.5 Haiku",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude 3.5 Haiku 64K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude Opus 4.6",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude V2 18K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude Opus 5",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand latency-optimized model inference tokens per minute for Anthropic Claude 3.5 Haiku",
+        "valor": 500000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Opus 4.6 V1",
+        "valor": 3000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Titan Multimodal Embeddings G1",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Anthropic Claude Sonnet 4.5 V1",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Text Embeddings V2",
+        "valor": 600.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Image Generator G1 V2 Fine-tuning job",
+        "valor": 10000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Opus 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Sonnet 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude Sonnet 4.6",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Text G1 - Express v1 Continued Pre-Training job",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude Sonnet 4.5.",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude 3.5 Haiku",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude Haiku 4.5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Sonnet 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Fable 5.1",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Opus 4.7",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Claude Haiku 4.5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Text G1 - Lite v1 Fine-tuning job",
+        "valor": 10000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Sonnet 4.6",
+        "valor": 6000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Amazon Titan Multimodal Embeddings G1",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Opus 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude Haiku 4.5",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Opus 4.8",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude Sonnet 4.6",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Cohere Embed V4",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Cohere Embed V4",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude 3.5 Haiku",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude Opus 4.5",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Titan Text Embeddings V2",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Titan Text Embeddings V2",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Titan Multimodal Embeddings G1",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Embeddings G1 - Text",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Cohere Embed English",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Claude 3.5 Haiku",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Claude Sonnet 4.6",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Fable 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Image Generator G1",
+        "valor": 6.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Sonnet 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude Opus 4.6",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude 3.5 Haiku",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude Opus 5",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for TwelveLabs Marengo Embed 3.0",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Cohere Embed V4",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Text G1 - Express 8K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Titan Multimodal Embeddings G1",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-Region model inference requests per minute for Anthropic Claude 3.5 Haiku",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Anthropic Claude 3.5 Haiku",
+        "valor": 2000000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Image Generator G1",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Sonnet 4.5 V1",
+        "valor": 5000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude Opus 4.6",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Opus 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per day for Anthropic Claude Sonnet 4.5 V1 1M Context Length",
+        "valor": 54000000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude Opus 4.5",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference input file size (in GB) for Claude Sonnet 4.5",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Anthropic Claude Opus 4.6 V1",
+        "valor": 25.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference requests per minute for Anthropic Claude Sonnet 4.6",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Cohere Embed V4",
+        "valor": 150000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per batch inference job for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Text Express",
+        "valor": 40.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude Opus 4.5",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Lite V1 4K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude Opus 4.5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Text G1 - Premier v1 Fine-tuning job",
+        "valor": 20000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Opus 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Fable 5.2",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Fable 5.1",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Sonnet 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per day for Anthropic Claude Opus 4.5",
+        "valor": 13500000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Anthropic Claude Sonnet 4.5 V1 1M Context Length",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Titan Text Embeddings V2",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude 3.5 Haiku 200K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude Sonnet 4.5",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Amazon Titan Image Generator G1 V2",
+        "valor": 2000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Titan Multimodal Embeddings G1",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Anthropic Claude Haiku 4.5",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Sonnet 4.6",
+        "valor": 6000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Sonnet 4.5 V1",
+        "valor": 5000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand InvokeModel async concurrent requests for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 3.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Claude Sonnet 4.6",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Opus 4.7",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Anthropic Claude Opus 4.5",
+        "valor": 25.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude Opus 4.6",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude Opus 4.6",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Titan Multimodal Embeddings G1",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Cohere Embed V4",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Opus 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Fable 5.2",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Opus 4.7",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Cohere Embed Multilingual",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Claude Sonnet 4.6",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Cohere Embed Multilingual",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Records per batch inference job for Claude Opus 4.6",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Amazon Titan Text Embeddings V2",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Anthropic Claude Opus 4.6 V1",
+        "valor": 25.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Multimodal Embeddings G1",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Sonnet 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Haiku 5.5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude V2.1 18K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model invocation max tokens per day for Cohere Embed V4 (doubled for cross-region calls)",
+        "valor": 8100000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Records per input file per batch inference job for Amazon Nova 2 Multimodal Embeddings V1",
+        "valor": 100000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Anthropic Claude Instant V1 100K",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Cohere Embed English",
+        "valor": 200.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude 3.5 Haiku",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Batch inference job size (in GB) for Titan Text Embeddings V2",
+        "valor": 5.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude Haiku 4.5",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference tokens per minute for Anthropic Claude Opus 4.5",
+        "valor": 2000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Image Generator G1 V1 Fine-tuning job",
+        "valor": 10000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference tokens per minute for Cohere Embed Multilingual",
+        "valor": 300000.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for TwelveLabs Marengo Embed 3.0",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand InvokeModel async concurrent requests for TwelveLabs Marengo Embed 3.0",
+        "valor": 1.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "(Model customization) Sum of training and validation records for a Titan Text G1 - Express v1 Fine-tuning job",
+        "valor": 10000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-Region model inference tokens per minute for Anthropic Claude 3.5 Haiku",
+        "valor": 4000000.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Cross-region model inference tokens per minute for Anthropic Claude Sonnet 5",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Global cross-region model inference requests per minute for Anthropic Claude Sonnet 4.5 V1",
+        "valor": 50.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude Haiku 4.5",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Sum of in-progress and submitted batch inference jobs using a base model for Claude Sonnet 4.5.",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Output tokens per minute for Claude Fable 5.1",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "[bedrock-mantle endpoint] Input tokens per minute for Claude Opus 4.8",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "Model units per provisioned model for Amazon Titan Multimodal Embeddings G1",
+        "valor": 0.0,
+        "unidad": "None",
+        "ajustable": true
+      },
+      {
+        "nombre": "On-demand model inference requests per minute for Amazon Titan Image Generator G1 V2",
+        "valor": 6.0,
+        "unidad": "None",
+        "ajustable": false
+      },
+      {
+        "nombre": "Minimum number of records per batch inference job for Claude Opus 5",
+        "valor": 100.0,
+        "unidad": "None",
+        "ajustable": false
+      }
+    ],
+    "fecha": "2026-11-12",
+    "fuente": "Service Quotas list_service_quotas bedrock"
+  },
+  "precios": {
+    "fecha": "2026-11-12",
+    "articulos": {
+      "lambda_arm_solicitudes": {
+        "marca": "D",
+        "enlace": "https://aws.amazon.com/lambda/pricing/",
+        "nota": "la solicitud ARM estándar no aparece en el catálogo de Price List; la consulta exacta queda en la doc oficial",
+        "fecha": "2026-11-12"
+      },
+      "lambda_arm_gb_s": {
+        "marca": "M",
+        "precio_usd": "0.0000106667",
+        "unidad": "Lambda-GB-Second",
+        "usagetype": "Lambda-GB-Second-ARM",
+        "sku": "72SBSFWPMDTH8S3J",
+        "descripcion": "AWS Lambda - Total Compute for ARM - US East (Northern Virginia)-Tier-3",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AWSLambda, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "step_functions_standard_transiciones": {
+        "marca": "D",
+        "enlace": "https://aws.amazon.com/step-functions/pricing/",
+        "nota": "Step Functions no tiene código de servicio en la Price List",
+        "fecha": "2026-11-12"
+      },
+      "api_gateway_http_solicitudes": {
+        "marca": "M",
+        "precio_usd": "0.0000009000",
+        "unidad": "Requests",
+        "usagetype": "USE1-ApiGatewayHttpRequest",
+        "sku": "FC2TWT2UEPTBKVBX",
+        "descripcion": "$0.9/million requests - API Gateway HTTP API (more than 300 million)",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonApiGateway, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "cognito_mau_essentials": {
+        "marca": "M",
+        "precio_usd": "0.0150000000",
+        "unidad": "CognitoUserPoolsMAU",
+        "usagetype": "USE1-CognitoEssentialsMAU",
+        "sku": "XVYWD6TWRYVQWN85",
+        "descripcion": "Cognito Essentials us-east-1 tier 1 pricing",
+        "nota": "tier Essentials; el free tier es documental",
+        "fuente": "AWS Price List API, servicio AmazonCognito, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "rds_postgres_t4g_micro_single_az": {
+        "marca": "M",
+        "precio_usd": "0.0160000000",
+        "unidad": "Hrs",
+        "usagetype": "InstanceUsage:db.t4g.micro",
+        "sku": "9HPEGXQTDDGH53C9",
+        "descripcion": "$ 0.016 per RDS db.t4g.micro Single-AZ instance hour (or partial hour) running PostgreSQL",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonRDS, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "rds_gp3_almacenamiento_postgres": {
+        "marca": "M",
+        "precio_usd": "0.1150000000",
+        "unidad": "GB-Mo",
+        "usagetype": "RDS:GP3-Storage",
+        "sku": "2XPS3A47BS2PYAZE",
+        "descripcion": "USD 0.115 per GB-month of provisioned GP3 storage running Db2",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonRDS, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "aurora_serverless_v2_acu_hora_postgres": {
+        "marca": "M",
+        "precio_usd": "0.1200000000",
+        "unidad": "ACU-Hr",
+        "usagetype": "Aurora:ServerlessV2Usage",
+        "sku": "AVKW7ZJP8D72HNQC",
+        "descripcion": "USD 0.12 per Aurora Capacity Unit hour running Aurora PostgreSQL Serverless v2",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonRDS, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "aurora_escala_a_0_acu": {
+        "marca": "D",
+        "enlace": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html",
+        "nota": "el escalado a 0 ACU es un atributo de configuración, no un precio; se confirma en la doc",
+        "fecha": "2026-11-12"
+      },
+      "endpoint_vpc_interface_por_az_hora": {
+        "marca": "D",
+        "enlace": "https://aws.amazon.com/privatelink/pricing/",
+        "nota": "la tarifa por hora de endpoint de interfaz no aparece en AmazonVPC de la Price List",
+        "fecha": "2026-11-12"
+      },
+      "endpoint_vpc_interface_por_gb": {
+        "marca": "D",
+        "enlace": "https://aws.amazon.com/privatelink/pricing/",
+        "nota": "la tarifa por GB de endpoint de interfaz no aparece en AmazonVPC de la Price List",
+        "fecha": "2026-11-12"
+      },
+      "ipv4_publica_en_uso_hora": {
+        "marca": "M",
+        "precio_usd": "0.0050000000",
+        "unidad": "Hrs",
+        "usagetype": "USE1-PublicIPv4:InUseAddress",
+        "sku": "4GQUNXTFWVSGPUZK",
+        "descripcion": "$0.005 per In-use public IPv4 address per hour",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonVPC, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "kms_llave_administrada_mes": {
+        "marca": "M",
+        "precio_usd": "1.0000000000",
+        "unidad": "Keys",
+        "usagetype": "us-east-1-KMS-Keys",
+        "sku": "U553K98XGDXCYHWS",
+        "descripcion": "$1 per customer managed KMS key version in US East (N. Virginia)",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio awskms, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "kms_llave_pendiente_de_borrado": {
+        "marca": "D",
+        "enlace": "https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html",
+        "nota": "cobro de la llave pendiente de borrado: se confirma en la doc; no es un artículo del catálogo",
+        "fecha": "2026-11-12"
+      },
+      "cloudwatch_logs_ingesta": {
+        "marca": "M",
+        "precio_usd": "0.5000000000",
+        "unidad": "GB",
+        "usagetype": "DataProcessing-Bytes",
+        "sku": "96K55R2PV3ZZZ3AM",
+        "descripcion": "$0.50 per GB custom log data ingested in Standard log class - US East (Northern Virginia)",
+        "nota": "clase Standard",
+        "fuente": "AWS Price List API, servicio AmazonCloudWatch, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "cloudwatch_logs_almacenamiento": {
+        "marca": "M",
+        "precio_usd": "0.0300000000",
+        "unidad": "GB-Mo",
+        "usagetype": "USE1-TimedStorage-ByteHrs",
+        "sku": "6K9ADYQAHV5KX9KZ",
+        "descripcion": "$0.03 per GB-mo of log storage - US East (Northern Virginia)",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonCloudWatch, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "s3_vectors_almacenamiento": {
+        "marca": "M",
+        "precio_usd": "0.0600000000",
+        "unidad": "GB-Mo",
+        "usagetype": "Vectors-TimedStorage-ByteHrs",
+        "sku": "2H4CRAVNRTNBDFKV",
+        "descripcion": "$0.06 per GB-Mo of Storage in Vectors ",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonS3, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "modelo_claude_elegido": {
+        "marca": "D",
+        "enlace": "https://aws.amazon.com/bedrock/pricing/",
+        "nota": "Claude Haiku 5.5 y Haiku 4.5 no aparecen en la Price List de AmazonBedrock; la tarifa vigente se confirma en la página de precios",
+        "fecha": "2026-11-12"
+      },
+      "titan_text_embeddings_v2_tokens": {
+        "marca": "M",
+        "precio_usd": "0.0000200000",
+        "unidad": "1K tokens",
+        "usagetype": "USE1-TitanEmbeddingV2-Text-input-tokens",
+        "sku": "EDNQYEHQ3XQ8N7EY",
+        "descripcion": "$0.00002 per 1K tokens for TitanEmbeddingsV2-Text-input-tokens in US East",
+        "nota": "por 1K tokens",
+        "fuente": "AWS Price List API, servicio AmazonBedrock, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "agentcore_gateway_invocaciones": {
+        "marca": "M",
+        "precio_usd": "0.0000050000",
+        "unidad": "Invocations",
+        "usagetype": "USE1-Gateway:Consumption-based:API-Invocations",
+        "sku": "H8W62CM2CG5942WM",
+        "descripcion": "$0.000005 per Invocation for Gateway:Consumption-based:API-Invocations in US East (N. Virginia)",
+        "nota": "",
+        "fuente": "AWS Price List API, servicio AmazonBedrockAgentCore, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "agentcore_runtime_instancia": {
+        "marca": "M",
+        "precio_usd": "0.0102000000",
+        "unidad": "Hours",
+        "usagetype": "Runtime:Instance-based:c5.large:Management-Hours",
+        "sku": "D3VDQFBXU79H2K3Q",
+        "descripcion": "$0.0102 per Hour for Runtime:Instance-based:c5.large:Management-Hours in US East (N. Virginia)",
+        "nota": "unidad por instancia y hora",
+        "fuente": "AWS Price List API, servicio AmazonBedrockAgentCore, us-east-1",
+        "fecha": "2026-11-12"
+      },
+      "agentcore_policy": {
+        "marca": "N",
+        "nota": "sin coincidencia en la búsqueda del 2026-11-12; se revisa",
+        "fecha": "2026-11-12"
+      }
+    },
+    "errores": {},
+    "conteo": {
+      "M": 14,
+      "D": 7,
+      "N": 1
+    }
+  },
+  "herramientas": {
+    "aws": {
+      "instalada": "2.37.4",
+      "marca": "M",
+      "fecha": "2026-11-12"
+    },
+    "node": {
+      "instalada": "24.19.0",
+      "marca": "M",
+      "fecha": "2026-11-12"
+    },
+    "npm": {
+      "aws-cdk": {
+        "ultima_publicada": "2.1148.1",
+        "marca": "M",
+        "fecha": "2026-11-12"
+      },
+      "aws-cdk-lib": {
+        "ultima_publicada": "2.276.0",
+        "marca": "M",
+        "fecha": "2026-11-12"
+      },
+      "constructs": {
+        "ultima_publicada": "10.8.1",
+        "marca": "M",
+        "fecha": "2026-11-12"
+      },
+      "cdk-nag": {
+        "ultima_publicada": "3.0.2",
+        "marca": "M",
+        "fecha": "2026-11-12"
+      }
+    },
+    "uv": {
+      "instalada": "0.13.1",
+      "marca": "M",
+      "fecha": "2026-11-12"
+    },
+    "cdk": {
+      "instalada": null,
+      "marca": "M",
+      "nota": "no instalada"
+    },
+    "terraform": {
+      "instalada": null,
+      "marca": "M",
+      "nota": "no instalada"
+    },
+    "checkov": {
+      "instalada": null,
+      "marca": "M",
+      "nota": "no instalada"
+    }
+  },
+  "repo": {
+    "semana-19 en regresion": true,
+    "marca": "M"
+  },
+  "gasto_mes": {
+    "marca": "M",
+    "periodo": [
+      "2026-11-01",
+      "2026-11-12"
+    ],
+    "monto_usd": "-0.0000000012",
+    "moneda": "USD",
+    "fuente": "Cost Explorer get_cost_and_usage (1 llamada, $0.01)",
+    "fecha": "2026-11-12"
+  }
+}

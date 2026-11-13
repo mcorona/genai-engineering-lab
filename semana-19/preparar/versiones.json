@@ -5,22 +5,58 @@
     "boto3": "1.43.122",
     "botocore": "1.43.122",
     "moto": "5.2.5",
-    "pytest": "9.2.0"
+    "pytest": "9.2.0",
+    "awscrt": "0.38.0"
   },
   "python_candidatas_sin_fijar": {
-    "aws-cdk-lib": {"candidata": "2.275.0", "ultima_publicada": "2.276.0", "fuente": "PyPI aws-cdk-lib / npm aws-cdk-lib", "nota": "la versión de la librería CDK en Python; se fija en la actividad 1"},
-    "constructs": {"candidata": "10.8.1", "ultima_publicada": "10.8.1", "fuente": "PyPI constructs"},
-    "cdk-nag": {"candidata": "3.0.2", "ultima_publicada": "3.0.2", "fuente": "PyPI cdk-nag"}
+    "aws-cdk-lib": {
+      "candidata": "2.275.0",
+      "ultima_publicada": "2.276.0",
+      "fuente": "PyPI aws-cdk-lib / npm aws-cdk-lib",
+      "nota": "la versión de la librería CDK en Python; se fija en la actividad 1"
+    },
+    "constructs": {
+      "candidata": "10.8.1",
+      "ultima_publicada": "10.8.1",
+      "fuente": "PyPI constructs"
+    },
+    "cdk-nag": {
+      "candidata": "3.0.2",
+      "ultima_publicada": "3.0.2",
+      "fuente": "PyPI cdk-nag"
+    }
   },
   "npm": {
-    "aws-cdk": {"candidata": "2.1146.1", "ultima_publicada": "2.1148.1", "fuente": "npm aws-cdk (CLI)"},
-    "aws-cdk-lib": {"candidata": "2.275.0", "ultima_publicada": "2.276.0", "fuente": "npm aws-cdk-lib"},
-    "constructs": {"candidata": "10.8.1", "ultima_publicada": "10.8.1", "fuente": "npm constructs"},
-    "cdk-nag": {"candidata": "3.0.2", "ultima_publicada": "3.0.2", "fuente": "npm cdk-nag"}
+    "aws-cdk": {
+      "candidata": "2.1146.1",
+      "ultima_publicada": "2.1148.1",
+      "fuente": "npm aws-cdk (CLI)"
+    },
+    "aws-cdk-lib": {
+      "candidata": "2.275.0",
+      "ultima_publicada": "2.276.0",
+      "fuente": "npm aws-cdk-lib"
+    },
+    "constructs": {
+      "candidata": "10.8.1",
+      "ultima_publicada": "10.8.1",
+      "fuente": "npm constructs"
+    },
+    "cdk-nag": {
+      "candidata": "3.0.2",
+      "ultima_publicada": "3.0.2",
+      "fuente": "npm cdk-nag"
+    }
   },
   "alpha_cdk_bedrock_agentcore": {
-    "@aws-cdk/aws-bedrock-agentcore-alpha": {"ultima_publicada": "2.276.0-alpha.0", "fuente": "npm; se revisa en la actividad 1 si existe L2 de AgentCore y su madurez"},
-    "@aws-cdk/aws-bedrock-alpha": {"ultima_publicada": "2.276.0-alpha.0", "fuente": "npm; alpha, se revisa en la actividad 1"}
+    "@aws-cdk/aws-bedrock-agentcore-alpha": {
+      "ultima_publicada": "2.276.0-alpha.0",
+      "fuente": "npm; se revisa en la actividad 1 si existe L2 de AgentCore y su madurez"
+    },
+    "@aws-cdk/aws-bedrock-alpha": {
+      "ultima_publicada": "2.276.0-alpha.0",
+      "fuente": "npm; alpha, se revisa en la actividad 1"
+    }
   },
   "node": {
     "lts_publicada": "v26.13.1",

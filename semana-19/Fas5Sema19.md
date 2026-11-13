@@ -553,3 +553,5 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - 2026-11-03: plan created, to be handed to Claude CLI. Week 17 closed on `main` (`ce6221d`, PR #139).
 
 ---
+- 2026-11-12: actividad 1 medida (`resultados/linea_base.md`). Cuenta PAID y ACTIVE; gasto del mes -0.0000000012 USD (una llamada de Cost Explorer, autorizada). Haiku 5.5 con cuota 0 de tokens; Haiku 4.5 con 5 000 000 tokens/min y 50 solicitudes/min cross-region (propuesta de modelo, pendiente de Manuel). Precios: 14 medidos, 7 documentados, 1 sin verificar. Inventario en 0 (`quedan: nada`). Pendientes: créditos (Billing), rol de operador separado del admin, llaves en el perfil `default`.
+- 2026-11-12: decisiones de Manuel. (1) Modelo de las actividades 5 a 8: Haiku 4.5 con el perfil `us.` (cuota vigente); Haiku 5.5 queda pendiente de cuota. (2) Operador y admin son la misma identidad (`manuel-admin`): excepción registrada hasta crear un rol de solo lectura. (3) Corrida pagada de `sin-api` autorizada para el PR de la actividad 1.
