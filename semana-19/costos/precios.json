@@ -141,6 +141,20 @@
       "marca": "M",
       "fuente": "Price List API, USE1-Gateway:Consumption-based:API-Invocations (linea_base.md §2)",
       "fecha": "2026-11-12"
+    },
+    "budgets_budget_dia": {
+      "valor": 0.0,
+      "unidad": "USD por budget-day (dentro de 62 al mes, gratis)",
+      "marca": "M",
+      "fuente": "Price List API, AWSBudgets, usagetype BudgetsUsage, SKU T2UVJ9XYT52FBFAF: '$0.00 for Budget-days' (62 gratis al mes)",
+      "fecha": "2026-11-13"
+    },
+    "budgets_reporte": {
+      "valor": 0.01,
+      "unidad": "USD por reporte entregado",
+      "marca": "M",
+      "fuente": "Price List API, AWSBudgets, usagetype BudgetsReports, SKU 65GKVXQ58KMKSXD8. No se usa en el stack (solo alertas por correo)",
+      "fecha": "2026-11-13"
     }
   }
 }
