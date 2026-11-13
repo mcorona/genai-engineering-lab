@@ -101,6 +101,7 @@ def lineas_fijas_mes(par: Parametros, precios: dict) -> list[dict]:
     m.append(_linea("Cognito, MAU", precios, "cognito_mau", par.usuarios, "MAU", "por mes"))
     m.append(_linea("CloudWatch Logs, almacenamiento", precios, "cloudwatch_almacenamiento_gb_mes", pf["log_gb"],
                     "GB-mes", "por mes"))
+    m.append(_linea("AWS Budgets, 1 presupuesto (dentro de 62 budget-days gratis)", precios, "budgets_budget_dia", 30.0, "budget-days", "por mes"))
     m.append(_linea("Endpoints de VPC, datos procesados", precios, "endpoint_interfaz_gb_procesado",
                     par.gb_endpoint_mes, "GB", "por mes"))
     m.append(_linea("Step Functions, transiciones por aprobación", precios, "step_functions_transicion",
@@ -129,6 +130,16 @@ def lineas_consulta(par: Parametros, precios: dict, tokens_in: float, tokens_out
 
 def totales(lineas: list[dict]) -> float:
     return sum(l["costo_usd"] for l in lineas if l["costo_usd"] is not None)
+
+
+def estimacion_base_hora(perfil: str = "lab") -> dict:
+    """Stack base de la actividad 3 (KMS, VPC endpoints, IAM, presupuesto), por hora."""
+    precios = cargar_precios()
+    par = Parametros(perfil=perfil)
+    lineas = [l for l in lineas_fijas_hora(par, precios) if l["partida"].startswith(("KMS", "Endpoints de interfaz"))]
+    presupuesto = _linea("AWS Budgets, 1 presupuesto", precios, "budgets_budget_dia", 1.0 / 24, "budget-day/24", "por hora")
+    lineas.append(presupuesto)
+    return {"perfil": perfil, "lineas": lineas, "por_hora_usd": totales(lineas), "parcial": any(l["costo_usd"] is None for l in lineas)}
 
 
 def modelo(par: Parametros) -> dict:
