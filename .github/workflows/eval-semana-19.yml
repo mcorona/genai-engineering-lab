@@ -42,7 +42,7 @@ jobs:
       - name: Pruebas sin AWS
         run: |
           set -o pipefail
-          python -m pytest -q semana-19/tests -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest.txt"
+          python -m pytest -q semana-19/tests -p no:cacheprovider -rs --ignore=semana-19/tests/test_infra_cdk.py | tee "$RUNNER_TEMP/pytest.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
 
   spike-iac:
@@ -55,7 +55,7 @@ jobs:
           python-version: "3.13"
       - name: Dependencias CDK (pines de semana-19/spike/cdk/requirements.txt) y checkov 3.4.4
         run: |
-          pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4"
+          pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4" "pytest==8.4.2"  # 8.4.2: pytest 9 needs packaging>=24, checkov needs <24
       - name: Sintetizar CDK, perfiles lab y prod (sin AWS)
         run: |
           CDK_OUTDIR="$RUNNER_TEMP/cdk-out" python semana-19/spike/cdk/app.py
@@ -73,6 +73,20 @@ jobs:
           print("reglas:", len(filas), "suprimidas:", sum(r["Compliance"] == "Suppressed" for r in filas))
           sys.exit(1 if malas else 0)
           PY
+      - name: Pruebas de la fundación (CDK, lab y prod, sin AWS)
+        run: |
+          set -o pipefail
+          python -m pytest -q semana-19/tests/test_infra_cdk.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
+          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest_infra.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
+
+      - name: Sintetizar la fundación de la actividad 3 y escanearla con checkov
+        run: |
+          for perfil in lab prod; do
+            rm -rf "$RUNNER_TEMP/fundacion-$perfil"
+            PERFIL="$perfil" CDK_OUTDIR="$RUNNER_TEMP/fundacion-$perfil" python semana-19/infra/cdk/app.py
+            checkov -d "$RUNNER_TEMP/fundacion-$perfil" --framework cloudformation --quiet --compact
+          done
+
       - name: Escanear las plantillas de CDK (lab y prod) con checkov
         run: |
           checkov -d "$RUNNER_TEMP/cdk-out" --framework cloudformation --quiet --compact

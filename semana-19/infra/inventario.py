@@ -193,6 +193,51 @@ def categorias(sesion, region: str) -> dict:
             out += [r["ResourceARN"].split(":")[-1].split("/")[-1] for r in p["ResourceTagMappingList"]]
         return out
 
+    def presupuestos():
+        cli = sesion.client("budgets", region_name="us-east-1")
+        cuenta = sesion.client("sts").get_caller_identity()["Account"]
+        return [b["BudgetName"] for p in cli.get_paginator("describe_budgets").paginate(AccountId=cuenta)
+                for b in p["Budgets"] if b["BudgetName"].startswith(PREFIJO)]
+
+    def acciones_presupuesto():
+        cli = sesion.client("budgets", region_name="us-east-1")
+        cuenta = sesion.client("sts").get_caller_identity()["Account"]
+        out = []
+        for p in cli.get_paginator("describe_budget_actions_for_account").paginate(AccountId=cuenta):
+            out += [a["BudgetName"] for a in p["Actions"] if a["BudgetName"].startswith(PREFIJO)]
+        return out
+
+    def politicas_iam():
+        cli = sesion.client("iam")
+        return [pol["PolicyName"] for p in cli.get_paginator("list_policies").paginate(Scope="Local")
+                for pol in p["Policies"] if pol["PolicyName"].startswith(PREFIJO)]
+
+    def flow_logs():
+        cli = sesion.client("ec2", region_name=region)
+        return [f["FlowLogId"] for p in cli.get_paginator("describe_flow_logs").paginate()
+                for f in p["FlowLogs"] if (f.get("LogGroupName") or "").startswith(f"/{PREFIJO}/")]
+
+    def endpoints_por_vpc():
+        cli = sesion.client("ec2", region_name=region)
+        vpcs_propias = set(vpcs())
+        out = []
+        for p in cli.get_paginator("describe_vpc_endpoints").paginate():
+            for e in p["VpcEndpoints"]:
+                if e["VpcId"] in vpcs_propias:
+                    out.append(f"{e['VpcEndpointType']}:{e['ServiceName'].split('.')[-1]}")
+        return out
+
+    def llaves_pendientes_borrado():
+        cli = sesion.client("kms", region_name=region)
+        out = []
+        for p in cli.get_paginator("list_aliases").paginate():
+            for a in p["Aliases"]:
+                if a["AliasName"].startswith((f"alias/{PREFIJO}", f"alias/cdk-s19")) and a.get("TargetKeyId"):
+                    estado = cli.describe_key(KeyId=a["TargetKeyId"])["KeyMetadata"]
+                    if estado["KeyState"] == "PendingDeletion":
+                        out.append(f"{a['AliasName']} borrado {estado['DeletionDate'].date().isoformat()}")
+        return out
+
     return {
         "stacks_cloudformation": cf, "roles_iam": roles, "llaves_kms_por_alias": kms,
         "vpcs": vpcs, "subredes": subredes, "security_groups": security_groups, "endpoints_vpc": endpoints,
@@ -201,6 +246,9 @@ def categorias(sesion, region: str) -> dict:
         "knowledge_bases": kbs, "guardrails": guardrails, "prompts": prompts, "gateways_agentcore": gateways,
         "runtimes_agentcore": runtimes, "log_groups": log_groups,
         "etiquetados_tagging_api": etiquetados,
+        "presupuestos": presupuestos, "acciones_presupuesto": acciones_presupuesto,
+        "politicas_iam_locales": politicas_iam, "flow_logs": flow_logs,
+        "endpoints_por_vpc": endpoints_por_vpc, "llaves_pendientes_borrado": llaves_pendientes_borrado,
     }
 
 
@@ -210,7 +258,28 @@ def contar(valor) -> int:
     return len(valor)
 
 
-def inventario(sesion, region: str) -> dict:
+# Leftovers that are allowed after a teardown, by category. The bootstrap and the control stack are allowed only
+# when they are kept (--con-control). A pending-deletion key is allowed with its date (free while pending: D, see
+# resultados/base.md). The read-only role of activity 1 is registered as an exception (linea_base.md section 9).
+def permitidos(con_control: bool) -> dict:
+    base = {
+        "roles_iam": {"semana19-lectura"},
+        "llaves_pendientes_borrado": None,  # any name; the date is in the name
+    }
+    if con_control:
+        base.update({
+            "stacks_cloudformation": {"semana19-control"},
+            "presupuestos": {"semana19"},
+            "acciones_presupuesto": {"semana19"},
+            "politicas_iam_locales": {"semana19-limite", "semana19-congelar", "semana19-cfn-exec"},
+            "roles_iam": {"semana19-lectura", "semana19-despliegue", "semana19-accion-presupuesto", "semana19-flow-logs"},
+            # With the control kept, the tag search also finds the control's own resources: reported, not judged.
+            "etiquetados_tagging_api": None,
+        })
+    return base
+
+
+def inventario(sesion, region: str, con_control: bool = False) -> dict:
     resultado, no_medido = {}, []
     for nombre, fn in categorias(sesion, region).items():
         try:
@@ -218,21 +287,40 @@ def inventario(sesion, region: str) -> dict:
             resultado[nombre] = {"conteo": contar(valor), "nombres": valor}
         except Exception as exc:  # noqa: BLE001 - recorded, never counted as zero
             no_medido.append({"categoria": nombre, "error": type(exc).__name__, "detalle": str(exc)[:120]})
+    reglas = permitidos(con_control)
+    esperados, inesperados = {}, {}
+    for cat, datos in resultado.items():
+        if not datos["nombres"]:
+            continue
+        if cat in reglas and reglas[cat] is None:
+            esperados[cat] = datos["nombres"]
+            continue
+        if cat in reglas:
+            ok = [n for n in datos["nombres"] if (n if isinstance(n, str) else str(n)) in reglas[cat]]
+            fuera = [n for n in datos["nombres"] if n not in ok]
+            if ok:
+                esperados[cat] = ok
+            if fuera:
+                inesperados[cat] = fuera
+        else:
+            inesperados[cat] = datos["nombres"]
+    quedan = "nada" if not inesperados and not no_medido else "revisar"
     total = sum(v["conteo"] for v in resultado.values())
-    quedan = "nada" if total == 0 and not no_medido else "revisar"
-    return {"fecha": date.today().isoformat(), "region": region, "por_categoria": {k: v["conteo"] for k, v in resultado.items()},
-            "nombres": {k: v["nombres"] for k, v in resultado.items() if v["conteo"]},
-            "no_medido": no_medido, "total": total, "quedan": quedan}
+    return {"fecha": date.today().isoformat(), "region": region, "con_control": con_control,
+            "por_categoria": {k: v["conteo"] for k, v in resultado.items()}, "total": total,
+            "esperados": esperados, "inesperados": inesperados,
+            "no_medido": no_medido, "quedan": quedan}
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--perfil", required=True, help="perfil de solo lectura (operador)")
     ap.add_argument("--region", default="us-east-1")
+    ap.add_argument("--con-control", action="store_true", help="el stack de control se queda (no fue --todo)")
     a = ap.parse_args()
     import boto3
     sesion = boto3.Session(profile_name=a.perfil, region_name=a.region)
-    informe = inventario(sesion, a.region)
+    informe = inventario(sesion, a.region, con_control=a.con_control)
     print(json.dumps(informe, indent=2, ensure_ascii=False))
     return 0 if informe["quedan"] == "nada" else 1
 
