@@ -16,6 +16,8 @@ EXCEPCIONES = {
     "DescribirGruposDeLogs": "logs:DescribeLogGroups no acepta ARN de recurso.",
     "FuncionesDeCustomResourceDelProyecto": "Nombre por prefijo: las funciones de custom resource del stack empiezan por semana19-.",
     "PasarRolDelCustomResourceDelProyecto": "Nombre con sufijo generado por CDK (semana19-base-CustomVpcRestrictDefaultSGCustomResou*): el sufijo no existe antes del despliegue. Solo PassRole, solo a lambda.amazonaws.com.",
+    "PoliticasYAdjuntosDeRolesDelBase": "Nombres generados por CDK bajo semana19-base-* (sufijo aleatorio). Sin la condición de límite: PutRolePolicy/AttachRolePolicy no reciben la clave PermissionsBoundary en la llamada. El límite sigue acotando lo que el rol puede hacer; no se quita ni se cambia (NoQuitarNiCambiarElLimite).",
+    "BorrarRolesDelBase": "Nombres generados por CDK bajo semana19-base-* (sufijo aleatorio): DeleteRole no recibe la clave PermissionsBoundary. Solo roles de este stack.",
     "RolesConLimite": "Nombre por prefijo semana19-*, y la condición iam:PermissionsBoundary obliga el límite en la creación.",
     "AsumirRolesCdk": "Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo).",
     "LeerCloudFormation": "Describe, Get y List de CloudFormation: sin ARN de recurso para listar.",
