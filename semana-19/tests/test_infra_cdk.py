@@ -497,3 +497,12 @@ def test_vaciar_borra_el_bucket_retenido_despues_de_vaciarlo():
 def test_vaciar_no_pagina_operaciones_no_paginables():
     texto = (SCRIPTS / "vaciar_bootstrap.py").read_text(encoding="utf-8")
     assert 'get_paginator("describe_stack_resources")' not in texto
+
+
+def test_categoria_vacia_con_subclaves_no_cuenta_como_recurso():
+    # RDS returns {"instancias": [], "clusters": []}: empty, must not be reported as a leftover.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("inv_vacia", SCRIPTS / "inventario.py")
+    inv_vacia = importlib.util.module_from_spec(spec); spec.loader.exec_module(inv_vacia)
+    assert inv_vacia.contar({"instancias": [], "clusters": []}) == 0
+    assert inv_vacia.contar({"instancias": ["x"], "clusters": []}) == 1
