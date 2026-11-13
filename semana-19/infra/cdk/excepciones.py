@@ -15,6 +15,7 @@ EXCEPCIONES = {
     "GruposDeLogs": "Nombre por prefijo: /semana19/*. El stack crea el grupo con ese nombre.",
     "DescribirGruposDeLogs": "logs:DescribeLogGroups no acepta ARN de recurso.",
     "FuncionesDeCustomResourceDelProyecto": "Nombre por prefijo: las funciones de custom resource del stack empiezan por semana19-.",
+    "PasarRolDelCustomResourceDelProyecto": "Nombre con sufijo generado por CDK (semana19-base-CustomVpcRestrictDefaultSGCustomResou*): el sufijo no existe antes del despliegue. Solo PassRole, solo a lambda.amazonaws.com.",
     "RolesConLimite": "Nombre por prefijo semana19-*, y la condición iam:PermissionsBoundary obliga el límite en la creación.",
     "AsumirRolesCdk": "Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo).",
     "LeerCloudFormation": "Describe, Get y List de CloudFormation: sin ARN de recurso para listar.",

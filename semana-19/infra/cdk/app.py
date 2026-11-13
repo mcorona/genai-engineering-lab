@@ -143,6 +143,9 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolFlowLogsASuServicio", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-flow-logs")],
                      conditions={"StringEquals": {"iam:PassedToService": "vpc-flow-logs.amazonaws.com"}}),
+        _declaracion(sid="PasarRolDelCustomResourceDelProyecto", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-base-CustomVpcRestrictDefaultSGCustomResou*")],
+                     conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
         _declaracion(sid="VersionDelBootstrap", actions=["ssm:GetParameter", "ssm:GetParameters"],
                      resources=[f"arn:{Aws.PARTITION}:ssm:{REGION}:{Aws.ACCOUNT_ID}:parameter/cdk-bootstrap/s19/version"]),
         _declaracion(sid="FuncionesDeCustomResourceDelProyecto", actions=[
