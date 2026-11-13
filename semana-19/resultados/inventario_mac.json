@@ -3,7 +3,7 @@
   "region": "us-east-1",
   "por_categoria": {
     "stacks_cloudformation": 0,
-    "roles_iam": 0,
+    "roles_iam": 1,
     "llaves_kms_por_alias": 0,
     "vpcs": 0,
     "subredes": 0,
@@ -25,8 +25,12 @@
     "log_groups": 0,
     "etiquetados_tagging_api": 0
   },
-  "nombres": {},
+  "nombres": {
+    "roles_iam": [
+      "semana19-lectura"
+    ]
+  },
   "no_medido": [],
-  "total": 0,
-  "quedan": "nada"
+  "total": 1,
+  "quedan": "revisar"
 }
