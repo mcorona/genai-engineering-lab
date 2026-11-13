@@ -1,0 +1,7 @@
+{
+  "estado": "pendiente: sin corrida real",
+  "nota": "Los tiempos y el inventario se llenan solo con corridas medidas (desplegar.sh --si, destruir.sh --si). No hay cifras aquí todavía.",
+  "tiempos_segundos": {"control": null, "bootstrap": null, "base": null, "destruir_base": null, "destruir_bootstrap": null, "destruir_control": null},
+  "inventario": {"antes": null, "despues": null},
+  "costo": {"predicho_por_hora_usd": 0.02273973, "real_cost_explorer": null, "error_porcentual": null}
+}

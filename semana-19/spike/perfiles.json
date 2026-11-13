@@ -1,6 +1,6 @@
 {
   "consultado": "2026-11-13",
-  "nota": "Un solo archivo con las diferencias lab y prod. El stack del spike usa las claves marcadas (usado_en_spike: true); las demás describen el diseño de prod (ADR 0002, 0003, 0006) y no se sintetizan aquí.",
+  "nota": "Un solo archivo con las diferencias lab y prod. El stack del spike usa las claves marcadas ; las demás describen el diseño de prod (ADR 0002, 0003, 0006) y no se sintetizan aquí. Actividad 3 usa politica_borrado, ventana_borrado_llave_dias, retencion_logs_dias, retencion_flow_logs_dias, azs.",
   "lab": {
     "politica_borrado": "DESTROY",
     "ventana_borrado_llave_dias": 7,
@@ -9,7 +9,8 @@
     "multi_az_bd": false,
     "api": "HTTP",
     "waf": false,
-    "proteccion_borrado_bd": false
+    "proteccion_borrado_bd": false,
+    "retencion_flow_logs_dias": 1
   },
   "prod": {
     "politica_borrado": "RETAIN",
@@ -19,7 +20,18 @@
     "multi_az_bd": true,
     "api": "REST",
     "waf": true,
-    "proteccion_borrado_bd": true
+    "proteccion_borrado_bd": true,
+    "retencion_flow_logs_dias": 365
   },
-  "claves_usadas_en_spike": ["politica_borrado", "ventana_borrado_llave_dias"]
+  "claves_usadas_en_spike": [
+    "politica_borrado",
+    "ventana_borrado_llave_dias"
+  ],
+  "claves_usadas_en_actividad_3": [
+    "politica_borrado",
+    "ventana_borrado_llave_dias",
+    "retencion_logs_dias",
+    "retencion_flow_logs_dias",
+    "azs"
+  ]
 }

@@ -26,3 +26,18 @@ Each row: concept → where the lab shows it → evidence. Status: **medido** (M
 | Serverless patterns: Lambda outside the VPC, HTTP API with JWT, Step Functions with `waitForTaskToken` | D2 | `arquitectura/adr/0002`, `0004`, `0005` | ADRs and the diagram | diseño; prices M or N per item |
 | Fixed cost versus variable cost (zero queries is only the fixed part) | D4 | `costos/modelo.py` and `tests/test_costos.py` (zero queries test) | `cotizacion.md`: 5.44 USD/month lab with 0 queries (partial) | medido |
 | Knowledge Base on S3 Vectors with Titan V2 | D1 | `spike/cdk/app_ia.py`, `spike/terraform/ia.tf` | `spike_iac.json` (`ia`), validate and synth | sintetizado; no desplegado |
+
+## Activity 3 (D3, D2)
+
+| Concept | Domain | Where in the repo | Evidence | Status |
+|---|---|---|---|---|
+| KMS key policy vs IAM policy: the key policy must allow the principal even if IAM does; roles named, root delegates with `kms:*` | D3 | `infra/cdk/app.py` (`Base`, key policy), `infra/cdk/excepciones.py` (RaizDeLaCuenta) | `test_infra_cdk.py` (no open principal; roles named) | synth tested, not deployed |
+| `kms:ViaService` / encryption context for a service principal (CloudWatch Logs) | D3 | `LogsDelProyectoConLaLlave` (ArnLike on `kms:EncryptionContext:aws:logs:arn`) | test on the EncryptionContext condition | synth tested |
+| Permission boundary and delegation of role creation (`iam:CreateRole` only with the boundary) | D3 | `politica_limite`, `politica_ejecucion_cfn`, `Despliegue` | `test_todo_rol_creado_por_los_stacks_tiene_el_limite`, `test_despliegue_crea_roles_solo_con_limite` | synth tested |
+| Gateway endpoint (S3, route tables, no hourly charge) vs interface endpoint (ENI per AZ, hourly and per GB) | D3 | `Base` (`EndpointS3`, `EndpointLogs`, `EndpointStepFunctions`) | ADR 0005 and 0006, `test_endpoints_son_exactamente_los_del_adr_0005` | synth tested |
+| Endpoint policy limited by `aws:PrincipalAccount` | D3 | `politica_cuenta` in `Base` | `test_endpoints_limitados_a_la_cuenta` | synth tested |
+| VPC flow logs to an encrypted group with short retention | D3 | `GrupoFlowLogs`, `FlujosDeLaRed` | `test_flow_logs_con_retencion_del_perfil` | synth tested |
+| Budget action (APPLY_IAM_POLICY at 100 %) and why it must not block deletes | D3 | `AccionPresupuesto`, `CREAR_Y_ACTUALIZAR` | `test_la_congelacion_no_bloquea_borrar` | synth tested; limitation (bootstrap roles) in `resultados/base.md` |
+| Cost Anomaly Detection (monitor + daily subscription, threshold 1 USD) | D3 | `MonitorAnomalias`, `SuscripcionAnomalias` | `test_anomalias_con_monitor_y_suscripcion` | price N |
+| Log retention in every group | D3 | `RetencionDeLogs` aspect | `test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion` | tested |
+| Deploy in two steps: control by CLI (no assets, no bootstrap) and the bootstrap after it, trusting only the deploy role | D2 | `desplegar.sh` | `test_desplegar_sin_si_no_llama_a_aws` | simulation tested; real run pending |
