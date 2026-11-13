@@ -81,5 +81,48 @@
   "uv": {
     "instalada_en_el_mac": "0.13.1",
     "nota": "uv 0.13.1 escribe uv.lock revision 5 (el lock anterior era revision 3)"
+  },
+  "herramientas_actividad2": {
+    "consultado": "2026-11-13",
+    "aws-cdk (CLI)": {
+      "version": "2.1148.1",
+      "fuente": "npm aws-cdk (instalada con npm -g)"
+    },
+    "checkov": {
+      "version": "3.4.4",
+      "fuente": "PyPI checkov (uv tool install)"
+    },
+    "@mermaid-js/mermaid-cli": {
+      "version": "11.17.1",
+      "fuente": "npm (instalada en ~/.cache/s19-tools)"
+    },
+    "terraform": {
+      "version": "1.17.2",
+      "fuente": "releases.hashicorp.com, sha256 verificado contra SHA256SUMS"
+    },
+    "aws-cdk-lib (Python)": {
+      "version": "2.276.0",
+      "fuente": "PyPI, semana-19/spike/cdk/requirements.txt"
+    },
+    "constructs (Python)": {
+      "version": "10.8.1",
+      "fuente": "PyPI"
+    },
+    "cdk-nag (Python)": {
+      "version": "3.0.2",
+      "fuente": "PyPI; no aplica reglas en esta combinación"
+    },
+    "aws-cdk.aws-bedrock-alpha (Python)": {
+      "version": "2.276.0a0",
+      "fuente": "PyPI"
+    },
+    "aws-cdk.aws-bedrock-agentcore-alpha (Python)": {
+      "version": "2.276.0a0",
+      "fuente": "PyPI"
+    },
+    "provider hashicorp/aws (Terraform)": {
+      "version": "6.73.0",
+      "fuente": "terraform init (lock file en spike/terraform)"
+    }
   }
 }

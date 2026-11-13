@@ -2,7 +2,8 @@ name: eval-semana-19
 
 # Semana 19 (LLMOps y producción en AWS, preparación y línea base). Sin AWS ($0): el verificador de entorno en modo CI
 # (datos de la semana 13, pines instalados, rutas de CI) y las pruebas de semana-19/tests. Ningún job llama a AWS ni a un
-# modelo; los despliegues se hacen desde el Mac, con el perfil admin. Sin pruebas omitidas.
+# modelo; los despliegues se hacen desde el Mac, con el perfil admin. Sin pruebas omitidas. El job spike-iac sintetiza
+# CDK, escanea con checkov y valida Terraform (binario verificado por sha256); no aplica nada.
 on:
   pull_request:
     paths:
@@ -43,3 +44,38 @@ jobs:
           set -o pipefail
           python -m pytest -q semana-19/tests -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
+
+  spike-iac:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Dependencias CDK (pines de semana-19/spike/cdk/requirements.txt) y checkov 3.4.4
+        run: |
+          pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4"
+      - name: Sintetizar CDK (sin AWS)
+        env:
+          CDK_OUTDIR: ${{ runner.temp }}/cdk-out
+        run: |
+          python semana-19/spike/cdk/app.py
+          python semana-19/spike/cdk/app_ia.py
+      - name: Escanear la plantilla de CDK con checkov
+        run: |
+          checkov -d "$RUNNER_TEMP/cdk-out" --framework cloudformation --quiet --compact
+      - name: Instalar Terraform 1.17.2 (sha256 verificado)
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfLO https://releases.hashicorp.com/terraform/1.17.2/terraform_1.17.2_linux_amd64.zip
+          curl -sSfLO https://releases.hashicorp.com/terraform/1.17.2/terraform_1.17.2_SHA256SUMS
+          grep "terraform_1.17.2_linux_amd64.zip" terraform_1.17.2_SHA256SUMS | sha256sum -c -
+          unzip -o terraform_1.17.2_linux_amd64.zip -d "$RUNNER_TEMP/tfbin"
+          "$RUNNER_TEMP/tfbin/terraform" version
+      - name: Validar Terraform y escanear con checkov 3.4.4
+        working-directory: semana-19/spike/terraform
+        run: |
+          "$RUNNER_TEMP/tfbin/terraform" init -backend=false -input=false -no-color
+          "$RUNNER_TEMP/tfbin/terraform" validate -no-color
+          checkov -d . --framework terraform --quiet --compact

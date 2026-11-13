@@ -1,0 +1,61 @@
+%% Week 19, activity 2: reference architecture (LegacyBridge). Trust boundaries are the dashed subgraphs.
+flowchart LR
+  subgraph FRONTERA_CLIENTE["Frontera 1: cliente (no confiable)"]
+    cliente([Cliente: analista o aprobador])
+  end
+
+  subgraph base["Capa base"]
+    cognito[(Cognito: grupos analista y aprobador)]
+    kms{{KMS: llave administrada por el cliente}}
+    cw[CloudWatch Logs]
+    subgraph FRONTERA_VPC["Frontera 2: VPC"]
+      direction TB
+      ep_s3[[Endpoint gateway S3]]
+      ep_logs[[Endpoint interfaz Logs]]
+      ep_states[[Endpoint interfaz Step Functions]]
+    end
+  end
+
+  subgraph computo["Capa computo"]
+    apigw[API Gateway HTTP API<br/>autorizador JWT de Cognito]
+    agente[Lambda del agente<br/>fuera de la VPC]
+    tools[Lambda de herramientas<br/>en la VPC]
+    sfn[[Step Functions Standard<br/>waitForTaskToken, expira]]
+    aprob[Aprobación por un usuario aprobador]
+    escritura[Rol de escritura]
+  end
+
+  subgraph ia["Capa IA"]
+    converse[Bedrock Converse<br/>Guardrail y versión de Prompt Management]
+    gw[AgentCore Gateway<br/>opcional]
+    titan[Titan Text Embeddings V2]
+    kb[Knowledge Base del diccionario de datos]
+    s3v[(S3 Vectors)]
+  end
+
+  subgraph datos["Capa datos"]
+    rds[(RDS PostgreSQL<br/>IAM auth, copilot_ro)]
+    docs[(S3: documentos cifrados con KMS)]
+  end
+
+  cliente -->|HTTPS + JWT| apigw
+  apigw --> agente
+  agente -->|Converse| converse
+  agente -->|herramientas directas| tools
+  agente -.->|por AgentCore Gateway| gw
+  gw -.-> tools
+  tools -->|IAM auth| rds
+  agente -->|proponer_orden_compra| sfn
+  sfn --> aprob
+  aprob -->|tarea aprobada| escritura
+  escritura -->|rol de escritura| rds
+  kb --> titan
+  kb --> s3v
+  tools --> ep_logs --> cw
+  sfn --- ep_states
+  tools --> ep_s3 --> docs
+  cognito -.->|validación del token| apigw
+  kms -.-> rds
+  kms -.-> docs
+  kms -.-> s3v
+  kms -.-> cw
