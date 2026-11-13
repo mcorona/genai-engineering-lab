@@ -506,3 +506,9 @@ def test_categoria_vacia_con_subclaves_no_cuenta_como_recurso():
     inv_vacia = importlib.util.module_from_spec(spec); spec.loader.exec_module(inv_vacia)
     assert inv_vacia.contar({"instancias": [], "clusters": []}) == 0
     assert inv_vacia.contar({"instancias": ["x"], "clusters": []}) == 1
+
+
+def test_llaves_pendientes_se_buscan_por_estado_no_por_alias():
+    # CloudFormation removes the alias together with the key: the search must not depend on it.
+    texto = (SCRIPTS / "inventario.py").read_text(encoding="utf-8")
+    assert "list_keys" in texto and "PendingDeletion" in texto and "list_resource_tags" in texto

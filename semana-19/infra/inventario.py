@@ -228,14 +228,22 @@ def categorias(sesion, region: str) -> dict:
         return out
 
     def llaves_pendientes_borrado():
+        # CloudFormation deletes the alias together with the key, so the search is by state, not by alias.
+        # A key belongs to the project when its description says so or it carries the tag proyecto=semana19.
         cli = sesion.client("kms", region_name=region)
         out = []
-        for p in cli.get_paginator("list_aliases").paginate():
-            for a in p["Aliases"]:
-                if a["AliasName"].startswith((f"alias/{PREFIJO}", f"alias/cdk-s19")) and a.get("TargetKeyId"):
-                    estado = cli.describe_key(KeyId=a["TargetKeyId"])["KeyMetadata"]
-                    if estado["KeyState"] == "PendingDeletion":
-                        out.append(f"{a['AliasName']} borrado {estado['DeletionDate'].date().isoformat()}")
+        for p in cli.get_paginator("list_keys").paginate():
+            for k in p["Keys"]:
+                meta = cli.describe_key(KeyId=k["KeyId"])["KeyMetadata"]
+                if meta.get("KeyManager") != "CUSTOMER" or meta.get("KeyState") != "PendingDeletion":
+                    continue
+                desc = meta.get("Description", "")
+                es_del_proyecto = desc.startswith("Week 19")
+                if not es_del_proyecto:
+                    etiquetas = cli.list_resource_tags(KeyId=k["KeyId"]).get("Tags", [])
+                    es_del_proyecto = any(e["TagKey"] == "proyecto" and e["TagValue"] == "semana19" for e in etiquetas)
+                if es_del_proyecto:
+                    out.append(f"{k['KeyId'][:8]} borrado {meta['DeletionDate'].date().isoformat()}")
         return out
 
     return {
