@@ -73,3 +73,18 @@ Predicted by `semana-19/costos/modelo.py` (`precios.json`, token percentiles fro
 | CloudWatch Logs, ingesta | por consulta | M | 2e-05 GB | 0.000010 |
 | AgentCore Gateway, invocaciones | por consulta | M | 0 invocaciones | 0.000000 |
 
+
+## Estimación para autorizar la actividad 3
+
+Stack base de la actividad 3 (KMS, endpoints de VPC, IAM y presupuesto), con 1 AZ en lab. Todas las partidas están medidas (M), salvo que el multiplicador por AZ de los endpoints viene de la página oficial (D).
+
+| Partida | Precio | Por hora (lab) |
+|---|---|---|
+| KMS, 2 llaves administradas | 1.00 USD por llave-mes (M, `us-east-1-KMS-Keys`) | 0.00273973 |
+| Endpoints de interfaz, 2 × 1 AZ | 0.01 USD por endpoint-hora (M, `USE1-VpcEndpoint-Hours`) | 0.02000000 |
+| AWS Budgets, 1 presupuesto | 0.00 USD dentro de 62 budget-days al mes (M, `BudgetsUsage`) | 0.00000000 |
+| IAM | sin cargo | 0.00000000 |
+| **Total por hora (lab)** | | **0.02273973** |
+
+**Sesión de N horas = 0.02273973 × N USD** (lab). Ejemplos: 1 h = 0.0227 USD; 4 h = 0.0910 USD; 8 h = 0.1819 USD.
+Prod (3 AZ, 3 llaves): 0.06410959 USD por hora. Multi-AZ de RDS no forma parte del stack base.

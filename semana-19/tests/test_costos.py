@@ -108,3 +108,11 @@ def test_perfiles_conocidos_y_error_si_no_existe():
     assert set(modelo.PERFILES) == {"lab", "prod"}
     with pytest.raises(ValueError):
         correr(perfil="qa")
+
+
+def test_estimacion_base_de_la_actividad_3_es_kms_mas_endpoints_mas_presupuesto():
+    lab = modelo.estimacion_base_hora("lab")
+    assert lab["parcial"] is False
+    assert lab["por_hora_usd"] == pytest.approx(2 / 730 + 2 * 0.01)
+    presupuesto = [l for l in lab["lineas"] if l["partida"].startswith("AWS Budgets")][0]
+    assert presupuesto["costo_usd"] == 0.0
