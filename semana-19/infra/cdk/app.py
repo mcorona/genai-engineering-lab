@@ -146,6 +146,12 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolDelCustomResourceDelProyecto", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-base-CustomVpcRestrictDefaultSGCustomResou*")],
                      conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
+        _declaracion(sid="PoliticasYAdjuntosDeRolesDelBase", actions=[
+            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
+            resources=[arn_iam("role/semana19-base-*")]),
+        _declaracion(sid="BorrarRolesDelBase", actions=["iam:DeleteRole"],
+                     resources=[arn_iam("role/semana19-base-*")]),
         _declaracion(sid="VersionDelBootstrap", actions=["ssm:GetParameter", "ssm:GetParameters"],
                      resources=[f"arn:{Aws.PARTITION}:ssm:{REGION}:{Aws.ACCOUNT_ID}:parameter/cdk-bootstrap/s19/version"]),
         _declaracion(sid="FuncionesDeCustomResourceDelProyecto", actions=[
