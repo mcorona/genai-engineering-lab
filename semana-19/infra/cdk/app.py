@@ -135,6 +135,11 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             "logs:AssociateKmsKey", "logs:DisassociateKmsKey", "logs:TagResource", "logs:UntagResource",
             "logs:TagLogGroup"], resources=[grupos]),
         _declaracion(sid="DescribirGruposDeLogs", actions=["logs:DescribeLogGroups"], resources=["*"]),
+        _declaracion(sid="LeerRolFlowLogs", actions=["iam:GetRole", "iam:GetRolePolicy", "iam:ListRolePolicies",
+                                                     "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
+                     resources=[arn_iam("role/semana19-flow-logs")]),
+        _declaracion(sid="BorrarRolFlowLogs", actions=["iam:DeleteRole", "iam:DeleteRolePolicy", "iam:DetachRolePolicy"],
+                     resources=[arn_iam("role/semana19-flow-logs")]),
         _declaracion(sid="VersionDelBootstrap", actions=["ssm:GetParameter", "ssm:GetParameters"],
                      resources=[f"arn:{Aws.PARTITION}:ssm:{REGION}:{Aws.ACCOUNT_ID}:parameter/cdk-bootstrap/s19/version"]),
         _declaracion(sid="FuncionesDeCustomResourceDelProyecto", actions=[
