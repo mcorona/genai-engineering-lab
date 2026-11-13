@@ -299,7 +299,7 @@ def inventario(sesion, region: str, con_control: bool = False, con_base: bool = 
     reglas = permitidos(con_control, con_base)
     esperados, inesperados = {}, {}
     for cat, datos in resultado.items():
-        if not datos["nombres"]:
+        if datos["conteo"] == 0:
             continue
         if cat in reglas and reglas[cat] is None:
             esperados[cat] = datos["nombres"]
