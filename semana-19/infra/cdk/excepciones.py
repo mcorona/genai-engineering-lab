@@ -18,6 +18,8 @@ EXCEPCIONES = {
     "PasarRolDelCustomResourceDelProyecto": "Nombre con sufijo generado por CDK (semana19-base-CustomVpcRestrictDefaultSGCustomResou*): el sufijo no existe antes del despliegue. Solo PassRole, solo a lambda.amazonaws.com.",
     "PoliticasYAdjuntosDeRolesDelBase": "Nombres generados por CDK bajo semana19-base-* (sufijo aleatorio). Sin la condición de límite: PutRolePolicy/AttachRolePolicy no reciben la clave PermissionsBoundary en la llamada. El límite sigue acotando lo que el rol puede hacer; no se quita ni se cambia (NoQuitarNiCambiarElLimite).",
     "BorrarRolesDelBase": "Nombres generados por CDK bajo semana19-base-* (sufijo aleatorio): DeleteRole no recibe la clave PermissionsBoundary. Solo roles de este stack.",
+    "LeerActivosDelBootstrap": "Bucket de activos del bootstrap (nombre con la cuenta, no escrito en el repo). Solo lectura de objetos: CloudFormation lee el zip de la Lambda del custom resource.",
+    "DescifrarActivosConS3": "kms:Decrypt sobre la llave administrada aws/s3 (no hay ARN de llave fijo en el repo): solo cuando la llamada viene de S3 en us-east-1 (kms:ViaService).",
     "RolesConLimite": "Nombre por prefijo semana19-*, y la condición iam:PermissionsBoundary obliga el límite en la creación.",
     "AsumirRolesCdk": "Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo).",
     "LeerCloudFormation": "Describe, Get y List de CloudFormation: sin ARN de recurso para listar.",
