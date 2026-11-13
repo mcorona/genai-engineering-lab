@@ -1,0 +1,97 @@
+{
+  "consultado": "2026-11-13",
+  "alcance": "stack minimo: llave KMS con rotacion, bucket de logs y bucket de datos cifrados con esa llave, bloqueo publico, TLS, politica de ciclo de vida, rol con permission boundary, Guardrail (ambos)",
+  "lineas_de_codigo": {
+    "cdk_app_py": 45,
+    "terraform": 193
+  },
+  "escaner": {
+    "cdk_checkov_antes": {
+      "pasan": 30,
+      "fallan": 1,
+      "detalle": [
+        "CKV_AWS_18 bucket de datos sin logs de acceso"
+      ]
+    },
+    "cdk_checkov_despues": {
+      "pasan": 39,
+      "fallan": 0,
+      "suprimidos": 1
+    },
+    "cdk_nag": {
+      "estado": "no medido",
+      "motivo": "cdk-nag 3.0.2 registra el aspecto pero el reporte sale vacio; aplicarlo como aspecto de app falla con 'aspectApplication.aspect.visit is not a function'. Decision del usuario: usar checkov."
+    },
+    "tf_checkov_antes": {
+      "pasan": 69,
+      "fallan": 7,
+      "suprimidos": 0
+    },
+    "tf_checkov_despues": {
+      "pasan": 82,
+      "fallan": 0,
+      "suprimidos": 7
+    }
+  },
+  "supresiones": [
+    {
+      "herramienta": "checkov",
+      "id": "CKV_AWS_18 (CDK)",
+      "recurso": "bucket de registros",
+      "razon": "AWS no permite que un bucket se registre a si mismo"
+    },
+    {
+      "herramienta": "checkov",
+      "id": "CKV_AWS_144 y CKV2_AWS_62 (TF)",
+      "recurso": "buckets",
+      "razon": "lab: sin replicacion entre regiones ni notificaciones; prod lo decide el ADR 0006"
+    },
+    {
+      "herramienta": "checkov",
+      "id": "CKV_AWS_109 y CKV_AWS_111 (TF)",
+      "recurso": "politica de la llave",
+      "razon": "politica por omision de KMS: el root administra la llave"
+    },
+    {
+      "herramienta": "checkov",
+      "id": "CKV_AWS_356 (TF)",
+      "recurso": "politica de la llave",
+      "razon": "en politicas de llave KMS, '*' en resources es esta llave"
+    }
+  ],
+  "guardrail_y_kb": {
+    "guardrail_cdk": "L1 CfnGuardrail (estable en aws-cdk-lib 2.276.0); sintetiza",
+    "guardrail_terraform": "aws_bedrock_guardrail (provider 6.73.0); validate y plan OK",
+    "knowledge_base": "pendiente: no escrita en ninguna herramienta",
+    "agentcore_gateway": "pendiente: L2 alpha @aws-cdk/aws-bedrock-agentcore-alpha 2.276.0-alpha.0 y recurso aws_bedrockagentcore_gateway no escritos"
+  },
+  "bootstrap_cdk": {
+    "comando": "cdk bootstrap --show-template (no toca la cuenta)",
+    "tipos": {
+      "AWS::KMS::Key": 1,
+      "AWS::KMS::Alias": 1,
+      "AWS::S3::Bucket": 1,
+      "AWS::S3::BucketPolicy": 1,
+      "AWS::ECR::Repository": 1,
+      "AWS::IAM::Role": 5,
+      "AWS::IAM::Policy": 2,
+      "AWS::IAM::ManagedPolicy": 1,
+      "AWS::SSM::Parameter": 1
+    },
+    "costo": "KMS key: 1.00 USD/mes (linea_base.md, M); S3 y ECR: almacenamiento segun uso, precio no medido (N)"
+  },
+  "estado_local_terraform": {
+    "archivo": "terraform.tfstate local (no versionado)",
+    "plan_sin_refresh": "17 por crear, 0 por cambiar, 0 por destruir",
+    "tiempo_plan_s": "~1.2"
+  },
+  "tiempos": {
+    "cdk_synth_s": "~0.95",
+    "terraform_plan_s": "~1.2"
+  },
+  "pendiente": [
+    "Knowledge Base en ambas herramientas",
+    "AgentCore Gateway en ambas herramientas",
+    "decision de IaC en ADR 0001 (esperando KB y AgentCore Gateway)"
+  ]
+}
