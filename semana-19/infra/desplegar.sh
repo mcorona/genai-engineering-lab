@@ -104,8 +104,12 @@ PY
     echo "-- bootstrap s19: no existe; se crearía (17 tipos de recurso, llave KMS 1.00 USD/mes)"
   fi
   echo "-- semana19-base: diff de CDK"
-  cdk diff semana19-base --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
-    --toolkit-stack-name semana19-cdktoolkit || true
+  if aws configure list-profiles 2>/dev/null | grep -qx "$PERFIL_DESPLIEGUE"; then
+    cdk diff semana19-base --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
+  else
+    echo "   no hay perfil '$PERFIL_DESPLIEGUE' en ~/.aws/config: el diff de semana19-base se hace"
+    echo "   después de crear el perfil (paso 5 de la guía). No se estima aquí."
+  fi
   exit 0
 fi
 
