@@ -464,3 +464,20 @@ def test_inventario_permitidos_son_explicitos():
     assert antes["vpcs"] is None and antes["lambdas"] is None
     despues = inv.permitidos(True)
     assert "vpcs" not in despues and "semana19-base" not in despues["stacks_cloudformation"]
+
+
+def test_categoria_vacia_con_subclaves_no_cuenta_como_recurso():
+    # RDS returns {"instancias": [], "clusters": []}: empty, must not be reported as a leftover.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("inv2", SCRIPTS / "inventario.py")
+    inv = importlib.util.module_from_spec(spec); spec.loader.exec_module(inv)
+    assert inv.contar({"instancias": [], "clusters": []}) == 0
+    assert inv.contar({"instancias": ["x"], "clusters": []}) == 1
+
+
+def test_scripts_de_infra_son_ejecutables_en_git():
+    import subprocess
+    for script in ["semana-19/infra/desplegar.sh", "semana-19/infra/destruir.sh"]:
+        modo = subprocess.run(["git", "ls-files", "-s", script], capture_output=True, text=True,
+                              cwd=S19.parent).stdout.split()[0]
+        assert modo == "100755", script
