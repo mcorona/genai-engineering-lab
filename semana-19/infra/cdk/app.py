@@ -152,6 +152,12 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             resources=[arn_iam("role/semana19-base-*")]),
         _declaracion(sid="BorrarRolesDelBase", actions=["iam:DeleteRole"],
                      resources=[arn_iam("role/semana19-base-*")]),
+        _declaracion(sid="LeerActivosDelBootstrap", actions=["s3:GetObject", "s3:GetObjectVersion", "s3:GetBucketLocation",
+                                                             "s3:ListBucket"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::cdk-s19-assets-{Aws.ACCOUNT_ID}-{REGION}",
+                                f"arn:{Aws.PARTITION}:s3:::cdk-s19-assets-{Aws.ACCOUNT_ID}-{REGION}/*"]),
+        _declaracion(sid="DescifrarActivosConS3", actions=["kms:Decrypt", "kms:DescribeKey"], resources=["*"],
+                     conditions={"StringEquals": {"kms:ViaService": f"s3.{REGION}.amazonaws.com"}}),
         _declaracion(sid="VersionDelBootstrap", actions=["ssm:GetParameter", "ssm:GetParameters"],
                      resources=[f"arn:{Aws.PARTITION}:ssm:{REGION}:{Aws.ACCOUNT_ID}:parameter/cdk-bootstrap/s19/version"]),
         _declaracion(sid="FuncionesDeCustomResourceDelProyecto", actions=[
