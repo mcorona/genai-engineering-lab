@@ -64,7 +64,7 @@ echo "   plantillas: $(ls "$OUT" | grep -c 'template.json') en la carpeta tempor
 if [[ "$MODO" == "simulacion" ]]; then
   echo
   echo "== Simulación. No se llamó a AWS."
-  echo "Orden: 1) semana19-control (aws cloudformation deploy)  2) bootstrap s19 (cdk bootstrap)  3) semana19-base (cdk deploy)"
+  echo "Orden: 1) semana19-control (aws cloudformation deploy)  2) bootstrap s19 (cdk bootstrap)  3) semana19-base (cdk deploy)  4) semana19-datos (cdk deploy)"
   for plantilla in semana19-control semana19-base; do
     echo "-- $plantilla: recursos por tipo"
     "$PYTHON_CDK" - "$OUT/$plantilla.template.json" <<'PY'
@@ -162,5 +162,11 @@ echo "== Paso 3: semana19-base (CREATE_COMPLETE medido)"
 cdk deploy semana19-base --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
   --toolkit-stack-name semana19-cdktoolkit --require-approval never
 registrar "base" $(( $(date +%s) - inicio ))
+
+inicio=$(date +%s)
+echo "== Paso 4: semana19-datos (base PostgreSQL, actividad 4)"
+cdk deploy semana19-datos --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
+  --toolkit-stack-name semana19-cdktoolkit --require-approval never
+registrar "datos" $(( $(date +%s) - inicio ))
 
 echo "== Listo. Verifica con el inventario (solo lectura) antes de la siguiente sesión."

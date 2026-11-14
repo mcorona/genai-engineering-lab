@@ -75,6 +75,14 @@ existe_stack() {
     --query "Stacks[0].StackStatus" --output text >/dev/null 2>&1
 }
 
+if existe_stack semana19-datos; then
+  inicio=$(date +%s)
+  echo "== Paso 0: cdk destroy semana19-datos (base PostgreSQL) antes que la red"
+  cdk destroy semana19-datos --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
+  registrar "destruir-datos" $(( $(date +%s) - inicio ))
+else
+  echo "== Paso 0: semana19-datos no existe"
+fi
 ESTADO_BASE="$(aws cloudformation describe-stacks --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
   --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo NO_EXISTE)"
 if [[ "$ESTADO_BASE" == "DELETE_FAILED" ]]; then
