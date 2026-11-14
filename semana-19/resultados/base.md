@@ -161,3 +161,15 @@ bootstrap exists. It denies create and update, not delete, so the teardown still
 - Expected from the stack: about 0.06 to 0.07 USD (see the uptime section). Zero is not plausible for ~2 h of two interface endpoints and two KMS keys, so the day was most likely not closed yet.
 - Second approved call: **not used**. It is kept for a re-check of 2026-11-13 on 2026-11-15 (the tag `proyecto` was activated on 2026-11-13 and does not apply retroactively).
 - The row "real cost from Cost Explorer the next day" stays open until that re-check.
+
+### Teardown final (2026-11-14)
+
+- Stack base: first `cdk destroy` ended in `DELETE_FAILED` on the custom resource for the default SG (the permissions
+  boundary has no `Authorize*`). The stack was then deleted with that one resource retained, which is the procedure now
+  automated in `destruir.sh`. Approximate duration of the delete: about 6 minutes (CloudTrail: started 06:09, finished about
+  06:15). The script did not record it in this run.
+- Bootstrap `s19`: stack, assets bucket and ECR repository deleted. Recorded: 32 s.
+- Inventory after teardown: `quedan: nada`, no unexpected items. The six KMS keys of the project are in `PendingDeletion`
+  (dates 2026-11-20 and 2026-11-21), listed explicitly as the plan requires.
+- Control stack (`semana19-control`) kept, $0/h.
+- Cost Explorer for 2026-11-13: still preliminary. The real cost stays open until a new query is approved.

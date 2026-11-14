@@ -12,3 +12,4 @@
 {"fecha": "2026-11-14", "paso": "control", "segundos": 43, "modo": "si"}
 {"fecha": "2026-11-14", "paso": "bootstrap", "segundos": 54, "modo": "si"}
 {"fecha": "2026-11-14", "paso": "base", "segundos": 93, "modo": "si"}
+{"fecha": "2026-11-14", "paso": "destruir-bootstrap", "segundos": 32, "modo": "destruir-si"}
