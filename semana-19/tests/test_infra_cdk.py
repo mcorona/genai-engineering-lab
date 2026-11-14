@@ -508,3 +508,9 @@ def test_llaves_pendientes_se_buscan_por_estado_no_por_alias():
     # CloudFormation removes the alias together with the key: the search must not depend on it.
     texto = (SCRIPTS / "inventario.py").read_text(encoding="utf-8")
     assert "list_keys" in texto and "PendingDeletion" in texto and "list_resource_tags" in texto
+
+
+def test_destruir_evalua_delete_failed_antes_que_cdk_destroy():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    assert texto.index('== "DELETE_FAILED"') < texto.index("cdk destroy semana19-base")
+    assert "elif [[ \"$ESTADO_BASE\" != \"NO_EXISTE\" ]]" in texto
