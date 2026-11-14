@@ -123,6 +123,29 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="RestringirSgPorDefecto", actions=["ec2:DescribeSecurityGroups",
                                                             "ec2:RevokeSecurityGroupIngress",
                                                             "ec2:RevokeSecurityGroupEgress"], resources=["*"]),
+        # Techo de los roles de datos: lo que la KB (semana19-kb) y el cargador necesitan. Cada statement
+        # se acota por prefijo o por servicio; la política propia del rol decide el resto.
+        _declaracion(sid="DocsDatosLeer", actions=["s3:GetObject"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/*"]),
+        _declaracion(sid="DocsDatosListar", actions=["s3:ListBucket"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*"]),
+        _declaracion(sid="DocsDatosEscribir", actions=["s3:PutObject"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/docs/*"]),
+        _declaracion(sid="IndiceKbDatos", actions=["s3vectors:GetIndex", "s3vectors:PutVectors", "s3vectors:GetVectors",
+                                                   "s3vectors:DeleteVectors", "s3vectors:QueryVectors",
+                                                   "s3vectors:ListVectors"],
+                     resources=[f"arn:{Aws.PARTITION}:s3vectors:{REGION}:{Aws.ACCOUNT_ID}:bucket/semana19-kb-*/index/*"]),
+        _declaracion(sid="EmbeberConTitan", actions=["bedrock:InvokeModel"],
+                     resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}::foundation-model/amazon.titan-embed-text-v2:0"]),
+        _declaracion(sid="SecretoBdLeer", actions=["secretsmanager:GetSecretValue"],
+                     resources=[f"arn:{Aws.PARTITION}:secretsmanager:{REGION}:{Aws.ACCOUNT_ID}:secret:semana19datos*"]),
+        _declaracion(sid="CifrarSoloViaS3YSecretos", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
+                                                              "kms:DescribeKey"], resources=["*"],
+                     conditions={"StringEquals": {"kms:ViaService": [f"s3.{REGION}.amazonaws.com",
+                                                                     f"secretsmanager.{REGION}.amazonaws.com"]}}),
+        _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
+                                                      "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
+                                                      "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
     ]
 
 
@@ -399,7 +422,8 @@ class Control(Stack):
         presupuesto.add_dependency(rol_presupuesto.node.default_child)
 
         suprimir_iam5(limite, ["LogsDelGrupoDelProyecto", "LogsDescribir", "CdkAssumeRoles", "CloudFormationLeer",
-                               "RestringirSgPorDefecto"])
+                               "RestringirSgPorDefecto", "DocsDatosLeer", "DocsDatosListar", "DocsDatosEscribir",
+                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos", "RedDeLambdaEnVpc"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",

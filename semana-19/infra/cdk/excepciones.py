@@ -4,6 +4,13 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 # Every wildcard that remains, by statement Sid, with the reason. The test fails if a wildcard appears with a Sid
 # that is not here, or if an entry here no longer exists. The same reasons go to cdk-nag suppressions.
 EXCEPCIONES = {
+    "DocsDatosLeer": "Lectura de objetos del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3.",
+    "DocsDatosListar": "ListBucket sobre el bucket de documentos del stack datos (prefijo semana19-datos*): S3 exige el ARN del bucket.",
+    "DocsDatosEscribir": "Escritura del cargador solo bajo docs/ del bucket de documentos del stack datos.",
+    "IndiceKbDatos": "Operaciones del índice de S3 Vectors legado-kb (bucket semana19-kb-*): la KB lo consulta y escribe vectores.",
+    "SecretoBdLeer": "GetSecretValue sobre los secretos semana19datos* (contraseña de la base): lo leen el cargador y RDS.",
+    "CifrarSoloViaS3YSecretos": "kms:Decrypt y similares sobre '*', limitadas por kms:ViaService a s3 y secretsmanager en esta región: AWS evalúa la llave por la condición.",
+    "RedDeLambdaEnVpc": "Interfaces de red de una Lambda dentro de la VPC: AWS no admite ARN de recurso para crear ENIs; es la política administrada AWSLambdaVPCAccessExecutionRole.",
     "LeerSecretoDeLaBdPorCfn": "GetSecretValue solo sobre los secretos cuyo nombre empieza por semana19datos (el secreto de la base de datos): RDS lo lee para aplicar la contraseña generada.",
     "CrearKnowledgeBasePorCfn": "bedrock:CreateKnowledgeBase no tiene ARN antes de crear la Knowledge Base: AWS la autoriza contra '*' (verificado con iam simulate-custom-policy).",
     "BaseDeDatosPostgresPorCfn": "Crear, modificar y borrar la base y su subnet group: el nombre lo pone CloudFormation con el prefijo semana19-datos; la base no tiene ARN antes de crearse.",
