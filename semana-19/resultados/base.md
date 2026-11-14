@@ -159,5 +159,6 @@ bootstrap exists. It denies create and update, not delete, so the teardown still
 
 - First approved call (account total, grouped by service, no filter): **−0.0000000023 USD**, no service with positive cost.
 - Expected from the stack: about 0.06 to 0.07 USD (see the uptime section). Zero is not plausible for ~2 h of two interface endpoints and two KMS keys, so the day was most likely not closed yet.
-- Second approved call: **not used**. It is kept for a re-check of 2026-11-13 on 2026-11-15 (the tag `proyecto` was activated on 2026-11-13 and does not apply retroactively).
-- The row "real cost from Cost Explorer the next day" stays open until that re-check.
+- Second approved call: **used on 2026-11-14 at 05:58 CST**, ahead of the agreed date (2026-11-15), with the same result: **−0.0000000023 USD**, no service with positive cost. Still preliminary. Both approved calls are now used.
+- The tag `proyecto` was activated on 2026-11-13 and does not apply retroactively.
+- The row "real cost from Cost Explorer the next day" stays open: it needs a new approval for a new query, once the 2026-11-13 data is closed.
