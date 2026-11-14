@@ -499,6 +499,9 @@ class Datos(Stack):
             id="AwsSolutions-RDS3", reason="Single-AZ por diseño de laboratorio (plan, actividad 4).")])
         NagSuppressions.add_resource_suppressions_by_path(self, "/semana19-datos/PostgreSQL/Secret/Resource", [NagPackSuppression(
             id="AwsSolutions-SMG4", reason="Sin rotación automática en el laboratorio: la Lambda de rotación queda fuera de la actividad 4; la contraseña nunca sale del secreto cifrado con la llave del stack.")])
+        saltar_checkov(bd, {
+            "CKV_AWS_157": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
+            "CKV_AWS_118": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base."})
         Tags.of(self).add("proyecto", "semana19")
         Tags.of(self).add("perfil", PERFIL)
 
