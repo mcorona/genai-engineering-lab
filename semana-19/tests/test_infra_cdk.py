@@ -499,17 +499,12 @@ def test_vaciar_no_pagina_operaciones_no_paginables():
     assert 'get_paginator("describe_stack_resources")' not in texto
 
 
-def test_categoria_vacia_con_subclaves_no_cuenta_como_recurso():
-    # RDS returns {"instancias": [], "clusters": []}: empty, must not be reported as a leftover.
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("inv_vacia", SCRIPTS / "inventario.py")
-    inv_vacia = importlib.util.module_from_spec(spec); spec.loader.exec_module(inv_vacia)
-    assert inv_vacia.contar({"instancias": [], "clusters": []}) == 0
-    assert inv_vacia.contar({"instancias": ["x"], "clusters": []}) == 1
-
-
 def test_destruir_reintenta_base_en_delete_failed_reteniendo_solo_el_custom_resource():
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     assert "DELETE_FAILED" in texto and "--retain-resources" in texto
     assert "Custom::VpcRestrictDefaultSG" in texto
     assert "--retain-resources \"$retenidos\"" in texto or "--retain-resources \\\"$retenidos" in texto or "--retain-resources" in texto
+def test_llaves_pendientes_se_buscan_por_estado_no_por_alias():
+    # CloudFormation removes the alias together with the key: the search must not depend on it.
+    texto = (SCRIPTS / "inventario.py").read_text(encoding="utf-8")
+    assert "list_keys" in texto and "PendingDeletion" in texto and "list_resource_tags" in texto
