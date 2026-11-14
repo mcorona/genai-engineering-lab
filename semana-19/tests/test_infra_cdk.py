@@ -514,3 +514,63 @@ def test_destruir_evalua_delete_failed_antes_que_cdk_destroy():
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     assert texto.index('== "DELETE_FAILED"') < texto.index("cdk destroy semana19-base --force")
     assert "elif [[ \"$ESTADO_BASE\" != \"NO_EXISTE\" ]]" in texto
+
+
+# ---------------------------------------------------------------- cifrado y un rol por función (plan, actividad 3)
+
+# Recursos cifrables y la propiedad que los ata a la llave. Lambda cuenta solo si tiene variables de entorno.
+CIFRABLES = {
+    "AWS::Logs::LogGroup": "KmsKeyId",
+    "AWS::SQS::Queue": "KmsMasterKeyId",
+    "AWS::SNS::Topic": "KmsMasterKeyId",
+    "AWS::S3::Bucket": "BucketEncryption",
+    "AWS::ECR::Repository": "EncryptionConfiguration",
+    "AWS::RDS::DBInstance": "KmsKeyId",
+}
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_todo_recurso_cifrable_usa_la_llave(perfil):
+    for n, pl in sintetizar(perfil)["plantillas"].items():
+        for tipo, prop in CIFRABLES.items():
+            for lid, r in recursos(pl, tipo).items():
+                assert prop in r["Properties"], f"{n}/{lid} ({tipo}) sin {prop}"
+        # Lambda: solo si tiene variables de entorno, deben cifrarse con la llave.
+        for lid, r in recursos(pl, "AWS::Lambda::Function").items():
+            if r["Properties"].get("Environment"):
+                assert "KmsKeyArn" in r["Properties"], f"{n}/{lid} con variables de entorno sin KmsKeyArn"
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_cada_funcion_y_flujo_de_logs_tiene_su_propio_rol(perfil):
+    # Un rol por función: cada Lambda y cada flow log consume un rol distinto, y ningún rol se comparte.
+    for n, pl in sintetizar(perfil)["plantillas"].items():
+        consumidores = []
+        for lid, r in recursos(pl, "AWS::Lambda::Function").items():
+            consumidores.append(r["Properties"]["Role"]["Fn::GetAtt"][0])
+        for lid, r in recursos(pl, "AWS::EC2::FlowLog").items():
+            consumidores.append(r["Properties"]["DeliverLogsPermissionArn"]["Fn::GetAtt"][0])
+        assert len(consumidores) == len(set(consumidores)), f"{n}: un rol consumido por más de una función"
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_solo_el_despliegue_o_un_rol_documentado_crea_roles_y_siempre_con_limite(perfil):
+    from excepciones import ROLES_QUE_PUEDEN_CREAR_ROLES as DOCUMENTADOS
+
+    control = sintetizar(perfil)["plantillas"][CONTROL]["Resources"]
+    duenos_con_creacion = set()
+    for lid, r in control.items():
+        if r["Type"] not in ("AWS::IAM::Policy", "AWS::IAM::ManagedPolicy"):
+            continue
+        for st in r["Properties"]["PolicyDocument"]["Statement"]:
+            acciones = st.get("Action", [])
+            acciones = [acciones] if isinstance(acciones, str) else acciones
+            if st.get("Effect") != "Allow" or "iam:CreateRole" not in acciones:
+                continue
+            dueno = "Despliegue" if lid.startswith("DespliegueDefaultPolicy") else (
+                "EjecucionCfn" if lid.startswith("EjecucionCfn") else lid)
+            duenos_con_creacion.add(dueno)
+            assert "PermissionsBoundary" in json.dumps(st.get("Condition", {})), f"{lid} crea roles sin boundary"
+            assert ARN_LIMITE in texto(st.get("Condition", {})), f"{lid} crea roles con otro boundary"
+    assert duenos_con_creacion <= {"Despliegue"} | set(DOCUMENTADOS), f"crean roles sin documentar: {duenos_con_creacion}"
+    assert set(DOCUMENTADOS) <= duenos_con_creacion, "excepción documentada que ya no crea roles"
