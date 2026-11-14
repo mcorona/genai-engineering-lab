@@ -4,6 +4,7 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 # Every wildcard that remains, by statement Sid, with the reason. The test fails if a wildcard appears with a Sid
 # that is not here, or if an entry here no longer exists. The same reasons go to cdk-nag suppressions.
 EXCEPCIONES = {
+    "LeerInventario": "Acciones de descripción y listado de AWS que no admiten ARN de recurso (describe/list): resource '*' con solo lectura; el rol del operador no puede crear, cambiar ni borrar.",
     "LogsDelGrupoDelProyecto": "Nombre por prefijo: los grupos del proyecto empiezan por /semana19/. El recurso no tiene ARN previo.",
     "LogsDescribir": "logs:DescribeLogGroups no acepta ARN de recurso: AWS exige resource '*'.",
     "CdkAssumeRoles": "Nombre por prefijo: los roles del bootstrap llevan la cuenta y la región en el nombre (cdk-s19-*-<cuenta>-us-east-1); la cuenta no se escribe en el repo.",

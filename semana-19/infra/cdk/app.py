@@ -42,6 +42,7 @@ LIMITE = "semana19-limite"
 CONGELAR = "semana19-congelar"
 EJECUCION_CFN = "semana19-cfn-exec"
 DESPLIEGUE = "semana19-despliegue"
+OPERADOR_ROL = "semana19-operador"
 ROL_PRESUPUESTO = "semana19-accion-presupuesto"
 OPERADOR = "manuel-admin"
 PRESUPUESTO = "semana19"
@@ -322,6 +323,21 @@ class Control(Stack):
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
+        operador = iam.Role(
+            self, "Operador", role_name=OPERADOR_ROL,
+            assumed_by=iam.ArnPrincipal(arn_iam(f"user/{OPERADOR}")),
+            max_session_duration=Duration.hours(1),
+            description="Operator role: read-only inventory of the lab. It cannot create, change or delete resources.")
+        operador.add_to_principal_policy(_declaracion(sid="LeerInventario", actions=[
+            "cloudformation:DescribeStacks", "cloudformation:ListStacks", "cloudformation:DescribeStackEvents",
+            "ec2:DescribeVpcs", "ec2:DescribeSubnets", "ec2:DescribeSecurityGroups", "ec2:DescribeVpcEndpoints",
+            "ec2:DescribeFlowLogs", "ec2:DescribeRouteTables", "ec2:DescribeInternetGateways",
+            "ec2:DescribeNatGateways", "kms:ListAliases", "kms:ListKeys", "kms:DescribeKey",
+            "kms:GetKeyRotationStatus", "logs:DescribeLogGroups", "iam:GetRole", "iam:ListRoles",
+            "budgets:ViewBudget", "budgets:DescribeBudgetActionsForAccount", "lambda:GetFunction",
+            "lambda:ListFunctions", "rds:DescribeDBInstances", "s3:ListAllMyBuckets"], resources=["*"]))
+        suprimir_iam5(operador, ["LeerInventario"])
+        cdk.CfnOutput(self, "ArnOperador", value=operador.role_arn)
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
         cdk.CfnOutput(self, "ArnDespliegue", value=despliegue.role_arn)
         cdk.CfnOutput(self, "ArnCongelar", value=congelar.managed_policy_arn)
