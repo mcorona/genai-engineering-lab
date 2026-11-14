@@ -20,6 +20,8 @@ on:
       - "semana-18/**"
       - "semana-19/**"
       - "README.md"
+      - "pyproject.toml"
+      - "uv.lock"
       - "**/prompts/**"
       - ".github/workflows/evals-semana-06.yml"
       - ".github/workflows/nlq-semana-07.yml"
