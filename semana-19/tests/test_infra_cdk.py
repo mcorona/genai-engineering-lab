@@ -551,3 +551,26 @@ def test_cada_funcion_y_flujo_de_logs_tiene_su_propio_rol(perfil):
         for lid, r in recursos(pl, "AWS::EC2::FlowLog").items():
             consumidores.append(r["Properties"]["DeliverLogsPermissionArn"]["Fn::GetAtt"][0])
         assert len(consumidores) == len(set(consumidores)), f"{n}: un rol consumido por más de una función"
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_solo_el_despliegue_o_un_rol_documentado_crea_roles_y_siempre_con_limite(perfil):
+    from excepciones import ROLES_QUE_PUEDEN_CREAR_ROLES as DOCUMENTADOS
+
+    control = sintetizar(perfil)["plantillas"][CONTROL]["Resources"]
+    duenos_con_creacion = set()
+    for lid, r in control.items():
+        if r["Type"] not in ("AWS::IAM::Policy", "AWS::IAM::ManagedPolicy"):
+            continue
+        for st in r["Properties"]["PolicyDocument"]["Statement"]:
+            acciones = st.get("Action", [])
+            acciones = [acciones] if isinstance(acciones, str) else acciones
+            if st.get("Effect") != "Allow" or "iam:CreateRole" not in acciones:
+                continue
+            dueno = "Despliegue" if lid.startswith("DespliegueDefaultPolicy") else (
+                "EjecucionCfn" if lid.startswith("EjecucionCfn") else lid)
+            duenos_con_creacion.add(dueno)
+            assert "PermissionsBoundary" in json.dumps(st.get("Condition", {})), f"{lid} crea roles sin boundary"
+            assert ARN_LIMITE in texto(st.get("Condition", {})), f"{lid} crea roles con otro boundary"
+    assert duenos_con_creacion <= {"Despliegue"} | set(DOCUMENTADOS), f"crean roles sin documentar: {duenos_con_creacion}"
+    assert set(DOCUMENTADOS) <= duenos_con_creacion, "excepción documentada que ya no crea roles"

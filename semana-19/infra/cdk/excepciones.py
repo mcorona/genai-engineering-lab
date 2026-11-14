@@ -32,3 +32,12 @@ EXCEPCIONES = {
     "DescribirGruposParaFlowLogs": "logs:DescribeLogGroups no acepta ARN de recurso.",
     "-": "Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
 }
+
+# Roles that may create IAM roles besides the deploy role. Decided by Manuel on 2026-11-14 (documented exception).
+# The test fails if a statement with iam:CreateRole belongs to a role not listed here, if it lacks the boundary
+# condition, or if an entry here no longer creates roles.
+ROLES_QUE_PUEDEN_CREAR_ROLES = {
+    "EjecucionCfn": "Excepción documentada: el rol de ejecución de CloudFormation crea roles solo con nombre semana19* y "
+                    "solo con el permission boundary semana19-limite. CloudFormation necesita ese permiso para crear los "
+                    "roles de los stacks; sin él no puede desplegar el stack base.",
+}
