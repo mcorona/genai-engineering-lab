@@ -143,6 +143,12 @@ def politica_limite() -> list[iam.PolicyStatement]:
                                                               "kms:DescribeKey"], resources=["*"],
                      conditions={"StringEquals": {"kms:ViaService": [f"s3.{REGION}.amazonaws.com",
                                                                      f"secretsmanager.{REGION}.amazonaws.com"]}}),
+        # The loader's log group is created by Lambda on the first run; without this the boundary blocks it and
+        # the function's errors are invisible. Scoped to the functions of the datos stack.
+        _declaracion(sid="LogsDeLaLambdaDatos", actions=["logs:CreateLogGroup"],
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*"]),
+        _declaracion(sid="EscribirLogsDeLaLambdaDatos", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*"]),
         _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
                                                       "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
                                                       "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
@@ -427,7 +433,8 @@ class Control(Stack):
 
         suprimir_iam5(limite, ["LogsDelGrupoDelProyecto", "LogsDescribir", "CdkAssumeRoles", "CloudFormationLeer",
                                "RestringirSgPorDefecto", "DocsDatosLeer", "DocsDatosListar", "DocsDatosEscribir",
-                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos", "RedDeLambdaEnVpc"])
+                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos", "RedDeLambdaEnVpc",
+                               "LogsDeLaLambdaDatos", "EscribirLogsDeLaLambdaDatos"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
