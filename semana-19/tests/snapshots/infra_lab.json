@@ -25,6 +25,14 @@
       "AWS::IAM::ManagedPolicy"
     ],
     [
+      "Operador",
+      "AWS::IAM::Role"
+    ],
+    [
+      "OperadorDefaultPolicy",
+      "AWS::IAM::Policy"
+    ],
+    [
       "Presupuesto",
       "AWS::Budgets::Budget"
     ],
