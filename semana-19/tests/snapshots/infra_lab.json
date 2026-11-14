@@ -33,6 +33,10 @@
       "AWS::IAM::Policy"
     ],
     [
+      "OperadorLimite",
+      "AWS::IAM::ManagedPolicy"
+    ],
+    [
       "Presupuesto",
       "AWS::Budgets::Budget"
     ],

@@ -26,6 +26,7 @@ from excepciones import EXCEPCIONES  # noqa: E402
 PERFILES = ["lab", "prod"]
 CONTROL, BASE = "semana19-control", "semana19-base"
 ARN_LIMITE = "policy/semana19-limite"
+ARN_OPERADOR_LIMITE = "policy/semana19-operador-limite"
 
 
 @lru_cache(maxsize=None)
@@ -127,7 +128,8 @@ def test_todo_rol_creado_por_los_stacks_tiene_el_limite(perfil):
     for n, pl in sintetizar(perfil)["plantillas"].items():
         for lid, r in recursos(pl, "AWS::IAM::Role").items():
             limite = texto(r["Properties"].get("PermissionsBoundary", ""))
-            assert ARN_LIMITE in limite, f"{n}/{lid} sin permission boundary"
+            esperado = ARN_OPERADOR_LIMITE if lid.startswith("Operador") else ARN_LIMITE
+            assert esperado in limite, f"{n}/{lid} sin el permission boundary que le toca"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -574,3 +576,23 @@ def test_solo_el_despliegue_o_un_rol_documentado_crea_roles_y_siempre_con_limite
             assert ARN_LIMITE in texto(st.get("Condition", {})), f"{lid} crea roles con otro boundary"
     assert duenos_con_creacion <= {"Despliegue"} | set(DOCUMENTADOS), f"crean roles sin documentar: {duenos_con_creacion}"
     assert set(DOCUMENTADOS) <= duenos_con_creacion, "excepción documentada que ya no crea roles"
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_limite_del_operador_solo_lectura_y_el_rol_no_excede_el_limite(perfil):
+    # The operator boundary is a ceiling: it must allow only read actions, and the role may not ask for more.
+    control = sintetizar(perfil)["plantillas"][CONTROL]["Resources"]
+    limites = recursos(sintetizar(perfil)["plantillas"][CONTROL], "AWS::IAM::ManagedPolicy")
+    limite_op = [r for lid, r in limites.items() if lid.startswith("OperadorLimite")]
+    assert len(limite_op) == 1
+    acciones_limite = set()
+    for st in limite_op[0]["Properties"]["PolicyDocument"]["Statement"]:
+        assert st["Effect"] == "Allow"
+        acciones_limite |= set([st["Action"]] if isinstance(st["Action"], str) else st["Action"])
+    assert all(a.split(":")[1].startswith(("Describe", "List", "Get", "View")) for a in acciones_limite), acciones_limite
+    rol = [r for lid, r in control.items() if lid.startswith("Operador") and r["Type"] == "AWS::IAM::Role"]
+    assert len(rol) == 1
+    politicas = [r for lid, r in control.items() if lid.startswith("OperadorDefaultPolicy")]
+    for st in politicas[0]["Properties"]["PolicyDocument"]["Statement"]:
+        acciones = set([st["Action"]] if isinstance(st["Action"], str) else st["Action"])
+        assert acciones <= acciones_limite, f"el rol pide más que su límite: {acciones - acciones_limite}"
