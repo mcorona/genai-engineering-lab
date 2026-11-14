@@ -141,6 +141,46 @@
   ],
   "semana19-datos": [
     [
+      "Cargador",
+      "AWS::Lambda::Function"
+    ],
+    [
+      "CargadorServiceRole",
+      "AWS::IAM::Role"
+    ],
+    [
+      "CargadorServiceRoleDefaultPolicy",
+      "AWS::IAM::Policy"
+    ],
+    [
+      "DocsKb",
+      "AWS::S3::Bucket"
+    ],
+    [
+      "DocsKbPolicy",
+      "AWS::S3::BucketPolicy"
+    ],
+    [
+      "EndpointBedrockAgent",
+      "AWS::EC2::VPCEndpoint"
+    ],
+    [
+      "EndpointSecretos",
+      "AWS::EC2::VPCEndpoint"
+    ],
+    [
+      "FuenteDocsKb",
+      "AWS::Bedrock::DataSource"
+    ],
+    [
+      "IndiceKb",
+      "AWS::S3Vectors::Index"
+    ],
+    [
+      "KbLegado",
+      "AWS::Bedrock::KnowledgeBase"
+    ],
+    [
       "PostgreSQL",
       "AWS::RDS::DBInstance"
     ],
@@ -151,6 +191,14 @@
     [
       "PostgreSQLSubnetGroup",
       "AWS::RDS::DBSubnetGroup"
+    ],
+    [
+      "RolKb",
+      "AWS::IAM::Role"
+    ],
+    [
+      "RolKbDefaultPolicy",
+      "AWS::IAM::Policy"
     ],
     [
       "SgBaseDeDatos",
@@ -167,6 +215,34 @@
     [
       "SgCargadortosemana19datosSgBaseDeDatos2A16DBEA5432",
       "AWS::EC2::SecurityGroupEgress"
+    ],
+    [
+      "SgCargadortosemana19datosSgEndpointAgente15C5C769443",
+      "AWS::EC2::SecurityGroupEgress"
+    ],
+    [
+      "SgCargadortosemana19datosSgEndpointSecretosFAD8A9AF443",
+      "AWS::EC2::SecurityGroupEgress"
+    ],
+    [
+      "SgEndpointAgente",
+      "AWS::EC2::SecurityGroup"
+    ],
+    [
+      "SgEndpointAgentefromsemana19datosSgCargador4FD88F2B443",
+      "AWS::EC2::SecurityGroupIngress"
+    ],
+    [
+      "SgEndpointSecretos",
+      "AWS::EC2::SecurityGroup"
+    ],
+    [
+      "SgEndpointSecretosfromsemana19datosSgCargador4FD88F2B443",
+      "AWS::EC2::SecurityGroupIngress"
+    ],
+    [
+      "VectoresKb",
+      "AWS::S3Vectors::VectorBucket"
     ],
     [
       "semana19datosPostgreSQLSecretD3F1FA153fdaad7efa858a3daf9490cf0a702aeb",

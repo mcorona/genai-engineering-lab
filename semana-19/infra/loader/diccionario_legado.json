@@ -1,0 +1,64 @@
+{
+  "prvmst": {
+    "original": "suppliers",
+    "descripcion": "Maestro de proveedores.",
+    "columnas": {
+      "prv_id": "Identificador del proveedor. Lo referencia artmst.art_prv.",
+      "prv_nm": "Nombre del proveedor.",
+      "prv_pais": "País del proveedor, código ISO 3166-1 alfa-2 (por ejemplo 'CN', 'DE', 'US', 'MX').",
+      "prv_dte": "Tiempo de entrega pactado, en días."
+    }
+  },
+  "artmst": {
+    "original": "products",
+    "descripcion": "Maestro de artículos (productos o SKUs) del catálogo.",
+    "columnas": {
+      "art_cd": "Código del artículo (SKU), por ejemplo 'SKU-0042'. Lo referencian exidet.exi_art, vtadia.vta_art y ocpcab.ocp_art.",
+      "art_dsc": "Descripción o nombre del artículo.",
+      "art_lin": "Línea o categoría del artículo, por ejemplo 'Tornilleria', 'Electrico', 'Hidraulico', 'Seguridad'.",
+      "art_cst": "Costo unitario en pesos mexicanos.",
+      "art_ptr": "Punto de reorden en unidades.",
+      "art_crt": "Indica si el artículo es crítico (verdadero o falso).",
+      "art_prv": "Proveedor del artículo; referencia prvmst.prv_id."
+    }
+  },
+  "almmst": {
+    "original": "warehouses",
+    "descripcion": "Maestro de almacenes (CEDIS).",
+    "columnas": {
+      "alm_id": "Identificador del almacén. Lo referencia exidet.exi_alm.",
+      "alm_dsc": "Nombre del almacén, por ejemplo 'CEDIS Norte'.",
+      "alm_cdd": "Ciudad del almacén: 'Ciudad de Mexico', 'Guadalajara' o 'Monterrey'."
+    }
+  },
+  "exidet": {
+    "original": "stock",
+    "descripcion": "Existencias por artículo y almacén (una fila por artículo y almacén).",
+    "columnas": {
+      "exi_art": "Artículo; referencia artmst.art_cd.",
+      "exi_alm": "Almacén; referencia almmst.alm_id.",
+      "exi_qty": "Existencia física (unidades disponibles) en ese almacén.",
+      "exi_fup": "Fecha y hora de la última actualización de la existencia."
+    }
+  },
+  "vtadia": {
+    "original": "sales_daily",
+    "descripcion": "Ventas diarias por artículo (una fila por artículo y día).",
+    "columnas": {
+      "vta_art": "Artículo; referencia artmst.art_cd.",
+      "vta_fch": "Fecha de la venta.",
+      "vta_und": "Unidades vendidas ese día."
+    }
+  },
+  "ocpcab": {
+    "original": "purchase_orders",
+    "descripcion": "Encabezado de órdenes de compra.",
+    "columnas": {
+      "ocp_id": "Identificador de la orden de compra.",
+      "ocp_art": "Artículo de la orden; referencia artmst.art_cd.",
+      "ocp_qty": "Cantidad pedida.",
+      "ocp_sts": "Estado: 'PENDING_APPROVAL', 'APPROVED' o 'REJECTED'.",
+      "ocp_fcr": "Fecha y hora de creación de la orden."
+    }
+  }
+}
