@@ -5,7 +5,8 @@ Loads, in this order, and every step is idempotent (running it twice leaves the 
   2. the CI seed 42 (seed42_datos.sql.gz): TRUNCATE + INSERT in one transaction;
   3. the legado schema (legado.sql, drops and recreates its views) and artnot.sql (drops and recreates its table);
   4. the roles (created before step 3, granted after it): copilot_ro (read-only, IAM authentication, search_path legado) and order_writer (approval step only).
-  5. optional, when the event carries them: the legacy dictionary as documents in the KB bucket, and the KB ingestion job.
+  5. optional, when the event carries docs_bucket: the legacy dictionary as documents in the KB bucket. The KB ingestion job
+     is started from the operator terminal (no bedrock-agent endpoint in the VPC).
 
 Credentials: the master password is read from Secrets Manager with the Lambda role; it is never logged or returned.
 """
@@ -142,13 +143,8 @@ def subir_documentos(bucket: str) -> int:
     return len(docs)
 
 
-def lanzar_ingesta(kb_id: str, ds_id: str) -> str:
-    trabajo = boto3.client("bedrock-agent").start_ingestion_job(knowledgeBaseId=kb_id, dataSourceId=ds_id)
-    return trabajo["ingestionJob"]["ingestionJobId"]
-
-
 def handler(event, context):
-    """event = {"secret_arn", "db_host", optional "docs_bucket", "kb_id", "ds_id"}: stack outputs, no secret in config."""
+    """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config."""
     secreto = _secreto(event["secret_arn"])
     con = _conectar(event["db_host"], secreto["username"], secreto["password"])
     try:
@@ -164,8 +160,6 @@ def handler(event, context):
         resumen["ok"] = True
         if event.get("docs_bucket"):
             resumen["documentos"] = subir_documentos(event["docs_bucket"])
-        if event.get("kb_id") and event.get("ds_id"):
-            resumen["ingesta"] = lanzar_ingesta(event["kb_id"], event["ds_id"])
         return resumen
     finally:
         con.close()

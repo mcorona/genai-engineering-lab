@@ -609,17 +609,8 @@ class Datos(Stack):
         # Identity policy, not llave.grant_decrypt: the key lives in the base stack and its policy already delegates to IAM.
         cargador.add_to_role_policy(_declaracion(sid="DescifrarConLaLlaveDelProyecto", actions=["kms:Decrypt", "kms:DescribeKey"],
                                                  resources=[llave.key_arn]))
-        # bedrock-agent endpoint: the loader starts the KB ingestion job from inside the VPC.
-        sg_endpoint_agente = ec2.SecurityGroup(
-            self, "SgEndpointAgente", vpc=red, allow_all_outbound=False,
-            description="Interface endpoint de Bedrock Agent: HTTPS solo desde el cargador.")
-        sg_endpoint_agente.add_ingress_rule(sg_cargador, ec2.Port.tcp(443), "HTTPS desde el cargador")
-        sg_cargador.add_egress_rule(sg_endpoint_agente, ec2.Port.tcp(443), "HTTPS al endpoint de Bedrock Agent")
-        ec2.CfnVPCEndpoint(
-            self, "EndpointBedrockAgent", vpc_id=red.vpc_id, service_name=f"com.amazonaws.{self.region}.bedrock-agent",
-            vpc_endpoint_type="Interface", subnet_ids=[red.isolated_subnets[0].subnet_id],
-            security_group_ids=[sg_endpoint_agente.security_group_id], private_dns_enabled=True,
-            policy_document=politica_cuenta)
+        # No bedrock-agent endpoint: its private DNS conflicts with the VPC (AWS rejected it). The KB ingestion job
+        # is started from the operator terminal (control-plane call, not database access); see the loader README.
 
         # Knowledge Base: documents in an encrypted bucket, S3 Vectors as the store, Titan Text Embeddings V2.
         bucket_docs = s3.Bucket(

@@ -165,10 +165,6 @@
       "AWS::S3::BucketPolicy"
     ],
     [
-      "EndpointBedrockAgent",
-      "AWS::EC2::VPCEndpoint"
-    ],
-    [
       "EndpointSecretos",
       "AWS::EC2::VPCEndpoint"
     ],
@@ -221,20 +217,8 @@
       "AWS::EC2::SecurityGroupEgress"
     ],
     [
-      "SgCargadortosemana19datosSgEndpointAgente15C5C769443",
-      "AWS::EC2::SecurityGroupEgress"
-    ],
-    [
       "SgCargadortosemana19datosSgEndpointSecretosFAD8A9AF443",
       "AWS::EC2::SecurityGroupEgress"
-    ],
-    [
-      "SgEndpointAgente",
-      "AWS::EC2::SecurityGroup"
-    ],
-    [
-      "SgEndpointAgentefromsemana19datosSgCargador4FD88F2B443",
-      "AWS::EC2::SecurityGroupIngress"
     ],
     [
       "SgEndpointSecretos",
