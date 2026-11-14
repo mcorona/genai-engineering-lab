@@ -137,3 +137,11 @@ def test_vivo_cargador_idempotente_y_copilot_ro_no_escribe():
     with pytest.raises(Exception):
         ro.run("INSERT INTO legado.artnot (not_id, not_art, not_txt, not_fch) VALUES (999,'X','x','2026-01-01')")
     assert con.run("SELECT count(*) FROM pg_roles WHERE rolname = 'order_writer'")[0][0] == 1
+
+
+def test_scramp_vendorizado_tiene_make_channel_binding():
+    # pg8000 1.31.2 calls scramp.make_channel_binding on the TLS path (RDS). scramp 1.5.0 removed it: that broke
+    # the first real invocation of the loader. Pinned to 1.4.8 in infra/loader/vendor.
+    import scramp
+    assert hasattr(scramp, "make_channel_binding")
+    assert scramp.__file__.startswith(str(CARGADOR / "vendor"))
