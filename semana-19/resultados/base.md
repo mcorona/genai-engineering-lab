@@ -181,3 +181,14 @@ bootstrap exists. It denies create and update, not delete, so the teardown still
 - Result: AWS Key Management Service −0.0000000022 USD; Amazon S3 −0.0000000001 USD; total −0.0000000023 USD.
 - `Estimated: true`: the 2026-11-13 figure is still not closed. It matches the two earlier calls, so it stays
   preliminary. Real cost of the activity is the Price List estimate above, not this value.
+
+### Decisiones de cierre de la actividad 3 (2026-11-14)
+
+- **Cost Anomaly Detection: descartado.** Decisión de Manuel. Su precio quedó en N (no medible desde el Price List
+  API), así que no se implementa. Se registra como excepción de la viñeta de gasto; no es un faltante.
+- **Endpoints con 443 solo desde el SG de la Lambda: se cierra en la actividad 6.** El SG de la Lambda del agente se
+  crea en esa actividad; hasta entonces el origen de los endpoints es `SgHerramientas`, como está en la cuenta.
+- **Tiempo de borrado en vivo:** el script ya registra `destruir-base` y `destruir-base-retenido`. La medición real
+  queda pendiente de un teardown autorizado con su despliegue previo.
+- **Costo real de Cost Explorer del 13 de noviembre:** sigue `Estimated: true`; pendiente de cierre de datos y de una
+  consulta nueva autorizada.
