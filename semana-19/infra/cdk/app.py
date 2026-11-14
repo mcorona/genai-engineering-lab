@@ -202,6 +202,9 @@ def politica_ejecucion_datos() -> list[iam.PolicyStatement]:
             "secretsmanager:DescribeSecret", "secretsmanager:TagResource", "secretsmanager:UntagResource", "secretsmanager:GetResourcePolicy",
             "secretsmanager:PutResourcePolicy", "secretsmanager:DeleteResourcePolicy"], resources=["*"]),
         _declaracion(sid="ContrasenaGeneradaPorCfn", actions=["secretsmanager:GetRandomPassword"], resources=["*"]),
+        # RDS reads the generated secret to apply the master password; the secret name starts with semana19datos.
+        _declaracion(sid="LeerSecretoDeLaBdPorCfn", actions=["secretsmanager:GetSecretValue"],
+                     resources=[f"arn:{Aws.PARTITION}:secretsmanager:{REGION}:{Aws.ACCOUNT_ID}:secret:semana19datos*"]),
         _declaracion(sid="BaseDeDatosPostgresPorCfn", actions=[
             "rds:CreateDBInstance", "rds:DeleteDBInstance", "rds:ModifyDBInstance", "rds:AddTagsToResource",
             "rds:RemoveTagsFromResource", "rds:ListTagsForResource", "rds:CreateDBSubnetGroup",
@@ -404,7 +407,7 @@ class Control(Stack):
         saltar_checkov(ejecucion_datos, {
             "CKV_AWS_111": "Creación de recursos del stack datos sin ARN previo (secreto, base, buckets, Knowledge Base); ver EXCEPCIONES.",
             "CKV_AWS_109": "Roles semana19-kb y semana19-datos-* sin condición de límite en las acciones de gestión: los roles se crean con semana19-limite (aplicado por el Aspect), y iam:PassRole solo hacia bedrock y lambda."})
-        suprimir_iam5(ejecucion_datos, ["SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "DescribirRdsPorCfn",
+        suprimir_iam5(ejecucion_datos, ["SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "LeerSecretoDeLaBdPorCfn", "DescribirRdsPorCfn",
                                         "LlaveParaRdsYSecretos", "BaseDeDatosPostgresPorCfn", "BucketDocsKbPorCfn",
                                         "VectoresKbPorCfn", "KnowledgeBasePorCfn", "CrearKnowledgeBasePorCfn",
                                         "RolesDelDatosPorCfn", "PasarRolesDelDatosAKbYLambda", "ConcurrenciaDelCargador"])

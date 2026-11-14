@@ -4,6 +4,7 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 # Every wildcard that remains, by statement Sid, with the reason. The test fails if a wildcard appears with a Sid
 # that is not here, or if an entry here no longer exists. The same reasons go to cdk-nag suppressions.
 EXCEPCIONES = {
+    "LeerSecretoDeLaBdPorCfn": "GetSecretValue solo sobre los secretos cuyo nombre empieza por semana19datos (el secreto de la base de datos): RDS lo lee para aplicar la contraseña generada.",
     "CrearKnowledgeBasePorCfn": "bedrock:CreateKnowledgeBase no tiene ARN antes de crear la Knowledge Base: AWS la autoriza contra '*' (verificado con iam simulate-custom-policy).",
     "BaseDeDatosPostgresPorCfn": "Crear, modificar y borrar la base y su subnet group: el nombre lo pone CloudFormation con el prefijo semana19-datos; la base no tiene ARN antes de crearse.",
     "BucketDocsKbPorCfn": "Bucket de documentos de la Knowledge Base: CloudFormation le pone nombre con el prefijo semana19-datos; el borrado de objetos se necesita para el teardown.",
