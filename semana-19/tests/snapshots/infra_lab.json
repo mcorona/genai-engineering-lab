@@ -138,5 +138,39 @@
       "SgHerramientas",
       "AWS::EC2::SecurityGroup"
     ]
+  ],
+  "semana19-datos": [
+    [
+      "PostgreSQL",
+      "AWS::RDS::DBInstance"
+    ],
+    [
+      "PostgreSQLSecretAttachment",
+      "AWS::SecretsManager::SecretTargetAttachment"
+    ],
+    [
+      "PostgreSQLSubnetGroup",
+      "AWS::RDS::DBSubnetGroup"
+    ],
+    [
+      "SgBaseDeDatos",
+      "AWS::EC2::SecurityGroup"
+    ],
+    [
+      "SgBaseDeDatosfromsemana19datosSgCargador4FD88F2B5432",
+      "AWS::EC2::SecurityGroupIngress"
+    ],
+    [
+      "SgCargador",
+      "AWS::EC2::SecurityGroup"
+    ],
+    [
+      "SgCargadortosemana19datosSgBaseDeDatos2A16DBEA5432",
+      "AWS::EC2::SecurityGroupEgress"
+    ],
+    [
+      "semana19datosPostgreSQLSecretD3F1FA153fdaad7efa858a3daf9490cf0a702aeb",
+      "AWS::SecretsManager::Secret"
+    ]
   ]
 }
