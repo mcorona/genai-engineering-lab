@@ -43,6 +43,15 @@ CONGELAR = "semana19-congelar"
 EJECUCION_CFN = "semana19-cfn-exec"
 DESPLIEGUE = "semana19-despliegue"
 OPERADOR_ROL = "semana19-operador"
+OPERADOR_LIMITE = "semana19-operador-limite"
+ACCIONES_LECTURA_OPERADOR = [
+    "cloudformation:DescribeStacks", "cloudformation:ListStacks", "cloudformation:DescribeStackEvents",
+    "ec2:DescribeVpcs", "ec2:DescribeSubnets", "ec2:DescribeSecurityGroups", "ec2:DescribeVpcEndpoints",
+    "ec2:DescribeFlowLogs", "ec2:DescribeRouteTables", "ec2:DescribeInternetGateways",
+    "ec2:DescribeNatGateways", "kms:ListAliases", "kms:ListKeys", "kms:DescribeKey",
+    "kms:GetKeyRotationStatus", "logs:DescribeLogGroups", "iam:GetRole", "iam:ListRoles",
+    "budgets:ViewBudget", "budgets:DescribeBudgetActionsForAccount", "lambda:GetFunction",
+    "lambda:ListFunctions", "rds:DescribeDBInstances", "s3:ListAllMyBuckets"]
 ROL_PRESUPUESTO = "semana19-accion-presupuesto"
 OPERADOR = "manuel-admin"
 PRESUPUESTO = "semana19"
@@ -53,6 +62,7 @@ GRUPO_FLOW_LOGS = "/semana19/base/flowlogs"
 PREFIJO_LOGS = "/semana19/"
 
 ARN_PARTICION = f"arn:{Aws.PARTITION}"
+ARN_OPERADOR_LIMITE = f"arn:{Aws.PARTITION}:iam::{Aws.ACCOUNT_ID}:policy/{OPERADOR_LIMITE}"
 
 
 
@@ -204,7 +214,11 @@ class AplicarLimite:
     def visit(self, node):
         # CDK's own custom resource roles are generic CfnResource nodes, so match by type, not by class.
         if getattr(node, "cfn_resource_type", None) == "AWS::IAM::Role":
-            node.add_property_override("PermissionsBoundary", ARN_LIMITE)
+            # The operator role has its own boundary: read-only, so it cannot be wider than its purpose.
+            if node.node.path.endswith("/Operador/Resource"):
+                node.add_property_override("PermissionsBoundary", ARN_OPERADOR_LIMITE)
+            else:
+                node.add_property_override("PermissionsBoundary", ARN_LIMITE)
 
 
 @jsii.implements(IAspect)
@@ -323,19 +337,18 @@ class Control(Stack):
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
+        operador_limite = iam.ManagedPolicy(
+            self, "OperadorLimite", managed_policy_name=OPERADOR_LIMITE,
+            statements=[_declaracion(sid="LeerInventario", actions=ACCIONES_LECTURA_OPERADOR, resources=["*"])],
+            description="Permission boundary of the operator role: read-only inventory, nothing else.")
         operador = iam.Role(
             self, "Operador", role_name=OPERADOR_ROL,
             assumed_by=iam.ArnPrincipal(arn_iam(f"user/{OPERADOR}")),
             max_session_duration=Duration.hours(1),
             description="Operator role: read-only inventory of the lab. It cannot create, change or delete resources.")
-        operador.add_to_principal_policy(_declaracion(sid="LeerInventario", actions=[
-            "cloudformation:DescribeStacks", "cloudformation:ListStacks", "cloudformation:DescribeStackEvents",
-            "ec2:DescribeVpcs", "ec2:DescribeSubnets", "ec2:DescribeSecurityGroups", "ec2:DescribeVpcEndpoints",
-            "ec2:DescribeFlowLogs", "ec2:DescribeRouteTables", "ec2:DescribeInternetGateways",
-            "ec2:DescribeNatGateways", "kms:ListAliases", "kms:ListKeys", "kms:DescribeKey",
-            "kms:GetKeyRotationStatus", "logs:DescribeLogGroups", "iam:GetRole", "iam:ListRoles",
-            "budgets:ViewBudget", "budgets:DescribeBudgetActionsForAccount", "lambda:GetFunction",
-            "lambda:ListFunctions", "rds:DescribeDBInstances", "s3:ListAllMyBuckets"], resources=["*"]))
+        operador.add_to_principal_policy(_declaracion(sid="LeerInventario", actions=ACCIONES_LECTURA_OPERADOR,
+                                                      resources=["*"]))
+        suprimir_iam5(operador_limite, ["LeerInventario"])
         suprimir_iam5(operador, ["LeerInventario"])
         cdk.CfnOutput(self, "ArnOperador", value=operador.role_arn)
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
