@@ -623,3 +623,13 @@ def test_postgres_solo_desde_el_cargador(perfil):
     r = next(iter(ingresos.values()))["Properties"]
     assert r["FromPort"] == 5432 and r["ToPort"] == 5432
     assert "CidrIp" not in r and "SourceSecurityGroupId" in r
+
+
+def test_desplegar_crea_datos_despues_de_la_base():
+    texto = (SCRIPTS / "desplegar.sh").read_text(encoding="utf-8")
+    assert texto.index("cdk deploy semana19-base") < texto.index("cdk deploy semana19-datos")
+
+
+def test_destruir_borra_datos_antes_que_la_red():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    assert texto.index("cdk destroy semana19-datos") < texto.index("cdk destroy semana19-base --force")
