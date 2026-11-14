@@ -4,6 +4,18 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 # Every wildcard that remains, by statement Sid, with the reason. The test fails if a wildcard appears with a Sid
 # that is not here, or if an entry here no longer exists. The same reasons go to cdk-nag suppressions.
 EXCEPCIONES = {
+    "CrearKnowledgeBasePorCfn": "bedrock:CreateKnowledgeBase no tiene ARN antes de crear la Knowledge Base: AWS la autoriza contra '*' (verificado con iam simulate-custom-policy).",
+    "BaseDeDatosPostgresPorCfn": "Crear, modificar y borrar la base y su subnet group: el nombre lo pone CloudFormation con el prefijo semana19-datos; la base no tiene ARN antes de crearse.",
+    "BucketDocsKbPorCfn": "Bucket de documentos de la Knowledge Base: CloudFormation le pone nombre con el prefijo semana19-datos; el borrado de objetos se necesita para el teardown.",
+    "VectoresKbPorCfn": "Bucket e índice de S3 Vectors con el prefijo semana19-kb-; el índice se crea dentro del bucket y su ARN no existe antes del despliegue.",
+    "KnowledgeBasePorCfn": "Knowledge Base y su fuente de datos: el ID lo asigna Bedrock al crearse, así que el ARN es knowledge-base/* dentro de la región y cuenta.",
+    "RolesDelDatosPorCfn": "Roles del stack datos (semana19-kb y semana19-datos-*): sus políticas en línea y adjuntas las pone CloudFormation; los roles llevan el límite semana19-limite, que acota lo que pueden tener.",
+    "PasarRolesDelDatosAKbYLambda": "iam:PassRole de los roles del stack datos solo hacia bedrock y lambda (condición PassedToService).",
+    "ConcurrenciaDelCargador": "Concurrencia reservada de la Lambda del cargador: su nombre tiene el prefijo semana19-.",
+    "SecretoDeLaBdPorCfn": "Secrets Manager crea el secreto con nombre generado por CloudFormation: el ARN no existe antes de crearlo; AWS exige '*' para Create*.",
+    "ContrasenaGeneradaPorCfn": "GetRandomPassword no admite ARN de recurso: AWS exige '*'.",
+    "DescribirRdsPorCfn": "rds:Describe* no acepta ARN de recurso para listar instancias y subnet groups: AWS exige '*'.",
+    "LlaveParaRdsYSecretos": "kms:CreateGrant y ListGrants para que RDS y Secrets Manager usen la llave del proyecto; el recurso es la llave (AWS exige '*' en la política de ejecución) y la condición kms:ViaService limita el uso a esos dos servicios.",
     "LeerLosDocs": "Lectura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base, para el rol de Bedrock; el ARN de objeto se acota al prefijo.",
     "EscribirDocsKb": "Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
     "LeerInventario": "Acciones de descripción y listado de AWS que no admiten ARN de recurso (describe/list): resource '*' con solo lectura; el rol del operador no puede crear, cambiar ni borrar.",

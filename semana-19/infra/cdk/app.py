@@ -188,6 +188,60 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             "iam:UpdateAssumeRolePolicy", "iam:ListRoleTags"],
             resources=[arn_iam(f"role/{PREFIJO_LOGS.strip('/')}*"), arn_iam("role/semana19-*")],
             conditions={"StringEquals": {"iam:PermissionsBoundary": ARN_LIMITE}}),
+        # --- stack semana19-datos (activity 4): what CloudFormation calls while creating and deleting its resources.
+        _declaracion(sid="SecretoDeLaBdPorCfn", actions=[
+            "secretsmanager:CreateSecret", "secretsmanager:UpdateSecret", "secretsmanager:DeleteSecret",
+            "secretsmanager:DescribeSecret", "secretsmanager:TagResource", "secretsmanager:UntagResource", "secretsmanager:GetResourcePolicy",
+            "secretsmanager:PutResourcePolicy", "secretsmanager:DeleteResourcePolicy"], resources=["*"]),
+        _declaracion(sid="ContrasenaGeneradaPorCfn", actions=["secretsmanager:GetRandomPassword"], resources=["*"]),
+        _declaracion(sid="BaseDeDatosPostgresPorCfn", actions=[
+            "rds:CreateDBInstance", "rds:DeleteDBInstance", "rds:ModifyDBInstance", "rds:AddTagsToResource",
+            "rds:RemoveTagsFromResource", "rds:ListTagsForResource", "rds:CreateDBSubnetGroup",
+            "rds:DeleteDBSubnetGroup", "rds:ModifyDBSubnetGroup"],
+            resources=[f"arn:{Aws.PARTITION}:rds:{REGION}:{Aws.ACCOUNT_ID}:db:semana19-datos*",
+                       f"arn:{Aws.PARTITION}:rds:{REGION}:{Aws.ACCOUNT_ID}:subgrp:semana19-datos*"]),
+        _declaracion(sid="DescribirRdsPorCfn", actions=["rds:DescribeDBInstances", "rds:DescribeDBSubnetGroups"],
+                     resources=["*"]),
+        _declaracion(sid="LlaveParaRdsYSecretos", actions=[
+            "kms:CreateGrant", "kms:ListGrants", "kms:DescribeKey"], resources=["*"],
+            conditions={"StringEquals": {"kms:ViaService": [f"rds.{REGION}.amazonaws.com",
+                                                             f"secretsmanager.{REGION}.amazonaws.com"]}}),
+        _declaracion(sid="BucketDocsKbPorCfn", actions=[
+            "s3:CreateBucket", "s3:DeleteBucket", "s3:PutEncryptionConfiguration",
+            "s3:GetEncryptionConfiguration", "s3:PutBucketVersioning",
+            "s3:GetBucketVersioning", "s3:PutBucketPublicAccessBlock", "s3:GetBucketPublicAccessBlock",
+            "s3:PutBucketPolicy", "s3:GetBucketPolicy", "s3:DeleteBucketPolicy", "s3:PutBucketTagging",
+            "s3:GetBucketTagging", "s3:GetBucketLocation", "s3:GetBucketAcl", "s3:PutBucketOwnershipControls",
+            "s3:GetBucketOwnershipControls", "s3:ListBucket", "s3:ListBucketVersions", "s3:DeleteObject",
+            "s3:DeleteObjectVersion"],
+            resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*"]),
+        _declaracion(sid="VectoresKbPorCfn", actions=[
+            "s3vectors:CreateVectorBucket", "s3vectors:GetVectorBucket", "s3vectors:DeleteVectorBucket",
+            "s3vectors:CreateIndex", "s3vectors:GetIndex", "s3vectors:DeleteIndex", "s3vectors:ListIndexes",
+            "s3vectors:TagResource", "s3vectors:UntagResource", "s3vectors:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:s3vectors:{REGION}:{Aws.ACCOUNT_ID}:bucket/semana19-kb-*",
+                       f"arn:{Aws.PARTITION}:s3vectors:{REGION}:{Aws.ACCOUNT_ID}:bucket/semana19-kb-*/index/*"]),
+        # CreateKnowledgeBase is authorized against '*': the knowledge base has no ARN before it exists.
+        _declaracion(sid="CrearKnowledgeBasePorCfn", actions=["bedrock:CreateKnowledgeBase"], resources=["*"]),
+        _declaracion(sid="KnowledgeBasePorCfn", actions=[
+            "bedrock:GetKnowledgeBase", "bedrock:UpdateKnowledgeBase",
+            "bedrock:DeleteKnowledgeBase", "bedrock:CreateDataSource", "bedrock:GetDataSource",
+            "bedrock:UpdateDataSource", "bedrock:DeleteDataSource", "bedrock:ListDataSources",
+            "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:knowledge-base/*"]),
+        _declaracion(sid="RolesDelDatosPorCfn", actions=[
+            "iam:GetRole", "iam:DeleteRole", "iam:GetRolePolicy", "iam:PutRolePolicy", "iam:DeleteRolePolicy",
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListRolePolicies",
+            "iam:ListAttachedRolePolicies", "iam:ListRoleTags", "iam:TagRole", "iam:UntagRole"],
+            resources=[arn_iam("role/semana19-kb"), arn_iam("role/semana19-datos-*")]),
+        _declaracion(sid="PasarRolesDelDatosAKbYLambda", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-kb"), arn_iam("role/semana19-datos-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": [
+                         "bedrock.amazonaws.com", "lambda.amazonaws.com"]}}),
+        _declaracion(sid="ConcurrenciaDelCargador", actions=[
+            "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency",
+            "lambda:GetFunctionConcurrency"],
+            resources=[f"arn:{Aws.PARTITION}:lambda:{REGION}:{Aws.ACCOUNT_ID}:function:semana19-*"]),
     ]
 
 
@@ -335,7 +389,11 @@ class Control(Stack):
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
-                                  "FuncionesDeCustomResourceDelProyecto", "RolesConLimite"])
+                                  "FuncionesDeCustomResourceDelProyecto", "RolesConLimite",
+                                  "SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "DescribirRdsPorCfn",
+                                  "LlaveParaRdsYSecretos", "BaseDeDatosPostgresPorCfn", "BucketDocsKbPorCfn",
+                                  "VectoresKbPorCfn", "KnowledgeBasePorCfn", "CrearKnowledgeBasePorCfn", "RolesDelDatosPorCfn",
+                                  "PasarRolesDelDatosAKbYLambda", "ConcurrenciaDelCargador"])
         saltar_checkov(ejecucion, {
             "CKV_AWS_111": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
@@ -472,7 +530,7 @@ class Datos(Stack):
 
         bd = rds.DatabaseInstance(
             self, "PostgreSQL",
-            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_16),
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.of("16.15", "16")),  # 16.15: bare "16" is deprecated for new instances
             instance_type=ec2.InstanceType("t4g.micro"),
             vpc=red,
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
