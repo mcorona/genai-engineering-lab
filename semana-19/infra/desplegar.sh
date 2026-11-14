@@ -142,20 +142,22 @@ ARN_DESPLIEGUE="$(aws cloudformation describe-stacks --stack-name semana19-contr
   --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='ArnDespliegue'].OutputValue" --output text)"
 ARN_EJECUCION="$(aws cloudformation describe-stacks --stack-name semana19-control --region "$REGION" \
   --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='ArnEjecucionCfn'].OutputValue" --output text)"
+ARN_EJECUCION_DATOS="$(aws cloudformation describe-stacks --stack-name semana19-control --region "$REGION" \
+  --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='ArnEjecucionCfnDatos'].OutputValue" --output text)"
 
-if ! existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then
-  inicio=$(date +%s)
-  echo "== Paso 2: bootstrap s19 (confía solo en $ARN_DESPLIEGUE)"
-  cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 \
-    --toolkit-stack-name semana19-cdktoolkit \
-    --cloudformation-execution-policies "$ARN_EJECUCION" \
-    --trust "$ARN_DESPLIEGUE"
-  registrar "bootstrap" $(( $(date +%s) - inicio ))
-  echo "== Paso 2b: congelación también de los roles cdk-s19-* (BootstrapCreado=true)"
-  desplegar_control "true"
+# The bootstrap is applied on every run: it is idempotent and keeps the execution role's policy list current
+# (the two policies: semana19-cfn-exec for base and control, semana19-cfn-exec-datos for datos).
+inicio=$(date +%s)
+if existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then
+  echo "== Paso 2: bootstrap s19 (actualiza la lista de políticas del rol de ejecución)"
 else
-  echo "== Paso 2: bootstrap s19 ya existe; no se toca"
+  echo "== Paso 2: bootstrap s19 (crea; confía solo en $ARN_DESPLIEGUE)"
 fi
+cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 \
+  --toolkit-stack-name semana19-cdktoolkit \
+  --cloudformation-execution-policies "$ARN_EJECUCION,$ARN_EJECUCION_DATOS" \
+  --trust "$ARN_DESPLIEGUE"
+registrar "bootstrap" $(( $(date +%s) - inicio ))
 
 inicio=$(date +%s)
 echo "== Paso 3: semana19-base (CREATE_COMPLETE medido)"

@@ -11,7 +11,8 @@ Codes: D = measured in the account, M = not measured (never used here), N = no p
 | RDS PostgreSQL db.t4g.micro, Single-AZ | 0.016 USD/h | AmazonRDS `9HPEGXQTDDGH53C9` | 0.016000 |
 | RDS gp3 storage, 20 GB (smallest allocation, assumption) | 0.115 USD/GB-mo | AmazonRDS `2XPS3A47BS2PYAZE` (deployment option not confirmed; see note) | 0.003151 (0.115 × 20 ÷ 730) |
 | Secrets Manager, 1 secret (master password, generated) | 0.40 USD/secret-mo | AWSSecretsManager `BJ3PQ9BYGU6P632F` | 0.000548 (0.40 ÷ 730) |
-| **Total while up** | | | **0.019699** |
+| VPC interface endpoint, Secrets Manager (one AZ, one ENI) | 0.01 USD/h | AmazonVPC `EN2N5TATXE673A3B` (PrivateLink, us-east-1) | 0.010000 |
+| **Total while up** | | | **0.029699** |
 
 Note on the storage SKU: three SKUs carry the same 0.115 price for `RDS:GP3-Storage`; the Single-AZ one is not confirmed.
 The difference is zero at this price, so the estimate does not change, but the SKU is not verified as Single-AZ.
@@ -38,10 +39,14 @@ The difference is zero at this price, so the estimate does not change, but the S
 
 | Scenario | Hours up | RDS + storage | Loader | Total (priced items only) |
 |---|---|---|---|---|
-| Planned (loader, checks, teardown in the same session) | 2 | 0.039398 | 0.000500 | **0.0399 USD** |
-| Left up by mistake for 24 h | 24 | 0.472776 | 0.000500 | 0.4733 USD |
+| Planned (loader, checks, teardown in the same session) | 2 | 0.059398 (RDS + storage 0.039398; endpoint 0.020000) | 0.000500 | **0.0599 USD** |
+| Left up by mistake for 24 h | 24 | 0.712776 (RDS + storage 0.472776; endpoint 0.240000) | 0.000500 | 0.7133 USD |
 
 The second scenario is the cost of forgetting the teardown. It stays under the USD 5/week cap.
+
+Only the Secrets Manager endpoint is in the stack: the Bedrock Agent endpoint was removed (its private DNS conflicted in the VPC).
+
+Not counted: PrivateLink data processing (USD per GB on the endpoints). Only a few KB pass through them per session, so it rounds below one thousandth of a dollar.
 
 ## Decisions taken
 
@@ -52,4 +57,4 @@ The second scenario is the cost of forgetting the teardown. It stays under the U
 
 ## Authorization
 
-Manuel's OK is needed before any `--si` for activity 4. Estimated cost: **≈ 0.04 USD** for a planned session; ≈ 0.47 USD if left up 24 h. Both are far below the USD 5/week cap, so they count as approved under the rule Manuel set on 2026-11-14.
+Manuel's OK is needed before any `--si` for activity 4. Estimated cost: **≈ 0.06 USD** for a planned session; ≈ 0.71 USD if left up 24 h. Both are far below the USD 5/week cap, so they count as approved under the rule Manuel set on 2026-11-14.

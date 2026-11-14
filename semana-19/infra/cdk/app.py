@@ -20,11 +20,14 @@ from pathlib import Path
 import aws_cdk as cdk
 import jsii
 from aws_cdk import Aspects, Aws, CfnParameter, Duration, IAspect, RemovalPolicy, Stack, Tags
+from aws_cdk import aws_bedrock as bedrock
 from aws_cdk import aws_budgets as budgets
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_kms as kms
 from aws_cdk import aws_rds as rds
+from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_s3vectors as s3v
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from cdk_nag import AwsSolutionsChecks, NagPackSuppression, NagSuppressions
@@ -42,6 +45,7 @@ REGION = "us-east-1"
 LIMITE = "semana19-limite"
 CONGELAR = "semana19-congelar"
 EJECUCION_CFN = "semana19-cfn-exec"
+EJECUCION_CFN_DATOS = "semana19-cfn-exec-datos"
 DESPLIEGUE = "semana19-despliegue"
 OPERADOR_ROL = "semana19-operador"
 OPERADOR_LIMITE = "semana19-operador-limite"
@@ -75,6 +79,7 @@ def arn_iam(recurso: str) -> str:
 ARN_LIMITE = arn_iam(f"policy/{LIMITE}")
 ARN_CONGELAR = arn_iam(f"policy/{CONGELAR}")
 ARN_EJECUCION_CFN = arn_iam(f"policy/{EJECUCION_CFN}")
+ARN_EJECUCION_CFN_DATOS = arn_iam(f"policy/{EJECUCION_CFN_DATOS}")
 ARN_DESPLIEGUE = arn_iam(f"role/{DESPLIEGUE}")
 
 # Create and update actions that the freeze denies on the deploy role, the CDK deploy role and the CDK execution
@@ -118,6 +123,29 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="RestringirSgPorDefecto", actions=["ec2:DescribeSecurityGroups",
                                                             "ec2:RevokeSecurityGroupIngress",
                                                             "ec2:RevokeSecurityGroupEgress"], resources=["*"]),
+        # Techo de los roles de datos: lo que la KB (semana19-kb) y el cargador necesitan. Cada statement
+        # se acota por prefijo o por servicio; la política propia del rol decide el resto.
+        _declaracion(sid="DocsDatosLeer", actions=["s3:GetObject"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/*"]),
+        _declaracion(sid="DocsDatosListar", actions=["s3:ListBucket"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*"]),
+        _declaracion(sid="DocsDatosEscribir", actions=["s3:PutObject"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/docs/*"]),
+        _declaracion(sid="IndiceKbDatos", actions=["s3vectors:GetIndex", "s3vectors:PutVectors", "s3vectors:GetVectors",
+                                                   "s3vectors:DeleteVectors", "s3vectors:QueryVectors",
+                                                   "s3vectors:ListVectors"],
+                     resources=[f"arn:{Aws.PARTITION}:s3vectors:{REGION}:{Aws.ACCOUNT_ID}:bucket/semana19-kb-*/index/*"]),
+        _declaracion(sid="EmbeberConTitan", actions=["bedrock:InvokeModel"],
+                     resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}::foundation-model/amazon.titan-embed-text-v2:0"]),
+        _declaracion(sid="SecretoBdLeer", actions=["secretsmanager:GetSecretValue"],
+                     resources=[f"arn:{Aws.PARTITION}:secretsmanager:{REGION}:{Aws.ACCOUNT_ID}:secret:semana19datos*"]),
+        _declaracion(sid="CifrarSoloViaS3YSecretos", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
+                                                              "kms:DescribeKey"], resources=["*"],
+                     conditions={"StringEquals": {"kms:ViaService": [f"s3.{REGION}.amazonaws.com",
+                                                                     f"secretsmanager.{REGION}.amazonaws.com"]}}),
+        _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
+                                                      "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
+                                                      "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
     ]
 
 
@@ -185,6 +213,73 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             "iam:UpdateAssumeRolePolicy", "iam:ListRoleTags"],
             resources=[arn_iam(f"role/{PREFIJO_LOGS.strip('/')}*"), arn_iam("role/semana19-*")],
             conditions={"StringEquals": {"iam:PermissionsBoundary": ARN_LIMITE}}),
+    ]
+
+
+def politica_ejecucion_datos() -> list[iam.PolicyStatement]:
+    """Second execution policy (6144-character limit per managed policy): what CloudFormation calls for stack datos."""
+    return [
+        # --- stack semana19-datos (activity 4): what CloudFormation calls while creating and deleting its resources.
+        _declaracion(sid="SecretoDeLaBdPorCfn", actions=[
+            "secretsmanager:CreateSecret", "secretsmanager:UpdateSecret", "secretsmanager:DeleteSecret",
+            "secretsmanager:DescribeSecret", "secretsmanager:TagResource", "secretsmanager:UntagResource", "secretsmanager:GetResourcePolicy",
+            "secretsmanager:PutResourcePolicy", "secretsmanager:DeleteResourcePolicy"], resources=["*"]),
+        _declaracion(sid="ContrasenaGeneradaPorCfn", actions=["secretsmanager:GetRandomPassword"], resources=["*"]),
+        # The attachment writes the connection details into the generated secret (PutSecretValue); same prefix.
+        _declaracion(sid="EscribirSecretoDeLaBdPorCfn", actions=["secretsmanager:PutSecretValue",
+                                                                 "secretsmanager:UpdateSecretVersionStage"],
+                     resources=[f"arn:{Aws.PARTITION}:secretsmanager:{REGION}:{Aws.ACCOUNT_ID}:secret:semana19datos*"]),
+        # RDS reads the generated secret to apply the master password; the secret name starts with semana19datos.
+        _declaracion(sid="LeerSecretoDeLaBdPorCfn", actions=["secretsmanager:GetSecretValue"],
+                     resources=[f"arn:{Aws.PARTITION}:secretsmanager:{REGION}:{Aws.ACCOUNT_ID}:secret:semana19datos*"]),
+        _declaracion(sid="BaseDeDatosPostgresPorCfn", actions=[
+            "rds:CreateDBInstance", "rds:DeleteDBInstance", "rds:ModifyDBInstance", "rds:AddTagsToResource",
+            "rds:RemoveTagsFromResource", "rds:ListTagsForResource", "rds:CreateDBSubnetGroup",
+            "rds:DeleteDBSubnetGroup", "rds:ModifyDBSubnetGroup"],
+            resources=[f"arn:{Aws.PARTITION}:rds:{REGION}:{Aws.ACCOUNT_ID}:db:semana19-datos*",
+                       f"arn:{Aws.PARTITION}:rds:{REGION}:{Aws.ACCOUNT_ID}:subgrp:semana19-datos*"]),
+        _declaracion(sid="DescribirRdsPorCfn", actions=["rds:DescribeDBInstances", "rds:DescribeDBSubnetGroups"],
+                     resources=["*"]),
+        _declaracion(sid="LlaveParaRdsYSecretos", actions=[
+            "kms:CreateGrant", "kms:ListGrants", "kms:DescribeKey"], resources=["*"],
+            conditions={"StringEquals": {"kms:ViaService": [f"rds.{REGION}.amazonaws.com",
+                                                             f"secretsmanager.{REGION}.amazonaws.com"]}}),
+        _declaracion(sid="BucketDocsKbPorCfn", actions=[
+            "s3:CreateBucket", "s3:DeleteBucket", "s3:PutEncryptionConfiguration",
+            "s3:GetEncryptionConfiguration", "s3:PutBucketVersioning",
+            "s3:GetBucketVersioning", "s3:PutBucketPublicAccessBlock", "s3:GetBucketPublicAccessBlock",
+            "s3:PutBucketPolicy", "s3:GetBucketPolicy", "s3:DeleteBucketPolicy", "s3:PutBucketTagging",
+            "s3:GetBucketTagging", "s3:GetBucketLocation", "s3:GetBucketAcl", "s3:PutBucketOwnershipControls",
+            "s3:GetBucketOwnershipControls", "s3:ListBucket", "s3:ListBucketVersions", "s3:DeleteObject",
+            "s3:DeleteObjectVersion"],
+            resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*"]),
+        _declaracion(sid="VectoresKbPorCfn", actions=[
+            "s3vectors:CreateVectorBucket", "s3vectors:GetVectorBucket", "s3vectors:DeleteVectorBucket",
+            "s3vectors:CreateIndex", "s3vectors:GetIndex", "s3vectors:DeleteIndex", "s3vectors:ListIndexes",
+            "s3vectors:TagResource", "s3vectors:UntagResource", "s3vectors:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:s3vectors:{REGION}:{Aws.ACCOUNT_ID}:bucket/semana19-kb-*",
+                       f"arn:{Aws.PARTITION}:s3vectors:{REGION}:{Aws.ACCOUNT_ID}:bucket/semana19-kb-*/index/*"]),
+        # CreateKnowledgeBase is authorized against '*': the knowledge base has no ARN before it exists.
+        _declaracion(sid="CrearKnowledgeBasePorCfn", actions=["bedrock:CreateKnowledgeBase"], resources=["*"]),
+        _declaracion(sid="KnowledgeBasePorCfn", actions=[
+            "bedrock:GetKnowledgeBase", "bedrock:UpdateKnowledgeBase",
+            "bedrock:DeleteKnowledgeBase", "bedrock:CreateDataSource", "bedrock:GetDataSource",
+            "bedrock:UpdateDataSource", "bedrock:DeleteDataSource", "bedrock:ListDataSources",
+            "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:knowledge-base/*"]),
+        _declaracion(sid="RolesDelDatosPorCfn", actions=[
+            "iam:GetRole", "iam:DeleteRole", "iam:GetRolePolicy", "iam:PutRolePolicy", "iam:DeleteRolePolicy",
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListRolePolicies",
+            "iam:ListAttachedRolePolicies", "iam:ListRoleTags", "iam:TagRole", "iam:UntagRole"],
+            resources=[arn_iam("role/semana19-kb"), arn_iam("role/semana19-datos-*")]),
+        _declaracion(sid="PasarRolesDelDatosAKbYLambda", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-kb"), arn_iam("role/semana19-datos-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": [
+                         "bedrock.amazonaws.com", "lambda.amazonaws.com"]}}),
+        _declaracion(sid="ConcurrenciaDelCargador", actions=[
+            "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency",
+            "lambda:GetFunctionConcurrency"],
+            resources=[f"arn:{Aws.PARTITION}:lambda:{REGION}:{Aws.ACCOUNT_ID}:function:semana19-*"]),
     ]
 
 
@@ -256,6 +351,9 @@ class Control(Stack):
         ejecucion = iam.ManagedPolicy(self, "EjecucionCfn", managed_policy_name=EJECUCION_CFN,
                                       statements=politica_ejecucion_cfn(),
                                       description="CloudFormation execution policies of the CDK bootstrap (not AdministratorAccess).")
+        ejecucion_datos = iam.ManagedPolicy(self, "EjecucionCfnDatos", managed_policy_name=EJECUCION_CFN_DATOS,
+                                            statements=politica_ejecucion_datos(),
+                                            description="Second CloudFormation execution policy: stack semana19-datos (activity 4).")
 
         despliegue = iam.Role(
             self, "Despliegue", role_name=DESPLIEGUE,
@@ -277,7 +375,7 @@ class Control(Stack):
             sid="NoModificarLaPoliticaDelLimiteNiDeLaCongelacion", effect=iam.Effect.DENY, actions=[
                 "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:DeletePolicyVersion",
                 "iam:SetDefaultPolicyVersion"],
-            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN]))
+            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS]))
         despliegue.add_to_principal_policy(_declaracion(
             sid="NoModificarseASiMismo", effect=iam.Effect.DENY, actions=[
                 "iam:UpdateAssumeRolePolicy", "iam:PutRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
@@ -328,11 +426,19 @@ class Control(Stack):
         presupuesto.add_dependency(rol_presupuesto.node.default_child)
 
         suprimir_iam5(limite, ["LogsDelGrupoDelProyecto", "LogsDescribir", "CdkAssumeRoles", "CloudFormationLeer",
-                               "RestringirSgPorDefecto"])
+                               "RestringirSgPorDefecto", "DocsDatosLeer", "DocsDatosListar", "DocsDatosEscribir",
+                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos", "RedDeLambdaEnVpc"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
                                   "FuncionesDeCustomResourceDelProyecto", "RolesConLimite"])
+        saltar_checkov(ejecucion_datos, {
+            "CKV_AWS_111": "Creación de recursos del stack datos sin ARN previo (secreto, base, buckets, Knowledge Base); ver EXCEPCIONES.",
+            "CKV_AWS_109": "Roles semana19-kb y semana19-datos-* sin condición de límite en las acciones de gestión: los roles se crean con semana19-limite (aplicado por el Aspect), y iam:PassRole solo hacia bedrock y lambda."})
+        suprimir_iam5(ejecucion_datos, ["SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "LeerSecretoDeLaBdPorCfn", "EscribirSecretoDeLaBdPorCfn", "DescribirRdsPorCfn",
+                                        "LlaveParaRdsYSecretos", "BaseDeDatosPostgresPorCfn", "BucketDocsKbPorCfn",
+                                        "VectoresKbPorCfn", "KnowledgeBasePorCfn", "CrearKnowledgeBasePorCfn",
+                                        "RolesDelDatosPorCfn", "PasarRolesDelDatosAKbYLambda", "ConcurrenciaDelCargador"])
         saltar_checkov(ejecucion, {
             "CKV_AWS_111": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
@@ -356,6 +462,7 @@ class Control(Stack):
         cdk.CfnOutput(self, "ArnDespliegue", value=despliegue.role_arn)
         cdk.CfnOutput(self, "ArnCongelar", value=congelar.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfn", value=ejecucion.managed_policy_arn)
+        cdk.CfnOutput(self, "ArnEjecucionCfnDatos", value=ejecucion_datos.managed_policy_arn)
 
 
 class Base(Stack):
@@ -469,7 +576,7 @@ class Datos(Stack):
 
         bd = rds.DatabaseInstance(
             self, "PostgreSQL",
-            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_16),
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.of("16.15", "16")),  # 16.15: bare "16" is deprecated for new instances
             instance_type=ec2.InstanceType("t4g.micro"),
             vpc=red,
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
@@ -499,6 +606,110 @@ class Datos(Stack):
             id="AwsSolutions-RDS3", reason="Single-AZ por diseño de laboratorio (plan, actividad 4).")])
         NagSuppressions.add_resource_suppressions_by_path(self, "/semana19-datos/PostgreSQL/Secret/Resource", [NagPackSuppression(
             id="AwsSolutions-SMG4", reason="Sin rotación automática en el laboratorio: la Lambda de rotación queda fuera de la actividad 4; la contraseña nunca sale del secreto cifrado con la llave del stack.")])
+        # Secrets Manager endpoint: the loader reads the master password from inside the VPC (no internet).
+        sg_endpoint_secretos = ec2.SecurityGroup(
+            self, "SgEndpointSecretos", vpc=red, allow_all_outbound=False,
+            description="Interface endpoint de Secrets Manager: HTTPS solo desde el cargador.")
+        sg_endpoint_secretos.add_ingress_rule(sg_cargador, ec2.Port.tcp(443), "HTTPS desde el cargador")
+        sg_cargador.add_egress_rule(sg_endpoint_secretos, ec2.Port.tcp(443), "HTTPS al endpoint de Secrets Manager")
+        politica_cuenta = {"Version": "2012-10-17", "Statement": [{
+            "Sid": "SoloLaCuenta", "Effect": "Allow", "Principal": "*", "Action": "*", "Resource": "*",
+            "Condition": {"StringEquals": {"aws:PrincipalAccount": Aws.ACCOUNT_ID}}}]}
+        ec2.CfnVPCEndpoint(
+            self, "EndpointSecretos", vpc_id=red.vpc_id, service_name=f"com.amazonaws.{self.region}.secretsmanager",
+            vpc_endpoint_type="Interface", subnet_ids=[red.isolated_subnets[0].subnet_id],
+            security_group_ids=[sg_endpoint_secretos.security_group_id], private_dns_enabled=True,
+            policy_document=politica_cuenta)
+
+        # One-shot loader: seed 42, legado schema, copilot_ro and order_writer. Invoked by hand, once per session.
+        cargador = lambda_.Function(
+            self, "Cargador", runtime=lambda_.Runtime.PYTHON_3_13, handler="handler.handler",
+            code=lambda_.Code.from_asset(str(Path(__file__).resolve().parents[1] / "loader")),
+            timeout=Duration.seconds(300), memory_size=512,
+            vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+            security_groups=[sg_cargador], reserved_concurrent_executions=1,
+            description="One-shot loader of the lab database (activity 4). Idempotent. Input: secret ARN and host.")
+        saltar_checkov(cargador, {
+            "CKV_AWS_116": "Cargador de un solo uso invocado a mano: el resultado vuelve en la respuesta de la invocación; no hay cola de reintentos que vigilar."})
+        # Identity policy: grant_read would also grant decrypt on the key, which lives in the base stack.
+        cargador.add_to_role_policy(_declaracion(sid="LeerElSecretoDeLaBd", actions=["secretsmanager:GetSecretValue"],
+                                                 resources=[bd.secret.secret_arn]))
+        # Identity policy, not llave.grant_decrypt: the key lives in the base stack and its policy already delegates to IAM.
+        cargador.add_to_role_policy(_declaracion(sid="DescifrarConLaLlaveDelProyecto", actions=["kms:Decrypt", "kms:DescribeKey"],
+                                                 resources=[llave.key_arn]))
+        # No bedrock-agent endpoint: its private DNS conflicts with the VPC (AWS rejected it). The KB ingestion job
+        # is started from the operator terminal (control-plane call, not database access); see the loader README.
+
+        # Knowledge Base: documents in an encrypted bucket, S3 Vectors as the store, Titan Text Embeddings V2.
+        bucket_docs = s3.Bucket(
+            self, "DocsKb", encryption=s3.BucketEncryption.KMS, encryption_key=llave, bucket_key_enabled=True,
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL, enforce_ssl=True, versioned=True,
+            removal_policy=RemovalPolicy.DESTROY, auto_delete_objects=False)
+        vb = s3v.CfnVectorBucket(self, "VectoresKb", vector_bucket_name=f"semana19-kb-{Aws.ACCOUNT_ID}-{self.region}")
+        indice = s3v.CfnIndex(
+            self, "IndiceKb", vector_bucket_arn=vb.attr_vector_bucket_arn, index_name="legado-kb",
+            data_type="float32", dimension=1024, distance_metric="cosine")
+        indice.add_dependency(vb)
+        modelo_titan = f"arn:{Aws.PARTITION}:bedrock:{self.region}::foundation-model/amazon.titan-embed-text-v2:0"
+        rol_kb = iam.Role(
+            self, "RolKb", role_name="semana19-kb",
+            assumed_by=iam.ServicePrincipal("bedrock.amazonaws.com", conditions={
+                "StringEquals": {"aws:SourceAccount": Aws.ACCOUNT_ID}}),
+            description="Knowledge Base role: reads the docs bucket and the vector index, embeds with Titan V2.")
+        rol_kb.add_to_principal_policy(_declaracion(sid="LeerLosDocs", actions=["s3:GetObject", "s3:ListBucket"],
+                                                    resources=[bucket_docs.bucket_arn, bucket_docs.arn_for_objects("docs/*")]))
+        rol_kb.add_to_principal_policy(_declaracion(sid="UsarElIndice", actions=[
+            "s3vectors:GetIndex", "s3vectors:PutVectors", "s3vectors:GetVectors", "s3vectors:DeleteVectors",
+            "s3vectors:QueryVectors", "s3vectors:ListVectors"], resources=[indice.attr_index_arn]))
+        rol_kb.add_to_principal_policy(_declaracion(sid="EmbeberConTitan", actions=["bedrock:InvokeModel"],
+                                                    resources=[modelo_titan]))
+        rol_kb.add_to_principal_policy(_declaracion(sid="DescifrarDocs", actions=["kms:Decrypt", "kms:DescribeKey"],
+                                                    resources=[llave.key_arn]))
+        kb_lab = bedrock.CfnKnowledgeBase(
+            self, "KbLegado", name="semana19-legado", role_arn=rol_kb.role_arn,
+            knowledge_base_configuration=bedrock.CfnKnowledgeBase.KnowledgeBaseConfigurationProperty(
+                type="VECTOR",
+                vector_knowledge_base_configuration=bedrock.CfnKnowledgeBase.VectorKnowledgeBaseConfigurationProperty(
+                    embedding_model_arn=modelo_titan,
+                    embedding_model_configuration=bedrock.CfnKnowledgeBase.EmbeddingModelConfigurationProperty(
+                        bedrock_embedding_model_configuration=bedrock.CfnKnowledgeBase.BedrockEmbeddingModelConfigurationProperty(
+                            dimensions=1024, embedding_data_type="FLOAT32")))),
+            storage_configuration=bedrock.CfnKnowledgeBase.StorageConfigurationProperty(
+                type="S3_VECTORS",
+                s3_vectors_configuration=bedrock.CfnKnowledgeBase.S3VectorsConfigurationProperty(
+                    index_arn=indice.attr_index_arn)))
+        kb_lab.node.add_dependency(rol_kb)
+        fuente = bedrock.CfnDataSource(
+            self, "FuenteDocsKb", knowledge_base_id=kb_lab.attr_knowledge_base_id, name="docs-legado",
+            data_source_configuration=bedrock.CfnDataSource.DataSourceConfigurationProperty(
+                type="S3", s3_configuration=bedrock.CfnDataSource.S3DataSourceConfigurationProperty(
+                    bucket_arn=bucket_docs.bucket_arn, inclusion_prefixes=["docs/"])))
+        fuente.add_dependency(kb_lab)
+        cargador.add_to_role_policy(_declaracion(sid="EscribirDocsKb", actions=["s3:PutObject"],
+                                                 resources=[bucket_docs.arn_for_objects("docs/*")]))
+        cargador.add_to_role_policy(_declaracion(sid="IngestarKb", actions=["bedrock:StartIngestionJob"],
+                                                 resources=[kb_lab.attr_knowledge_base_arn]))
+        cargador.add_to_role_policy(_declaracion(sid="CifrarDocsKb", actions=["kms:GenerateDataKey", "kms:Encrypt"],
+                                                 resources=[llave.key_arn]))
+        NagSuppressions.add_resource_suppressions(bucket_docs, [NagPackSuppression(
+            id="AwsSolutions-S1", reason="Registros de acceso al bucket de documentos apagados en el laboratorio: el contenido es sintético y los eventos quedan en CloudTrail.")])
+        saltar_checkov(bucket_docs, {
+            "CKV_AWS_18": "Registros de acceso apagados en el laboratorio (contenido sintético; eventos en CloudTrail), igual que AwsSolutions-S1."})
+        suprimir_iam5(cargador, ["EscribirDocsKb"])
+        suprimir_iam5(rol_kb, ["LeerLosDocs"])
+        cdk.CfnOutput(self, "BucketDocsKb", value=bucket_docs.bucket_name)
+        cdk.CfnOutput(self, "KbId", value=kb_lab.attr_knowledge_base_id)
+        cdk.CfnOutput(self, "DataSourceId", value=fuente.attr_data_source_id)
+        self.cargador = cargador
+        cdk.CfnOutput(self, "ArnSecretoBd", value=bd.secret.secret_arn)
+        cdk.CfnOutput(self, "HostBd", value=bd.db_instance_endpoint_address)
+        cdk.CfnOutput(self, "NombreCargador", value=cargador.function_name)
+        NagSuppressions.add_resource_suppressions(cargador.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: el cargador necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.")],
+            apply_to_children=True)
+        NagSuppressions.add_resource_suppressions(cargador, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; el cargador es de un solo uso.")])
+
         saltar_checkov(bd, {
             "CKV_AWS_157": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
             "CKV_AWS_118": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base."})
