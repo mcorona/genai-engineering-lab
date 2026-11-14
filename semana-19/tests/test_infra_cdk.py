@@ -514,3 +514,40 @@ def test_destruir_evalua_delete_failed_antes_que_cdk_destroy():
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     assert texto.index('== "DELETE_FAILED"') < texto.index("cdk destroy semana19-base --force")
     assert "elif [[ \"$ESTADO_BASE\" != \"NO_EXISTE\" ]]" in texto
+
+
+# ---------------------------------------------------------------- cifrado y un rol por función (plan, actividad 3)
+
+# Recursos cifrables y la propiedad que los ata a la llave. Lambda cuenta solo si tiene variables de entorno.
+CIFRABLES = {
+    "AWS::Logs::LogGroup": "KmsKeyId",
+    "AWS::SQS::Queue": "KmsMasterKeyId",
+    "AWS::SNS::Topic": "KmsMasterKeyId",
+    "AWS::S3::Bucket": "BucketEncryption",
+    "AWS::ECR::Repository": "EncryptionConfiguration",
+    "AWS::RDS::DBInstance": "KmsKeyId",
+}
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_todo_recurso_cifrable_usa_la_llave(perfil):
+    for n, pl in sintetizar(perfil)["plantillas"].items():
+        for tipo, prop in CIFRABLES.items():
+            for lid, r in recursos(pl, tipo).items():
+                assert prop in r["Properties"], f"{n}/{lid} ({tipo}) sin {prop}"
+        # Lambda: solo si tiene variables de entorno, deben cifrarse con la llave.
+        for lid, r in recursos(pl, "AWS::Lambda::Function").items():
+            if r["Properties"].get("Environment"):
+                assert "KmsKeyArn" in r["Properties"], f"{n}/{lid} con variables de entorno sin KmsKeyArn"
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_cada_funcion_y_flujo_de_logs_tiene_su_propio_rol(perfil):
+    # Un rol por función: cada Lambda y cada flow log consume un rol distinto, y ningún rol se comparte.
+    for n, pl in sintetizar(perfil)["plantillas"].items():
+        consumidores = []
+        for lid, r in recursos(pl, "AWS::Lambda::Function").items():
+            consumidores.append(r["Properties"]["Role"]["Fn::GetAtt"][0])
+        for lid, r in recursos(pl, "AWS::EC2::FlowLog").items():
+            consumidores.append(r["Properties"]["DeliverLogsPermissionArn"]["Fn::GetAtt"][0])
+        assert len(consumidores) == len(set(consumidores)), f"{n}: un rol consumido por más de una función"
