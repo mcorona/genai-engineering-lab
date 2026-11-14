@@ -24,6 +24,7 @@ from aws_cdk import aws_budgets as budgets
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_kms as kms
+from aws_cdk import aws_rds as rds
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from cdk_nag import AwsSolutionsChecks, NagPackSuppression, NagSuppressions
@@ -414,6 +415,8 @@ class Base(Stack):
             logs.LogGroup.from_log_group_arn(self, "GrupoFlowLogsRef", grupo.attr_arn), rol_flow),
             traffic_type=ec2.FlowLogTrafficType.ALL)
 
+        self.red = red
+        self.llave = llave
         subredes_privadas = red.isolated_subnets
         tablas = [s.route_table.route_table_id for s in subredes_privadas]
         ids_subredes = [s.subnet_id for s in subredes_privadas]
@@ -448,6 +451,61 @@ class Base(Stack):
         Tags.of(self).add("perfil", PERFIL)
 
 
+class Datos(Stack):
+    """Activity 4, first slice: the lab's PostgreSQL in the base VPC. Single AZ, encrypted with the stack key,
+    no public access, IAM authentication. The loader, the Knowledge Base and the agent role come in later slices."""
+
+    def __init__(self, scope: Construct, id: str, red: ec2.Vpc, llave: kms.IKey, **kwargs):
+        super().__init__(scope, id, **kwargs)
+
+        sg_cargador = ec2.SecurityGroup(
+            self, "SgCargador", vpc=red, allow_all_outbound=False,
+            description="One-shot loader Lambda (activity 4): reaches PostgreSQL on 5432 only.")
+        sg_bd = ec2.SecurityGroup(
+            self, "SgBaseDeDatos", vpc=red, allow_all_outbound=False,
+            description="PostgreSQL: 5432 only from the loader security group.")
+        sg_bd.add_ingress_rule(sg_cargador, ec2.Port.tcp(5432), "PostgreSQL desde el cargador")
+        sg_cargador.add_egress_rule(sg_bd, ec2.Port.tcp(5432), "PostgreSQL")
+
+        bd = rds.DatabaseInstance(
+            self, "PostgreSQL",
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_16),
+            instance_type=ec2.InstanceType("t4g.micro"),
+            vpc=red,
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+            availability_zone=red.isolated_subnets[0].availability_zone,
+            multi_az=False,
+            publicly_accessible=False,
+            allocated_storage=20,
+            storage_type=rds.StorageType.GP3,
+            storage_encrypted=True,
+            storage_encryption_key=llave,
+            iam_authentication=True,
+            credentials=rds.Credentials.from_generated_secret("admin_legado", encryption_key=llave),
+            backup_retention=Duration.days(1),
+            delete_automated_backups=True,
+            deletion_protection=False,
+            auto_minor_version_upgrade=True,
+            security_groups=[sg_bd],
+            removal_policy=RemovalPolicy.DESTROY)
+
+        self.bd = bd
+        self.sg_cargador = sg_cargador
+        NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
+            id="AwsSolutions-RDS11", reason="Puerto 5432 de PostgreSQL: el acceso lo limita el SG a la Lambda del cargador.")])
+        NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
+            id="AwsSolutions-RDS10", reason="Protección contra borrado apagada solo en el laboratorio; el teardown debe borrarla. Documentado en el plan.")])
+        NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
+            id="AwsSolutions-RDS3", reason="Single-AZ por diseño de laboratorio (plan, actividad 4).")])
+        NagSuppressions.add_resource_suppressions_by_path(self, "/semana19-datos/PostgreSQL/Secret/Resource", [NagPackSuppression(
+            id="AwsSolutions-SMG4", reason="Sin rotación automática en el laboratorio: la Lambda de rotación queda fuera de la actividad 4; la contraseña nunca sale del secreto cifrado con la llave del stack.")])
+        saltar_checkov(bd, {
+            "CKV_AWS_157": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
+            "CKV_AWS_118": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base."})
+        Tags.of(self).add("proyecto", "semana19")
+        Tags.of(self).add("perfil", PERFIL)
+
+
 @jsii.implements(IAspect)
 class OmitirCheckovEnProveedorCdk:
     """CDK creates the custom resource provider of restrictDefaultSecurityGroup during synthesis: it is outside the
@@ -466,7 +524,9 @@ def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
                 synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
-    for pila in (control, base):
+    datos = Datos(app, "semana19-datos", red=base.red, llave=base.llave, env=cdk.Environment(region=REGION),
+                  synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+    for pila in (control, base, datos):
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())
         Aspects.of(pila).add(OmitirCheckovEnProveedorCdk())

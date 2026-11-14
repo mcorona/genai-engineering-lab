@@ -24,7 +24,7 @@ sys.path.insert(0, str(S19 / "infra" / "cdk"))
 from excepciones import EXCEPCIONES  # noqa: E402
 
 PERFILES = ["lab", "prod"]
-CONTROL, BASE = "semana19-control", "semana19-base"
+CONTROL, BASE, DATOS = "semana19-control", "semana19-base", "semana19-datos"
 ARN_LIMITE = "policy/semana19-limite"
 ARN_OPERADOR_LIMITE = "policy/semana19-operador-limite"
 
@@ -35,9 +35,9 @@ def sintetizar(perfil: str) -> dict:
     entorno = {**os.environ, "PERFIL": perfil, "CDK_OUTDIR": str(salida)}
     r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-2000:]
-    plantillas = {n: json.loads((salida / f"{n}.template.json").read_text(encoding="utf-8")) for n in (CONTROL, BASE)}
+    plantillas = {n: json.loads((salida / f"{n}.template.json").read_text(encoding="utf-8")) for n in (CONTROL, BASE, DATOS)}
     informes = {n: list(csv.DictReader((salida / f"AwsSolutions--{n}-NagReport.csv").open(encoding="utf-8")))
-                for n in (CONTROL, BASE)}
+                for n in (CONTROL, BASE, DATOS)}
     return {"plantillas": plantillas, "nag": informes}
 
 
@@ -91,9 +91,9 @@ def de_base(perfil):
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
-def test_los_dos_stacks_sintetizan_en_cada_perfil(perfil):
+def test_los_tres_stacks_sintetizan_en_cada_perfil(perfil):
     s = sintetizar(perfil)
-    assert set(s["plantillas"]) == {CONTROL, BASE}
+    assert set(s["plantillas"]) == {CONTROL, BASE, DATOS}
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -596,3 +596,30 @@ def test_limite_del_operador_solo_lectura_y_el_rol_no_excede_el_limite(perfil):
     for st in politicas[0]["Properties"]["PolicyDocument"]["Statement"]:
         acciones = set([st["Action"]] if isinstance(st["Action"], str) else st["Action"])
         assert acciones <= acciones_limite, f"el rol pide más que su límite: {acciones - acciones_limite}"
+
+
+# ---------------------------------------------------------------- base de datos (actividad 4, primera rebanada)
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_base_de_datos_cifrada_privada_sin_acceso_publico_con_iam(perfil):
+    bd = recursos(sintetizar(perfil)["plantillas"][DATOS], "AWS::RDS::DBInstance")
+    assert len(bd) == 1
+    p = next(iter(bd.values()))["Properties"]
+    assert p["StorageEncrypted"] is True and "KmsKeyId" in p
+    assert p["PubliclyAccessible"] is False
+    assert p["EnableIAMDatabaseAuthentication"] is True
+    assert p["MultiAZ"] is False
+    assert p["Engine"] == "postgres" and p["DBInstanceClass"] == "db.t4g.micro"
+    assert p["AllocatedStorage"] in ("20", 20) and p["StorageType"] == "gp3"
+    assert p["BackupRetentionPeriod"] in (1, "1")
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_postgres_solo_desde_el_cargador(perfil):
+    # Only the loader security group may reach 5432; no CIDR rule on the database.
+    pl = sintetizar(perfil)["plantillas"][DATOS]
+    ingresos = recursos(pl, "AWS::EC2::SecurityGroupIngress")
+    assert len(ingresos) == 1
+    r = next(iter(ingresos.values()))["Properties"]
+    assert r["FromPort"] == 5432 and r["ToPort"] == 5432
+    assert "CidrIp" not in r and "SourceSecurityGroupId" in r
