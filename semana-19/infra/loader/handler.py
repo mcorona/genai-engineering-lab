@@ -22,7 +22,10 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "vendor"))
 
+import time  # noqa: E402
+
 import boto3  # noqa: E402  (provided by the Lambda runtime)
+from botocore.config import Config  # noqa: E402
 import pg8000.native as pg  # noqa: E402  (vendored, pure Python)
 
 # Table, columns and the SQL cast for each column (the dump is text; the cast happens in the database).
@@ -39,13 +42,24 @@ BASE = "postgres"
 PUERTO = 5432
 
 
+INICIO = time.time()
+
+
+def _paso(texto: str) -> None:
+    """Progress marker in the function log (no secrets): shows where a run stops."""
+    print(f"[cargador {time.time() - INICIO:6.1f}s] {texto}", flush=True)
+
+
 def _secreto(arn: str) -> dict:
-    return json.loads(boto3.client("secretsmanager").get_secret_value(SecretId=arn)["SecretString"])
+    _paso("leyendo el secreto")
+    cliente = boto3.client("secretsmanager", config=Config(connect_timeout=5, read_timeout=15, retries={"max_attempts": 2}))
+    return json.loads(cliente.get_secret_value(SecretId=arn)["SecretString"])
 
 
 def _conectar(host: str, usuario: str, clave: str) -> pg.Connection:
     contexto = ssl.create_default_context(cafile=str(HERE / "rds-ca.pem"))
     contexto.check_hostname = True
+    _paso(f"conectando a la base en {host}")
     return pg.Connection(usuario, host=host, port=PUERTO, database=BASE, password=clave, ssl_context=contexto)
 
 
@@ -136,7 +150,7 @@ def documentos_del_diccionario() -> dict[str, str]:
 
 
 def subir_documentos(bucket: str) -> int:
-    s3 = boto3.client("s3")
+    s3 = boto3.client("s3", config=Config(connect_timeout=5, read_timeout=30, retries={"max_attempts": 3}))
     docs = documentos_del_diccionario()
     for clave, texto in docs.items():
         s3.put_object(Bucket=bucket, Key=clave, Body=texto.encode("utf-8"), ContentType="text/markdown")
@@ -149,17 +163,24 @@ def handler(event, context):
     con = _conectar(event["db_host"], secreto["username"], secreto["password"])
     try:
         resumen = {"esquema_creado": False}
+        _paso("conectado; revisando esquema")
         if not _existe_esquema_copilot(con):
             con.run((HERE / "ddl_copilot.sql").read_text(encoding="utf-8"))
             resumen["esquema_creado"] = True
+        _paso("cargando seed 42")
         resumen["filas"] = _cargar_seed(con)
+        _paso("seed cargado; roles")
         con.run(ROLES_CREAR)
+        _paso("legado y artnot")
         con.run((HERE / "legado.sql").read_text(encoding="utf-8"))
         con.run((HERE / "artnot.sql").read_text(encoding="utf-8"))
         con.run(ROLES_PERMISOS)
         resumen["ok"] = True
+        _paso("base lista")
         if event.get("docs_bucket"):
+            _paso("subiendo documentos a la KB")
             resumen["documentos"] = subir_documentos(event["docs_bucket"])
+            _paso("documentos subidos")
         return resumen
     finally:
         con.close()
