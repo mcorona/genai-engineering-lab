@@ -173,3 +173,11 @@ bootstrap exists. It denies create and update, not delete, so the teardown still
   (dates 2026-11-20 and 2026-11-21), listed explicitly as the plan requires.
 - Control stack (`semana19-control`) kept, $0/h.
 - Cost Explorer for 2026-11-13: still preliminary. The real cost stays open until a new query is approved.
+
+### Cost Explorer, tercera consulta (2026-11-14)
+
+- Authorized by Manuel for this one call (USD 0.01). Query: account total, 2026-11-13 to 2026-11-14, daily, UnblendedCost,
+  grouped by SERVICE, no filter.
+- Result: AWS Key Management Service −0.0000000022 USD; Amazon S3 −0.0000000001 USD; total −0.0000000023 USD.
+- `Estimated: true`: the 2026-11-13 figure is still not closed. It matches the two earlier calls, so it stays
+  preliminary. Real cost of the activity is the Price List estimate above, not this value.
