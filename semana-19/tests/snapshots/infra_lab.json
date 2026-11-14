@@ -21,6 +21,10 @@
       "AWS::IAM::ManagedPolicy"
     ],
     [
+      "EjecucionCfnDatos",
+      "AWS::IAM::ManagedPolicy"
+    ],
+    [
       "Limite",
       "AWS::IAM::ManagedPolicy"
     ],

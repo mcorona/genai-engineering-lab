@@ -45,6 +45,7 @@ REGION = "us-east-1"
 LIMITE = "semana19-limite"
 CONGELAR = "semana19-congelar"
 EJECUCION_CFN = "semana19-cfn-exec"
+EJECUCION_CFN_DATOS = "semana19-cfn-exec-datos"
 DESPLIEGUE = "semana19-despliegue"
 OPERADOR_ROL = "semana19-operador"
 OPERADOR_LIMITE = "semana19-operador-limite"
@@ -78,6 +79,7 @@ def arn_iam(recurso: str) -> str:
 ARN_LIMITE = arn_iam(f"policy/{LIMITE}")
 ARN_CONGELAR = arn_iam(f"policy/{CONGELAR}")
 ARN_EJECUCION_CFN = arn_iam(f"policy/{EJECUCION_CFN}")
+ARN_EJECUCION_CFN_DATOS = arn_iam(f"policy/{EJECUCION_CFN_DATOS}")
 ARN_DESPLIEGUE = arn_iam(f"role/{DESPLIEGUE}")
 
 # Create and update actions that the freeze denies on the deploy role, the CDK deploy role and the CDK execution
@@ -188,6 +190,12 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             "iam:UpdateAssumeRolePolicy", "iam:ListRoleTags"],
             resources=[arn_iam(f"role/{PREFIJO_LOGS.strip('/')}*"), arn_iam("role/semana19-*")],
             conditions={"StringEquals": {"iam:PermissionsBoundary": ARN_LIMITE}}),
+    ]
+
+
+def politica_ejecucion_datos() -> list[iam.PolicyStatement]:
+    """Second execution policy (6144-character limit per managed policy): what CloudFormation calls for stack datos."""
+    return [
         # --- stack semana19-datos (activity 4): what CloudFormation calls while creating and deleting its resources.
         _declaracion(sid="SecretoDeLaBdPorCfn", actions=[
             "secretsmanager:CreateSecret", "secretsmanager:UpdateSecret", "secretsmanager:DeleteSecret",
@@ -313,6 +321,9 @@ class Control(Stack):
         ejecucion = iam.ManagedPolicy(self, "EjecucionCfn", managed_policy_name=EJECUCION_CFN,
                                       statements=politica_ejecucion_cfn(),
                                       description="CloudFormation execution policies of the CDK bootstrap (not AdministratorAccess).")
+        ejecucion_datos = iam.ManagedPolicy(self, "EjecucionCfnDatos", managed_policy_name=EJECUCION_CFN_DATOS,
+                                            statements=politica_ejecucion_datos(),
+                                            description="Second CloudFormation execution policy: stack semana19-datos (activity 4).")
 
         despliegue = iam.Role(
             self, "Despliegue", role_name=DESPLIEGUE,
@@ -334,7 +345,7 @@ class Control(Stack):
             sid="NoModificarLaPoliticaDelLimiteNiDeLaCongelacion", effect=iam.Effect.DENY, actions=[
                 "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:DeletePolicyVersion",
                 "iam:SetDefaultPolicyVersion"],
-            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN]))
+            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS]))
         despliegue.add_to_principal_policy(_declaracion(
             sid="NoModificarseASiMismo", effect=iam.Effect.DENY, actions=[
                 "iam:UpdateAssumeRolePolicy", "iam:PutRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
@@ -389,11 +400,14 @@ class Control(Stack):
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
-                                  "FuncionesDeCustomResourceDelProyecto", "RolesConLimite",
-                                  "SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "DescribirRdsPorCfn",
-                                  "LlaveParaRdsYSecretos", "BaseDeDatosPostgresPorCfn", "BucketDocsKbPorCfn",
-                                  "VectoresKbPorCfn", "KnowledgeBasePorCfn", "CrearKnowledgeBasePorCfn", "RolesDelDatosPorCfn",
-                                  "PasarRolesDelDatosAKbYLambda", "ConcurrenciaDelCargador"])
+                                  "FuncionesDeCustomResourceDelProyecto", "RolesConLimite"])
+        saltar_checkov(ejecucion_datos, {
+            "CKV_AWS_111": "Creación de recursos del stack datos sin ARN previo (secreto, base, buckets, Knowledge Base); ver EXCEPCIONES.",
+            "CKV_AWS_109": "Roles semana19-kb y semana19-datos-* sin condición de límite en las acciones de gestión: los roles se crean con semana19-limite (aplicado por el Aspect), y iam:PassRole solo hacia bedrock y lambda."})
+        suprimir_iam5(ejecucion_datos, ["SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "DescribirRdsPorCfn",
+                                        "LlaveParaRdsYSecretos", "BaseDeDatosPostgresPorCfn", "BucketDocsKbPorCfn",
+                                        "VectoresKbPorCfn", "KnowledgeBasePorCfn", "CrearKnowledgeBasePorCfn",
+                                        "RolesDelDatosPorCfn", "PasarRolesDelDatosAKbYLambda", "ConcurrenciaDelCargador"])
         saltar_checkov(ejecucion, {
             "CKV_AWS_111": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
@@ -417,6 +431,7 @@ class Control(Stack):
         cdk.CfnOutput(self, "ArnDespliegue", value=despliegue.role_arn)
         cdk.CfnOutput(self, "ArnCongelar", value=congelar.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfn", value=ejecucion.managed_policy_arn)
+        cdk.CfnOutput(self, "ArnEjecucionCfnDatos", value=ejecucion_datos.managed_policy_arn)
 
 
 class Base(Stack):
