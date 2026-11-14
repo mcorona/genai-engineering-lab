@@ -4,6 +4,7 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 # Every wildcard that remains, by statement Sid, with the reason. The test fails if a wildcard appears with a Sid
 # that is not here, or if an entry here no longer exists. The same reasons go to cdk-nag suppressions.
 EXCEPCIONES = {
+    "EscribirSecretoDeLaBdPorCfn": "PutSecretValue y UpdateSecretVersionStage sobre los secretos semana19datos* (la contraseña de la base): CloudFormation escribe ahí los datos de conexión al asociar el secreto.",
     "DocsDatosLeer": "Lectura de objetos del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3.",
     "DocsDatosListar": "ListBucket sobre el bucket de documentos del stack datos (prefijo semana19-datos*): S3 exige el ARN del bucket.",
     "DocsDatosEscribir": "Escritura del cargador solo bajo docs/ del bucket de documentos del stack datos.",
