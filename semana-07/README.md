@@ -57,13 +57,6 @@ API keys are read from the environment or from `semana-05/.env`, as in week 5.
 - **The comparator is adapted from `inventory-copilot`.** It is copied, not imported, so this week does not depend on that repository's code.
 - **Reference SQL is validated first.** Questions whose reference returns no rows are dropped, so an empty result cannot count as a correct answer.
 
-## Limits
-
-- The questions are template-generated, so they are less varied than real user questions.
-- One run per model is a single sample. Compare differences only when they are large relative to the number of questions.
-- Prices come from a third-party source for OpenAI. Gemini has no verified price yet, so its cost is not reported.
-- The system prompt is short, so prompt caching is not expected to apply.
-
 ## Results (final run, 100 questions per language)
 
 Run date: 2026-10-22. Dataset validated: 200 of 200 lines.
@@ -79,7 +72,7 @@ Run date: 2026-10-22. Dataset validated: 200 of 200 lines.
 | gpt-5.6-terra (OpenAI) | EN | 100 / 100 | 0.1209 | 0.001209 |
 | gpt-5.6-terra (OpenAI) | ES | 100 / 100 | 0.1212 | 0.001212 |
 
-Costs are recomputed from the run's token counts with the official prices in `prices.json`, consulted on 2026-10-22. The Gemini price is valid through December 31, 2026; see the public table above. The run summary file still holds the old costs, which used third-party prices for OpenAI and no price for Gemini.
+Costs are recomputed from the run's token counts with the official prices in `prices.json`, consulted on 2026-10-22. The Gemini price is valid through December 31, 2026; see the note under the harder-set table below. The run summary file still holds the old costs, which used third-party prices for OpenAI and no price for Gemini.
 
 **Reading these results.** Every model answered every question correctly, in both languages. This set does not separate the models, so it cannot rank their accuracy. The only useful difference in this run is cost: Haiku was the cheapest per correct answer, and gpt-5.6-terra was the most expensive.
 
@@ -158,7 +151,7 @@ This score does not show that the previous turn is what makes the answers correc
 2. **Two follow-ups reworded to remove ambiguity (`seg-003`, `seg-016`, both languages).** The reference SQL did not change. The wording was changed after the first run had been read, and that run is archived as the before-state.
 3. **Control flag added.** `--sin-historial` omits the previous turn.
 4. **Follow-up `seg-011` reworded (after the results were read).** The follow-up "And what is its average unit cost?" was read by one model as the average over critical products only. The reference averages all products in the category. The wording now says "all products ... including the non-critical ones". The reference SQL did not change. The runs with the earlier wording are archived in `resultados/previos/`.
-5. **Two empty-result questions removed.** The old `hard-039` (category "Seguridad") and `hard-040` (a threshold) returned no rows. Rather than correct them after seeing results, I removed them. Questions old `hard-041` to `048` were renumbered to `039` to `046`. The validated set was remapped by language and SQL, so the 43 valid questions per language are unchanged and the results above still apply. The earlier runs in `resultados/previos/` use the old numbering.
+5. **Two empty-result questions removed.** The old `hard-039` (category "Seguridad") and `hard-040` (a threshold) returned no rows. Rather than correct them after seeing the results, they were removed. Questions old `hard-041` to `048` were renumbered to `039` to `046`. The validated set was remapped by language and SQL, so the 43 valid questions per language are unchanged and the results above still apply. The earlier runs in `resultados/previos/` use the old numbering.
 
 ### Results after the corrected runs
 
@@ -277,15 +270,16 @@ The chains set is closed with these results. The three failures stay in the reco
 
 ## Limits
 
-- **The easy set is saturated.** A perfect score for every model means the questions are too easy to rank models. The harder set below addresses this.
-- **Templated questions.** They are less varied than real user questions.
-- **Single run per model.** No confidence intervals are computed.
-- **Prices are partly unverified.** Gemini has no verified price, and OpenAI prices come from a third-party source.
+- **The easy set is saturated.** A perfect score for every model means that its questions are too easy to rank models; the harder set addresses this.
+- **Template-generated questions.** They are less varied than real user questions.
+- **A single run per model.** No confidence intervals are computed, so compare differences only when they are large relative to the number of questions.
+- **Prices.** The OpenAI and Gemini prices were verified on the official pricing pages on 2026-10-22 (`prices.json`). In the first two chain-run tables, the Gemini cost is shown as "not verified": those tables were written before its price was recorded.
+- **Prompt caching.** The system prompt is short, so prompt caching is not expected to apply.
 
 ## Status
 
-- Week 7 reopened for the three-turn chain set (committed before running). Earlier results stand.
-- Previously: week 7 closed again after the `seg-011` fix. The follow-up set is saturated with history. The control shows the previous turn drives about 80 percent of correct follow-up answers.
+- Week 7 closed. The three-turn chain set was committed before it was run, and it is closed with the results above; its three remaining failures stay in the record as known limits.
 - Easy set: 100 questions per language, validated, saturated.
 - Harder set: 48 questions, 43 valid per language, results recorded.
+- Follow-up set: saturated with history; the control shows that the previous turn drives about 80 percent of the correct follow-up answers.
 - Context experiments: full schema, citations and the follow-up control, all recorded.
