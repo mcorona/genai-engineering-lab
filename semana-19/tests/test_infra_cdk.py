@@ -638,21 +638,26 @@ def test_destruir_borra_datos_antes_que_la_red():
     assert texto.index("cdk destroy semana19-datos") < texto.index("cdk destroy semana19-base --force")
 
 
-def test_stack_ia_guardrail_cifrado_con_la_llave_base_y_sin_roles():
-    # Activity 5: the Guardrail stack uses the base key, creates no IAM roles and publishes one version.
-    import json
-    import os
-    import subprocess
-    import tempfile
-    out = tempfile.mkdtemp(prefix="s19ia_")
-    env = dict(os.environ, CDK_OUTDIR=out)
-    subprocess.run([sys.executable, str(APP)], env=env, check=True, capture_output=True)
-    plantilla = json.loads((Path(out) / "semana19-ia.template.json").read_text(encoding="utf-8"))
+def test_stack_ia_guardrail_por_custom_resource_sin_roles_extra_ni_recurso_de_guardrail():
+    import json as _json
+    import os as _os
+    import subprocess as _sp
+    import tempfile as _tf
+    out = _tf.mkdtemp(prefix="s19ia_")
+    _sp.run([sys.executable, str(APP)], env=dict(_os.environ, CDK_OUTDIR=out), check=True, capture_output=True)
+    plantilla = _json.loads((Path(out) / "semana19-ia.template.json").read_text(encoding="utf-8"))
     tipos = [r["Type"] for r in plantilla["Resources"].values()]
-    assert tipos.count("AWS::Bedrock::Guardrail") == 1 and tipos.count("AWS::Bedrock::GuardrailVersion") == 1
-    assert not any(t.startswith("AWS::IAM::") for t in tipos)
-    guardrail = next(r for r in plantilla["Resources"].values() if r["Type"] == "AWS::Bedrock::Guardrail")
-    assert "KmsKeyArn" in guardrail["Properties"]
-    arn = guardrail["Properties"]["CrossRegionConfig"]["GuardrailProfileArn"]
-    # The ARN is built from this account and Region with CloudFormation tokens (Fn::Join), so check its parts.
-    assert "guardrail-profile/us.guardrail.v1:0" in json.dumps(arn) and "arn:aws:bedrock:" in json.dumps(arn)
+    # CloudFormation has no tierConfig: the Guardrail itself is a custom resource, not AWS::Bedrock::Guardrail.
+    assert "AWS::Bedrock::Guardrail" not in tipos
+    assert tipos.count("AWS::Lambda::Function") == 1 and tipos.count("AWS::Logs::LogGroup") == 1
+    # Every role carries the permissions boundary of the project.
+    roles = [r for r in plantilla["Resources"].values() if r["Type"] == "AWS::IAM::Role"]
+    assert roles and all(r["Properties"].get("PermissionsBoundary") for r in roles)
+    custom = [r for r in plantilla["Resources"].values() if r["Type"].startswith("Custom::")
+              or r["Type"] == "AWS::CloudFormation::CustomResource"]
+    assert len(custom) == 1
+    props = custom[0]["Properties"]
+    assert "kmsKeyId" in props
+    assert props["crossRegionConfig"] == {"guardrailProfileIdentifier": "us.guardrail.v1:0"}
+    assert props["contentPolicyConfig"]["tierConfig"] == {"tierName": "STANDARD"}
+    assert props["contextualGroundingPolicyConfig"]["tierConfig"] == {"tierName": "CLASSIC"}

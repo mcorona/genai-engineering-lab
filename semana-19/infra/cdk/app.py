@@ -146,9 +146,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # The loader's log group is created by Lambda on the first run; without this the boundary blocks it and
         # the function's errors are invisible. Scoped to the functions of the datos stack.
         _declaracion(sid="LogsDeLaLambdaDatos", actions=["logs:CreateLogGroup"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*"]),
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*",
+                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-ia*"]),
         _declaracion(sid="EscribirLogsDeLaLambdaDatos", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*"]),
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*",
+                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-ia*:*"]),
         _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
                                                       "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
                                                       "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
@@ -179,7 +181,7 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="GruposDeLogs", actions=[
             "logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:PutRetentionPolicy", "logs:DeleteRetentionPolicy",
             "logs:AssociateKmsKey", "logs:DisassociateKmsKey", "logs:TagResource", "logs:UntagResource",
-            "logs:TagLogGroup"], resources=[grupos]),
+            "logs:TagLogGroup"], resources=[grupos, f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-ia*"]),
         _declaracion(sid="DescribirGruposDeLogs", actions=["logs:DescribeLogGroups"], resources=["*"]),
         _declaracion(sid="LeerRolFlowLogs", actions=["iam:GetRole", "iam:GetRolePolicy", "iam:ListRolePolicies",
                                                      "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
@@ -748,47 +750,45 @@ def _definicion_guardrail() -> dict:
     spec = importlib.util.spec_from_file_location("definicion_guardrail", ruta)
     modulo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulo)
-    return modulo.definicion_guardrail()
-
-
-def _pascal(valor):
-    """camelCase keys to the PascalCase used by AWS::Bedrock::Guardrail in CloudFormation (values untouched)."""
-    if isinstance(valor, dict):
-        return {k[:1].upper() + k[1:]: _pascal(v) for k, v in valor.items()}
-    if isinstance(valor, list):
-        return [_pascal(v) for v in valor]
-    return valor
-
-
-PERFIL_ENTRE_REGIONES_EE_UU = "us.guardrail.v1:0"  # from semana-19/guardrail/definicion.py
+    return modulo.definicion_guardrail("semana19-legacybridge")
 
 
 class Ia(Stack):
     """Activity 5: the Guardrail semana19-legacybridge and one published version, encrypted with the base key.
 
-    The definition is data (semana-19/guardrail/definicion.py, tested against the CreateGuardrail model). The
-    resource is AWS::Bedrock::Guardrail, the same type as CfnGuardrail, given as properties so the definition
-    keeps one source of truth. The standard tier (content filters and topics) routes across Regions through
-    the US guardrail profile; the grounding policy stays on the classic tier.
+    CloudFormation's AWS::Bedrock::Guardrail has no tierConfig, so a custom resource (semana-19/guardrail/handler.py)
+    creates the Guardrail with the definition of semana-19/guardrail/definicion.py: content filters and topics on the
+    STANDARD tier (GuardrailChecks, cross-Region through the US guardrail profile), grounding on CLASSIC. The function
+    has its own role (only Guardrail actions and the base key), outside the VPC, with its log group encrypted.
     """
 
-    def __init__(self, scope: Construct, id_: str, *, llave: kms.IKey, **kwargs) -> None:
-        super().__init__(scope, id_, **kwargs)
-        definicion = _definicion_guardrail()
-        propiedades = _pascal(definicion)
-        propiedades["Name"] = "semana19-legacybridge"
-        propiedades["KmsKeyArn"] = llave.key_arn
-        # CloudFormation takes the guardrail profile as an ARN (GuardrailProfileArn), built from this account and Region.
-        propiedades["CrossRegionConfig"] = {"GuardrailProfileArn": (
-            f"arn:aws:bedrock:{Aws.REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/{PERFIL_ENTRE_REGIONES_EE_UU}")}
-        guardrail = cdk.CfnResource(self, "Guardrail", type="AWS::Bedrock::Guardrail", properties=propiedades)
-        version = bedrock.CfnGuardrailVersion(
-            self, "Version", guardrail_identifier=guardrail.get_att("GuardrailId").to_string(),
-            description="Versión publicada para la actividad 5 (lab)."
-        )
-        version.add_dependency(guardrail)
-        cdk.CfnOutput(self, "IdGuardrail", value=guardrail.get_att("GuardrailId").to_string())
-        cdk.CfnOutput(self, "VersionGuardrail", value=version.attr_version)
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        grupo = logs.LogGroup(
+            self, "LogsCreadorGuardrail", log_group_name="/aws/lambda/semana19-ia-creador-guardrail",
+            retention=logs.RetentionDays.ONE_WEEK, encryption_key=llave, removal_policy=RemovalPolicy.DESTROY)
+        creador = lambda_.Function(
+            self, "CreadorGuardrail", runtime=lambda_.Runtime.PYTHON_3_13, handler="handler.handler",
+            code=lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "guardrail")),
+            timeout=Duration.minutes(2), memory_size=256, reserved_concurrent_executions=1, log_group=grupo,
+            description="Creates the semana19-legacybridge guardrail with its tier (custom resource, activity 5).")
+        saltar_checkov(creador, {
+            "CKV_AWS_117": "Custom resource del proyecto: la API de control de Bedrock es pública; fuera de la VPC por diseño.",
+            "CKV_AWS_116": "Custom resource: CloudFormation reintenta y reporta el fallo en la respuesta; no hay cola que vigilar.",
+        })
+        creador.add_to_role_policy(_declaracion(
+            sid="GuardrailEnBedrock", actions=[
+                "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail",
+                "bedrock:GetGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*"]))
+        creador.add_to_role_policy(_declaracion(
+            sid="LlaveDelGuardrail", actions=["kms:Decrypt", "kms:DescribeKey", "kms:GenerateDataKey", "kms:CreateGrant"],
+            resources=[llave.key_arn]))
+        recurso = cdk.CustomResource(
+            self, "Guardrail", service_token=creador.function_arn,
+            properties={**_definicion_guardrail(), "kmsKeyId": llave.key_arn})
+        cdk.CfnOutput(self, "IdGuardrail", value=recurso.get_att_string("GuardrailId"))
+        cdk.CfnOutput(self, "VersionGuardrail", value=recurso.get_att_string("Version"))
 
 
 def construir(app: cdk.App) -> None:
