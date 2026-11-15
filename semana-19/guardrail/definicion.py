@@ -38,7 +38,6 @@ def definicion_guardrail(nombre: str = "legadobridge-s19") -> dict:
         "description": "Semana 19: capa de defensa en profundidad sobre la capa determinista de la semana 17.",
         "blockedInputMessaging": MENSAJE_BLOQUEADO_TEXTO,
         "blockedOutputsMessaging": MENSAJE_BLOQUEADO_TEXTO,
-        "crossRegionConfig": {"guardrailProfileIdentifier": PERFIL_ENTRE_REGIONES_EE_UU},
         "contentPolicyConfig": {
             "tierConfig": {"tierName": "STANDARD"},  # GuardrailChecks (standard tier); needs cross-Region inference
             "filtersConfig": [

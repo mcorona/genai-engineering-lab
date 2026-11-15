@@ -760,6 +760,9 @@ def _pascal(valor):
     return valor
 
 
+PERFIL_ENTRE_REGIONES_EE_UU = "us.guardrail.v1:0"  # from semana-19/guardrail/definicion.py
+
+
 class Ia(Stack):
     """Activity 5: the Guardrail semana19-legacybridge and one published version, encrypted with the base key.
 
@@ -775,6 +778,9 @@ class Ia(Stack):
         propiedades = _pascal(definicion)
         propiedades["Name"] = "semana19-legacybridge"
         propiedades["KmsKeyArn"] = llave.key_arn
+        # CloudFormation takes the guardrail profile as an ARN (GuardrailProfileArn), built from this account and Region.
+        propiedades["CrossRegionConfig"] = {"GuardrailProfileArn": (
+            f"arn:aws:bedrock:{Aws.REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/{PERFIL_ENTRE_REGIONES_EE_UU}")}
         guardrail = cdk.CfnResource(self, "Guardrail", type="AWS::Bedrock::Guardrail", properties=propiedades)
         version = bedrock.CfnGuardrailVersion(
             self, "Version", guardrail_identifier=guardrail.get_att("GuardrailId").to_string(),

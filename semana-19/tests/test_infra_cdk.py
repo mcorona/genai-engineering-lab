@@ -653,4 +653,6 @@ def test_stack_ia_guardrail_cifrado_con_la_llave_base_y_sin_roles():
     assert not any(t.startswith("AWS::IAM::") for t in tipos)
     guardrail = next(r for r in plantilla["Resources"].values() if r["Type"] == "AWS::Bedrock::Guardrail")
     assert "KmsKeyArn" in guardrail["Properties"]
-    assert guardrail["Properties"]["CrossRegionConfig"] == {"GuardrailProfileIdentifier": "us.guardrail.v1:0"}
+    arn = guardrail["Properties"]["CrossRegionConfig"]["GuardrailProfileArn"]
+    # The ARN is built from this account and Region with CloudFormation tokens (Fn::Join), so check its parts.
+    assert "guardrail-profile/us.guardrail.v1:0" in json.dumps(arn) and "arn:aws:bedrock:" in json.dumps(arn)
