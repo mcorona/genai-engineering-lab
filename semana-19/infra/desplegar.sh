@@ -110,6 +110,12 @@ PY
     echo "   no hay perfil '$PERFIL_DESPLIEGUE' en ~/.aws/config: el diff de semana19-base se hace"
     echo "   después de crear el perfil (paso 5 de la guía). No se estima aquí."
   fi
+  echo "-- semana19-ia (guardrail, actividad 5): diff de CDK"
+  if aws configure list-profiles 2>/dev/null | grep -qx "$PERFIL_DESPLIEGUE"; then
+    cdk diff semana19-ia --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
+  else
+    echo "   no hay perfil '$PERFIL_DESPLIEGUE': el diff de semana19-ia se hace después de crear el perfil."
+  fi
   exit 0
 fi
 
@@ -170,6 +176,12 @@ echo "== Paso 4: semana19-datos (base PostgreSQL, actividad 4)"
 cdk deploy semana19-datos --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
   --toolkit-stack-name semana19-cdktoolkit --require-approval never
 registrar "datos" $(( $(date +%s) - inicio ))
+
+inicio=$(date +%s)
+echo "== Paso 4b: semana19-ia (guardrail con su nivel, actividad 5)"
+cdk deploy semana19-ia --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
+  --toolkit-stack-name semana19-cdktoolkit --require-approval never
+registrar "ia" $(( $(date +%s) - inicio ))
 
 # Step 5 (--si only): the loader puts the seed and the dictionary documents in place, then the knowledge base
 # ingestion job runs on them. The ingestion job is not a CloudFormation resource, so it is started here by API.
