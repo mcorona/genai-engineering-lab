@@ -196,12 +196,18 @@ def test_roles_de_llave_con_nombre_y_servicio_con_contexto(perfil):
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
-def test_ningun_grupo_de_seguridad_acepta_entrada_desde_internet(perfil):
+def test_ninguna_regla_de_entrada_admite_internet_ni_cidr_abierto(perfil):
+    """Every inbound rule (inline or standalone) names a security group as its source. No CIDR at all: a rule with
+    0.0.0.0/0, ::/0 or any other CIDR fails here, and so does a rule with no source."""
     for n, pl in sintetizar(perfil)["plantillas"].items():
+        reglas = []
         for lid, r in recursos(pl, "AWS::EC2::SecurityGroup").items():
-            for regla in r["Properties"].get("SecurityGroupIngress", []):
-                assert regla.get("CidrIp") not in ("0.0.0.0/0", None) or regla.get("SourceSecurityGroupId")
-                assert regla.get("CidrIpv6") != "::/0"
+            reglas += [(f"{n}/{lid}", x) for x in r["Properties"].get("SecurityGroupIngress", [])]
+        reglas += [(f"{n}/{lid}", r["Properties"]) for lid, r in recursos(pl, "AWS::EC2::SecurityGroupIngress").items()]
+        for origen, regla in reglas:
+            assert "CidrIp" not in regla and "CidrIpv6" not in regla and "PrefixListIds" not in regla, origen
+            assert regla.get("SourceSecurityGroupId") is not None, origen
+            assert regla.get("CidrIp") != "0.0.0.0/0" and regla.get("CidrIpv6") != "::/0", origen
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -531,16 +537,34 @@ CIFRABLES = {
 }
 
 
+# The project key as the base stack exports it (ARN) and as the base template names it (logical id).
+LLAVE_DEL_PROYECTO = ("Llave0AEC6D4F", "semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4")
+
+
+def _usa_la_llave_del_proyecto(valor) -> bool:
+    """True when a property value points at the project key: a reference to the key in the base template, or the
+    export that another stack imports. Any other key (AWS managed, another key) fails."""
+    texto_valor = json.dumps(valor, sort_keys=True)
+    return any(marca in texto_valor for marca in LLAVE_DEL_PROYECTO)
+
+
 @pytest.mark.parametrize("perfil", PERFILES)
-def test_todo_recurso_cifrable_usa_la_llave(perfil):
+def test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto(perfil):
+    """Stronger than checking that the property exists: the value must point at the project key, so a resource that
+    names an AWS managed key or another key fails. Lambda counts only when it has environment variables."""
+    vistos = set()
     for n, pl in sintetizar(perfil)["plantillas"].items():
         for tipo, prop in CIFRABLES.items():
             for lid, r in recursos(pl, tipo).items():
+                vistos.add(tipo)
                 assert prop in r["Properties"], f"{n}/{lid} ({tipo}) sin {prop}"
-        # Lambda: solo si tiene variables de entorno, deben cifrarse con la llave.
+                assert _usa_la_llave_del_proyecto(r["Properties"][prop]), f"{n}/{lid} ({tipo}) no usa la llave del proyecto"
         for lid, r in recursos(pl, "AWS::Lambda::Function").items():
             if r["Properties"].get("Environment"):
-                assert "KmsKeyArn" in r["Properties"], f"{n}/{lid} con variables de entorno sin KmsKeyArn"
+                vistos.add("AWS::Lambda::Function")
+                assert _usa_la_llave_del_proyecto(r["Properties"].get("KmsKeyArn")), f"{n}/{lid} con variables sin la llave"
+    # Not vacuous: the stacks must contain the encryptable types this test is about.
+    assert {"AWS::Logs::LogGroup", "AWS::S3::Bucket", "AWS::RDS::DBInstance"} <= vistos
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
