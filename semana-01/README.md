@@ -1,4 +1,4 @@
-# Week 1: practice notes
+# Week 1: a mini-GPT in MLX, from a bigram model to a transformer block
 
 Project: genai-engineering-lab (formerly AI-projects-llm-internals) · Phase 1 (LLM fundamentals in depth)
 Reference: Andrej Karpathy's *Neural Networks: Zero to Hero* series, implemented in MLX.
@@ -8,12 +8,12 @@ Reference: Andrej Karpathy's *Neural Networks: Zero to Hero* series, implemented
 - [x] Step 1: MLX installed. The Apple Silicon GPU responds (`Device(gpu, 0)`).
 - [x] Step 2: a bigram model in MLX (`bigram_mlx.py`). Loss from 3.3120 to 2.4819.
 - [x] Step 3: one attention head with a causal mask (`attention_mlx.py`). The weights of token 0 are `[1, 0, 0, 0]`, and the output matches `mx.fast`.
-- [x] Step 4: the full mini-GPT block (`minigpt_mlx.py`). 30 400 parameters; causality test passed.
+- [x] Step 4: the full mini-GPT block (`minigpt_mlx.py`). 30,400 parameters; causality test passed.
 - [x] Step 5: training on Tiny Shakespeare with a loss log (`train_minigpt_mlx.py`, `perdidas.csv`).
 
 ## How to read the bigram loss
 
-The loss is the average negative log-likelihood, `-log p(correct next character)`, averaged over the 228 146 bigrams in the dataset. Lower is better.
+The loss is the average negative log-likelihood, `-log p(correct next character)`, averaged over the 228,146 bigrams in the dataset. Lower is better.
 
 - **Step 0 (≈ 3.31):** with random weights, the model spreads the probability almost evenly over the 27 characters. That gives `ln(27) ≈ 3.30`, so the initial value is the expected one.
 - **Step 199 (≈ 2.48):** the loss plateaus. This is the limit of a model that only looks at the previous character.
@@ -35,7 +35,7 @@ The `0.01 * mean(W²)` term penalizes large weights. Without it, the logits of r
 - **BPE tokenization:** text is converted into tokens. BPE starts from characters or bytes and merges the most frequent pairs until it reaches the vocabulary size. A text in Spanish usually takes more tokens than the same text in English. Karpathy's mini-GPT uses characters; BPE is the next step.
 - **Context window:** the maximum number of tokens the model processes in one pass. In the code it appears as `block_size`. The cost of attention grows with the square of the sequence length.
 - **Attention:** each token computes `softmax(Q·Kᵀ/√d)·V`. Q queries, K is matched against, and V carries the information. The causal mask prevents attending to future tokens.
-- **KV cache:** stores the K and V tensors already computed so they are not recomputed during generation. It takes memory: per token, `2 × layers × KV_heads × head_dim × bytes`. For a 7 000 M-parameter model in fp16 with 4 096 tokens, it is about 2 GB.
+- **KV cache:** stores the K and V tensors already computed so they are not recomputed during generation. It takes memory: per token, `2 × layers × KV_heads × head_dim × bytes`. For a 7B-parameter model in fp16 with 4,096 tokens, it is about 2 GB.
 
 ## Review questions
 
@@ -58,7 +58,7 @@ Conclusions:
 - The learning rate was the dominant factor. Lowering it from 3e-3 to 1e-3 improved validation by 0.13. With a width of 128, an `lr` of 3e-3 makes the loss oscillate and progress more slowly, because Adam's updates add up over more connections.
 - With this training budget, going from a width of 64 to 128 improves validation by only 0.02.
 - The val-train gap is almost the same at both widths (0.17 and 0.18). There is no overfitting attributable to capacity in 2000 steps (about 4 passes over the text).
-- Observing overfitting needs more training, for example 10 000 steps, to see whether validation stops improving while training loss keeps falling.
+- Observing overfitting needs more training, for example 10,000 steps, to see whether validation stops improving while training loss keeps falling.
 - The training loss is measured on a single batch and is noisy. For fine comparisons, measure it with `eval_loss` over several batches.
 - Samples: all three runs produce text formatted like a play (character names in capitals, line breaks) with recognizable words, and with the spelling errors typical of a character-level model.
 - Not comparable with the bigram model: the datasets differ (names vs. Shakespeare, with different vocabularies).
@@ -71,11 +71,11 @@ Script: `practica_kv_cache.py`. It estimates the cache memory of two reference m
 Key results:
 
 - Cache per token: 128 KB (8B) and 320 KB (70B).
-- Reference case: 60 000-token documents and 50 concurrent queries.
+- Reference case: 60,000-token documents and 50 concurrent queries.
   - 8B model: about 366 GiB of cache.
   - 70B model: about 915 GiB of cache.
 - Weights in fp16: about 16 GB (8B) and 140 GB (70B). With many concurrent queries, the cache outweighs the weights.
-- With RAG and 4 096 tokens per query, the cache drops to 25 GiB (8B) and 62.5 GiB (70B).
+- With RAG and 4,096 tokens per query, the cache drops to 25 GiB (8B) and 62.5 GiB (70B).
 
 Decision: RAG as the main lever to reduce memory.
 
