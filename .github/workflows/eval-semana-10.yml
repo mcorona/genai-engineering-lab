@@ -6,9 +6,6 @@ on:
       - "semana-10/**"
       - ".github/workflows/eval-semana-10.yml"
 
-permissions:
-  contents: read
-
 jobs:
   eval:
     runs-on: ubuntu-24.04
@@ -31,13 +28,13 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: pip install "psycopg[binary]" pdfplumber
-      - name: Prepare the CI database (schema, copilot_ro and synthetic data, seed 42)
+      - name: Preparar base de CI (esquema, copilot_ro y datos sintéticos, semilla 42)
         run: python semana-07/ci/preparar_base.py
-      - name: Routing, legacy SQL, recall of extracted content and security
+      - name: Ruteo, SQL legado, recall de extraídos y seguridad
         run: python semana-10/ci/eval_ci.py

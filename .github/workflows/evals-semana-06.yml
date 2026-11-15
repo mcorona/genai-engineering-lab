@@ -1,35 +1,52 @@
 name: evals-semana-06
 
-# Runs on every PR so that its `regresion` check can be required by the ruleset. When the PR does not touch the
-# prompts, units 6 to 19, the root README, the dependencies or these workflows, the job is skipped (a skipped job
-# counts as passed) and nothing is spent.
+# `regresion` is a required check, so every top-level path of the repository is listed: a PR that matched no path
+# would never receive the check and could not be merged. The prompt, unit and dependency paths are the ones the eval
+# depends on; the rest only make sure the check always reports.
 on:
   pull_request:
+    paths:
+      - "semana-05/prompts/**"
+      - "semana-05/run_prompts.py"
+      - "semana-06/**"
+      - "semana-07/**"
+      - "semana-08/**"
+      - "semana-09/**"
+      - "semana-10/**"
+      - "semana-11/**"
+      - "semana-12/**"
+      - "semana-13/**"
+      - "semana-14/**"
+      - "semana-15/**"
+      - "semana-16/**"
+      - "semana-17/**"
+      - "semana-18/**"
+      - "semana-19/**"
+      - "README.md"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "**/prompts/**"
+      - ".github/workflows/evals-semana-06.yml"
+      - ".github/workflows/nlq-semana-07.yml"
+      - "semana-01/**"
+      - "semana-02/**"
+      - "semana-03/**"
+      - "semana-04/**"
+      - "semana-05/**"
+      - "docs/**"
+      - ".github/**"
+      - ".claude-plugin/**"
+      - "LICENSE"
+      - "SECURITY.md"
+      - ".gitignore"
+      - ".mcp.json"
+      - ".python-version"
 
 permissions:
   contents: read
 
 jobs:
-  cambios:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      regresion: ${{ steps.filtro.outputs.regresion }}
-    steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          fetch-depth: 0
-      - id: filtro
-        run: |
-          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(semana-05/prompts/|semana-05/run_prompts\.py$|semana-(0[6-9]|1[0-9])/|README\.md$|pyproject\.toml$|uv\.lock$|\.github/workflows/(evals-semana-06|nlq-semana-07)\.yml$)|(^|/)prompts/'; then
-            echo "regresion=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "regresion=false" >> "$GITHUB_OUTPUT"
-          fi
-
   regresion:
-    needs: cambios
-    if: needs.cambios.outputs.regresion == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
