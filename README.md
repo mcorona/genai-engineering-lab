@@ -27,9 +27,9 @@ Most GenAI demos show that something *can* work. This lab measures *how well* it
 | Verification by execution, not by eye | SQL is executed and result sets are compared. Agent tasks are checked against the database. LLM judges are validated on known failures before they are used |
 | Evals gate pull requests | GitHub Actions runs the evals on each PR that touches a component. Thresholds come from a fixed calibration rule, and their false-alarm rate is measured ([example](semana-13/resultados/ci_calibracion.md)) |
 | Security is a hard requirement, tested in CI | Zero unapproved writes, zero leaks across roles and tenants, and zero obeyed injected instructions. Any failure breaks the PR |
-| Cost and latency sit next to quality | Every result reports cost per query (USD) and p50 latency, with prices taken from the official pricing pages |
+| Cost and latency sit next to quality | Results that call a model report cost per query (USD) and latency, with prices taken from the official pricing pages |
 | Negative results are reported | Techniques that did not beat the baseline (hybrid search, HyDE, query rewriting, contextual retrieval, fine-tuning) are documented and **not adopted** |
-| Every number links to its evidence | Results files live under `resultados/`, and each claim names the PR that verified it |
+| Every number links to its evidence | Results files live under `resultados/`, and each exit criterion names the PR that verified it |
 
 ## Key results
 

@@ -4,7 +4,7 @@ Practice: a benchmark of the same set of queries on a local quantized model and 
 
 ## Status
 
-- [x] A benchmark script (`benchmark_modelos.py`): p50/p95 latency, tokens per second and cost per 1 000 queries.
+- [x] A benchmark script (`benchmark_modelos.py`): p50/p95 latency, tokens per second and cost per 1,000 queries.
 - [x] A set of 50 queries (`consultas.jsonl`): 10 coding, 10 writing, 10 reasoning, 10 business and 10 technical-explanation queries. **Generated for this practice; it is not the query set of Cascada** (the author's separate LLM-routing project), so the results are not comparable with that benchmark.
 - [x] Local run (Qwen3.8-27B in MLX format, quantized to 4 bits, in LM Studio), 8192 tokens: `resultados/semana4_local_8k_*`.
 - [x] API run (Claude Haiku 5.5), 8192 tokens: `resultados/semana4_api_*`.
@@ -18,7 +18,7 @@ Practice: a benchmark of the same set of queries on a local quantized model and 
 | Local | `http://localhost:1234/v1` (LM Studio) | `qwen3.8-27b-mlx@4bit` | 0 (electricity not included) |
 | API | `https://api.anthropic.com/v1/` (Anthropic's OpenAI-compatible endpoint) | `claude-haiku-5-5` | input 0.10, output 0.50 |
 
-The Haiku 5.5 price was checked on the [official Anthropic pricing page](https://platform.claude.com/docs/en/about-claude/pricing): USD 0.10 per million input tokens and 0.50 per million output tokens, for prompts up to 100 000 tokens (October 2026). If the price changes, adjust `--precio-in` and `--precio-out`. Haiku 5.5 accepts only `temperature` 1, so the API runs without sending a temperature (`--temp-api` empty). The local model uses temperature 0.
+The Haiku 5.5 price was checked on the [official Anthropic pricing page](https://platform.claude.com/docs/en/about-claude/pricing): USD 0.10 per million input tokens and 0.50 per million output tokens, for prompts up to 100,000 tokens (October 2026). If the price changes, adjust `--precio-in` and `--precio-out`. Haiku 5.5 accepts only `temperature` 1, so the API runs without sending a temperature (`--temp-api` empty). The local model uses temperature 0.
 
 ## Results
 
@@ -30,7 +30,7 @@ The same 50 queries, `--max-tokens 8192` on both targets, temperature 0 locally 
 | p95 latency | 137.6 s | 10.9 s |
 | Mean latency | 53.0 s | 4.9 s |
 | Tokens per second (median) | 23.4 | 185.0 |
-| Cost per 1 000 queries | USD 0 (electricity not included) | USD 0.47 |
+| Cost per 1,000 queries | USD 0 (electricity not included) | USD 0.47 |
 | Errors | 0 | 0 |
 
 Reading the results:
