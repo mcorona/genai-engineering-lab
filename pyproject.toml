@@ -1,7 +1,7 @@
 [project]
-name = "ai-projects-llm-internals"
+name = "genai-engineering-lab"
 version = "0.1.0"
-description = "Add your description here"
+description = "Measured, reproducible GenAI engineering on legacy business systems: RAG, text-to-SQL, agents and MCP, with every claim backed by an eval in CI."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
