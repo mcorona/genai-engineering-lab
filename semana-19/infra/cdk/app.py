@@ -195,6 +195,10 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolDelCustomResourceDelProyecto", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-base-CustomVpcRestrictDefaultSGCustomResou*")],
                      conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
+        # The guardrail creator's function runs with its role (stack semana19-ia): CloudFormation passes it to Lambda.
+        _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-ia-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
         _declaracion(sid="PoliticasYAdjuntosDeRolesDelBase", actions=[
             "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
             "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
