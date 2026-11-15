@@ -506,6 +506,25 @@ class Control(Stack):
         cdk.CfnOutput(self, "ArnEjecucionCfnDatos", value=ejecucion_datos.managed_policy_arn)
 
 
+_CODIGO_SONDA = """
+import json, socket, time
+
+NOMBRES = ["logs.us-east-1.amazonaws.com", "states.us-east-1.amazonaws.com"]
+
+
+def handler(event, context):
+    resultado = {}
+    for nombre in NOMBRES:
+        inicio = time.time()
+        try:
+            ips = sorted({d[4][0] for d in socket.getaddrinfo(nombre, 443, type=socket.SOCK_STREAM)})
+            resultado[nombre] = {"ips": ips, "segundos": round(time.time() - inicio, 3)}
+        except OSError as error:
+            resultado[nombre] = {"error": str(error)}
+    return resultado
+"""
+
+
 class Base(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
@@ -593,6 +612,25 @@ class Base(Stack):
                 vpc_endpoint_type="Interface", subnet_ids=ids_una_az,
                 security_group_ids=[sg_endpoints.security_group_id], private_dns_enabled=True,
                 policy_document=politica_cuenta)
+
+        # Optional DNS probe (activity 3, live check): only with `cdk deploy -c sonda=1`. Runs in the isolated
+        # subnets with the tools security group (already allowed to the endpoints on 443) and resolves the endpoint
+        # names from inside the VPC. Not part of the default lab synthesis.
+        if self.node.try_get_context("sonda"):
+            grupo_sonda = logs.LogGroup(
+                self, "GrupoSonda", log_group_name=f"{PREFIJO_LOGS}sonda-dns", retention=logs.RetentionDays.ONE_WEEK,
+                encryption_key=llave, removal_policy=BORRADO)
+            sonda_dns = lambda_.Function(
+                self, "SondaDns", runtime=lambda_.Runtime.PYTHON_3_13, handler="index.handler",
+                code=lambda_.Code.from_inline(_CODIGO_SONDA), timeout=Duration.seconds(30), memory_size=128,
+                vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+                security_groups=[sg_herramientas], log_group=grupo_sonda)
+            cdk.CfnOutput(self, "NombreSondaDns", value=sonda_dns.function_name)
+            NagSuppressions.add_resource_suppressions(sonda_dns, [NagPackSuppression(
+                id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; la sonda corre una vez por verificación.")])
+            NagSuppressions.add_resource_suppressions(sonda_dns.role, [NagPackSuppression(
+                id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole y AWSLambdaBasicExecutionRole: la sonda crea interfaces de red en la VPC y escribe sus logs en su propio grupo; son las políticas administradas mínimas para eso.")],
+                apply_to_children=True)
 
         suprimir_iam5(rol_flow, ["EscribirSoloEnSuGrupo", "DescribirGruposParaFlowLogs", "-"])
         Tags.of(self).add("proyecto", "semana19")
