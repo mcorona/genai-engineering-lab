@@ -201,6 +201,13 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             resources=[arn_iam("role/semana19-base-*")]),
         _declaracion(sid="BorrarRolesDelBase", actions=["iam:DeleteRole"],
                      resources=[arn_iam("role/semana19-base-*")]),
+        # The guardrail creator's role (stack semana19-ia): its inline policies and deletion, same shape as the base.
+        _declaracion(sid="PoliticasYAdjuntosDelRolDeIa", actions=[
+            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
+            resources=[arn_iam("role/semana19-ia-*")]),
+        _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
+                     resources=[arn_iam("role/semana19-ia-*")]),
         _declaracion(sid="LeerActivosDelBootstrap", actions=["s3:GetObject", "s3:GetObjectVersion", "s3:GetBucketLocation",
                                                              "s3:ListBucket"],
                      resources=[f"arn:{Aws.PARTITION}:s3:::cdk-s19-assets-{Aws.ACCOUNT_ID}-{REGION}",

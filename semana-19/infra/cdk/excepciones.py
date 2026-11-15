@@ -6,6 +6,8 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 EXCEPCIONES = {
     "LogsDeLaLambdaDatos": "logs:CreateLogGroup sobre /aws/lambda/semana19-datos*: Lambda crea el grupo de logs de la función del cargador en su primera ejecución; sin esto los errores no se ven.",
     "EscribirLogsDeLaLambdaDatos": "CreateLogStream y PutLogEvents sobre los grupos /aws/lambda/semana19-datos* (la función del cargador).",
+    "PoliticasYAdjuntosDelRolDeIa": "Políticas en línea y adjuntas del rol del creador de guardrail, solo sobre role/semana19-ia-* (nombre que genera CDK para el stack semana19-ia).",
+    "BorrarRolDeIa": "Borrar y leer el rol del creador de guardrail, solo sobre role/semana19-ia-*: el rol se crea con el límite; el stack lo borra al destruirse.",
     "EscribirLogsDelCreadorDeGuardrail": "CreateLogStream y PutLogEvents sobre /semana19/ia/* (la función que crea el guardrail; su grupo está cifrado con la llave base).",
     "EscribirSecretoDeLaBdPorCfn": "PutSecretValue y UpdateSecretVersionStage sobre los secretos semana19datos* (la contraseña de la base): CloudFormation escribe ahí los datos de conexión al asociar el secreto.",
     "DocsDatosLeer": "Lectura de objetos del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3.",
