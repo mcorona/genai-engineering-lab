@@ -13,10 +13,8 @@ from agente.presupuesto import Precios, Presupuesto  # noqa: E402
 from presupuestos.politica import Limite, Politica  # noqa: E402
 
 PRECIOS = Precios(entrada_1m=1.1, salida_1m=5.5)
-# GAP (documented): week 17's verified price table (semana-07/prices.json) has only claude-haiku-5-5. The agent runs
-# Haiku 4.5, which has no verified entry there, so decidir() cannot be applied to it yet. The logic is tested with the
-# verified model; adding the Haiku 4.5 entry is a change to week 7's data and needs Manuel's OK.
-MODELO = "claude-haiku-5-5"
+# The agent runs Haiku 4.5. Its price is in week 7's table (semana-07/prices.json, key anthropic:<this id>).
+MODELO = "claude-haiku-4-5-20251001"
 
 
 def _pol(usd=1.0, tokens=10_000_000):
