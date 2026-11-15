@@ -116,6 +116,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=["*"]),
         _declaracion(sid="CdkAssumeRoles", actions=["sts:AssumeRole"],
                      resources=[arn_iam(f"role/{PREFIJO_ROLES_CDK}*")]),
+        # Ceiling for the guardrail creator's role (stack semana19-ia): Guardrail actions only, in this account and Region.
+        _declaracion(sid="GuardrailDelLimite", actions=[
+            "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:GetGuardrail",
+            "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*"]),
         _declaracion(sid="CloudFormationLeer", actions=["cloudformation:Describe*", "cloudformation:Get*",
                                                         "cloudformation:List*"], resources=["*"]),
         _declaracion(sid="AdjuntarPoliticasAlRolDeDespliegue", actions=["iam:AttachRolePolicy", "iam:DetachRolePolicy"],

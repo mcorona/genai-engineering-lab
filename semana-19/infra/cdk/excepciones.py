@@ -9,6 +9,7 @@ EXCEPCIONES = {
     "PoliticasYAdjuntosDelRolDeIa": "Políticas en línea y adjuntas del rol del creador de guardrail, solo sobre role/semana19-ia-* (nombre que genera CDK para el stack semana19-ia).",
     "BorrarRolDeIa": "Borrar y leer el rol del creador de guardrail, solo sobre role/semana19-ia-*: el rol se crea con el límite; el stack lo borra al destruirse.",
     "PasarRolDelCreadorDeGuardrail": "iam:PassRole sobre role/semana19-ia-* solo hacia lambda.amazonaws.com: CloudFormation asigna el rol a la función que crea el guardrail.",
+    "GuardrailDelLimite": "Acciones de Guardrail del límite sobre guardrail/* de esta cuenta y Región: el techo del rol del creador de guardrail; sin el límite, sus acciones se niegan aunque el rol las tenga.",
     "EscribirLogsDelCreadorDeGuardrail": "CreateLogStream y PutLogEvents sobre /semana19/ia/* (la función que crea el guardrail; su grupo está cifrado con la llave base).",
     "EscribirSecretoDeLaBdPorCfn": "PutSecretValue y UpdateSecretVersionStage sobre los secretos semana19datos* (la contraseña de la base): CloudFormation escribe ahí los datos de conexión al asociar el secreto.",
     "DocsDatosLeer": "Lectura de objetos del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3.",

@@ -8,10 +8,18 @@ No secrets are logged or returned.
 from __future__ import annotations
 
 import json
+import pathlib
+import sys
 import urllib.request
 
-import boto3
-from botocore.config import Config
+# boto3 and botocore are vendored at the version the tests validate against (the runtime's own boto3 is older and
+# does not accept tierConfig on contextual grounding).
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent / "vendor"))
+
+import boto3  # noqa: E402
+from botocore.config import Config  # noqa: E402
+
+SIN_GUARDRAIL = "sin-id"  # physical id when the create failed before a guardrail existed
 
 
 def _convertir_umbrales(valor):
@@ -57,10 +65,11 @@ def handler(event, context):
             gid = id_previo
             cliente.update_guardrail(guardrailIdentifier=gid, **_parametros(props))
         else:  # Delete
-            try:
-                cliente.delete_guardrail(guardrailIdentifier=id_previo)
-            except cliente.exceptions.ResourceNotFoundException:
-                pass
+            if id_previo != SIN_GUARDRAIL and not id_previo.startswith("fallido"):
+                try:
+                    cliente.delete_guardrail(guardrailIdentifier=id_previo)
+                except cliente.exceptions.ResourceNotFoundException:
+                    pass
             _responder(event, context, "SUCCESS", {}, id_previo)
             return
         version = cliente.create_guardrail_version(guardrailIdentifier=gid, description="Version of the activity 5 stack")["version"]

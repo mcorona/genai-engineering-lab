@@ -126,3 +126,21 @@ def test_un_fallo_responde_failed_para_que_cloudformation_no_se_quede_colgado(mo
     H.handler(_evento("Create"), _Contexto())
     assert enviado["cuerpo"]["Status"] == "FAILED"
     assert "boom" in enviado["cuerpo"]["Reason"]
+
+
+def test_delete_sin_guardrail_creado_no_llama_a_la_api(monkeypatch):
+    # The create failed before a guardrail existed (physical id "sin-id"): nothing to delete, and the function
+    # must not call DeleteGuardrail (the role is not allowed to delete an unknown id).
+    cliente = _Cliente()
+    monkeypatch.setattr(H.boto3, "client", lambda *a, **k: cliente)
+    enviado = _capturar(monkeypatch)
+    H.handler(_evento("Delete", PhysicalResourceId="sin-id"), _Contexto())
+    assert cliente.llamadas == []
+    assert enviado["cuerpo"]["Status"] == "SUCCESS"
+
+
+def test_boto3_vendorizado_es_la_version_que_validan_las_pruebas():
+    import boto3
+    import botocore
+    assert boto3.__version__ == "1.43.122" and botocore.__version__ == "1.43.122"
+    assert boto3.__file__.startswith(str(S19 / "guardrail" / "vendor"))
