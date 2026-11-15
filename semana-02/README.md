@@ -1,4 +1,4 @@
-# Unit 2: tokens and response variability
+# Week 2: tokens and response variability
 
 A Phase 1 practice: how many tokens the same text costs in Spanish and in English, and how much a model's response varies with `temperature` and `top_p`.
 

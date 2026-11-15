@@ -1,10 +1,10 @@
-# Unit 4: distillation and DPO (extra practice)
+# Week 4: distillation and DPO (extra practice)
 
-Fine-tuning a small model on the answers of a large one (distillation) and on preferences between answers (DPO), using the same legacy schema and the same evaluation as unit 3.
+Fine-tuning a small model on the answers of a large one (distillation) and on preferences between answers (DPO), using the same legacy schema and the same evaluation as week 3.
 
 ## Design
 
-- **Teacher:** Qwen3.8-27B with the business rules in the prompt. It is the best method measured in unit 3 (a 50.0 % result match).
+- **Teacher:** Qwen3.8-27B with the business rules in the prompt. It is the best method measured in week 3 (a 50.0 % result match).
 - **Student:** Qwen2.5-Coder-7B, without rules in the prompt.
 - **Training data:** only `semana-03/data/lora/train.jsonl` (157 questions). The evaluation set (`pares_eval.jsonl`, 46 pairs) enters no step.
 
@@ -17,13 +17,13 @@ This tests context distillation: whether the student learns to apply the rules w
    - `destilacion/train.jsonl`: question -> the teacher's SQL, only where it was right. The system prompt has no rules.
    - `dpo/train.jsonl`: prompt -> `chosen` (the reference SQL) and `rejected` (the teacher's SQL), only where it was wrong.
 3. Training:
-   - Distillation: LoRA with mlx-lm on `destilacion/`, as in unit 3.
+   - Distillation: LoRA with mlx-lm on `destilacion/`, as in week 3.
    - DPO: pending confirmation of the format that the installed version of `mlx-lm` accepts.
 4. Evaluation: the distilled student and the DPO student are run with `evaluar_sql.py` on `pares_eval.jsonl`, and compared with the 7B base and the 27B model with rules using `estadistica.py`.
 
 ## How to run it
 
-It needs LM Studio with the 27B model loaded and `LB_READER_DSN` in the environment (the same LegacyBridge `.env` used in unit 3).
+It needs LM Studio with the 27B model loaded and `LB_READER_DSN` in the environment (the same LegacyBridge `.env` used in week 3).
 
 ```bash
 # from the repository root
@@ -36,12 +36,12 @@ The first command takes several hours: 157 questions, each with up to 8192 token
 
 ## Results
 
-The same 46 evaluation pairs as unit 3 (no rules in the prompt).
+The same 46 evaluation pairs as week 3 (no rules in the prompt).
 
 | Method | Executes | Result match [95% CI] |
 |---|---|---|
 | 7B base | 80.4 % | 37.0 % [24.5, 51.4] |
-| 7B + LoRA v1 (unit 3) | 84.8 % | 37.0 % [24.5, 51.4] |
+| 7B + LoRA v1 (week 3) | 84.8 % | 37.0 % [24.5, 51.4] |
 | 7B + distillation (checkpoint 150) | 84.8 % | 37.0 % [24.5, 51.4] |
 | 27B + rules in the prompt (teacher) | 69.6 % | 50.0 % [36.1, 63.9] |
 
@@ -54,12 +54,12 @@ Issues in the run:
 - 9 of the 49 hard questions got no SQL from the teacher, so the student never saw those cases.
 - DPO was not trained: the installed version of `mlx-lm` has no DPO mode in its CLI.
 
-Decision: the distillation adapter is not used. The unit 3 rule stands: if the prompt is enough, do not fine-tune.
+Decision: the distillation adapter is not used. The week 3 rule stands: if the prompt is enough, do not fine-tune.
 
 ## Decision on DPO
 
-**DPO is not trained in this unit.** Reason: the installed `mlx_lm.lora` CLI has no DPO mode, and writing a custom training loop is out of scope for the unit.
+**DPO is not trained in this week.** Reason: the installed `mlx_lm.lora` CLI has no DPO mode, and writing a custom training loop is out of scope for the week.
 
 - What is done: the preference dataset `dpo/train.jsonl` (42 pairs; `chosen` = the reference SQL, `rejected` = the teacher's SQL where it was wrong).
 - What is missing to use it: a framework with DPO (for example, Hugging Face TRL) running on a GPU or in a supported environment. It remains future work.
-- This decision does not change the unit's conclusion: with 46 evaluation pairs, supervised fine-tuning did not improve the result either, so there is no evidence to prioritize DPO.
+- This decision does not change the week's conclusion: with 46 evaluation pairs, supervised fine-tuning did not improve the result either, so there is no evidence to prioritize DPO.

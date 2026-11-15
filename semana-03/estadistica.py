@@ -1,4 +1,4 @@
-"""Wilson intervals (95 %) and the exact paired McNemar test for the unit 3 runs.
+"""Wilson intervals (95 %) and the exact paired McNemar test for the week 3 runs.
 
 Usage:
     uv run python semana-03/estadistica.py base7b lora7b base

@@ -1,4 +1,4 @@
-# Unit 4: inference — quantization, latency and cost
+# Week 4: inference — quantization, latency and cost
 
 Practice: a benchmark of the same set of queries on a local quantized model and on an API, measuring latency, throughput and cost.
 
@@ -41,7 +41,7 @@ Reading the results:
 
 Limitations:
 
-- **This benchmark measures speed and cost, not quality.** The correctness of the answers was not evaluated; that was already measured in unit 3 with SQL.
+- **This benchmark measures speed and cost, not quality.** The correctness of the answers was not evaluated; that was already measured in week 3 with SQL.
 - The 50-query set is generated; it is not Cascada's set.
 - One attempt per query; there are no repetitions or intervals.
 

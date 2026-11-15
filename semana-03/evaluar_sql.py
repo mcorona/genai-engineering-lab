@@ -1,4 +1,4 @@
-"""Unit 3: evaluates a question -> SQL model against pares_eval.jsonl.
+"""Week 3: evaluates a question -> SQL model against pares_eval.jsonl.
 
 For each pair, the model generates SQL. The model's SQL and the reference SQL are executed with
 lb_reader (read-only, 5 s timeout) and the results are compared:

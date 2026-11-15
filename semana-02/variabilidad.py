@@ -1,4 +1,4 @@
-"""Unit 2: how much the response varies with temperature and top_p.
+"""Week 2: how much the response varies with temperature and top_p.
 
 A local model in LM Studio (OpenAI-compatible server).
 Usage:  python variabilidad.py [N]        (N defaults to 20)

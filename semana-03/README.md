@@ -1,4 +1,4 @@
-# Unit 3: adaptation — to fine-tune or not to fine-tune?
+# Week 3: adaptation — to fine-tune or not to fine-tune?
 
 Task: translate a question in Spanish into SQL over the LegacyBridge legacy schema (PostgreSQL 16), and determine whether fine-tuning a model (LoRA) is worth it or whether prompting or RAG is enough.
 

@@ -1,4 +1,4 @@
-"""Unit 3: generates and validates question -> SQL pairs over the LegacyBridge legacy schema.
+"""Week 3: generates and validates question -> SQL pairs over the LegacyBridge legacy schema.
 
 1. Templates per business rule (docs/legacy-defects.md): each with several ways of
    asking in Spanish and real values sampled from the database.

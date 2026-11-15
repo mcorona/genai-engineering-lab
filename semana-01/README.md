@@ -1,4 +1,4 @@
-# Unit 1: practice notes
+# Week 1: practice notes
 
 Project: genai-engineering-lab (formerly AI-projects-llm-internals) · Phase 1 (LLM fundamentals in depth)
 Reference: Andrej Karpathy's *Neural Networks: Zero to Hero* series, implemented in MLX.
@@ -87,8 +87,8 @@ Mitigation and measurement:
 - Use the client's real questions, including infrequent questions and those that span sections.
 - Keep only the most-consulted sections in a fixed context, with prefix caching. That fixed memory also consumes cache, so the savings are not total.
 
-## Next steps (as written at the close of unit 1)
+## Next steps (as written at the close of week 1)
 
-1. Unit 2: embeddings, sampling and hallucination. With the mini-GPT, try `temp` at 0.5, 0.8 and 1.2 and compare the samples.
+1. Week 2: embeddings, sampling and hallucination. With the mini-GPT, try `temp` at 0.5, 0.8 and 1.2 and compare the samples.
 2. Repeat the training with `n_layer=4` or `n_embd=128`, and record how much validation improves and how long it takes.
-3. Answer the review questions in this note before unit 2.
+3. Answer the review questions in this note before week 2.

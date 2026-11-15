@@ -1,4 +1,4 @@
-"""Unit 3: splits the training data into train and valid for mlx-lm.
+"""Week 3: splits the training data into train and valid for mlx-lm.
 
 - data/lora/train.jsonl: the training pairs minus the validation pairs.
 - data/lora/valid.jsonl: 10 % of pares_train, to watch the loss during fine-tuning.

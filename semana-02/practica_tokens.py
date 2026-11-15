@@ -1,4 +1,4 @@
-"""Unit 2 practice: how many tokens the same text costs in Spanish and in English.
+"""Week 2 practice: how many tokens the same text costs in Spanish and in English.
 
 Three counts:
 - Qwen: the official Qwen2.5 tokenizer (an exact count with that tokenizer).
