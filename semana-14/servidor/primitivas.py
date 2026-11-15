@@ -1,19 +1,19 @@
-"""Semana 14, actividad 2: las tres primitivas de MCP sobre la base legada de LegacyBridge.
+"""Week 14, activity 2: the three MCP primitives over the LegacyBridge legacy database.
 
-- **Tools:** las 6 herramientas de la semana 13 con el mismo nombre, descripción, `inputSchema` e implementación
-  (`Herramientas.llamar`), más `outputSchema` (servidor/salidas.py) y anotaciones. El `structuredContent` es
-  exactamente la salida de la semana 13; `_meta` marca el resultado como dato no confiable (amenaza A04).
+- **Tools:** the 6 week 13 tools with the same name, description, `inputSchema` and implementation
+  (`Herramientas.llamar`), plus `outputSchema` (servidor/salidas.py) and annotations. The `structuredContent` is
+  exactly the week 13 output; `_meta` marks the result as untrusted data (threat A04).
 - **Resources:**
-  - `legado://esquema/{vista}`: columnas visibles para el usuario y su diccionario (lo mismo que
-    `describir_esquema` para esa vista). Privado por usuario.
-  - `legado://reglas/{id}`: las 15 reglas de negocio, en español e inglés. Público.
-  - `legado://manifiesto`: SHA-256 de cada herramienta tal como la publica `tools/list` y del catálogo completo
-    (pinning contra rug pull, amenaza A02). Público.
-- **Prompts:** plantillas parametrizadas que declaran qué herramientas, tablas y columnas usan; solo se listan y solo
-  se pueden obtener si el usuario tiene permiso para todo lo que declaran.
+  - `legado://esquema/{vista}`: the columns visible to the user and their dictionary (the same as
+    `describir_esquema` for that view). Private per user.
+  - `legado://reglas/{id}`: the 15 business rules, in Spanish and English. Public.
+  - `legado://manifiesto`: the SHA-256 of each tool as `tools/list` publishes it and of the full catalog
+    (pinning against rug pulls, threat A02). Public.
+- **Prompts:** parameterized templates that declare which tools, tables and columns they use; they are listed and can
+  be retrieved only if the user has permission for everything they declare.
 
-El usuario (y por tanto los permisos) lo decide quien crea el servidor con `fabrica`, nunca el modelo: en esta
-actividad es fijo por proceso; en la actividad 5 sale del token OAuth de cada petición.
+The user (and therefore the permissions) is decided by whoever creates the server with `fabrica`, never by the model: in this
+activity it is fixed per process; in activity 5 it comes from each request's OAuth token.
 """
 from __future__ import annotations
 
@@ -41,10 +41,10 @@ from .salidas import esquema_salida  # noqa: E402
 
 NOMBRE, VERSION = "legado-semana14", "0.2.0"
 PROTOCOLO = "2026-07-28"
-META_NO_CONFIABLE = "io.legacybridge/untrusted"   # el resultado es dato, no instrucción (A04)
+META_NO_CONFIABLE = "io.legacybridge/untrusted"   # the result is data, not an instruction (A04)
 META_FUENTE = "io.legacybridge/source"
-TTL_PUBLICO_MS = 300_000                          # reglas, plantillas y manifiesto: 5 min
-TTL_PRIVADO_MS = 60_000                           # catálogos y esquemas filtrados por usuario: 1 min
+TTL_PUBLICO_MS = 300_000                          # rules, templates and manifest: 5 min
+TTL_PRIVADO_MS = 60_000                           # catalogs and schemas filtered per user: 1 min
 
 TITULOS = {
     "describir_esquema": "Describe legacy schema",
@@ -55,8 +55,8 @@ TITULOS = {
     "proponer_orden_compra": "Register a purchase order proposal",
 }
 
-# Ninguna herramienta escribe en la base. proponer_orden_compra registra una propuesta (cambia estado del servidor, no
-# de la base) y no es idempotente: por eso no es readOnlyHint, pero tampoco destructiva. Nada sale a sistemas externos.
+# No tool writes to the database. proponer_orden_compra registers a proposal (it changes the server's state, not
+# the database's) and is not idempotent: that is why it is not readOnlyHint, but it is not destructive either. Nothing goes to external systems.
 _LECTURA = types.ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=False)
 ANOTACIONES = {n: _LECTURA for n in TITULOS} | {
     "proponer_orden_compra": types.ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False,
@@ -66,7 +66,7 @@ ANOTACIONES = {n: _LECTURA for n in TITULOS} | {
 # ---------- tools ----------
 
 def herramientas_mcp() -> list[types.Tool]:
-    """Catálogo publicado: nombre, descripción e inputSchema idénticos a la semana 13, más título, outputSchema y anotaciones."""
+    """The published catalog: name, description and inputSchema identical to week 13, plus title, outputSchema and annotations."""
     return [types.Tool(name=d["name"], title=TITULOS[d["name"]], description=d["description"],
                        input_schema=d["input_schema"], output_schema=esquema_salida(d["name"]),
                        annotations=ANOTACIONES[d["name"]])
@@ -78,7 +78,7 @@ def _canonico(obj) -> bytes:
 
 
 def hash_herramienta(tool: types.Tool) -> str:
-    """SHA-256 de la definición tal como viaja en tools/list (sin _meta)."""
+    """The SHA-256 of the definition as it travels in tools/list (without _meta)."""
     return hashlib.sha256(_canonico(tool.model_dump(by_alias=True, exclude_none=True, mode="json", exclude={"meta"}))).hexdigest()
 
 
@@ -115,8 +115,8 @@ class Plantilla:
     modelo: type[_Args]
     herramientas: tuple[str, ...]
     tablas: tuple[str, ...]
-    columnas: tuple[str, ...]          # "tabla.columna" que la plantilla necesita leer
-    texto: dict[str, str]              # por idioma; se formatea con los argumentos validados
+    columnas: tuple[str, ...]          # "table.column" that the template needs to read
+    texto: dict[str, str]              # per language; formatted with the validated arguments
 
 
 PLANTILLAS = {p.nombre: p for p in [
@@ -193,7 +193,7 @@ def plantilla_permitida(h: Herramientas, p: Plantilla) -> bool:
 
 
 def _no_encontrado(que: str, cual: str) -> MCPError:
-    # Mismo error para "no existe" y "no permitido": no revela qué existe para otros usuarios (spec 2026-07-28: -32602).
+    # The same error for "does not exist" and "not allowed": it does not reveal what exists for other users (spec 2026-07-28: -32602).
     return MCPError(types.INVALID_PARAMS, f"{que} not found: {cual}", {"tipo": "no_encontrado"})
 
 
@@ -205,7 +205,7 @@ MANIFIESTO_URI = "legado://manifiesto"
 
 
 def esquema_vista(h: Herramientas, vista: str) -> dict:
-    """La entrada de describir_esquema para una vista (mismas columnas visibles y mismo diccionario)."""
+    """The describir_esquema entry for a view (the same visible columns and the same dictionary)."""
     res = h.llamar("describir_esquema", {"tablas": [vista]})
     if not res["ok"]:
         raise _no_encontrado("Resource", f"legado://esquema/{vista}")
@@ -225,13 +225,13 @@ def _contenido(uri: str, obj) -> types.TextResourceContents:
                                       text=json.dumps(obj, ensure_ascii=False, indent=1, default=str))
 
 
-# ---------- servidor ----------
+# ---------- server ----------
 
 @dataclass(frozen=True)
 class LimitesHerramientas:
-    """Límites de ejecución de herramientas (actividad 3). La consulta en la base además tiene statement_timeout (5 s)."""
-    tiempo_s: float = 15.0          # tiempo máximo por llamada; después se responde tiempo_agotado
-    concurrentes: int = 4           # llamadas ejecutándose a la vez (hilos); las demás esperan su turno
+    """Tool execution limits (activity 3). The database query also has a statement_timeout (5 s)."""
+    tiempo_s: float = 15.0          # maximum time per call; after that, tiempo_agotado is returned
+    concurrentes: int = 4           # calls running at once (threads); the rest wait their turn
 
 
 def error_tiempo_agotado(tiempo_s: float) -> dict:
@@ -241,15 +241,15 @@ def error_tiempo_agotado(tiempo_s: float) -> dict:
 
 
 def crear_servidor(fabrica: Callable[[], Herramientas], limites: LimitesHerramientas = LimitesHerramientas()) -> Server:
-    """`fabrica()` devuelve las Herramientas del usuario de la petición en curso (el sistema decide el usuario).
+    """`fabrica()` returns the Herramientas of the user of the request in flight (the system decides the user).
 
-    Cada llamada corre en un hilo (no bloquea el event loop del transporte HTTP), con un máximo de llamadas concurrentes
-    y un tiempo límite. Si se vence, el resultado es el error estructurado `tiempo_agotado` (cumple el outputSchema).
+    Each call runs in a thread (it does not block the HTTP transport's event loop), with a maximum of concurrent calls
+    and a time limit. If it expires, the result is the structured error `tiempo_agotado` (it meets the outputSchema).
     """
     limitador = anyio.CapacityLimiter(limites.concurrentes)
 
     async def listar_tools(ctx, params) -> types.ListToolsResult:
-        visible = getattr(fabrica().ctx, "herramienta_visible", lambda nombre: True)   # actividad 5: por scope
+        visible = getattr(fabrica().ctx, "herramienta_visible", lambda nombre: True)   # activity 5: per scope
         return types.ListToolsResult(tools=[t for t in herramientas_mcp() if visible(t.name)], cache_scope="private",
                                      ttl_ms=TTL_PRIVADO_MS)
 
@@ -257,7 +257,7 @@ def crear_servidor(fabrica: Callable[[], Herramientas], limites: LimitesHerramie
         h = fabrica()
         res = None
         if not getattr(h.ctx, "herramienta_visible", lambda nombre: True)(params.name):
-            # defensa en profundidad: la frontera ya respondió 403 insufficient_scope; aquí nunca se ejecuta
+            # defense in depth: the boundary already answered 403 insufficient_scope; this is never executed
             res = {"ok": False, "error": {"tipo": "permiso_denegado", "mensaje": f"El token no permite {params.name}.",
                                           "sugerencia": "Pide los scopes que indica el desafío 403 (step-up)."}}
         else:

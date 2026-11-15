@@ -1,11 +1,11 @@
-"""Semana 15, actividad 1: A2A en los frameworks que lo traen (Strands y Google ADK). Sin API ($0).
+"""Week 15, activity 1: A2A in the frameworks that include it (Strands and Google ADK). No API ($0).
 
     cd semana-15 && python linea_base/sonda_a2a.py
 
-Cada framework publica un agente con modelo guionado como servidor A2A (en memoria, con el cliente de pruebas de
-Starlette). Se comprueba: Agent Card en /.well-known/agent-card.json y sus campos (versión de protocolo, interfaces,
-esquemas de seguridad), una llamada con el método de la versión que declara, y si el servidor exige autenticación
-cuando la tarjeta la declara. Escribe resultados/sonda_a2a.json.
+Each framework publishes an agent with a scripted model as an A2A server (in memory, with Starlette's test
+client). It checks: the Agent Card at /.well-known/agent-card.json and its fields (protocol version, interfaces,
+security schemes), a call with the method of the version it declares, and whether the server requires authentication
+when the card declares it. Writes resultados/sonda_a2a.json.
 """
 import json
 import os

@@ -1,5 +1,5 @@
-"""Actividad 2: arnés común. Contrato del Resultado, normalización de uso y costo, trazas, modelo simulado, verificador
-sobre salidas guionadas y el puente entre procesos. Sin API ($0)."""
+"""Activity 2: the common harness. The Resultado contract, usage and cost normalization, traces, the simulated model, the verifier
+over scripted outputs, and the bridge between processes. No API ($0)."""
 import dataclasses
 import hashlib
 import json
@@ -20,7 +20,7 @@ SQL_V01 = ("SELECT COUNT(*) AS numero FROM artmst a JOIN prvmst p ON p.prv_id = 
            "WHERE a.art_lin = 'Tornilleria' AND p.prv_pais = 'US'")
 
 
-# ---------- contrato ----------
+# ---------- contract ----------
 
 def test_resultado_es_el_de_la_semana_13():
     import agente.loop as l13
@@ -46,7 +46,7 @@ def test_prompt_mensaje_y_respuesta_son_los_de_la_semana_13():
     ({"inputTokens": 1200, "outputTokens": 300, "totalTokens": 1500}, (1200, 300)),              # Strands
     ({"prompt_tokens": 1200, "completion_tokens": 300, "total_tokens": 1500}, (1200, 300)),      # LiteLLM
     ({"prompt_token_count": 1200, "candidates_token_count": 300}, (1200, 300)),                  # ADK
-    (type("U", (), {"input_tokens": 7, "output_tokens": 3})(), (7, 3)),                          # objeto (OpenAI Agents)
+    (type("U", (), {"input_tokens": 7, "output_tokens": 3})(), (7, 3)),                          # object (OpenAI Agents)
     ({"input_tokens": 5}, (5, 0)),
     (None, (0, 0)),
 ])
@@ -62,7 +62,7 @@ def test_normalizar_uso_rechaza_valores_invalidos():
 
 
 def test_costo_igual_al_de_litellm_en_la_sonda():
-    """El precio de la semana 13 coincide con el que LiteLLM reportó en la actividad 1 para 1200/300 tokens."""
+    """Week 13's price matches the one LiteLLM reported in activity 1 for 1200/300 tokens."""
     assert math.isclose(contrato.costo(H55, 1200, 300), 0.00027)
     sonda = json.loads((S15 / "resultados" / "sonda_anthropic.json").read_text())
     for fw in ("openai_agents", "google_adk"):
@@ -104,9 +104,9 @@ def test_validar_resultado_detecta_violaciones():
 
 def test_responder_valida_como_la_semana_13():
     reg = Registro("x", H55, tarea("v01-es"))
-    mala = reg.responder({"estado": "respondida", "respuesta": "7", "resultados": []})        # falta la clave n
+    mala = reg.responder({"estado": "respondida", "respuesta": "7", "resultados": []})        # the key n is missing
     assert mala["ok"] is False and mala["error"]["tipo"] == "respuesta_invalida" and reg.final is None
-    mala2 = reg.responder({"estado": "respondida", "respuesta": "7", "extra": 1})               # campo no permitido
+    mala2 = reg.responder({"estado": "respondida", "respuesta": "7", "extra": 1})               # a field that is not allowed
     assert mala2["ok"] is False
     buena = reg.responder({"estado": "respondida", "respuesta": "7",
                            "resultados": [{"clave": "n", "sql": SQL_V01, "valor": 7}]})
@@ -122,7 +122,7 @@ def test_parar_por_limite_sin_final():
     assert r.final is None and r.motivo == "max_pasos" and contrato.validar_resultado(r) == []
 
 
-# ---------- trazas ----------
+# ---------- traces ----------
 
 def test_trazas_jsonl_comunes(tmp_path):
     ruta = tmp_path / "t.jsonl"
@@ -147,7 +147,7 @@ def test_traza_rechaza_eventos_incompletos():
         t("otro", 1)
 
 
-# ---------- modelo simulado ----------
+# ---------- simulated model ----------
 
 def _post(base, cuerpo):
     req = urllib.request.Request(base + "/v1/messages", data=json.dumps(cuerpo).encode(),
@@ -170,10 +170,10 @@ def test_doble_sigue_el_guion_con_y_sin_streaming():
     assert fin["content"][0]["text"] == "(fin del guion)" and len(g.peticiones) == 3
 
 
-# ---------- verificador sobre salidas guionadas (servidor MCP de la semana 14 + loop propio) ----------
+# ---------- verifier over scripted outputs (the week 14 MCP server + the in-house loop) ----------
 
 def _correr(entorno, t, guion):
-    from agente.verificar import verificar  # noqa: F401  (semana 13)
+    from agente.verificar import verificar  # noqa: F401  (week 13)
     srv = entorno.servidores["normal"]
     with DobleAnthropic(guion) as d:
         a = AdaptadorPropio(srv.url, entorno.token("analista"), base_url=d.base_url)
@@ -189,13 +189,13 @@ def test_guion_correcto_pasa_el_verificador(entorno, adm, conexion_verificador):
     assert r.estado == "respondida" and contrato.validar_resultado(r, t) == []
     v = verificar(t, r.final, conexion_verificador, r.estado)
     assert v["exito"] and v["exactitud_claves"] == 1 and v["coherencia_claves"] == 1
-    # costo = suma exacta de los tokens del guion; pasos = turnos del guion
+    # cost = the exact sum of the script's tokens; steps = the script's turns
     tin, tout = sum(x.tokens_in for x in g.turnos), sum(x.tokens_out for x in g.turnos)
     assert (r.pasos, r.tokens_in, r.tokens_out) == (len(g.turnos), tin, tout)
     assert math.isclose(r.costo_usd, contrato.costo(H55, tin, tout))
     assert [e["tipo"] for e in eventos].count("modelo") == len(g.turnos) and eventos[-1]["tipo"] == "parada"
     assert all(validar_evento(e) == [] for e in eventos) and {e["framework"] for e in eventos} == {"propio"}
-    # el loop recibió el prompt y la herramienta responder de la semana 13
+    # the loop received week 13's prompt and responder tool
     import agente.loop as l13
     assert g.peticiones[0]["system"] == l13.SISTEMA and g.peticiones[0]["model"] == H55
     assert {x["name"] for x in g.peticiones[0]["tools"]} >= {"ejecutar_sql", "responder"}
@@ -216,7 +216,7 @@ def test_abstencion_y_aclaracion_guionadas(entorno, adm, conexion_verificador):
         t = tarea(id_, adm)
         r, _, _ = _correr(entorno, t, guion_respuesta(t))
         assert r.estado == t["estado_esperado"] and verificar(t, r.final, conexion_verificador, r.estado)["exito"]
-    t = tarea("n01-es", adm)   # responder lo que no se pidió: abstenida esperada, respondida entregada
+    t = tarea("n01-es", adm)   # answering what was not asked: abstenida expected, respondida delivered
     r, _, _ = _correr(entorno, t, guion_respuesta(t, estado="requiere_aclaracion"))
     assert not verificar(t, r.final, conexion_verificador, r.estado)["exito"]
 
@@ -228,7 +228,7 @@ def test_guion_sin_responder_termina_en_limite(entorno, adm):
     assert contrato.validar_resultado(r, t) == []
 
 
-# ---------- puente entre procesos ----------
+# ---------- bridge between processes ----------
 
 def test_puente_trabajador_devuelve_el_mismo_contrato(entorno, adm):
     from arnes.puente import Puente
@@ -243,7 +243,7 @@ def test_puente_trabajador_devuelve_el_mismo_contrato(entorno, adm):
     assert all(validar_evento(e) == [] for e in out["eventos"]) and out["eventos"][-1]["tipo"] == "parada"
 
 
-# ---------- el contrato se carga igual en el entorno de cada framework ----------
+# ---------- the contract loads the same way in each framework's environment ----------
 
 PROG = """
 import hashlib, json, sys

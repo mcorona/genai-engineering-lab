@@ -1,8 +1,8 @@
-"""Utilidades de laboratorio compartidas por las pruebas y la eval de seguridad (actividad 6).
+"""Lab utilities shared by the tests and the security eval (activity 6).
 
-- `ServidorHTTP`: uvicorn real en 127.0.0.1, en un hilo, con un puerto libre.
-- `EmisorDePrueba`: llave RSA propia, JWKS servido en loopback y tokens firmados con los claims que emite Keycloak. Sirve
-  para correr la eval sin Keycloak; con Keycloak se usan sus tokens reales (auth/pkce.py).
+- `ServidorHTTP`: a real uvicorn on 127.0.0.1, in a thread, on a free port.
+- `EmisorDePrueba`: its own RSA key, a JWKS served on loopback and tokens signed with the claims Keycloak issues. It serves
+  to run the eval without Keycloak; with Keycloak, its real tokens are used (auth/pkce.py).
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def puerto_libre() -> int:
 
 
 class ServidorHTTP:
-    """Uvicorn real en 127.0.0.1. `verificador` puede ser una fábrica `f(recurso)` (la URI depende del puerto)."""
+    """A real uvicorn on 127.0.0.1. `verificador` can be a factory `f(recurso)` (the URI depends on the port)."""
 
     def __init__(self, servidor_mcp, puerto: int | None = None, **kw):
         import uvicorn
@@ -63,7 +63,7 @@ class ServidorHTTP:
 
 
 class EmisorDePrueba:
-    """Emisor OAuth mínimo de laboratorio: firma RS256 con una llave propia y publica el JWKS en loopback."""
+    """A minimal lab OAuth issuer: signs RS256 with its own key and publishes the JWKS on loopback."""
 
     def __init__(self, emisor: str = "http://127.0.0.1:8180/realms/legacybridge", kid: str = "lab-1"):
         import jwt

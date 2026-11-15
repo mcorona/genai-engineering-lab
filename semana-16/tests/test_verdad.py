@@ -1,4 +1,4 @@
-"""Verdad de referencia de la auditoría (actividad 2): manifiesto, coherencia de etiquetas y recálculo en la base."""
+"""The audit's ground truth (activity 2): the manifest, label consistency and recomputation on the database."""
 import importlib.util
 import json
 import os

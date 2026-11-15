@@ -1,14 +1,14 @@
-"""Semana 13: corre el loop agéntico sobre tareas del golden set y las verifica.
+"""Week 13: runs the agentic loop over tasks of the gold set and verifies them.
 
     python agente/correr.py --corrida piloto --tareas s03 r02 --idiomas es en --esfuerzo low
     python agente/correr.py --corrida eval_haiku_low --k 3 --paralelo 4 --tope-usd 2 --reanudar
 
-- --k: repeticiones por tarea (consistencia, pass^k). Cada repetición es una corrida independiente.
-- --paralelo: tareas simultáneas; cada hilo tiene su propia conexión a la base (mismo rol de solo lectura).
-- --reanudar: no repite las (tarea, repetición) que ya están en el detalle; permite cortar y seguir.
-- --tope-usd: no lanza más tareas cuando el costo acumulado de la corrida lo alcanza.
+- --k: repetitions per task (consistency, pass^k). Each repetition is an independent run.
+- --paralelo: concurrent tasks; each thread has its own database connection (the same read-only role).
+- --reanudar: does not repeat the (task, repetition) pairs already in the detail file; lets a run stop and continue.
+- --tope-usd: launches no more tasks once the run's accumulated cost reaches it.
 
-Escribe las trazas en resultados/trazas/<corrida>.jsonl y el detalle en resultados/<corrida>_detalle.jsonl.
+Writes the traces to resultados/trazas/<run>.jsonl and the detail to resultados/<run>_detalle.jsonl.
 """
 import argparse
 import json
@@ -38,7 +38,7 @@ def cargar_tareas(ids, idiomas):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tareas", nargs="*", help="ids base (s03, r02...); sin valor, todas")
+    ap.add_argument("--tareas", nargs="*", help="base ids (s03, r02...); with no value, all of them")
     ap.add_argument("--idiomas", nargs="+", default=["es", "en"])
     ap.add_argument("--modelo", default="claude-haiku-5-5")
     ap.add_argument("--esfuerzo", default="low", choices=["low", "medium", "high"])
@@ -47,7 +47,7 @@ def main():
     ap.add_argument("--paralelo", type=int, default=1)
     ap.add_argument("--reanudar", action="store_true")
     ap.add_argument("--tope-usd", type=float, default=0.50)
-    ap.add_argument("--via", choices=["nativo", "mcp"], default="nativo", help="herramientas nativas o por el servidor MCP")
+    ap.add_argument("--via", choices=["nativo", "mcp"], default="nativo", help="native tools or through the MCP server")
     ap.add_argument("--patron", choices=["loop", "sdk"], default="loop", help="loop propio o Claude Agent SDK")
     a = ap.parse_args()
 
@@ -63,12 +63,12 @@ def main():
             p.unlink(missing_ok=True)
     trabajo = [(t, rep) for rep in range(a.k) for t in tareas if (t["id"], rep) not in hechas]
     lim = Limites()
-    print(f"{len(trabajo)} corridas pendientes ({len(tareas)} tareas × k={a.k}; {len(hechas)} ya hechas) · herramientas {a.via} · "
-          f"{a.modelo} {a.esfuerzo} · paralelo {a.paralelo} · máximo teórico por corrida ${costo(a.modelo, lim.max_tokens_total, 0):.3f} · "
-          f"tope ${a.tope_usd:.2f}")
+    print(f"{len(trabajo)} pending runs ({len(tareas)} tasks × k={a.k}; {len(hechas)} already done) · tools {a.via} · "
+          f"{a.modelo} {a.esfuerzo} · parallel {a.paralelo} · theoretical maximum per run ${costo(a.modelo, lim.max_tokens_total, 0):.3f} · "
+          f"cap ${a.tope_usd:.2f}")
 
-    conn0, rol = conectar()  # crea el rol una vez; los hilos reusan su DSN
-    print(f"base: rol {rol}")
+    conn0, rol = conectar()  # creates the role once; the threads reuse its DSN
+    print(f"database: role {rol}")
     locales = threading.local()
     candado = threading.Lock()
     total = [sum(r["costo_usd"] for r in map(json.loads, open(detalle, encoding="utf-8"))) if hechas else 0.0]
@@ -114,9 +114,9 @@ def main():
             total[0] += r.costo_usd
             with open(detalle, "a", encoding="utf-8") as f:
                 f.write(json.dumps(fila, ensure_ascii=False, default=str) + "\n")
-        print(f"{t['id']:<8}#{rep} {t['tipo']:<13} {r.estado:<19} éxito={'sí' if v['exito'] else 'NO':<3} pasos={r.pasos:<2} "
-              f"herr={r.herramientas:<2} err={r.errores_herramienta} ${r.costo_usd:.4f} {r.segundos:>5.1f}s {r.motivo}  "
-              f"[acumulado ${total[0]:.3f}]", flush=True)
+        print(f"{t['id']:<8}#{rep} {t['tipo']:<13} {r.estado:<19} success={'yes' if v['exito'] else 'NO':<3} steps={r.pasos:<2} "
+              f"tools={r.herramientas:<2} err={r.errores_herramienta} ${r.costo_usd:.4f} {r.segundos:>5.1f}s {r.motivo}  "
+              f"[accumulated ${total[0]:.3f}]", flush=True)
         return fila
 
     try:
@@ -130,9 +130,9 @@ def main():
             c.close()
     filas = [json.loads(x) for x in open(detalle, encoding="utf-8")] if detalle.exists() else []
     if total[0] >= a.tope_usd:
-        print(f"Tope de ${a.tope_usd:.2f} alcanzado; corre de nuevo con --reanudar para completar.")
-    print(f"\nÉxito {sum(f['exito'] for f in filas)}/{len(filas)} · costo ${sum(f['costo_usd'] for f in filas):.4f} · "
-          f"detalle: {detalle.relative_to(AQUI)} · trazas: {trazas.relative_to(AQUI)}")
+        print(f"Cap of ${a.tope_usd:.2f} reached; run again with --reanudar to complete.")
+    print(f"\nSuccess {sum(f['exito'] for f in filas)}/{len(filas)} · cost ${sum(f['costo_usd'] for f in filas):.4f} · "
+          f"detail: {detalle.relative_to(AQUI)} · traces: {trazas.relative_to(AQUI)}")
 
 
 if __name__ == "__main__":

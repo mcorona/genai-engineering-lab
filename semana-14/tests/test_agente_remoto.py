@@ -1,4 +1,4 @@
-"""Actividad 7: selección de tareas y detector de fuga del arnés remoto (sin API, $0)."""
+"""Activity 7: task selection and the leak detector of the remote harness (no API, $0)."""
 import importlib.util
 from types import SimpleNamespace
 

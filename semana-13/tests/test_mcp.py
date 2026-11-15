@@ -1,5 +1,5 @@
-"""Pruebas del servidor MCP (actividad 4): mismo catálogo, mismos esquemas, mismos permisos y mismas respuestas que
-las herramientas nativas. Levantan el servidor por stdio con el cliente MCP."""
+"""Tests of the MCP server (activity 4): the same catalog, schemas, permissions and responses as the
+native tools. They start the server over stdio with the MCP client."""
 import json
 
 import pytest
@@ -50,7 +50,7 @@ def test_misma_respuesta_sin_base(nombre, args, mcp_analista, mcp_almacenista):
     for usuario, m in (("analista", mcp_analista), ("almacenista", mcp_almacenista)):
         nativo = Herramientas(Contexto.de_usuario(usuario)).llamar(nombre, args)
         if HAY_BASE and nativo.get("error", {}).get("tipo") == "sin_base":
-            continue  # el servidor sí tiene base; esos casos se cubren abajo
+            continue  # the server does have a database; those cases are covered below
         assert normal(m.llamar(nombre, args)) == normal(nativo), (usuario, nombre, args)
 
 

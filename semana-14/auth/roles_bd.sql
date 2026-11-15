@@ -1,7 +1,7 @@
--- Semana 14, actividad 5: un rol de PostgreSQL por perfil de scopes (idempotente; se corre como administrador).
--- El servidor MCP se conecta como copilot_nlq y en cada transacción hace SET LOCAL ROLE al rol del perfil del token:
--- la base es la última línea de defensa aunque el guard fallara. Las FK cuentan: art_prv (proveedor) y art_cst (costo)
--- solo los lee legado_r_proveedores.
+-- Week 14, activity 5: one PostgreSQL role per scope profile (idempotent; run as an administrator).
+-- The MCP server connects as copilot_nlq and, in each transaction, runs SET LOCAL ROLE to the token profile's role:
+-- the database is the last line of defense even if the guard failed. The FKs count: art_prv (supplier) and art_cst (cost)
+-- are read only by legado_r_proveedores.
 DO $$
 DECLARE r text;
 BEGIN
@@ -13,7 +13,7 @@ BEGIN
   END LOOP;
 END $$;
 
--- partir de cero en cada corrida (también revoca los privilegios por columna)
+-- start from scratch on each run (this also revokes the column privileges)
 REVOKE ALL ON ALL TABLES IN SCHEMA legado FROM legado_r_leer, legado_r_ventas, legado_r_proveedores;
 REVOKE ALL ON SCHEMA legado FROM legado_r_leer, legado_r_ventas, legado_r_proveedores;
 
@@ -27,5 +27,5 @@ GRANT legado_r_leer TO legado_perfil_l, legado_perfil_lv, legado_perfil_lp, lega
 GRANT legado_r_ventas TO legado_perfil_lv, legado_perfil_lvp;
 GRANT legado_r_proveedores TO legado_perfil_lp, legado_perfil_lvp;
 
--- el rol de conexión solo puede cambiar a estos perfiles (NOINHERIT: no suma sus privilegios por sí mismo)
+-- the connection role can only switch to these profiles (NOINHERIT: it does not gain their privileges by itself)
 GRANT legado_perfil_l, legado_perfil_lv, legado_perfil_lp, legado_perfil_lvp TO copilot_nlq;

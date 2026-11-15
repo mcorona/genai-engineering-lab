@@ -1,12 +1,12 @@
-"""Pasarela MCP con las defensas del cliente de la semana 14, para cualquier framework.
+"""An MCP gateway with week 14's client defenses, for any framework.
 
-Las defensas (allowlist, pinning por hash contra `legado://manifiesto`, prefijo por servidor, resultados envueltos en
-`untrusted_data`) viven en `ClienteSeguro`, que es un cliente MCP de Python. Para que LangGraph y Strands las usen sin
-reimplementarlas, la pasarela publica el catálogo ya filtrado y prefijado del `ClienteSeguro` como un servidor MCP por
-Streamable HTTP en 127.0.0.1, y cada llamada pasa por `ClienteSeguro.llamar`. El framework solo ve la pasarela: un
-servidor bloqueado (rug pull, fuera de la allowlist) no existe para él, y todo resultado llega como dato no confiable.
-Es el patrón de *MCP gateway*; aquí corre en el mismo proceso que el orquestador, que así conserva el registro de
-llamadas que la eval de la semana 14 necesita para juzgar cada caso.
+The defenses (an allowlist, hash pinning against `legado://manifiesto`, a per-server prefix, results wrapped in
+`untrusted_data`) live in `ClienteSeguro`, which is a Python MCP client. So that LangGraph and Strands use them without
+reimplementing them, the gateway publishes `ClienteSeguro`'s already filtered and prefixed catalog as an MCP server over
+Streamable HTTP on 127.0.0.1, and each call goes through `ClienteSeguro.llamar`. The framework only sees the gateway: a
+blocked server (a rug pull, outside the allowlist) does not exist for it, and every result arrives as untrusted data.
+It is the *MCP gateway* pattern; here it runs in the same process as the orchestrator, which thus keeps the call log
+that the week 14 eval needs to judge each case.
 """
 from __future__ import annotations
 
@@ -39,5 +39,5 @@ def crear_pasarela(cliente) -> Server:
 
 
 def abrir_pasarela(cliente) -> ServidorHTTP:
-    """Servidor HTTP en un puerto libre de 127.0.0.1 (sin OAuth: solo loopback y solo para esta corrida)."""
+    """An HTTP server on a free port of 127.0.0.1 (no OAuth: loopback only and only for this run)."""
     return ServidorHTTP(crear_pasarela(cliente), usuario="pasarela")

@@ -1,17 +1,17 @@
-"""Especialista de compras en Strands, publicado como servidor A2A (protocolo 0.3, el de Strands 1.63).
+"""The purchasing specialist in Strands, published as an A2A server (protocol 0.3, Strands 1.63's).
 
     python -m multiagente.servidor_compras --emisor URL --jwks URL [--base-url DOBLE] [--inyectar]
 
-- **Sin herramientas y sin credenciales de datos.** Recibe hechos de inventario y la regla aplicable, y devuelve una
-  propuesta en JSON ({"sku", "cantidad", "motivo"}) o {"sin_propuesta": "..."}. No puede escribir ni leer la base: la
-  propuesta la registra el supervisor en el servidor MCP con el token del usuario, y queda en PENDING_APPROVAL.
-- **OAuth con audiencia propia.** Cada petición (salvo la Agent Card pública) exige un JWT del emisor configurado, RS256,
-  con `aud` igual a la URI de este servidor y el scope `legado:compras:proponer`. Sin token o con otra audiencia: 401;
-  sin el scope: 403. Ningún framework lo aplica por sí mismo (actividad 1), así que es un middleware propio.
-- **Límites:** cuerpo de hasta 16 KB; una sola llamada al modelo por petición (sin herramientas no hay bucle).
-- **Uso de tokens:** se devuelve en `result.metadata.uso` para que el supervisor cuente el costo total de la tarea.
-- `--inyectar` sustituye al modelo por uno guionado que devuelve una propuesta con instrucciones inyectadas (especialista
-  comprometido), para la prueba de seguridad.
+- **No tools and no data credentials.** It receives inventory facts and the applicable rule, and returns a
+  proposal in JSON ({"sku", "cantidad", "motivo"}) or {"sin_propuesta": "..."}. It cannot write or read the database: the
+  proposal is registered by the supervisor on the MCP server with the user's token, and it stays in PENDING_APPROVAL.
+- **OAuth with its own audience.** Each request (except the public Agent Card) requires a JWT from the configured issuer, RS256,
+  with `aud` equal to this server's URI and the `legado:compras:proponer` scope. Without a token or with another audience: 401;
+  without the scope: 403. No framework enforces this on its own (activity 1), so it is an in-house middleware.
+- **Limits:** a body of up to 16 KB; a single model call per request (without tools there is no loop).
+- **Token usage:** returned in `result.metadata.uso` so that the supervisor counts the task's total cost.
+- `--inyectar` replaces the model with a scripted one that returns a proposal with injected instructions (a compromised
+  specialist), for the security test.
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ class ModeloContado(AnthropicModel):
 
 
 class Comprometido(Model):
-    """Especialista comprometido (prueba de inyección): siempre devuelve la misma propuesta con instrucciones."""
+    """A compromised specialist (injection test): it always returns the same proposal with instructions."""
     def update_config(self, **kw):
         pass
 

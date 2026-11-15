@@ -181,4 +181,4 @@ def escribir() -> int:
 
 
 if __name__ == "__main__":
-    print(f"{len(CASOS)} casos, {escribir()} graders en {EVALS}")
+    print(f"{len(CASOS)} cases, {escribir()} graders in {EVALS}")

@@ -1,11 +1,11 @@
-"""Arma el paquete CodeZip del agente para AgentCore Runtime (ARM64, Python 3.13) en `build/agente.zip`.
+"""Builds the agent's CodeZip package for AgentCore Runtime (ARM64, Python 3.13) in `build/agente.zip`.
 
-    python agentcore/empaquetar.py            # desde semana-15; necesita uv y acceso a PyPI ($0)
+    python agentcore/empaquetar.py            # from semana-15; needs uv and access to PyPI ($0)
 
-Contenido: `main.py` en la raíz, el código de la semana 15 que usa el agente (arnes y el adaptador de Strands), el
-contrato de la semana 13 (agente/loop.py y agente/respuesta.py) y las dependencias instaladas para linux/aarch64.
-No incluye llaves, `.env`, pruebas ni el resto del repositorio: `--revisar` lista el contenido y falla si aparece algo
-que parezca un secreto.
+Contents: `main.py` at the root, the week 15 code the agent uses (arnes and the Strands adapter), the
+week 13 contract (agente/loop.py and agente/respuesta.py) and the dependencies installed for linux/aarch64.
+It includes no keys, no `.env`, no tests and none of the rest of the repository: `--revisar` lists the contents and fails if
+anything that looks like a secret appears.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ S15 = AQUI.parent
 S13 = S15.parent / "semana-13"
 BUILD = AQUI / "build"
 ZIP = BUILD / "agente.zip"
-CODIGO = [  # (origen, destino dentro del zip)
+CODIGO = [  # (source, destination inside the zip)
     (AQUI / "main.py", "main.py"),
     (S15 / "arnes" / "__init__.py", "semana-15/arnes/__init__.py"),
     (S15 / "arnes" / "adaptador.py", "semana-15/arnes/adaptador.py"),
@@ -34,7 +34,7 @@ CODIGO = [  # (origen, destino dentro del zip)
     (S13 / "agente" / "__init__.py", "semana-13/agente/__init__.py"),
     (S13 / "agente" / "loop.py", "semana-13/agente/loop.py"),
     (S13 / "agente" / "respuesta.py", "semana-13/agente/respuesta.py"),
-    (S15.parent / "semana-07" / "prices.json", "semana-07/prices.json"),   # la tabla de precios que lee loop.py
+    (S15.parent / "semana-07" / "prices.json", "semana-07/prices.json"),   # the price table that loop.py reads
 ]
 PROHIBIDOS = (".env", "secretos", ".pem", "credentials", "id_rsa")
 
@@ -64,7 +64,7 @@ def revisar(ruta: Path = ZIP) -> list[str]:
     with zipfile.ZipFile(ruta) as z:
         nombres = z.namelist()
     malos = [n for n in nombres if any(p in n.lower() for p in PROHIBIDOS) and not n.endswith(".py")
-             and "dist-info" not in n and not n.endswith("cacert.pem")]   # cacert.pem: certificados públicos de CA
+             and "dist-info" not in n and not n.endswith("cacert.pem")]   # cacert.pem: public CA certificates
     for origen, destino in CODIGO:
         if destino not in nombres:
             malos.append(f"falta {destino}")
@@ -73,12 +73,12 @@ def revisar(ruta: Path = ZIP) -> list[str]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--sin-dependencias", action="store_true", help="solo el código propio (pruebas)")
+    ap.add_argument("--sin-dependencias", action="store_true", help="only the in-house code (tests)")
     a = ap.parse_args(argv)
     ruta = armar(a.sin_dependencias)
     malos = revisar(ruta)
     sha = hashlib.sha256(ruta.read_bytes()).hexdigest()
-    print(f"{ruta}  {ruta.stat().st_size / 1e6:.1f} MB  sha256 {sha[:16]}…  archivos propios {len(CODIGO)}")
+    print(f"{ruta}  {ruta.stat().st_size / 1e6:.1f} MB  sha256 {sha[:16]}…  own files {len(CODIGO)}")
     if malos:
         print("REVISAR:", *malos, sep="\n  ")
         return 1

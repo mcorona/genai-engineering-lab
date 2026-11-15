@@ -1,4 +1,4 @@
-"""Actividad 5: suite de `claude plugin eval` (estructura, sin llamar al modelo) y evaluador propio de calidad."""
+"""Activity 5: the `claude plugin eval` suite (structure, without calling the model) and the in-house quality evaluator."""
 import builtins
 import importlib.util
 import json
@@ -52,7 +52,7 @@ def test_casos_es_en_positivos_y_negativos():
         llm += sum(g["type"] == "llm" for g in graders.values())
         p = frontmatter(c / "prompt.md")
         assert p["runs"] >= 3 and p["max_turns"] and p["timeout_seconds"]
-        for g in graders.values():   # las herramientas siguen a los graders
+        for g in graders.values():   # the tools follow the graders
             if g["type"] in ("file_exists",) and g.get("exists", True):
                 assert "Write" in p["allowed_tools"], c.name
         if "negativo" in tags[c]:
@@ -100,7 +100,7 @@ def test_guardia_sin_sqlglot_usa_regex_estricta(monkeypatch):
             comun.check_read_only(q)
 
 
-# ---------- evaluador propio ----------
+# ---------- in-house evaluator ----------
 
 def test_conceptos_cubren_la_verdad():
     verdad = {f"{x['tabla']}.{x['columna']}" for x in json.loads((S16 / "verdad" / "diccionario.json").read_text())}

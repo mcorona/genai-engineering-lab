@@ -1,17 +1,17 @@
-"""Corrida manual del plugin legacy-schema-audit sobre la base del laboratorio (semana 16, actividad 3).
+"""A manual run of the legacy-schema-audit plugin over the lab database (week 16, activity 3).
 
-1. Con PG_ADMIN_DSN crea (o renueva) el rol `legacy_auditor`: LOGIN con contraseña aleatoria de esta corrida y solo
-   SELECT sobre el esquema legado. Es el DSN que recibe el plugin (LEGACY_AUDIT_DSN): la primera capa de solo lectura.
-2. Huella del esquema legado (filas y md5 de cada objeto) antes y después.
-3. `claude -p --plugin-dir` con el comando /legacy-schema-audit:auditoria-completa en un directorio temporal, con la
-   suscripción (sin ANTHROPIC_API_KEY), solo las herramientas del servidor del plugin, Skill, Read y Write.
-4. Copia auditoria/ (con la bitácora del hook) a resultados/<salida>/ y revisa las salidas: estructura, evidencia SQL, sin datos
-   personales, huella intacta, y una comparación preliminar con la verdad de la actividad 2 (la evaluación completa
-   es de la actividad 5).
+1. With PG_ADMIN_DSN it creates (or renews) the `legacy_auditor` role: LOGIN with a random password for this run and only
+   SELECT on the legacy schema. It is the DSN the plugin receives (LEGACY_AUDIT_DSN): the first read-only layer.
+2. A fingerprint of the legacy schema (rows and md5 of each object) before and after.
+3. `claude -p --plugin-dir` with the /legacy-schema-audit:auditoria-completa command in a temporary directory, with the
+   subscription (no ANTHROPIC_API_KEY), only the plugin server's tools, Skill, Read and Write.
+4. Copies auditoria/ (with the hook's log) to resultados/<salida>/ and checks the outputs: structure, SQL evidence, no personal
+   data, the fingerprint intact, and a preliminary comparison against the activity 2 ground truth (the full evaluation
+   belongs to activity 5).
 
-    python corrida/correr.py                     # Sonnet 5.5, hasta 80 turnos, salida en resultados/corrida_subagentes
-    python corrida/correr.py --revisar-solo      # vuelve a revisar la última corrida sin llamar al modelo
-    python corrida/correr.py --revisar-solo --salida corrida_manual   # la corrida de la actividad 3
+    python corrida/correr.py                     # Sonnet 5.5, up to 80 turns, output in resultados/corrida_subagentes
+    python corrida/correr.py --revisar-solo      # checks the last run again without calling the model
+    python corrida/correr.py --revisar-solo --salida corrida_manual   # the activity 3 run
 """
 from __future__ import annotations
 
@@ -146,7 +146,7 @@ def revisar() -> dict:
     dic = json.loads((VERDAD / "diccionario.json").read_text(encoding="utf-8"))
     rie = json.loads((VERDAD / "riesgos.json").read_text(encoding="utf-8"))
 
-    # diccionario.yaml contra la verdad
+    # diccionario.yaml against the ground truth
     try:
         y = yaml.safe_load(textos["diccionario.yaml"]) or {}
         cols = {f"{t['name']}.{c['name']}": c for t in y.get("tables", []) for c in t.get("columns", [])}
@@ -171,7 +171,7 @@ def revisar() -> dict:
         "datos_personales": prf({k for k, c in cols.items() if c.get("personal_data") is True},
                                 {k for k, x in verdad.items() if x["datos_personales"]}),
     }
-    # riesgos.md: formato, evidencia y categorías
+    # riesgos.md: format, evidence and categories
     hallazgos = re.findall(r"^### (R-\d+) · (\w+) · (.+)$", textos["riesgos.md"], re.M)
     secciones = re.split(r"^### R-\d+ ·", textos["riesgos.md"], flags=re.M)[1:]
     r["riesgos"] = {
@@ -184,7 +184,7 @@ def revisar() -> dict:
                                             if re.search(rf"not_id\D{{0,12}}\b{n['not_id']}\b|\b{n['not_id']}\b(?=[^\n]*artnot)",
                                                          textos["riesgos.md"])}),
     }
-    # sin datos personales en las salidas: valores reales sembrados en prvcto y movinv
+    # no personal data in the outputs: real values seeded in prvcto and movinv
     pii = re.findall(r"'([^']+@[^']+\.example)'|'(55 0000 \d{4})'|'([A-Z]{4}\d{6}[A-Z0-9]{3})'|'(jmartinez|agarcia|lhernandez)'",
                      (S16 / "verdad" / "riesgos.sql").read_text(encoding="utf-8"))
     valores = {v for g in pii for v in g if v}
@@ -193,9 +193,9 @@ def revisar() -> dict:
                                                 "SELECT content FROM semana10") if frase.lower() in textos["riesgos.md"].lower()
                             + textos["resumen.md"].lower()]
     lineas = [x.strip() for x in textos["relaciones.mmd"].splitlines() if x.strip() and not x.strip().startswith("%%")]
-    r["mermaid_er"] = bool(lineas) and lineas[0] == "erDiagram"  # los comentarios %% antes del diagrama son válidos
+    r["mermaid_er"] = bool(lineas) and lineas[0] == "erDiagram"  # the %% comments before the diagram are valid
     r["resumen_sin_sql"] = not re.search(r"\bSELECT\b|```", textos["resumen.md"])
-    # bitácora del hook PostToolUse (actividad 4): consultas, agentes y evidencia de cada hallazgo
+    # the PostToolUse hook's log (activity 4): queries, agents and the evidence for each finding
     bit = a / "bitacora.jsonl"
     lineas = bit.read_text(encoding="utf-8").splitlines() if bit.exists() else []
     try:
@@ -226,7 +226,7 @@ def main(argv=None) -> int:
                     help="comando: /legacy-schema-audit:auditoria-completa; natural: the same prompt for every arm")
     ap.add_argument("--sin-subagentes", action="store_true", help="disallow the Agent tool (single-agent mode)")
     ap.add_argument("--salida", default="corrida_subagentes",
-                    help="carpeta bajo resultados/ (actividad 3: corrida_manual; actividad 4: corrida_subagentes)")
+                    help="folder under resultados/ (activity 3: corrida_manual; activity 4: corrida_subagentes)")
     a = ap.parse_args(argv)
     global SALIDA
     SALIDA = S16 / "resultados" / a.salida
@@ -268,14 +268,14 @@ def main(argv=None) -> int:
     for k, v in ok.items():
         print(f"{'✅' if v else '❌'} {k}")
     d = rev["diccionario"]
-    print(f"\n{corrida['modelo']} · {corrida['turnos']} turnos · {corrida['segundos']} s · "
-          f"${corrida['costo_equivalente_usd'] or 0:.2f} equivalente (suscripción) · herramientas {corrida['herramientas']}")
-    print(f"Diccionario: {d['columnas_cubiertas']} columnas · PK {d['llave_primaria']} · FK {d['llave_foranea']} · "
-          f"personales {d['datos_personales']}")
-    print(f"Riesgos: {rev['riesgos']}")
-    print(f"Bitácora: {rev['bitacora']}")
-    print(f"Guardia: {corrida.get('bloqueos_guardia')} bloqueos · SessionStart: {corrida.get('sessionstart')}")
-    print(f"\n{sum(ok.values())}/{len(ok)} checks en verde")
+    print(f"\n{corrida['modelo']} · {corrida['turnos']} turns · {corrida['segundos']} s · "
+          f"${corrida['costo_equivalente_usd'] or 0:.2f} equivalent (subscription) · tools {corrida['herramientas']}")
+    print(f"Dictionary: {d['columnas_cubiertas']} columns · PK {d['llave_primaria']} · FK {d['llave_foranea']} · "
+          f"personal {d['datos_personales']}")
+    print(f"Risks: {rev['riesgos']}")
+    print(f"Log: {rev['bitacora']}")
+    print(f"Guard: {corrida.get('bloqueos_guardia')} blocks · SessionStart: {corrida.get('sessionstart')}")
+    print(f"\n{sum(ok.values())}/{len(ok)} checks green")
     return 0 if all(ok.values()) else 1
 
 

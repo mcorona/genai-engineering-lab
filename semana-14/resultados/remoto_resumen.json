@@ -6,7 +6,7 @@
   "vendedor": 31.8
  },
  "grupos": {
-  "en proceso (semana 13, k = 3)": {
+  "in-process (week 13, k = 3)": {
    "corridas": 120,
    "exito": 0.917,
    "ic95": [
@@ -18,7 +18,7 @@
    "p50_ms_herr": 2,
    "p95_ms_herr": 10
   },
-  "stdio (semana 14)": {
+  "stdio (week 14)": {
    "corridas": 40,
    "exito": 0.9,
    "ic95": [
@@ -30,7 +30,7 @@
    "p50_ms_herr": 10.1,
    "p95_ms_herr": 28.3
   },
-  "remoto: HTTP + OAuth": {
+  "remote: HTTP + OAuth": {
    "corridas": 40,
    "exito": 0.9,
    "ic95": [

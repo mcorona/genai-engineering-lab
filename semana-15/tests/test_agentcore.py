@@ -1,5 +1,5 @@
-"""Actividad 8 (sin AWS y sin API): paquete CodeZip, permisos mínimos, simulación de la infraestructura y el agente de
-AgentCore (agentcore/main.py) servido en local con el mismo protocolo HTTP que Runtime."""
+"""Activity 8 (no AWS and no API): the CodeZip package, least privilege, the infrastructure dry run and the AgentCore
+agent (agentcore/main.py) served locally with the same HTTP protocol as Runtime."""
 import json
 
 import pytest
@@ -13,7 +13,7 @@ from arnes.simulado import DobleAnthropic, Guion, Turno, herramienta
 import importlib.util  # noqa: E402
 
 
-def _cargar(nombre):   # por ruta: agregar agentcore/ a sys.path dejaría su main.py como módulo `main` para todos
+def _cargar(nombre):   # by path: adding agentcore/ to sys.path would leave its main.py as the `main` module for everyone
     spec = importlib.util.spec_from_file_location(f"agentcore_{nombre}", S15 / "agentcore" / f"{nombre}.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -31,7 +31,7 @@ def test_paquete_solo_lleva_el_codigo_necesario():
     import zipfile
     nombres = set(zipfile.ZipFile(ruta).namelist())
     assert empaquetar.revisar(ruta) == []
-    assert nombres == {d for _, d in empaquetar.CODIGO}                  # ni pruebas, ni .env, ni el resto del repo
+    assert nombres == {d for _, d in empaquetar.CODIGO}                  # no tests, no .env and none of the rest of the repository
     assert "main.py" in nombres and "semana-13/agente/loop.py" in nombres
 
 
@@ -60,7 +60,7 @@ def test_rol_de_ejecucion_con_permisos_minimos():
     llave = pol["LlaveDeAnthropic"]["Resource"]
     assert all("*" not in r or r.endswith(f"{infra.RUNTIME}-*") for r in llave)
     assert any(r.endswith(f"/{infra.PROVEEDOR}") for r in llave)
-    assert pol["SecretoDeLaLlave"]["Resource"] == "arn:aws:secretsmanager:us-east-1:1:secret:x"   # solo su secreto
+    assert pol["SecretoDeLaLlave"]["Resource"] == "arn:aws:secretsmanager:us-east-1:1:secret:x"   # only its own secret
     assert pol["Codigo"]["Resource"].endswith(infra.CLAVE_ZIP)
     assert all(g.startswith(f"arn:aws:logs:us-east-1:{CUENTA}:log-group:/aws/bedrock-agentcore/runtimes/{infra.RUNTIME}")
                for g in pol["Registros"]["Resource"])
@@ -78,9 +78,9 @@ def test_crear_y_borrar_en_simulacion_no_tocan_aws(monkeypatch, tmp_path):
     rt = next(kw for s, o, kw in sim.llamadas if o == "create_agent_runtime")
     assert rt["lifecycleConfiguration"] == {"idleRuntimeSessionTimeout": 60, "maxLifetime": 900}
     assert rt["agentRuntimeArtifact"]["codeConfiguration"]["runtime"] == "PYTHON_3_13"
-    assert "authorizerConfiguration" not in rt                            # entrada por IAM (SigV4)
+    assert "authorizerConfiguration" not in rt                            # entry through IAM (SigV4)
     con_llave = [o for s, o, kw in sim.llamadas if "sk-prueba-no-se-imprime" in json.dumps(kw)]
-    assert con_llave == ["create_api_key_credential_provider"]           # la llave solo va a Identity
+    assert con_llave == ["create_api_key_credential_provider"]           # the key only goes to Identity
     bud = next(kw for s, o, kw in sim.llamadas if o == "create_budget")
     assert bud["Budget"]["BudgetLimit"] == {"Amount": "2", "Unit": "USD"} and len(bud["NotificationsWithSubscribers"]) == 3
     sim.llamadas.clear()
@@ -90,7 +90,7 @@ def test_crear_y_borrar_en_simulacion_no_tocan_aws(monkeypatch, tmp_path):
             "delete_log_group"} <= borrados and "delete_budget" not in borrados
 
 
-# ---------- el agente de AgentCore servido en local ----------
+# ---------- the AgentCore agent served locally ----------
 
 @pytest.fixture(scope="module")
 def local():

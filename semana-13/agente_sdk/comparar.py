@@ -1,8 +1,8 @@
-"""Semana 13, actividad 10: los tres patrones sobre el mismo golden set (resultados/patrones.md).
+"""Week 13, activity 10: the three patterns over the same gold set (resultados/patrones.md).
 
-Workflow de semana 10 (ruteo fijo), agente con loop propio y agente con Claude Agent SDK; mismo golden set (84 tareas),
-k = 3, Haiku 5.5 low y la misma verificación por ejecución. Por tipo de tarea: pass@1 / pass^3, costo y latencia p50,
-y las diferencias SDK − loop propio y SDK − workflow con bootstrap pareado por tarea (IC 95 %).
+The week 10 workflow (fixed routing), the agent with the in-house loop and the agent with the Claude Agent SDK; the same gold set (84 tasks),
+k = 3, Haiku 5.5 low and the same verification by execution. Per task type: pass@1 / pass^3, cost and p50 latency,
+and the differences SDK − in-house loop and SDK − workflow with a paired bootstrap per task (95 % CI).
 
     python agente_sdk/comparar.py --loop eval_haiku_low --sdk eval_sdk_low --workflow workflow_s10
 """

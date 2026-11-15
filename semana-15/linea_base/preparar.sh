@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Semana 15, actividad 1: un entorno virtual por framework (fijan versiones de mcp, a2a-sdk y litellm incompatibles entre
-# sí). Idempotente. Usa uv si está instalado; si no, python3 -m venv + pip. Sin API, $0.
-#   ./linea_base/preparar.sh        (desde semana-15/)
+# Week 15, activity 1: one virtual environment per framework (they pin mutually incompatible versions of mcp, a2a-sdk
+# and litellm). Idempotent. Uses uv if it is installed; otherwise python3 -m venv + pip. No API, $0.
+#   ./linea_base/preparar.sh        (from semana-15/)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY=${PYTHON:-python3.13}
@@ -13,5 +13,5 @@ for n in lg st oa adk; do
   fi
   if command -v uv >/dev/null; then uv pip install -q -p ".venvs/$n/bin/python" -r "linea_base/requisitos/$n.txt"
   else ".venvs/$n/bin/pip" install -q -r "linea_base/requisitos/$n.txt"; fi
-  echo "[preparar] $n listo: $(.venvs/$n/bin/python -c 'import importlib.metadata as m; print("mcp", m.version("mcp"))')"
+  echo "[preparar] $n ready: $(.venvs/$n/bin/python -c 'import importlib.metadata as m; print("mcp", m.version("mcp"))')"
 done

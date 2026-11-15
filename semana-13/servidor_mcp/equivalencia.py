@@ -1,14 +1,14 @@
-"""Semana 13, actividad 4: equivalencia determinista entre las herramientas nativas y el servidor MCP.
+"""Week 13, activity 4: deterministic equivalence between the native tools and the MCP server.
 
-Sin modelo (costo $0). Compara respuestas JSON completas, campo por campo:
-A. Catálogo: tools/list del servidor contra definiciones() (nombre, descripción y JSON Schema).
-B. Repetición de trazas: cada llamada a herramienta que hizo el agente en los pilotos (resultados/trazas/piloto*.jsonl),
-   en el idioma de su tarea, por los dos caminos.
-C. Golden set: el SQL de cada clave que reportó el agente en el piloto 2 se ejecuta por los dos caminos; además se
-   verifica contra el resultado esperado del golden set.
-D. Permisos y errores: una matriz de casos para los tres usuarios (analista, almacenista, vendedor).
+No model (cost $0). It compares complete JSON responses, field by field:
+A. Catalog: the server's tools/list against definiciones() (name, description and JSON Schema).
+B. Trace replay: each tool call the agent made in the pilots (resultados/trazas/piloto*.jsonl),
+   in its task's language, through both paths.
+C. Gold set: the SQL of each key the agent reported in pilot 2 runs through both paths; it is also
+   checked against the gold set's expected result.
+D. Permissions and errors: a matrix of cases for the three users (analista, almacenista, vendedor).
 
-    python servidor_mcp/equivalencia.py     # escribe resultados/mcp_equivalencia.{json,md}
+    python servidor_mcp/equivalencia.py     # writes resultados/mcp_equivalencia.{json,md}
 """
 import json
 import sys
@@ -102,10 +102,10 @@ def main():
     res = AQUI / "resultados"
     (res / "mcp_equivalencia.json").write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     b, c = out["B_trazas"], out["C_golden"]
-    filas = ["| Usuario | Herramienta | Argumentos | Resultado | Igual |", "|---|---|---|---|---|"]
+    filas = ["| User | Tool | Arguments | Result | Identical |", "|---|---|---|---|---|"]
     for x in out["D_permisos"]:
         filas.append(f"| {x['usuario']} | {x['herramienta']} | `{json.dumps(x['args'], ensure_ascii=False)[:90]}` | {x['resultado']} | "
-                     f"{'sí' if x['igual'] else '**NO**'} |")
+                     f"{'yes' if x['igual'] else '**NO**'} |")
     md = [
         "# Activity 4: native tools vs MCP server",
         "",

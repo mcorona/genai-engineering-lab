@@ -1,11 +1,11 @@
-"""Puente entre procesos: cada framework corre en su propio entorno virtual (fijan versiones incompatibles de `mcp`,
-`a2a-sdk` y `litellm`), y el orquestador, la base y el verificador en el entorno principal.
+"""A bridge between processes: each framework runs in its own virtual environment (they pin incompatible versions of `mcp`,
+`a2a-sdk` and `litellm`), and the orchestrator, the database and the verifier run in the main environment.
 
-Protocolo por líneas JSON: el orquestador escribe {"tarea", "mcp_url", "token", "modelo", "esfuerzo", "base_url",
-"limites", "opciones"} en la
-entrada estándar del trabajador; el trabajador responde {"resultado": {...}, "eventos": [...]} o {"error": "..."}.
+A JSON-lines protocol: the orchestrator writes {"tarea", "mcp_url", "token", "modelo", "esfuerzo", "base_url",
+"limites", "opciones"} to the
+worker's standard input; the worker answers {"resultado": {...}, "eventos": [...]} or {"error": "..."}.
 
-    python -m arnes.puente trabajador <framework>      # dentro del entorno del framework
+    python -m arnes.puente trabajador <framework>      # inside the framework's environment
 """
 from __future__ import annotations
 
@@ -32,8 +32,8 @@ def cargar(framework: str):
 
 
 def resolver_peticion(framework: str, pet: dict) -> dict:
-    """Una petición del protocolo resuelta en este proceso. La usan el trabajador y el agente desplegado en AgentCore
-    (actividad 8), así el contrato de entrada y salida es el mismo en local y en la nube."""
+    """A protocol request resolved in this process. Used by the worker and by the agent deployed on AgentCore
+    (activity 8), so the input and output contract is the same locally and in the cloud."""
     from .contrato import resultado_a_dict, semana13
     try:
         lim = semana13().Limites(**pet["limites"]) if pet.get("limites") else None
@@ -43,7 +43,7 @@ def resolver_peticion(framework: str, pet: dict) -> dict:
         return {"resultado": resultado_a_dict(r), "eventos": getattr(a, "ultimas_trazas", []),
                 "extra": {k: getattr(a, k) for k in ("pausas", "decisiones", "checkpoints", "propuestas", "especialistas")
                           if hasattr(a, k)}}
-    except Exception as e:  # noqa: BLE001  el orquestador decide; el trabajador no muere
+    except Exception as e:  # noqa: BLE001  the orchestrator decides; the worker does not die
         return {"error": f"{type(e).__name__}: {e}"[:2000]}
 
 
@@ -58,7 +58,7 @@ def trabajador(framework: str):
 
 
 class Puente:
-    """Del lado del orquestador: un proceso trabajador por framework, reutilizado entre tareas."""
+    """On the orchestrator's side: one worker process per framework, reused across tasks."""
 
     def __init__(self, framework: str, python: str | None = None, timeout_s: float = 600):
         venvs = Path(os.environ.get("VENVS_S15", S15 / ".venvs"))
@@ -68,12 +68,12 @@ class Puente:
         self._arrancar()
 
     def _arrancar(self):
-        # stderr a /dev/null: un trabajador que escribe mucho en stderr no debe bloquearse con el buffer lleno
+        # stderr to /dev/null: a worker that writes a lot to stderr must not block on a full buffer
         self.p = subprocess.Popen(self.cmd, cwd=S15, text=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                   stderr=subprocess.DEVNULL, bufsize=1, env={**os.environ, "PYTHONPATH": str(S15)})
 
     def resolver(self, **peticion) -> dict:
-        """Una tarea. Si el trabajador no responde en `timeout_s`, se mata y se reinicia, y se devuelve un error."""
+        """One task. If the worker does not answer within `timeout_s`, it is killed and restarted, and an error is returned."""
         import select
         self.p.stdin.write(json.dumps(peticion, ensure_ascii=False, default=str) + "\n")
         self.p.stdin.flush()

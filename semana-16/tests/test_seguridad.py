@@ -1,5 +1,5 @@
-"""Actividad 6: arnés de seguridad sin llamar al modelo (criterios sobre eventos guionados, huellas, inyecciones,
-redacción y el servidor envenenado de la semana 14 por stdio)."""
+"""Activity 6: the security harness without calling the model (criteria over scripted events, fingerprints, injections,
+redaction and week 14's poisoned server over stdio)."""
 import asyncio
 import importlib.util
 import json

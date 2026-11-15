@@ -21,7 +21,7 @@ def tarea(id_: str, adm=None) -> dict:
     lang = id_.rsplit("-", 1)[1]
     t = next(json.loads(x) for x in open(S13 / "golden" / f"tareas_{lang}.jsonl", encoding="utf-8")
              if json.loads(x)["id"] == id_)
-    if adm is not None:   # el esperado se recalcula en la base donde corre la prueba (como la CI de la semana 13)
+    if adm is not None:   # the expected result is recomputed on the database where the test runs (as in the week 13 CI)
         for s in t["salida"].values():
             s["esperado"] = [list(f) for f in adm.execute(s["sql_ref"]).fetchall()]
     return t
@@ -40,7 +40,7 @@ def adm():
 
 @pytest.fixture(scope="session")
 def entorno(adm):
-    """Servidor MCP de la semana 14 (HTTP + OAuth) con emisor de laboratorio: misma validación JWT que con Keycloak."""
+    """The week 14 MCP server (HTTP + OAuth) with a lab issuer: the same JWT validation as with Keycloak."""
     spec = importlib.util.spec_from_file_location("seguridad14_arnes", S14 / "seguridad" / "correr.py")
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)

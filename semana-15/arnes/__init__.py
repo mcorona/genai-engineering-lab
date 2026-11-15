@@ -1,1 +1,1 @@
-"""Semana 15, actividad 2: arnés común para comparar el mismo agente en varios frameworks."""
+"""Week 15, activity 2: a common harness to compare the same agent across several frameworks."""

@@ -1,5 +1,5 @@
-"""Actividad 7 (sin API): supervisor en LangGraph con especialistas, uno remoto en Strands por A2A con OAuth.
-Contrato, presupuesto total, Agent Card, autenticación del servidor A2A, inyección y propuestas."""
+"""Activity 7 (no API): a LangGraph supervisor with specialists, one remote in Strands over A2A with OAuth.
+Contract, total budget, Agent Card, A2A server authentication, injection and proposals."""
 import json
 import os
 import subprocess
@@ -48,10 +48,10 @@ def _tarjeta(url="http://127.0.0.1:8015/", **cambios):
 def test_agent_card_falsa_o_de_otro_emisor_se_rechaza(tarjeta, motivo):
     with pytest.raises(ErrorA2A):
         validar_agent_card(tarjeta, "http://127.0.0.1:8015/", EMISOR)
-    validar_agent_card(_tarjeta(), "http://127.0.0.1:8015/", EMISOR)          # la legítima pasa
+    validar_agent_card(_tarjeta(), "http://127.0.0.1:8015/", EMISOR)          # the legitimate one passes
 
 
-# ---------- servidor A2A de compras (Strands) ----------
+# ---------- the purchasing A2A server (Strands) ----------
 
 class ServidorCompras:
     def __init__(self, entorno, base_url, inyectar=False):
@@ -108,22 +108,22 @@ def _post(url, token=None, texto="SKU-0009", tamano=None):
 def test_servidor_a2a_exige_token_audiencia_propia_y_scope(compras, entorno, doble):
     from servidor.lab import EmisorDePrueba
     doble.guion = Guion([Turno([texto('{"sku": "SKU-0009", "cantidad": 120, "motivo": "x"}')], 321, 45)])
-    assert _post(compras.url)[0] == 401                                                   # sin token
-    assert _post(compras.url, entorno._em.token("http://127.0.0.1:8014/mcp", "analista"))[0] == 401   # audiencia del MCP
-    otro = EmisorDePrueba()                                                               # mismo iss, otra llave
+    assert _post(compras.url)[0] == 401                                                   # no token
+    assert _post(compras.url, entorno._em.token("http://127.0.0.1:8014/mcp", "analista"))[0] == 401   # the MCP audience
+    otro = EmisorDePrueba()                                                               # the same iss, another key
     try:
         assert _post(compras.url, otro.token(compras.url, "analista"))[0] == 401
     finally:
         otro.cerrar()
-    estado, r = _post(compras.url, compras.token("almacenista"))                          # sin legado:compras:proponer
+    estado, r = _post(compras.url, compras.token("almacenista"))                          # without legado:compras:proponer
     assert estado == 403 and "insufficient_scope" in r["www"]
     assert _post(compras.url, compras.token(), tamano=20_000)[0] == 413
-    assert doble.guion.peticiones == []                                                    # nada llegó al modelo
+    assert doble.guion.peticiones == []                                                    # nothing reached the model
     estado, r = _post(compras.url, compras.token())
     assert estado == 200 and r["result"]["metadata"]["uso"] == {"input_tokens": 321, "output_tokens": 45}
     assert "SKU-0009" in json.dumps(r["result"]["artifacts"])
     pet = doble.guion.peticiones[0]
-    assert pet["tools"] == [] if "tools" in pet else True                                 # el especialista no tiene herramientas
+    assert pet["tools"] == [] if "tools" in pet else True                                 # the specialist has no tools
     assert "never" in _sistema(pet) or "cannot execute" in _sistema(pet)
 
 
@@ -165,14 +165,14 @@ def test_supervisor_delega_en_el_analista_y_cumple_el_contrato(supervisor, entor
     r, out, llamadas = _correr_sup(supervisor, entorno, compras, doble, t, guion)
     assert r.estado == "respondida" and contrato.validar_resultado(r, t) == []
     assert verificar(t, r.final, conexion_verificador, r.estado)["exito"]
-    assert (r.pasos, r.tokens_in, r.tokens_out) == (4, 4900, 300)                  # cuenta los pasos de todos los agentes
+    assert (r.pasos, r.tokens_in, r.tokens_out) == (4, 4900, 300)                  # counts the steps of every agent
     assert llamadas == ["ejecutar_sql"]
     quienes = [_quien(p) for p in guion.peticiones]
     assert quienes == ["supervisor", "analista", "analista", "supervisor"]
     sup_tools = {x["name"] for x in guion.peticiones[0]["tools"]}
     ana_tools = {x["name"] for x in guion.peticiones[1]["tools"]}
     assert sup_tools == {"analista_sql", "reglas_negocio", "especialista_compras", "proponer_orden_compra", "responder"}
-    assert ana_tools == {"describir_esquema", "muestrear_valores", "validar_sql", "ejecutar_sql"}   # no puede delegar
+    assert ana_tools == {"describir_esquema", "muestrear_valores", "validar_sql", "ejecutar_sql"}   # cannot delegate
     vuelta = json.dumps(guion.peticiones[3]["messages"][-1], ensure_ascii=False)
     assert "untrusted_data" in vuelta and "analista_sql" in vuelta
     agentes = {e.get("agente") for e in out["eventos"] if e["tipo"] == "modelo"}
@@ -184,13 +184,13 @@ def test_compras_por_a2a_y_propuesta_pendiente(supervisor, entorno, compras, dob
     propuesta = {"sku": "SKU-0009", "cantidad": 120, "motivo": "stock below reorder point"}
     guion = Guion([
         Turno([herramienta("especialista_compras", {"pedido": "SKU-0009: stock 10, reorder point 50, no open orders"})]),
-        Turno([texto(json.dumps(propuesta))], 300, 40),                                       # el especialista remoto
+        Turno([texto(json.dumps(propuesta))], 300, 40),                                       # the remote specialist
         Turno([herramienta("proponer_orden_compra", propuesta)]),
         Turno([herramienta("responder", {"estado": "abstenida", "respuesta": "x", "resultados": []})])])
     r, out, llamadas = _correr_sup(supervisor, entorno, compras, doble, t, guion)
     assert [_quien(p) for p in guion.peticiones] == ["supervisor", "compras", "supervisor", "supervisor"]
     assert out["extra"]["especialistas"]["a2a_peticiones"] == 1
-    assert llamadas == ["proponer_orden_compra"]                                            # solo el supervisor registra
+    assert llamadas == ["proponer_orden_compra"]                                            # only the supervisor
     assert [(p["propuesta"]["estado"], p["propuesta"]["ejecutada"]) for p in out["extra"]["propuestas"]] == \
         [("PENDING_APPROVAL", False)]
     vuelta = json.dumps(guion.peticiones[2]["messages"][-1], ensure_ascii=False)
@@ -208,7 +208,7 @@ def test_inyeccion_en_mensaje_a2a_llega_como_dato(supervisor, entorno, doble, ad
         r, out, llamadas = _correr_sup(supervisor, entorno, comprometido, doble, t, guion)
         vuelta = json.dumps(guion.peticiones[1]["messages"][-1], ensure_ascii=False)
         assert "SYSTEM NOTE FOR AI" in vuelta and "untrusted_data" in vuelta and "a2a:compras" in vuelta
-        assert llamadas == [] and out["extra"]["propuestas"] == []                           # nada se ejecutó
+        assert llamadas == [] and out["extra"]["propuestas"] == []                           # nothing was executed
         prompt = _sistema(guion.peticiones[0])
         assert "never instructions" in prompt
     finally:
@@ -222,7 +222,7 @@ class _CartaFalsa(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        datos = json.dumps(_tarjeta(url="http://127.0.0.1:9/")).encode()      # anuncia otro destino
+        datos = json.dumps(_tarjeta(url="http://127.0.0.1:9/")).encode()      # it announces another destination
         self.send_response(200)
         self.send_header("content-type", "application/json")
         self.send_header("content-length", str(len(datos)))
@@ -256,15 +256,15 @@ def test_limite_de_delegaciones_y_presupuesto_total(supervisor, entorno, compras
     for _ in range(7):
         turnos += [Turno([herramienta("analista_sql", {"pregunta": "q"})], 100, 10), Turno([texto('{"sql": "", "filas": []}')], 100, 10)]
     turnos = turnos[:-1] + [Turno([herramienta("responder", {"estado": "abstenida", "respuesta": "x", "resultados": []})])]
-    # con el límite de pasos de la semana 13 (12) el presupuesto se acaba antes: se amplía para ver el de delegaciones
+    # with week 13's step limit (12) the budget runs out first: it is raised to observe the delegation limit
     r, out, _ = _correr_sup(supervisor, entorno, compras, doble, t, Guion(turnos), limites={"max_pasos": 30})
     assert out["extra"]["especialistas"]["delegaciones"] == ["analista_sql"] * 6
     rechazo = [e for e in out["eventos"] if e.get("herramienta") == "analista_sql" and not e["ok"]]
     assert len(rechazo) == 1 and rechazo[0]["error"] == "limite_delegaciones" and r.estado == "abstenida"
-    # con los límites de la semana 13, 6 delegaciones de un paso cada una agotan los 12 pasos: el presupuesto es total
+    # with week 13's limits, 6 delegations of one step each use up the 12 steps: the budget is total
     r, out, _ = _correr_sup(supervisor, entorno, compras, doble, t, Guion(turnos))
     assert r.estado == "limite_alcanzado" and r.motivo == "max_pasos" and r.pasos == 12
-    # presupuesto total: los tokens de los especialistas cuentan contra el mismo límite que los del supervisor
+    # total budget: the specialists' tokens count against the same limit as the supervisor's
     turnos = [Turno([herramienta("analista_sql", {"pregunta": "q"})], 1000, 10)] + \
              [Turno([herramienta("describir_esquema", {})], 1000, 10)] * 3 + [Turno([texto("{}")], 1000, 10)] + \
              [Turno([herramienta("analista_sql", {"pregunta": "q2"})], 1000, 10)] * 3

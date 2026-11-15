@@ -1,22 +1,22 @@
-"""Semana 14, actividad 3: transporte Streamable HTTP (protocolo 2026-07-28) en 127.0.0.1.
+"""Week 14, activity 3: the Streamable HTTP transport (protocol 2026-07-28) on 127.0.0.1.
 
-Capas, de afuera hacia adentro:
+Layers, from the outside in:
 
-1. `Frontera` (ASGI propio):
-   - tamaño máximo del cuerpo (413, antes de leerlo completo);
-   - peticiones concurrentes en curso (503 con Retry-After si se excede, en vez de encolar sin límite);
-   - una traza JSONL por petición: método, herramienta o URI, sujeto, scopes, cliente, protocolo, estado HTTP,
-     resultado, latencia y bytes. Nunca registra argumentos, resultados ni encabezados de autorización.
-2. App Streamable HTTP del SDK (`Server.streamable_http_app`):
-   - `Host` y `Origin` contra listas permitidas (DNS rebinding: 403 con Origin hostil);
-   - `MCP-Protocol-Version`, `Mcp-Method` y `Mcp-Name` contra el cuerpo (400 `HeaderMismatch`, -32020). La frontera
-     agrega el caso que el SDK no cubre: encabezado de una versión con handshake y `_meta` de 2026-07-28;
-   - sin sesiones: 2026-07-28 es sin estado y `stateless_http=True` cubre también a clientes de versiones previas;
-   - respuestas JSON (`json_response=True`); GET y DELETE se responden 405 en la frontera.
-3. Servidor de primitivas (actividad 2) con tiempo límite y concurrencia por llamada a herramienta.
+1. `Frontera` (an in-house ASGI layer):
+   - maximum body size (413, before reading it completely);
+   - concurrent requests in flight (503 with Retry-After if exceeded, instead of queuing without limit);
+   - one JSONL trace per request: method, tool or URI, subject, scopes, client, protocol, HTTP status,
+     result, latency and bytes. It never records arguments, results or authorization headers.
+2. The SDK's Streamable HTTP app (`Server.streamable_http_app`):
+   - `Host` and `Origin` against allow lists (DNS rebinding: 403 with a hostile Origin);
+   - `MCP-Protocol-Version`, `Mcp-Method` and `Mcp-Name` against the body (400 `HeaderMismatch`, -32020). The boundary
+     adds the case the SDK does not cover: a header from a handshake version with the 2026-07-28 `_meta`;
+   - no sessions: 2026-07-28 is stateless and `stateless_http=True` also covers clients of earlier versions;
+   - JSON responses (`json_response=True`); GET and DELETE are answered with 405 at the boundary.
+3. The primitives server (activity 2) with a time limit and concurrency per tool call.
 
-El sujeto y los scopes de la traza los da `identidad(scope)`: en esta actividad es el usuario fijo del proceso sin scopes;
-en la actividad 5 salen del token OAuth validado.
+The trace's subject and scopes come from `identidad(scope)`: in this activity it is the process's fixed user with no scopes;
+in activity 5 they come from the validated OAuth token.
 """
 from __future__ import annotations
 
@@ -30,19 +30,19 @@ from typing import Callable
 from mcp.server.lowlevel import Server
 from mcp.server.transport_security import TransportSecuritySettings
 
-HOST = "127.0.0.1"  # fijo: el servidor nunca escucha en otras interfaces (amenaza A08)
+HOST = "127.0.0.1"  # fixed: the server never listens on other interfaces (threat A08)
 RUTA = "/mcp"
 
 
 @dataclass
 class LimitesHTTP:
-    max_cuerpo_bytes: int = 256 * 1024     # una petición MCP legítima de estas herramientas pesa < 10 KB
-    max_en_curso: int = 16                 # peticiones HTTP simultáneas; más allá, 503
+    max_cuerpo_bytes: int = 256 * 1024     # a legitimate MCP request for these tools weighs < 10 KB
+    max_en_curso: int = 16                 # simultaneous HTTP requests; beyond that, 503
 
 
 @dataclass
 class Trazas:
-    """Escribe una línea JSON por petición. Thread-safe; `None` desactiva el archivo pero conserva `ultimas` en memoria."""
+    """Writes one JSON line per request. Thread-safe; `None` disables the file but keeps `ultimas` in memory."""
     ruta: Path | None = None
     ultimas: list = field(default_factory=list)
     _lock: threading.Lock = field(default_factory=threading.Lock)
@@ -78,11 +78,11 @@ def _resumen_peticion(cuerpo: bytes) -> dict:
 
 
 def _resultado(estado: int, tipo: str, cuerpo: bytes) -> tuple[str, str | None]:
-    """Clasifica la respuesta: ok, error_herramienta (isError), error_protocolo (JSON-RPC error, 400 o 200) o rechazado
-    (estado HTTP de transporte: Origin, Host, método, tamaño o concurrencia)."""
+    """Classifies the response: ok, error_herramienta (isError), error_protocolo (a JSON-RPC error, 400 or 200) or rechazado
+    (an HTTP transport status: Origin, Host, method, size or concurrency)."""
     if estado == 202:
         return "aceptado", None
-    if estado >= 400 and estado != 400:  # 403, 405, 413, 421, 503...: rechazo de transporte, antes del protocolo
+    if estado >= 400 and estado != 400:  # 403, 405, 413, 421, 503...: a transport rejection, before the protocol
         return "rechazado", str(estado)
     if estado >= 400 and not cuerpo.strip().startswith(b"{"):
         return "rechazado", str(estado)
@@ -110,24 +110,24 @@ async def _responder(send, estado: int, cuerpo: dict | str, extra: list[tuple[by
 
 
 class Frontera:
-    """Límites de tamaño y concurrencia, y trazas JSONL, alrededor de la app ASGI del SDK."""
+    """Size and concurrency limits, and JSONL traces, around the SDK's ASGI app."""
 
     def __init__(self, app, limites: LimitesHTTP, trazas: Trazas, identidad: Callable[[dict], tuple[str, list[str]]],
                  autorizador=None):
         self.app, self.limites, self.trazas, self.identidad = app, limites, trazas, identidad
-        self.autorizador = autorizador   # actividad 5: OAuth (servidor/oauth.py); None = usuario fijo del proceso
+        self.autorizador = autorizador   # activity 5: OAuth (servidor/oauth.py); None = the process's fixed user
         self.en_curso = 0
         self._lock = threading.Lock()
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] != "http":   # lifespan: arranque y cierre del administrador de sesiones del SDK
+        if scope["type"] != "http":   # lifespan: start and shutdown of the SDK's session manager
             return await self.app(scope, receive, send)
         inicio = time.perf_counter()
         sujeto, scopes = (None, []) if self.autorizador else self.identidad(scope)
         registro = {"ts": round(time.time(), 3), "http": scope["method"], "ruta": scope["path"], "sujeto": sujeto,
                     "scopes": scopes}
 
-        # 1. Cuerpo con límite (se rechaza en cuanto se pasa, sin terminar de leerlo)
+        # 1. A body with a limit (rejected as soon as it is exceeded, without finishing reading it)
         cuerpo, demasiado = bytearray(), False
         largo = dict(scope["headers"]).get(b"content-length")
         if largo is not None and largo.isdigit() and int(largo) > self.limites.max_cuerpo_bytes:
@@ -159,14 +159,14 @@ class Frontera:
         try:
             es_mcp = scope["path"] == RUTA
             if es_mcp and scope["method"] != "POST":
-                # 2026-07-28 no tiene flujo GET ni DELETE de sesión: SHOULD 405 (transports/streamable-http)
+                # 2026-07-28 has no GET or DELETE session flow: SHOULD 405 (transports/streamable-http)
                 await _responder(send_traza, 405, "Method Not Allowed", [(b"allow", b"POST")])
                 return
             if demasiado:
                 await _responder(send_traza, 413, {"jsonrpc": "2.0", "id": None, "error": {
                     "code": -32600, "message": f"Request body too large (max {self.limites.max_cuerpo_bytes} bytes)"}})
                 return
-            # OAuth (actividad 5): token válido y scopes suficientes para la operación del cuerpo, antes de todo lo demás
+            # OAuth (activity 5): a valid token and enough scopes for the body's operation, before everything else
             if es_mcp and self.autorizador is not None:
                 at, rechazo = await self.autorizador.evaluar(dict(scope["headers"]), registro.get("metodo"),
                                                              registro.get("nombre"))
@@ -177,15 +177,15 @@ class Frontera:
                     await _responder(send_traza, rechazo.estado, rechazo.cuerpo,
                                      [(b"www-authenticate", rechazo.www_authenticate.encode())])
                     return
-            # El SDK enruta por el encabezado: con una versión con handshake no compara contra el `_meta` del cuerpo.
-            # La especificación 2026-07-28 exige rechazar si el encabezado no coincide con el `_meta` (HeaderMismatch).
+            # The SDK routes by the header: with a handshake version it does not compare against the body's `_meta`.
+            # The 2026-07-28 specification requires rejecting if the header does not match the `_meta` (HeaderMismatch).
             version_h = dict(scope["headers"]).get(b"mcp-protocol-version", b"").decode()
             if registro.get("protocolo") and version_h and version_h != registro["protocolo"] \
                     and registro["protocolo"] == "2026-07-28":
                 await _responder(send_traza, 400, {"jsonrpc": "2.0", "id": registro.get("id"), "error": {
                     "code": -32020, "message": "Header mismatch: MCP-Protocol-Version does not match _meta protocolVersion"}})
                 return
-            # 2. Concurrencia: rechazo inmediato con 503 en vez de una cola sin límite
+            # 2. Concurrency: an immediate rejection with 503 instead of an unbounded queue
             with self._lock:
                 lleno = self.en_curso >= self.limites.max_en_curso
                 if not lleno:
@@ -215,7 +215,7 @@ class Frontera:
 
 
 def seguridad_transporte(puerto: int) -> TransportSecuritySettings:
-    """Solo el propio servidor en loopback: Host y Origin exactos para el puerto (amenaza A08)."""
+    """Only the server itself on loopback: exact Host and Origin for the port (threat A08)."""
     return TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
         allowed_hosts=[f"127.0.0.1:{puerto}", f"localhost:{puerto}"],
@@ -225,8 +225,8 @@ def seguridad_transporte(puerto: int) -> TransportSecuritySettings:
 def crear_app(servidor: Server, puerto: int, *, usuario: str = "analista", limites: LimitesHTTP | None = None,
               trazas: Trazas | None = None, identidad=None, verificador=None, emisor: str | None = None,
               recurso: str | None = None):
-    """Sin `verificador`: usuario fijo del proceso (actividad 3). Con `verificador` (servidor/oauth.py): resource server
-    OAuth con Protected Resource Metadata (RFC 9728), validación del token en la frontera y de nuevo en el SDK."""
+    """Without `verificador`: the process's fixed user (activity 3). With `verificador` (servidor/oauth.py): an OAuth resource
+    server with Protected Resource Metadata (RFC 9728), with the token validated at the boundary and again in the SDK."""
     limites = limites or LimitesHTTP()
     auth = autorizador = None
     if verificador is not None:

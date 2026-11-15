@@ -1,6 +1,6 @@
-"""Spike del agente de navegador (actividad 7), sin API: reglas de navegador de la guardia, la pantalla legada servida
-desde la base (solo GET, POST contado, inyección presente), la verdad de la pantalla contra la tabla y el evaluador
-con entregables y eventos guionados."""
+"""The browser agent spike (activity 7), no API: the guard's browser rules, the legacy screen served
+from the database (GET only, POST counted, injection present), the screen's ground truth against the table, and the evaluator
+with scripted deliverables and events."""
 import json
 import os
 import subprocess
@@ -112,7 +112,7 @@ def test_playwright_aislado_y_limitado_al_origen_local():
     assert "--executable-path" not in a and "--executable-path" in correr.args_playwright(1, Path("/x"), "/c")
 
 
-# ---------- verdad de la pantalla ----------
+# ---------- screen ground truth ----------
 
 def test_verdad_cubre_la_tabla_y_las_etiquetas_no_son_columnas():
     dic = json.loads((S16 / "verdad" / "diccionario.json").read_text(encoding="utf-8"))
@@ -169,7 +169,7 @@ def test_servidor_desde_la_base_solo_lectura_y_cuenta_envios(tmp_path):
                                                          ("GET", 404)]
 
 
-# ---------- evaluador ----------
+# ---------- evaluator ----------
 
 def test_evaluador_entregable_perfecto_10_de_10():
     m = evaluar.puntuar_mapeo(ensayo.perfecto())

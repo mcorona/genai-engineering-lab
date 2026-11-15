@@ -1,4 +1,4 @@
-"""Actividad 1: línea base del SDK y matriz de amenazas. Sin red, sin base y sin API."""
+"""Activity 1: the SDK baseline and the threat matrix. No network, no database and no API."""
 import re
 import sys
 from pathlib import Path
@@ -49,7 +49,7 @@ def test_matriz_de_amenazas():
 
 @pytest.mark.parametrize("fila", _matriz(), ids=lambda f: f["id"])
 def test_cubiertas_existen(fila):
-    """Una fila 'covered' solo puede citar pruebas que existen (función de pytest o categoría de la suite)."""
+    """A 'covered' row can only cite tests that exist (a pytest function or a category of the suite)."""
     if fila["estado"] != "covered":
         pytest.skip("planned")
     for archivo, nombre in REF.findall(fila["pruebas"]):

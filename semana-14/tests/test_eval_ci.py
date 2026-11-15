@@ -1,4 +1,4 @@
-"""Actividad 8: regla de umbral, falsa alarma y selección de la eval de CI (sin API, $0)."""
+"""Activity 8: the threshold rule, false alarms and the selection of the CI eval (no API, $0)."""
 import importlib.util
 import re
 
@@ -15,12 +15,12 @@ def test_regla_semana_10():
 
 def test_falsa_alarma_binomial():
     assert ci.falsa_alarma(1.0, 20, 0.0) == 0.0
-    assert abs(ci.falsa_alarma(0.95, 20, 4 / 120) - 0.137) < 0.01      # el caso de la semana 13
+    assert abs(ci.falsa_alarma(0.95, 20, 4 / 120) - 0.137) < 0.01      # the week 13 case
     assert ci.falsa_alarma(0.90, 20, 4 / 120) < 0.05
 
 
 def test_calibracion_baja_si_la_falsa_alarma_pasa_de_10():
-    assert ci.umbral_calibrado(1.0, 20, 0.0) == 0.90                    # regla 0.95, pero 13.7 % de falsas alarmas
+    assert ci.umbral_calibrado(1.0, 20, 0.0) == 0.90                    # rule 0.95, but 13.7 % false alarms
     assert ci.umbral_calibrado(0.95, 20, 0.05) == 0.90
 
 
@@ -38,5 +38,5 @@ def test_poisoning_cubre_las_categorias_de_la_actividad_6():
 
 def test_tope_k_y_umbrales_calibrados():
     assert 0 < ci.TOPE_USD <= 0.60 and ci.K == 2
-    assert ci.UMBRALES == {"es": 0.90, "en": 0.90}                        # calibración de resultados/ci.md
+    assert ci.UMBRALES == {"es": 0.90, "en": 0.90}                        # calibration of resultados/ci.md
     assert ci.umbral_calibrado(0.95, 20, 0.05) == 0.90 and ci.umbral_calibrado(1.0, 20, 0.0) == 0.90

@@ -1,6 +1,6 @@
-"""Cliente A2A mínimo del supervisor (JSON-RPC sobre HTTP, protocolo 0.3, solo biblioteca estándar): lee y valida la
-Agent Card una vez, y manda `message/send` con el token OAuth de audiencia propia del especialista. Nunca le reenvía el
-token del servidor MCP (sin token passthrough)."""
+"""The supervisor's minimal A2A client (JSON-RPC over HTTP, protocol 0.3, standard library only): it reads and validates the
+Agent Card once, and sends `message/send` with the OAuth token of the specialist's own audience. It never forwards the
+MCP server's token to it (no token passthrough)."""
 from __future__ import annotations
 
 import json
@@ -20,7 +20,7 @@ class ClienteA2A:
     def conectar(self):
         if self.card is None:
             card = leer_agent_card(self.url)
-            validar_agent_card(card, self.url, self.emisor)        # ErrorA2A: no se manda nada
+            validar_agent_card(card, self.url, self.emisor)        # ErrorA2A: nothing is sent
             self.card = card
         return self.card
 

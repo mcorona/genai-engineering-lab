@@ -1,11 +1,11 @@
-"""Semana 15, actividad 1: ¿qué trazas emite cada framework sin configuración extra? Sin API ($0).
+"""Week 15, activity 1: what traces does each framework emit without extra configuration? No API ($0).
 
     cd semana-15 && python linea_base/sonda_trazas.py
 
-Cada framework corre un agente con modelo guionado (una respuesta de texto) con un TracerProvider de OpenTelemetry en
-memoria. Se cuentan los spans y los atributos `gen_ai.*` (convenciones semánticas GenAI de OpenTelemetry), que es lo que
-se reutiliza en la semana 17. Para OpenAI Agents SDK se mide además su tracing propio con un procesador local (el
-exportador por defecto, que envía a OpenAI, se reemplaza). Escribe resultados/sonda_trazas.json.
+Each framework runs an agent with a scripted model (one text answer) with an in-memory OpenTelemetry TracerProvider.
+It counts the spans and the `gen_ai.*` attributes (OpenTelemetry's GenAI semantic conventions), which is what
+is reused in week 17. For the OpenAI Agents SDK it also measures its own tracing with a local processor (the
+default exporter, which sends to OpenAI, is replaced). Writes resultados/sonda_trazas.json.
 """
 import json
 import os

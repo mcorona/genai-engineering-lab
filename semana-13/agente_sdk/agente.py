@@ -1,16 +1,16 @@
-"""Semana 13, actividad 10: agente con el Claude Agent SDK (claude-agent-sdk), con las mismas herramientas.
+"""Week 13, activity 10: an agent with the Claude Agent SDK (claude-agent-sdk), with the same tools.
 
-Lo que cambia frente al loop propio (agente/loop.py) es solo la orquestación: el loop, los reintentos y la parada los
-maneja el SDK (que corre el CLI de Claude Code incluido en el paquete). Lo que se mantiene igual:
-- Herramientas: las mismas seis (`definiciones()`), con los mismos JSON Schema, servidas en proceso con
-  `create_sdk_mcp_server`; cada llamada ejecuta `Herramientas.llamar`, así que guard, permisos y errores son los mismos.
-- Respuesta final: la herramienta `responder` con el JSON Schema de RespuestaFinal y la misma `revisar_final`.
-- Prompt de sistema y mensaje de la tarea: los mismos (SISTEMA y mensaje_tarea, con el contrato de forma).
-- Modelo y límites: Haiku 5.5, esfuerzo low, 12 turnos como máximo y un tope de costo por tarea.
+What changes from the in-house loop (agente/loop.py) is only the orchestration: the loop, the retries and the stop are
+handled by the SDK (which runs the Claude Code CLI bundled in the package). What stays the same:
+- Tools: the same six (`definiciones()`), with the same JSON Schemas, served in-process with
+  `create_sdk_mcp_server`; each call runs `Herramientas.llamar`, so the guard, permissions and errors are the same.
+- Final answer: the `responder` tool with RespuestaFinal's JSON Schema and the same `revisar_final`.
+- System prompt and task message: the same (SISTEMA and mensaje_tarea, with the shape contract).
+- Model and limits: Haiku 5.5, effort low, at most 12 turns and a cost cap per task.
 
-Aislamiento: `tools=[]` desactiva todas las herramientas integradas de Claude Code (Bash, Read, Write, Web...),
-`setting_sources=[]` no carga configuración del usuario ni del proyecto (CLAUDE.md, .mcp.json, permisos), el directorio
-de trabajo es uno temporal vacío y solo las herramientas del servidor `legado` están permitidas.
+Isolation: `tools=[]` disables all of Claude Code's built-in tools (Bash, Read, Write, Web...),
+`setting_sources=[]` loads no user or project configuration (CLAUDE.md, .mcp.json, permissions), the working directory
+is an empty temporary one and only the tools of the `legado` server are allowed.
 """
 import asyncio
 import json
@@ -32,7 +32,7 @@ SISTEMA_SDK = SISTEMA + f"\n\nTool names carry the prefix {PREFIJO} (for example
 
 
 def herramientas_sdk(h, tarea, eventos, estado, corrida="", tid=""):
-    """Las seis herramientas más `responder`, como herramientas del SDK (mismos nombres, descripciones y esquemas)."""
+    """The six tools plus `responder`, as SDK tools (the same names, descriptions and schemas)."""
     sdk_tools = []
     for d in definiciones() + [herramienta_responder()]:
         def fabricar(d):
@@ -64,7 +64,7 @@ def herramientas_sdk(h, tarea, eventos, estado, corrida="", tid=""):
 
 
 def servidor(h, tarea, eventos, estado, corrida, tid):
-    """Servidor MCP en proceso del SDK con esas herramientas."""
+    """The SDK's in-process MCP server with those tools."""
     return create_sdk_mcp_server(name=SERVIDOR, version="0.1.0", tools=herramientas_sdk(h, tarea, eventos, estado, corrida, tid))
 
 
@@ -104,7 +104,7 @@ async def _resolver(h, tarea, modelo, esfuerzo, lim, tope_usd, trazas):
     r.herramientas = len(llamadas)
     r.errores_herramienta = sum(not e["ok"] for e in llamadas)
     r.segundos = round(time.perf_counter() - t0, 2)
-    rechazadas_sdk = max(0, len(usos) - len(llamadas))  # el SDK valida el esquema antes de llamar al manejador
+    rechazadas_sdk = max(0, len(usos) - len(llamadas))  # the SDK validates the schema before calling the handler
     if estado["final"]:
         r.estado, r.final, r.motivo = estado["final"]["estado"], estado["final"], "responder"
     elif resultado is not None:
@@ -126,7 +126,7 @@ async def _resolver(h, tarea, modelo, esfuerzo, lim, tope_usd, trazas):
 
 
 class AgenteSDK:
-    """Misma interfaz que agente.loop.Agente: resolver(tarea) -> Resultado."""
+    """The same interface as agente.loop.Agente: resolver(tarea) -> Resultado."""
     def __init__(self, herramientas, modelo="claude-haiku-5-5", esfuerzo="low", limites: Limites | None = None,
                  trazas: Path | None = None, tope_usd: float = 0.05):
         self.h, self.modelo, self.esfuerzo, self.lim = herramientas, modelo, esfuerzo, limites or Limites()

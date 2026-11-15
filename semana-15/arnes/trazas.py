@@ -1,5 +1,5 @@
-"""Trazas JSONL comunes a todos los frameworks: un evento por llamada al modelo, por herramienta, por la respuesta final
-y por la parada, con los mismos campos sin importar el framework (se reutilizan en la semana 17)."""
+"""JSONL traces common to every framework: one event per model call, per tool, for the final answer
+and for the stop, with the same fields regardless of the framework (reused in week 17)."""
 from __future__ import annotations
 
 import json

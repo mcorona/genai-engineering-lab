@@ -219,7 +219,7 @@ def main(argv=None) -> int:
     Path(a.salida).write_text(json.dumps(informe, indent=1, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in informe.items() if k in ("ok", "privacidad", "sondas")}, indent=1)[:1500])
     for n, e in informe["escenarios"].items():
-        print(n, "ok" if e["ok"] else "FALLA", {k: v for k, v in e.items() if v is False})
+        print(n, "ok" if e["ok"] else "FAIL", {k: v for k, v in e.items() if v is False})
     return 0 if informe["ok"] else 1
 
 

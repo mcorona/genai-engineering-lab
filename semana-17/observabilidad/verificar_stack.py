@@ -356,7 +356,7 @@ def main(argv=None) -> int:
     a.salida.write_text(json.dumps(r, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     for nombre in ("arranque", "exposicion", "traza_1", "reinicio", "caida_de_langfuse", "borrado"):
         ok = r[nombre].get("ok", r[nombre].get("codigo") == 0)
-        print(f"  {'OK' if ok else 'FALLA'}  {nombre}")
+        print(f"  {'OK  ' if ok else 'FAIL'}  {nombre}")
     print(f"\n{'stack OK' if r['ok'] else 'stack con fallas'}; evidence: {a.salida.name}")
     return 0 if r["ok"] else 1
 

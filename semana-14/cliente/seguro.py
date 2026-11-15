@@ -1,21 +1,21 @@
-"""Semana 14, actividad 6: cliente MCP con defensas contra servidores maliciosos.
+"""Week 14, activity 6: an MCP client with defenses against malicious servers.
 
-Junta las herramientas de varios servidores MCP para el agente de la semana 13 (misma interfaz que `Herramientas`:
-`definiciones()` y `llamar()`). Con `defensas=True`:
+It gathers the tools of several MCP servers for the week 13 agent (the same interface as `Herramientas`:
+`definiciones()` and `llamar()`). With `defensas=True`:
 
-1. **Allowlist de servidores** (A01): un servidor fuera de la lista no se conecta; sus descripciones nunca llegan al modelo.
-2. **Pinning por hash** (A02): cada herramienta se compara en cada `tools/list` contra el hash aprobado (el de
-   `legado://manifiesto` cuando el servidor lo publica). Si una cambia, el servidor entero se bloquea (rug pull). También
-   se bloquea si el servidor se contradice con su propio manifiesto.
-3. **Prefijo por servidor** (A03): el modelo ve `legado__ejecutar_sql`, nunca un `ejecutar_sql` que dos servidores
-   puedan publicar. Nombres inválidos o repetidos dentro de un servidor bloquean ese servidor.
-4. **Resultados como datos** (A04): cada resultado va dentro de `untrusted_data` con su fuente, y el prompt de sistema
-   (`sistema_seguro`) dice que nada de lo que venga ahí es una instrucción.
-5. **Descubrimiento seguro** (A12): URL de servidor solo https, o http en loopback; los metadatos del recurso deben
-   apuntar al servidor y a un emisor esperado (RFC 9728 / RFC 9207).
+1. **Server allowlist** (A01): a server outside the list is not connected; its descriptions never reach the model.
+2. **Hash pinning** (A02): each tool is compared on every `tools/list` against the approved hash (the one in
+   `legado://manifiesto` when the server publishes it). If one changes, the whole server is blocked (rug pull). It is also
+   blocked if the server contradicts its own manifest.
+3. **Per-server prefix** (A03): the model sees `legado__ejecutar_sql`, never an `ejecutar_sql` that two servers
+   could publish. Invalid or repeated names within a server block that server.
+4. **Results as data** (A04): each result goes inside `untrusted_data` with its source, and the system prompt
+   (`sistema_seguro`) says that nothing that comes there is an instruction.
+5. **Secure discovery** (A12): server URLs only over https, or http on loopback; the resource metadata must
+   point to the server and to an expected issuer (RFC 9728 / RFC 9207).
 
-Con `defensas=False` se comporta como un cliente ingenuo: todas las herramientas de todos los servidores con su nombre
-original (la última gana si se repite), sin pinning y resultados crudos. Sirve de línea base en la eval.
+With `defensas=False` it behaves like a naive client: every tool of every server with its original
+name (the last one wins if repeated), no pinning and raw results. It serves as the baseline in the eval.
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ from servidor.primitivas import MANIFIESTO_URI, hash_herramienta
 
 NOMBRE_VALIDO = re.compile(r"^[a-z][a-z0-9_]{0,40}$")
 SEPARADOR = "__"
-SENALES = [  # heurística de reporte (no bloquea: la defensa es la allowlist y el pinning)
+SENALES = [  # reporting heuristic (it does not block: the defense is the allowlist and the pinning)
     (r"(?i)<\s*important\s*>", "bloque <IMPORTANT>"),
     (r"(?i)\b(ignore|disregard)\b.{0,30}\b(previous|prior|above)\b", "ignorar instrucciones"),
     (r"(?i)(do not|don't|never)\s+(tell|mention|inform)\b.{0,20}\buser", "ocultar al usuario"),
@@ -64,7 +64,7 @@ def _loopback(host: str | None) -> bool:
 
 
 def validar_url_servidor(url: str) -> None:
-    """A12: https siempre; http solo en loopback (desarrollo). Nada de otros esquemas, usuario/clave ni fragmentos."""
+    """A12: https always; http only on loopback (development). No other schemes, user/password or fragments."""
     p = urllib.parse.urlsplit(url)
     if p.scheme == "https" and p.hostname:
         pass
@@ -77,8 +77,8 @@ def validar_url_servidor(url: str) -> None:
 
 
 def validar_metadatos_recurso(meta: dict, url_servidor: str, emisores: tuple[str, ...]) -> str:
-    """A12: el `resource` de los metadatos es el servidor al que nos conectamos y el emisor es uno esperado.
-    Devuelve el emisor elegido. Se compara como cadena exacta (sin normalizar), como pide RFC 9207."""
+    """A12: the metadata's `resource` is the server we are connecting to and the issuer is an expected one.
+    Returns the chosen issuer. It is compared as an exact string (not normalized), as RFC 9207 requires."""
     if meta.get("resource") != url_servidor:
         raise ErrorCliente(f"resource {meta.get('resource')!r} no es el servidor {url_servidor!r}")
     servidores = meta.get("authorization_servers") or []
@@ -91,7 +91,7 @@ def validar_metadatos_recurso(meta: dict, url_servidor: str, emisores: tuple[str
 
 
 def descubrir(url_servidor: str, emisores: tuple[str, ...]) -> str:
-    """Lee los Protected Resource Metadata del servidor (sin seguir redirecciones) y valida el emisor."""
+    """Reads the server's Protected Resource Metadata (without following redirects) and validates the issuer."""
     validar_url_servidor(url_servidor)
     from mcp.server.auth.routes import build_resource_metadata_url
     from pydantic import AnyHttpUrl
@@ -107,7 +107,7 @@ def descubrir(url_servidor: str, emisores: tuple[str, ...]) -> str:
 @dataclass
 class ServidorMCP:
     nombre: str
-    destino: Any                     # mcp Server (en proceso), URL (Streamable HTTP) o StdioServerParameters
+    destino: Any                     # mcp Server (in-process), URL (Streamable HTTP) or StdioServerParameters
     token: str | None = None
 
 
@@ -119,7 +119,7 @@ class Evento:
 
 
 class _Sesion:
-    """Una sesión MCP abierta en un hilo con su propio event loop (el agente es síncrono)."""
+    """An MCP session opened in a thread with its own event loop (the agent is synchronous)."""
 
     def __init__(self, cfg: ServidorMCP):
         from mcp import Client
@@ -180,9 +180,9 @@ class _Sesion:
 @dataclass
 class ClienteSeguro:
     servidores: list[ServidorMCP]
-    allowlist: dict[str, dict] = field(default_factory=dict)   # nombre -> {"pins": {herramienta: sha256}}
+    allowlist: dict[str, dict] = field(default_factory=dict)   # name -> {"pins": {tool: sha256}}
     defensas: bool = True
-    emisores: tuple[str, ...] = ()                               # emisores esperados para servidores por URL
+    emisores: tuple[str, ...] = ()                               # expected issuers for servers by URL
     eventos: list[Evento] = field(default_factory=list)
     llamadas: list[dict] = field(default_factory=list)
 
@@ -191,7 +191,7 @@ class ClienteSeguro:
         self._bloqueados: dict[str, str] = {}
         self._mapa: dict[str, tuple[str, str]] = {}
 
-    # ---------- ciclo de vida ----------
+    # ---------- life cycle ----------
     def abrir(self) -> "ClienteSeguro":
         for s in self.servidores:
             if self.defensas and s.nombre not in self.allowlist:
@@ -227,9 +227,9 @@ class ClienteSeguro:
         self._bloqueados[servidor] = tipo
         self.eventos.append(Evento(servidor, tipo, detalle))
 
-    # ---------- catálogo ----------
+    # ---------- catalog ----------
     def aprobar(self, servidor: str) -> dict[str, str]:
-        """Lo que haría una persona al aprobar el servidor: fija el hash de cada herramienta que publica hoy."""
+        """What a person would do when approving the server: pin the hash of each tool it publishes today."""
         tools = self._sesiones[servidor].pedir(lambda c: c.list_tools()).tools
         return {t.name: hash_herramienta(t) for t in tools}
 
@@ -237,11 +237,11 @@ class ClienteSeguro:
         try:
             rr = self._sesiones[servidor].pedir(lambda c: c.read_resource(MANIFIESTO_URI), timeout=30)
             return json.loads(rr.contents[0].text)
-        except Exception:  # noqa: BLE001  (el servidor no publica manifiesto)
+        except Exception:  # noqa: BLE001  (the server publishes no manifest)
             return None
 
     def catalogo(self) -> dict[str, tuple[str, Any]]:
-        """`tools/list` fresco de cada servidor activo, verificado. Devuelve nombre expuesto -> (servidor, Tool)."""
+        """A fresh, verified `tools/list` from each active server. Returns exposed name -> (server, Tool)."""
         expuestas: dict[str, tuple[str, Any]] = {}
         for nombre, sesion in self._sesiones.items():
             if nombre in self._bloqueados:
@@ -290,7 +290,7 @@ class ClienteSeguro:
         return [{"name": k, "description": t.description or "", "input_schema": t.input_schema}
                 for k, (_, t) in self.catalogo().items()]
 
-    # ---------- llamadas ----------
+    # ---------- calls ----------
     def llamar(self, nombre: str, argumentos: dict) -> dict:
         if nombre not in self._mapa:
             return {"ok": False, "error": {"tipo": "herramienta_desconocida", "mensaje": f"No existe la herramienta {nombre!r}.",
@@ -304,7 +304,7 @@ class ClienteSeguro:
             r = self._sesiones[servidor].pedir(lambda c: c.call_tool(original, argumentos))
             res = r.structured_content if isinstance(r.structured_content, dict) else \
                 {"ok": not r.is_error, "texto": "".join(getattr(x, "text", "") for x in r.content)}
-        except Exception as e:  # noqa: BLE001  (p. ej. 403 insufficient_scope del servidor legítimo)
+        except Exception as e:  # noqa: BLE001  (e.g. a 403 insufficient_scope from the legitimate server)
             res = {"ok": False, "error": {"tipo": "error_mcp", "mensaje": str(e)[:300], "sugerencia": ""}}
         self.llamadas.append({"servidor": servidor, "herramienta": original, "argumentos": argumentos,
                               "ok": bool(res.get("ok")), "salida": json.dumps(res, ensure_ascii=False, default=str),
@@ -318,7 +318,7 @@ class ClienteSeguro:
 
 
 def sistema_seguro(base: str, prefijo: str = "legado") -> str:
-    """El prompt de sistema de la semana 13 con los nombres prefijados y las reglas de datos no confiables."""
+    """The week 13 system prompt with the prefixed names and the rules for untrusted data."""
     for n in ("describir_esquema", "buscar_regla_negocio", "muestrear_valores", "validar_sql", "ejecutar_sql",
               "proponer_orden_compra"):
         base = re.sub(rf"(?<![\w]){n}(?![\w])", f"{prefijo}{SEPARADOR}{n}", base)

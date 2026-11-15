@@ -1,17 +1,17 @@
-"""Interfaz única por framework: `Adaptador.resolver(tarea) -> Resultado` (el de la semana 13).
+"""A single interface per framework: `Adaptador.resolver(tarea) -> Resultado` (week 13's).
 
-Cada adaptador (LangGraph en la actividad 3, Strands en la 4, los spikes en la 6) usa el mismo prompt de sistema, el
-mismo mensaje de tarea, las herramientas del servidor MCP de la semana 14 con el token del usuario, la herramienta
-`responder` validada igual que en la semana 13 y los mismos límites. `Registro` concentra lo común para que ningún
-adaptador reimplemente conteos, costo, validación de la respuesta final ni trazas:
+Each adapter (LangGraph in activity 3, Strands in 4, the spikes in 6) uses the same system prompt, the
+same task message, the tools of the week 14 MCP server with the user's token, the `responder`
+tool validated as in week 13, and the same limits. `Registro` gathers what is common so that no
+adapter reimplements counts, cost, validation of the final answer or traces:
 
     reg = Registro(framework, modelo, tarea, limites, ruta_trazas)
-    reg.modelo(uso, ms, pedidas)        # después de cada llamada al modelo (uso en el formato del framework)
-    salida = reg.responder(entrada)     # dentro de la herramienta `responder` del framework
-    reg.herramienta(nombre, ms, salida) # después de cada herramienta MCP
-    return reg.parar(estado, motivo)    # Resultado con costo normalizado y evento de parada
+    reg.modelo(uso, ms, pedidas)        # after each model call (usage in the framework's format)
+    salida = reg.responder(entrada)     # inside the framework's `responder` tool
+    reg.herramienta(nombre, ms, salida) # after each MCP tool
+    return reg.parar(estado, motivo)    # Resultado with a normalized cost and a stop event
 
-`AdaptadorPropio` es la referencia: el loop de la semana 13 sin cambios, con las herramientas por MCP.
+`AdaptadorPropio` is the reference: the week 13 loop unchanged, with the tools over MCP.
 """
 from __future__ import annotations
 
@@ -41,9 +41,9 @@ class Registro:
         tid = tarea.get("id", "") + (f"#{tarea['rep']}" if "rep" in tarea else "")
         self.traza = Trazador(ruta_trazas, framework, modelo, self.r.corrida, tid)
 
-    # ----- prompt y herramienta final, idénticos a la semana 13 -----
+    # ----- prompt and final tool, identical to week 13 -----
     def sistema(self) -> str:
-        """El prompt de sistema de la semana 13, o el que se pase (p. ej. `sistema_seguro` de la semana 14)."""
+        """The week 13 system prompt, or the one passed in (e.g. week 14's `sistema_seguro`)."""
         return self._sistema or semana13().SISTEMA
 
     def mensaje(self) -> str:
@@ -53,7 +53,7 @@ class Registro:
     def herramienta_responder() -> dict:
         return semana13().herramienta_responder()
 
-    # ----- eventos -----
+    # ----- events -----
     def modelo(self, uso, ms: float, pedidas: list[str] | None = None, agente: str | None = None):
         tin, tout = normalizar_uso(uso)
         self.r.pasos += 1
@@ -80,7 +80,7 @@ class Registro:
                    **({"agente": agente} if agente else {}))
 
     def responder(self, entrada: dict) -> dict:
-        """Valida la respuesta final como la semana 13. Devuelve la salida para el modelo; si es válida, la guarda."""
+        """Validates the final answer as week 13 does. Returns the output for the model; if it is valid, stores it."""
         l13 = semana13()
         t = time.perf_counter()
         try:
@@ -99,8 +99,8 @@ class Registro:
         return salida
 
     def excedido(self) -> str | None:
-        """Límites que la semana 13 revisa antes de cada llamada al modelo. `max_herramientas` se revisa antes de cada
-        herramienta (`herramientas_agotadas`), igual que en su loop."""
+        """The limits week 13 checks before each model call. `max_herramientas` is checked before each
+        tool (`herramientas_agotadas`), as in its loop."""
         if self.r.pasos >= self.lim.max_pasos:
             return "max_pasos"
         if self.r.tokens_in + self.r.tokens_out >= self.lim.max_tokens_total:
@@ -118,7 +118,7 @@ class Registro:
         self.r.estado, self.r.motivo = estado or "limite_alcanzado", motivo or "sin_responder"
         self.r.final = self.final if self.r.estado == (self.final or {}).get("estado") else None
         self.r.segundos = round(time.perf_counter() - self.t0, 2)
-        self.r.costo_usd = costo(self.modelo_id, self.r.tokens_in, self.r.tokens_out)   # sin error de redondeo acumulado
+        self.r.costo_usd = costo(self.modelo_id, self.r.tokens_in, self.r.tokens_out)   # no accumulated rounding error
         self.traza("parada", self.r.pasos, estado=self.r.estado, motivo=self.r.motivo, pasos=self.r.pasos,
                    herramientas=self.r.herramientas, tokens_in=self.r.tokens_in, tokens_out=self.r.tokens_out,
                    costo_usd=round(self.r.costo_usd, 8), segundos=self.r.segundos)
@@ -126,8 +126,8 @@ class Registro:
 
 
 class Adaptador(ABC):
-    """Un framework. `mcp_url` y `token`: el servidor de la semana 14 y el token OAuth del usuario.
-    `base_url`: la API de Anthropic o el doble del modelo simulado."""
+    """A framework. `mcp_url` and `token`: the week 14 server and the user's OAuth token.
+    `base_url`: the Anthropic API or the simulated model's double."""
     framework = "?"
 
     def __init__(self, mcp_url: str, token: str, modelo: str = "claude-haiku-5-5", esfuerzo: str = "low",
@@ -144,8 +144,8 @@ class Adaptador(ABC):
 
 
 class AdaptadorPropio(Adaptador):
-    """Referencia: el loop propio de la semana 13 sin cambios, con las herramientas del servidor MCP (cliente de la
-    semana 14 en modo directo). Sus trazas se traducen al formato común."""
+    """The reference: the week 13 in-house loop unchanged, with the MCP server's tools (the week 14
+    client in direct mode). Its traces are translated to the common format."""
     framework = "propio"
 
     def resolver(self, tarea: dict):

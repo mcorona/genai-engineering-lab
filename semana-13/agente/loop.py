@@ -1,18 +1,18 @@
-"""Semana 13, actividad 3: loop agéntico propio con tool use de la API de Anthropic.
+"""Week 13, activity 3: an in-house agentic loop with the Anthropic API's tool use.
 
-El modelo pide herramientas; el sistema las ejecuta (las de la actividad 2) y le devuelve los resultados, hasta que
-el modelo entrega la respuesta final con la herramienta `responder` o se alcanza un límite.
+The model asks for tools; the system executes them (the activity 2 tools) and returns the results, until
+the model delivers the final answer with the `responder` tool or a limit is reached.
 
-- Llamadas paralelas: si el modelo pide varias herramientas en un mismo turno, se ejecutan todas y sus resultados se
-  devuelven juntos en un solo mensaje (como pide la API). Se ejecutan en orden porque comparten la conexión a la base.
-- Reintento acotado: un error de herramienta vuelve al modelo como tool_result con is_error y la sugerencia, para que
-  corrija. Con MAX_ERRORES_SEGUIDOS errores consecutivos el loop para con estado limite_alcanzado. Los errores
-  transitorios de la API (429, 5xx, 529) se reintentan con espera exponencial.
-- Parada con estado: respondida, requiere_aclaracion o abstenida (los elige el modelo); limite_alcanzado (pasos,
-  llamadas, tokens, tiempo o errores) o error (API) los pone el sistema.
-- Respuesta final estructurada: `responder` usa el JSON Schema de RespuestaFinal (Pydantic); si no valida, el error
-  vuelve al modelo como cualquier otro.
-- Trazas JSONL por paso: un evento por llamada al modelo, por herramienta, por la respuesta final y por la parada.
+- Parallel calls: if the model asks for several tools in the same turn, all of them run and their results are
+  returned together in a single message (as the API requires). They run in order because they share the database connection.
+- Bounded retry: a tool error goes back to the model as a tool_result with is_error and the suggestion, so it can
+  correct itself. After MAX_ERRORES_SEGUIDOS consecutive errors the loop stops with the state limite_alcanzado. Transient
+  API errors (429, 5xx, 529) are retried with exponential backoff.
+- A stop with a state: respondida, requiere_aclaracion or abstenida (chosen by the model); limite_alcanzado (steps,
+  calls, tokens, time or errors) or error (API) are set by the system.
+- A structured final answer: `responder` uses RespuestaFinal's JSON Schema (Pydantic); if it does not validate, the error
+  goes back to the model like any other.
+- JSONL traces per step: one event per model call, per tool, for the final answer and for the stop.
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ from herramientas import Herramientas, definiciones  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[2]
 PRECIOS = json.loads((RAIZ / "semana-07" / "prices.json").read_text(encoding="utf-8"))
 MAX_ERRORES_SEGUIDOS = 3
-_CANDADO = threading.Lock()  # varias tareas en paralelo escriben al mismo archivo de trazas
+_CANDADO = threading.Lock()  # several tasks in parallel write to the same trace file
 
 SISTEMA = """You are a data analyst for a distribution company. You answer business questions over a legacy inventory \
 database whose tables and columns have cryptic names, using only the tools provided.
@@ -60,8 +60,8 @@ transfers); explain what is missing. Never approximate with other columns.
 
 @dataclass
 class Limites:
-    max_pasos: int = 12            # llamadas al modelo
-    max_herramientas: int = 30     # ejecuciones de herramientas
+    max_pasos: int = 12            # model calls
+    max_herramientas: int = 30     # tool executions
     max_tokens_total: int = 200_000
     max_segundos: float = 180.0
     max_tokens_salida: int = 4000
@@ -110,7 +110,7 @@ def costo(modelo: str, tin: int, tout: int) -> float:
 
 
 def revisar_final(final: dict, tarea: dict) -> str:
-    """Reglas que el JSON Schema no expresa porque dependen de la tarea. Devuelve el problema o cadena vacía."""
+    """Rules that the JSON Schema cannot express because they depend on the task. Returns the problem or an empty string."""
     texto = json.dumps(final, ensure_ascii=False)
     if "<parameter" in texto or "</" + "respuesta>" in texto:
         return ("A field contains serialized parameters (for example '<parameter name=...>'): send each field as its own "
@@ -149,7 +149,7 @@ class Agente:
         self.h, self.modelo, self.esfuerzo = herramientas, modelo, esfuerzo
         self.lim = limites or Limites()
         self.api, self.trazas = api, trazas
-        # El catálogo viene de la fuente de herramientas: nativo (definiciones()) o el que anuncia el servidor MCP.
+        # The catalog comes from the tool source: native (definiciones()) or the one the MCP server announces.
         self.tools = (herramientas.definiciones() if hasattr(herramientas, "definiciones") else definiciones()) + [herramienta_responder()]
 
     def _traza(self, evento: dict):

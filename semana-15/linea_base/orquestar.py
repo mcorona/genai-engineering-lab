@@ -1,16 +1,16 @@
-"""Semana 15, actividad 1: spike sin API. Cada framework lista y llama las herramientas del servidor MCP de la semana 14.
+"""Week 15, activity 1: a spike without the API. Each framework lists and calls the tools of the week 14 MCP server.
 
-    cd semana-15 && python linea_base/orquestar.py                 # Mac: Keycloak (semana-14/auth/arrancar.sh) y copilot-db
-    python linea_base/orquestar.py --emisor prueba                # sin Keycloak: emisor de laboratorio (misma validación JWT)
+    cd semana-15 && python linea_base/orquestar.py                 # Mac: Keycloak (semana-14/auth/arrancar.sh) and copilot-db
+    python linea_base/orquestar.py --emisor prueba                # without Keycloak: a lab issuer (the same JWT validation)
 
-El servidor (Streamable HTTP + OAuth, permisos por scope, rol de BD por perfil) corre en este proceso con `mcp` 2.3.0.
-Cada spike corre en su propio entorno virtual (los frameworks fijan versiones de `mcp` y `a2a-sdk` incompatibles entre sí)
-y recibe solo la URL y el token del usuario `analista` (Keycloak: authorization code + PKCE + resource). Ningún spike llama
-a un modelo: el "modelo" está guionado (pide `describir_esquema` y `ejecutar_sql`, luego responde) o, si el framework no
-permite inyectarlo sin API, las herramientas se invocan por la API de herramientas del framework. Costo: $0.
+The server (Streamable HTTP + OAuth, permissions by scope, a DB role per profile) runs in this process with `mcp` 2.3.0.
+Each spike runs in its own virtual environment (the frameworks pin mutually incompatible versions of `mcp` and `a2a-sdk`)
+and receives only the URL and the token of the `analista` user (Keycloak: authorization code + PKCE + resource). No spike calls
+a model: the "model" is scripted (it asks for `describir_esquema` and `ejecutar_sql`, then answers) or, if the framework does not
+allow injecting it without the API, the tools are invoked through the framework's tool API. Cost: $0.
 
-La evidencia sale de las trazas del servidor (no de lo que cada framework dice de sí mismo): versión de protocolo,
-métodos, sujeto y scopes del token, estado HTTP. Escribe resultados/spike_mcp.json.
+The evidence comes from the server's traces (not from what each framework says about itself): protocol version,
+methods, the token's subject and scopes, HTTP status. Writes resultados/spike_mcp.json.
 """
 from __future__ import annotations
 
@@ -74,7 +74,7 @@ def main(argv=None) -> int:
             }
             res["ok"] = bool(res.get("herramientas")) and bool((res.get("llamada") or {}).get("ok")) \
                 and res["servidor"]["por_estado"].get("200", 0) > 0
-            # negativo: token inválido. Debe terminar en 401 del servidor y en error visible del framework (no en vacío)
+            # negative: an invalid token. It must end in a 401 from the server and a visible error in the framework (not in an empty result)
             antes = len(srv.trazas.ultimas)
             q = subprocess.run([str(py), str(Path(__file__).with_name(SPIKES[fw]))], text=True, capture_output=True,
                                env={**env, "MCP_TOKEN": "token.invalido.x"}, timeout=180)
@@ -87,8 +87,8 @@ def main(argv=None) -> int:
             res["ok"] = res["ok"] and q.returncode != 0 and res["token_invalido"]["llamadas_ejecutadas"] == 0 \
                 and res["token_invalido"]["estados"].get("401", 0) > 0
             salida["frameworks"][fw] = res
-            print(f"{fw:<14} ok={res['ok']} protocolos={res['servidor']['protocolos']} "
-                  f"metodos={res['servidor']['metodos']} rechazos={res['servidor']['rechazos'][:3]}", flush=True)
+            print(f"{fw:<14} ok={res['ok']} protocols={res['servidor']['protocolos']} "
+                  f"methods={res['servidor']['metodos']} rejections={res['servidor']['rechazos'][:3]}", flush=True)
     finally:
         ent.cerrar()
     destino = S15 / "resultados" / "spike_mcp.json"

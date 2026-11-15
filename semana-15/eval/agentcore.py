@@ -1,19 +1,19 @@
-"""Semana 15, actividad 8: la misma mini eval contra el agente Strands desplegado en AgentCore Runtime.
+"""Week 15, activity 8: the same mini eval against the Strands agent deployed on AgentCore Runtime.
 
-    cd semana-15 && python eval/agentcore.py --destino local --simular        # $0: main.py local + modelo simulado
-    python eval/agentcore.py --destino agentcore --tope-usd 0.30              # AgentCore real (se autoriza antes)
+    cd semana-15 && python eval/agentcore.py --destino local --simular        # $0: a local main.py + the simulated model
+    python eval/agentcore.py --destino agentcore --tope-usd 0.30              # the real AgentCore (authorized beforehand)
 
-1. **Arranque:** 3 sesiones nuevas con `ping` (sin modelo) = arranque en frío; 3 pings más en la última sesión =
-   en caliente. Cada respuesta dice cuánto lleva vivo el proceso y cuántas invocaciones atendió.
-2. **Identity:** una tarea invocada sin `runtimeUserId`: ¿entrega Runtime el token de carga de trabajo con el que el
-   agente pide la llave a AgentCore Identity?
-3. **Mini eval:** las 10 tareas por idioma de la CI de la semana 13 (las de la actividad 6), k = 1, una sesión nueva
-   por tarea (como un usuario por petición), con el mismo verificador que en local.
+1. **Start-up:** 3 new sessions with `ping` (no model) = cold start; 3 more pings in the last session =
+   warm start. Each response says how long the process has been alive and how many invocations it served.
+2. **Identity:** a task invoked without `runtimeUserId`: does Runtime deliver the workload token with which the
+   agent requests the key from AgentCore Identity?
+3. **Mini eval:** the 10 tasks per language of the week 13 CI (those of activity 6), k = 1, a new session
+   per task (like one user per request), with the same verifier as locally.
 
-Las herramientas son las del servidor MCP de la semana 14, que corre en la Mac. Con `--destino agentcore` se publica
-**solo durante la corrida** por un túnel temporal de Cloudflare (`cloudflared`, sin cuenta): el servidor sigue exigiendo
-el token OAuth de Keycloak, con su audiencia y sus scopes; Keycloak y Postgres no se publican. El encabezado Host se
-reescribe a 127.0.0.1 para que la protección contra DNS rebinding del servidor siga igual.
+The tools are those of the week 14 MCP server, which runs on the Mac. With `--destino agentcore` it is published
+**only for the duration of the run** through a temporary Cloudflare tunnel (`cloudflared`, no account): the server still requires
+the Keycloak OAuth token, with its audience and scopes; Keycloak and Postgres are not published. The Host header is
+rewritten to 127.0.0.1 so that the server's DNS-rebinding protection stays the same.
 """
 from __future__ import annotations
 
@@ -45,11 +45,11 @@ USUARIO = "analista"
 
 
 def _sesion() -> str:
-    return f"semana15-{uuid.uuid4().hex}"           # AgentCore exige al menos 33 caracteres
+    return f"semana15-{uuid.uuid4().hex}"           # AgentCore requires at least 33 characters
 
 
 class Local:
-    """main.py servido en local (entorno `st`), con el mismo protocolo HTTP que Runtime (/invocations, /ping)."""
+    """main.py served locally (the `st` environment), with the same HTTP protocol as Runtime (/invocations, /ping)."""
 
     nombre = "local"
 
@@ -59,7 +59,7 @@ class Local:
             s.bind(("127.0.0.1", 0))
             self.puerto = s.getsockname()[1]
         py = Path(os.environ.get("VENVS_S15", S15 / ".venvs")) / "st" / "bin" / "python"
-        entorno = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}   # como en la nube: sin llave en el entorno
+        entorno = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}   # as in the cloud: no key in the environment
         self.p = subprocess.Popen([str(py), str(S15 / "agentcore" / "main.py")], cwd=S15,
                                   env={**entorno, "PUERTO": str(self.puerto), "PYTHONPATH": str(S15)},
                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -84,7 +84,7 @@ class Local:
 
 
 class AgentCore:
-    """El runtime desplegado por agentcore/infra.py, invocado con IAM (SigV4) y `runtimeUserId`."""
+    """The runtime deployed by agentcore/infra.py, invoked with IAM (SigV4) and `runtimeUserId`."""
 
     nombre = "agentcore"
 
@@ -92,8 +92,8 @@ class AgentCore:
         import boto3
         e = json.loads((S15 / "agentcore" / "estado.json").read_text())
         self.arn, self.region = e["runtime_arn"], e["region"]
-        # Una sesión de boto3 por hilo: crear clientes desde la sesión por omisión en varios hilos no es seguro
-        # (primera corrida: NoRegionError en una de 20 invocaciones concurrentes).
+        # One boto3 session per thread: creating clients from the default session in several threads is not safe
+        # (first run: a NoRegionError in one of 20 concurrent invocations).
         self._sesion, self._local = boto3.Session(region_name=self.region), threading.local()
         self._candado = threading.Lock()
 
@@ -118,7 +118,7 @@ class AgentCore:
 
 
 class Tunel:
-    """Túnel rápido de Cloudflare hacia el servidor MCP local, solo mientras dura la corrida."""
+    """A quick Cloudflare tunnel to the local MCP server, only while the run lasts."""
 
     def __init__(self, url_local: str):
         hostport = url_local.split("//", 1)[1].split("/", 1)[0]
@@ -135,8 +135,8 @@ class Tunel:
         if not self.publica:
             self.cerrar()
             raise RuntimeError("cloudflared no entregó una URL en 60 s")
-        threading.Thread(target=lambda: [None for _ in self.p.stderr], daemon=True).start()   # vaciar stderr
-        for _ in range(60):                       # la URL tarda unos segundos en resolverse
+        threading.Thread(target=lambda: [None for _ in self.p.stderr], daemon=True).start()   # drain stderr
+        for _ in range(60):                       # the URL takes a few seconds to resolve
             try:
                 urllib.request.urlopen(self.publica + "/.well-known/oauth-protected-resource/mcp", timeout=5)
                 return
@@ -167,7 +167,7 @@ def main(argv=None) -> int:
     if a.solo_reporte:
         return reporte(json.loads((RES / "agentcore_meta.json").read_text()))
     if a.simular and a.destino == "agentcore":
-        print("El modelo simulado corre en la Mac; AgentCore no lo alcanza. Usa --destino local para simular.")
+        print("The simulated model runs on the Mac; AgentCore cannot reach it. Use --destino local to simulate.")
         return 2
     if a.emisor == "auto":
         try:
@@ -201,9 +201,9 @@ def main(argv=None) -> int:
         if a.destino == "agentcore":
             tunel = Tunel(mcp_url)
             mcp_url = tunel.publica + "/" + mcp_url.split("//", 1)[1].split("/", 1)[1]
-            print(f"túnel temporal: {tunel.publica} → servidor MCP local (OAuth exigido)", flush=True)
+            print(f"temporary tunnel: {tunel.publica} → local MCP server (OAuth required)", flush=True)
 
-        # 1. Arranque en frío y en caliente (ping, sin modelo)
+        # 1. Cold and warm start (ping, no model)
         sesion = None
         for i in range(3):
             sesion = _sesion()
@@ -215,22 +215,22 @@ def main(argv=None) -> int:
             r = destino.invocar({"ping": True}, sesion)
             filas_arranque.append({"tipo": "caliente", "ms": round(1000 * (time.perf_counter() - t)), **r["arranque"]})
         for f in filas_arranque:
-            print(f"arranque {f['tipo']:<8} {f['ms']:>6} ms  proceso vivo {f['proceso_s']:>7.1f} s  "
-                  f"importación {f['importacion_s']} s  invocación #{f['invocacion']}", flush=True)
+            print(f"start-up {f['tipo']:<8} {f['ms']:>6} ms  process alive {f['proceso_s']:>7.1f} s  "
+                  f"import {f['importacion_s']} s  invocation #{f['invocacion']}", flush=True)
 
         ts = tareas_ci()
 
         def pedido(t):
             return {"tarea": {**t, "rep": 0}, "mcp_url": mcp_url, "token": token(), "base_url": base_url}
 
-        # 2. Identity: sin runtimeUserId
+        # 2. Identity: without runtimeUserId
         t = time.perf_counter()
         sin_usuario = destino.invocar(pedido(ts[0]), _sesion(), usuario=None)
         identidad = {"ms": round(1000 * (time.perf_counter() - t)), "error": sin_usuario.get("error"),
                      "respondio": "resultado" in sin_usuario}
         if "resultado" in sin_usuario:
             total[0] += sin_usuario["resultado"]["costo_usd"]
-        print(f"identity sin runtimeUserId: {identidad['error'] or 'el agente obtuvo la llave'}", flush=True)
+        print(f"identity without runtimeUserId: {identidad['error'] or 'the agent obtained the key'}", flush=True)
 
         # 3. Mini eval
         def una(t):
@@ -265,13 +265,13 @@ def main(argv=None) -> int:
                 with open(trazas, "a", encoding="utf-8") as f:
                     f.writelines(json.dumps({**e, "framework": f"strands@{destino.nombre}"}, ensure_ascii=False,
                                             default=str) + "\n" for e in eventos)
-            print(f"{t['id']:<7} {fila['estado']:<19} éxito={'sí' if fila['exito'] else 'NO':<3} ${fila['costo_usd']:.4f} "
-                  f"agente {fila['segundos']:5.1f}s cliente {cliente_s:5.1f}s "
-                  f"{'(proceso nuevo)' if arr.get('invocacion') == 1 else ''} {fila['motivo'][:70] if fila['estado'] == 'error' else ''}"
-                  f"[acumulado ${total[0]:.3f}]", flush=True)
+            print(f"{t['id']:<7} {fila['estado']:<19} success={'yes' if fila['exito'] else 'NO':<3} ${fila['costo_usd']:.4f} "
+                  f"agent {fila['segundos']:5.1f}s client {cliente_s:5.1f}s "
+                  f"{'(new process)' if arr.get('invocacion') == 1 else ''} {fila['motivo'][:70] if fila['estado'] == 'error' else ''}"
+                  f"[accumulated ${total[0]:.3f}]", flush=True)
 
-        print(f"{len(ts)} tareas · destino {destino.nombre} · emisor {a.emisor} · "
-              f"{'SIMULACIÓN ($0)' if a.simular else 'Haiku 5.5 low'} · tope ${a.tope_usd:.2f}", flush=True)
+        print(f"{len(ts)} tasks · target {destino.nombre} · issuer {a.emisor} · "
+              f"{'SIMULATION ($0)' if a.simular else 'Haiku 5.5 low'} · cap ${a.tope_usd:.2f}", flush=True)
         with ThreadPoolExecutor(a.hilos) as ex:
             for f in as_completed([ex.submit(una, t) for t in ts]):
                 f.result()

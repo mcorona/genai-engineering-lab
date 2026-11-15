@@ -1,16 +1,16 @@
-"""Semana 15, actividad 9: matriz de decisión de frameworks para clientes.
+"""Week 15, activity 9: a framework decision matrix for clients.
 
-Los puntajes, su evidencia y los pesos por escenario viven aquí, no en el texto: el documento
-`resultados/matriz_decision.md` se regenera desde este archivo y una prueba verifica que no se desfasen.
+The scores, their evidence and the weights per scenario live here, not in the text: the document
+`resultados/matriz_decision.md` is regenerated from this file, and a test checks that they do not drift apart.
 
-    python eval/matriz.py                          # regenera las tablas del documento ($0)
-    python eval/matriz.py --pesos cliente.json     # ranking con los pesos de un cliente (sin tocar el documento)
+    python eval/matriz.py                          # regenerates the document's tables ($0)
+    python eval/matriz.py --pesos cliente.json     # a ranking with a client's weights (without touching the document)
 
 `cliente.json` = {"proveedor": "anthropic|openai|gemini|multi", "nube": "aws|gcp|ninguna",
-                  "pesos": {"modelo": 10, "nube": 5, ...}}   (los 10 criterios, suma 100)
+                  "pesos": {"modelo": 10, "nube": 5, ...}}   (the 10 criteria, adding up to 100)
 
-Escala 1 a 5 (5 = mejor para el cliente). Estado de cada celda:
-  M = medido en este laboratorio · D = documentado o verificado en el paquete, no ejercitado · N = no medido (juicio)
+A 1-to-5 scale (5 = best for the client). The state of each cell:
+  M = measured in this lab · D = documented or verified in the package, not exercised · N = not measured (judgment)
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from pathlib import Path
 S15 = Path(__file__).resolve().parents[1]
 DOC = S15 / "resultados" / "matriz_decision.md"
 
-# Evidencia: etiqueta → ruta relativa a resultados/
+# Evidence: label → path relative to resultados/
 EV = {
     "A1": "linea_base.md", "A3": "langgraph.md", "A4": "strands.md", "A5": "frameworks.md", "A6": "spikes.md",
     "A7": "multiagente.md", "A8": "agentcore.md", "S13": "../../semana-13/resultados/seguridad.md",
@@ -46,17 +46,17 @@ CRITERIOS = {
     "costo": "Measured cost per task",
 }
 
-# Costo medido por tarea, mismas 20 tareas (CI de la semana 13), mismo modelo (actividad 6, tabla de resultados).
+# Measured cost per task, the same 20 tasks (the week 13 CI), the same model (activity 6, results table).
 COSTO_TAREA = {"propio": 0.0027, "strands": 0.0029, "langgraph": 0.0030, "openai": 0.0032, "adk": 0.0046}
 
 
 def puntaje_costo(o: str) -> int:
-    """5 si está a ≤10 % del más barato, 4 ≤25 %, 3 ≤50 %, 2 ≤100 %, 1 más."""
+    """5 if it is within ≤10 % of the cheapest, 4 ≤25 %, 3 ≤50 %, 2 ≤100 %, 1 more."""
     extra = COSTO_TAREA[o] / min(COSTO_TAREA.values()) - 1
     return next(p for lim, p in ((0.10, 5), (0.25, 4), (0.50, 3), (1.00, 2), (9e9, 1)) if extra <= lim + 1e-9)
 
 
-# (puntaje, estado, nota corta, evidencia). Dos criterios dependen del escenario: modelo (proveedor) y despliegue (nube).
+# (score, state, short note, evidence). Two criteria depend on the scenario: model (provider) and deployment (cloud).
 P = {
     "modelo": {
         "langgraph": {"anthropic": (5, "M", "native `ChatAnthropic`", ["A1", "A5"]),
@@ -143,7 +143,7 @@ P = {
         "propio": (4, "M", "about 209 lines of plain Python; nothing to learn, everything to own", ["L13"]),
     },
 }
-for o in OPCIONES:     # costo: derivado de los números medidos, no asignado a mano
+for o in OPCIONES:     # cost: derived from the measured numbers, not assigned by hand
     extra = round(100 * (COSTO_TAREA[o] / min(COSTO_TAREA.values()) - 1))
     P.setdefault("costo", {})[o] = (puntaje_costo(o), "M", f"${COSTO_TAREA[o]:.4f} per task (+{extra}% vs cheapest)", ["A6"])
 
@@ -188,7 +188,7 @@ def evaluar(pesos: dict, proveedor: str, nube: str) -> dict[str, float]:
 
 
 def estabilidad(esc: dict, reps: int = 2000, ruido: float = 0.3, semilla: int = 15) -> float:
-    """Fracción de perturbaciones aleatorias de los pesos (±30 % cada uno, renormalizados) en las que gana la misma opción."""
+    """The fraction of random weight perturbations (±30 % each, renormalized) in which the same option wins."""
     rnd = random.Random(semilla)
     base = evaluar(esc["pesos"], esc["proveedor"], esc["nube"])
     ganador = max(base, key=base.get)
@@ -271,7 +271,7 @@ def renderizar(texto: str) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pesos", type=Path, help="JSON de un cliente: proveedor, nube y pesos")
+    ap.add_argument("--pesos", type=Path, help="a client's JSON: provider, cloud and weights")
     a = ap.parse_args(argv)
     if a.pesos:
         cfg = json.loads(a.pesos.read_text())

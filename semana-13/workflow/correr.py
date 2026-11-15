@@ -1,4 +1,4 @@
-"""Semana 13, actividad 6: corre el workflow de semana 10 sobre el golden set (k repeticiones) y lo verifica.
+"""Week 13, activity 6: runs the week 10 workflow over the gold set (k repetitions) and verifies it.
 
     python workflow/correr.py --k 3 --paralelo 4 --tope-usd 0.50 --reanudar
 """
@@ -37,8 +37,8 @@ def main():
     tareas = cargar_tareas(a.tareas, a.idiomas)
     trabajo = [(t, rep) for rep in range(a.k) for t in tareas if (t["id"], rep) not in hechas]
     total = [sum(r["costo_usd"] for r in map(json.loads, open(detalle, encoding="utf-8"))) if hechas else 0.0]
-    print(f"{len(trabajo)} corridas pendientes · workflow semana 10 (Haiku 5.5 low) · paralelo {a.paralelo} · "
-          f"tope ${a.tope_usd:.2f} sobre el acumulado de la corrida (ya ${total[0]:.3f})")
+    print(f"{len(trabajo)} pending runs · week 10 workflow (Haiku 5.5 low) · parallel {a.paralelo} · "
+          f"cap ${a.tope_usd:.2f} over the run's accumulated cost (already ${total[0]:.3f})")
     conectar()
     locales, candado, conexiones = threading.local(), threading.Lock(), []
 
@@ -63,8 +63,8 @@ def main():
             total[0] += r["costo_usd"]
             with open(detalle, "a", encoding="utf-8") as f:
                 f.write(json.dumps(fila, ensure_ascii=False, default=str) + "\n")
-        print(f"{t['id']:<8}#{rep} {t['tipo']:<13} ruta={r['ruta']:<10} {r['estado']:<11} éxito={'sí' if v['exito'] else 'NO':<3} "
-              f"${r['costo_usd']:.4f} {r['segundos']:>5.1f}s [acumulado ${total[0]:.3f}]", flush=True)
+        print(f"{t['id']:<8}#{rep} {t['tipo']:<13} route={r['ruta']:<10} {r['estado']:<11} success={'yes' if v['exito'] else 'NO':<3} "
+              f"${r['costo_usd']:.4f} {r['segundos']:>5.1f}s [accumulated ${total[0]:.3f}]", flush=True)
 
     try:
         with ThreadPoolExecutor(max_workers=a.paralelo) as ex:
@@ -74,7 +74,7 @@ def main():
         for c in conexiones:
             c.close()
     filas = [json.loads(x) for x in open(detalle, encoding="utf-8")]
-    print(f"\nÉxito {sum(f['exito'] for f in filas)}/{len(filas)} · costo ${sum(f['costo_usd'] for f in filas):.4f} · {detalle.name}")
+    print(f"\nSuccess {sum(f['exito'] for f in filas)}/{len(filas)} · cost ${sum(f['costo_usd'] for f in filas):.4f} · {detalle.name}")
 
 
 if __name__ == "__main__":

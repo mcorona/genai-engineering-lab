@@ -1,11 +1,11 @@
-"""Verificación de una respuesta del agente contra el golden set (la usan el piloto y la evaluación de la actividad 6).
+"""Verification of an agent answer against the gold set (used by the pilot and by the activity 6 evaluation).
 
-- estado: el del agente contra estado_esperado.
-- exactitud por ejecución, por clave: el SQL que reportó el agente se valida con el guard (como analista) y se vuelve a
-  ejecutar completo; sus filas se comparan con las esperadas con el comparador de semana 7 (results_match).
-- coherencia, por clave: el valor que el agente reportó coincide con lo que devuelve su propio SQL (detecta respuestas
-  que dicen algo distinto de lo que muestran los datos).
-- éxito de la tarea: estado correcto y, si se esperaba respuesta, todas las claves exactas.
+- state: the agent's against estado_esperado.
+- execution accuracy, per key: the SQL the agent reported is validated with the guard (as analista) and re-executed
+  in full; its rows are compared with the expected ones using week 7's comparator (results_match).
+- coherence, per key: the value the agent reported matches what its own SQL returns (it detects answers
+  that say something different from what the data shows).
+- task success: the correct state and, if an answer was expected, every key exact.
 """
 import importlib.util
 from pathlib import Path
@@ -41,7 +41,7 @@ def verificar(tarea: dict, final: dict | None, conexion, estado: str) -> dict:
                     len(filas) == 1 and len(filas[0]) == 1 and re7.results_match(filas, [(reportadas[clave]["valor"],)]))
             except ErrorHerramienta as e:
                 res["error"] = e.tipo
-            except Exception as e:  # noqa: BLE001  un SQL que rompe al verificador cuenta como clave no exacta
+            except Exception as e:  # noqa: BLE001  a SQL statement that breaks the verifier counts as a non-exact key
                 res["error"] = f"verificacion: {type(e).__name__}"
         out["claves"][clave] = res
     claves = out["claves"].values()

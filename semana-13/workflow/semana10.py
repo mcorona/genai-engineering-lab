@@ -1,16 +1,16 @@
-"""Semana 13, actividad 6: el asistente de semana 10 como workflow con ruteo fijo, sobre el golden set de tareas.
+"""Week 13, activity 6: the week 10 assistant as a fixed-routing workflow, over the task gold set.
 
-Pasos fijos, en código (no los decide el modelo), con los mismos componentes de semana 10:
-1. Ruteo: `ruteo.clasificar` (Haiku 5.5 low, el prompt de la actividad 6 de semana 10) → sql, documental o mixta.
-2. Ruta sql o mixta: la herramienta NLQ de semana 10 (Haiku 5.5 low, DDL legado + diccionario completo, abstención
-   NO_SQL) genera UNA consulta por clave de salida y se ejecuta una vez con la herramienta ejecutar_sql de semana 13
-   (guard y transacción de solo lectura). Sin reintentos ni consulta de reglas, como en semana 10.
-3. Ruta documental: semana 10 respondería con el índice documental, que no produce SQL ni cifras calculadas; para este
-   golden set (todas las respuestas salen de la base) se registra como abstención.
+Fixed steps, in code (not decided by the model), with the same components as week 10:
+1. Routing: `ruteo.clasificar` (Haiku 5.5 low, the prompt of week 10's activity 6) → sql, documental or mixta.
+2. sql or mixed route: the week 10 NLQ tool (Haiku 5.5 low, the legacy DDL + the full dictionary, the NO_SQL
+   abstention) generates ONE query per output key, which runs once with week 13's ejecutar_sql tool
+   (guard and read-only transaction). No retries and no rule lookups, as in week 10.
+3. Document route: week 10 would answer with the document index, which produces no SQL or computed figures; for this
+   gold set (every answer comes from the database) it is recorded as an abstention.
 
-Adaptaciones, para comparar solo la orquestación: la NLQ recibe la misma información de salida que el agente (la
-descripción de cada clave y el contrato de forma, FORMA), y en tareas con varias claves se hace una llamada por clave.
-El workflow no puede pedir aclaración: no tiene ese paso.
+Adaptations, so that only the orchestration is compared: the NLQ receives the same output information as the agent (the
+description of each key and the shape contract, FORMA), and in tasks with several keys there is one call per key.
+The workflow cannot ask for a clarification: it has no such step.
 """
 import sys
 import time
@@ -29,7 +29,7 @@ from agente.loop import FORMA, api_anthropic, costo  # noqa: E402
 HAIKU = "claude-haiku-5-5"
 ABSTENCION = ("\n\nIf the schema and dictionary do not contain the data the question asks for (for example service "
               "levels, freight rates, policies, approvals, warehouse layouts or documents), do not approximate it with "
-              "other columns: output exactly NO_SQL instead of a query.")  # idéntico a semana-10/experimentos/asistente.py
+              "other columns: output exactly NO_SQL instead of a query.")  # identical to semana-10/experimentos/asistente.py
 SIS_NLQ = sl.sistema("\n".join(sl.DDL_LEGADO[t] for t in sl.DICCIONARIO), sl.texto_diccionario(list(sl.DICCIONARIO))) + ABSTENCION
 
 
@@ -43,7 +43,7 @@ def nlq(pregunta: str):
 
 
 def resolver(tarea: dict, h) -> dict:
-    """Devuelve el mismo formato que el agente: estado, final (RespuestaFinal), pasos, tokens, costo, segundos."""
+    """Returns the same format as the agent: state, final (RespuestaFinal), steps, tokens, cost, seconds."""
     t0 = time.perf_counter()
     r = ruteo.clasificar(HAIKU, "low", tarea["tarea"])
     tin, tout, llamadas, pasos = r["tokens_in"], r["tokens_out"], [], 1

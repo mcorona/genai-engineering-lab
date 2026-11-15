@@ -1,8 +1,8 @@
-"""Semana 13, actividad 6: agente contra workflow, por tipo de tarea (resultados/agente_vs_workflow.md).
+"""Week 13, activity 6: agent vs. workflow, by task type (resultados/agente_vs_workflow.md).
 
-Mismo golden set, mismo k = 3, mismo modelo (Haiku 5.5 low) y la misma verificación por ejecución. Para cada tipo:
-pass@1, pass^3, costo y latencia por tarea (p50 / p95) y la diferencia de pass@1 agente − workflow con bootstrap
-pareado por tarea (IC 95 %).
+The same gold set, the same k = 3, the same model (Haiku 5.5 low) and the same verification by execution. For each type:
+pass@1, pass^3, cost and latency per task (p50 / p95), and the pass@1 difference agent − workflow with a paired
+bootstrap per task (95 % CI).
 
     python workflow/comparar.py --agente eval_haiku_low --workflow workflow_s10
 """

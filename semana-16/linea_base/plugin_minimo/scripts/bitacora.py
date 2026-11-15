@@ -1,4 +1,4 @@
-"""Hook PostToolUse del spike: una línea JSONL por comando Bash en auditoria/bitacora.jsonl (evidencia del reporte)."""
+"""The spike's PostToolUse hook: one JSONL line per Bash command in auditoria/bitacora.jsonl (the report's evidence)."""
 import json
 import os
 import sys

@@ -1,16 +1,16 @@
-"""Semana 13, actividad 5: reporte de la evaluación del agente (resultados/agente.md y agente_resumen.json).
+"""Week 13, activity 5: the agent evaluation report (resultados/agente.md and agente_resumen.json).
 
-Lee los detalles y las trazas de las corridas indicadas y calcula, por configuración (modelo y esfuerzo):
-- Éxito de tarea: por ejecución (claves del golden set) o por estado (aclaración y abstención). pass@1 = promedio de
-  éxito en todas las corridas; pass^k = fracción de tareas en que las k repeticiones aciertan. IC 95 % por bootstrap
-  sobre tareas (2,000 remuestreos, semilla fija); la diferencia entre configuraciones con bootstrap pareado.
-- Trayectoria (de las trazas): llamadas válidas (herramienta existente y argumentos que pasan el esquema), llamadas
-  exitosas, pasos frente al mínimo, llamadas redundantes (misma herramienta y mismos argumentos en una corrida) y
-  recuperación tras error (corridas con algún error de herramienta que terminan con éxito).
-- Comportamiento: aclaración y abstención correctas, falsas aclaraciones o abstenciones en tareas con respuesta y, solo
-  donde la respuesta es texto libre (la pregunta de aclaración o la explicación de la abstención), un juez Haiku 5.5
-  `low` que compara con el motivo del golden set. El juez se valida antes con casos buenos y malos conocidos.
-- Costo y latencia por tarea: p50 y p95 de pasos, tokens, dólares y segundos.
+Reads the details and traces of the given runs and computes, per configuration (model and effort):
+- Task success: by execution (the gold set's keys) or by state (clarification and abstention). pass@1 = the mean
+  success over all runs; pass^k = the fraction of tasks in which all k repetitions succeed. 95 % CI by bootstrap
+  over tasks (2,000 resamples, fixed seed); the difference between configurations with a paired bootstrap.
+- Trajectory (from the traces): valid calls (an existing tool and arguments that pass the schema), successful
+  calls, steps vs. the minimum, redundant calls (the same tool with the same arguments in one run) and
+  recovery after an error (runs with some tool error that end in success).
+- Behavior: correct clarification and abstention, false clarifications or abstentions on tasks with an answer and, only
+  where the answer is free text (the clarification question or the explanation of the abstention), a Haiku 5.5
+  `low` judge that compares it with the gold set's reason. The judge is validated first on known good and bad cases.
+- Cost and latency per task: p50 and p95 of steps, tokens, dollars and seconds.
 
     python agente/evaluar.py --corridas eval_haiku_low eval_haiku_medium
 """
@@ -48,7 +48,7 @@ missing piece), and does not invent an answer;
 and does not present an approximation as the answer.
 Reply with JSON only: {{"adecuada": true|false, "razon": "<one sentence>"}}"""
 
-CALIBRACION = [  # casos conocidos para validar al juez antes de usarlo
+CALIBRACION = [  # known cases to validate the judge before using it
     ({"tarea": "¿Cuántas unidades vendió el SKU?", "estado_esperado": "requiere_aclaracion", "motivo": "No dice qué SKU ni en qué periodo."},
      {"estado": "requiere_aclaracion", "respuesta": "Necesito más datos.", "pregunta_aclaracion": "¿De qué SKU y en qué periodo?"}, True),
     ({"tarea": "¿Cuántas unidades vendió el SKU?", "estado_esperado": "requiere_aclaracion", "motivo": "No dice qué SKU ni en qué periodo."},
@@ -70,7 +70,7 @@ def p(xs, q):
 
 
 def boot(por_tarea: dict, f, n=2000, semilla=13):
-    """IC 95 % de f(lista de valores por tarea) remuestreando tareas."""
+    """95 % CI of f(list of values per task), resampling tasks."""
     ids = sorted(por_tarea)
     rnd = random.Random(semilla)
     vals = sorted(f([por_tarea[rnd.choice(ids)] for _ in ids]) for _ in range(n))
@@ -131,14 +131,14 @@ def main():
         aciertos = [juez(t, f, cache, gasto)["adecuada"] is esperado for t, f, esperado in CALIBRACION]
         calib = f"{sum(aciertos)}/{len(aciertos)}"
         if not all(aciertos):
-            print(f"El juez falló la calibración ({calib}); se reporta sin juez.")
+            print(f"The judge failed the calibration ({calib}); reporting without the judge.")
             a.sin_juez = True
 
     resumen, secciones = {"calibracion_juez": calib}, []
     por_conf = {}
     for corrida in a.corridas:
         filas = [json.loads(x) for x in open(RES / f"{corrida}_detalle.jsonl", encoding="utf-8")]
-        for f in filas:  # los pilotos no guardaban repetición ni configuración
+        for f in filas:  # the pilots did not record the repetition or the configuration
             f.setdefault("rep", 0), f.setdefault("modelo", "claude-haiku-5-5"), f.setdefault("esfuerzo", "low"), f.setdefault("patron", "loop")
         eventos = defaultdict(list)
         for x in open(RES / "trazas" / f"{corrida}.jsonl", encoding="utf-8"):
@@ -167,7 +167,7 @@ def main():
         claves = [c for f in filas for c in f["claves"].values()]
         r["exactitud_claves"] = statistics.mean(c["exacta"] for c in claves) if claves else None
         r["coherencia_claves"] = statistics.mean(c["coherente"] for c in claves) if claves else None
-        # comportamiento
+        # behavior
         resp = [f for f in filas if f["esperado"] == "respondida"]
         r["estados"] = dict(Counter(f"{f['esperado']} -> {f['estado']}" for f in filas).most_common())
         media = lambda xs: statistics.mean(xs) if xs else None  # noqa: E731
@@ -183,7 +183,7 @@ def main():
                                      "sin_veredicto": sum(v["adecuada"] is None for v in veredictos),
                                      "no_adecuadas": [{"id": f["id"], "rep": f["rep"], "razon": v["razon"]}
                                                       for f, v in zip(libres, veredictos) if v["adecuada"] is False]}
-        # trayectoria
+        # trajectory
         tr = [trayectoria(eventos[f["corrida"]]) for f in filas]
         tot = sum(x["llamadas"] for x in tr)
         r["trayectoria"] = {
@@ -196,7 +196,7 @@ def main():
                                         if any(f["errores_herramienta"] for f in filas) else None),
             "uso_herramientas": dict(sum((x["uso"] for x in tr), Counter())),
         }
-        # costo y latencia
+        # cost and latency
         r["por_tarea"] = {m: {"p50": p([f[c] if isinstance(c, str) else c(f) for f in filas], .5),
                               "p95": p([f[c] if isinstance(c, str) else c(f) for f in filas], .95)}
                           for m, c in [("pasos", "pasos"), ("tokens", lambda f: f["tokens_in"] + f["tokens_out"]),
@@ -207,7 +207,7 @@ def main():
         resumen[corrida] = r
         por_conf[corrida] = exito
 
-    # diferencias entre configuraciones (pareadas por tarea)
+    # differences between configurations (paired by task)
     difs = []
     for i, c1 in enumerate(a.corridas):
         for c2 in a.corridas[i + 1:]:

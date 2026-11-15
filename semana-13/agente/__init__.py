@@ -1,1 +1,1 @@
-"""Semana 13: loop agéntico propio sobre la API de Anthropic (tool use)."""
+"""Week 13: an in-house agentic loop over the Anthropic API (tool use)."""

@@ -1,9 +1,9 @@
-"""Cliente MCP con la misma interfaz que `Herramientas` (llamar y definiciones), para que el agente use las
-herramientas a través del servidor MCP sin cambiar el loop.
+"""An MCP client with the same interface as `Herramientas` (llamar and definiciones), so that the agent uses the
+tools through the MCP server without changing the loop.
 
-El SDK de MCP es asíncrono (anyio) y el loop del agente es síncrono: el cliente corre en un hilo con su propio event
-loop, y una sola tarea abre la sesión, atiende las peticiones de una cola y la cierra (anyio exige que los contextos se
-abran y cierren en la misma tarea).
+The MCP SDK is asynchronous (anyio) and the agent loop is synchronous: the client runs in a thread with its own event
+loop, and a single task opens the session, serves the requests from a queue and closes it (anyio requires contexts to
+be opened and closed in the same task).
 """
 import asyncio
 import concurrent.futures

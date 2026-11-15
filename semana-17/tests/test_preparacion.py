@@ -1,5 +1,5 @@
-"""Preparación de la semana 17, sin API: el plan, las versiones candidatas fijadas, las dependencias del grupo semana17,
-el verificador de entorno, los workflows y los datos de la semana 13 de los que parten las actividades 4 y 7."""
+"""Week 17 preparation, no API: the plan, the pinned candidate versions, the dependencies of the semana17 group,
+the environment verifier, the workflows and the week 13 data that activities 4 and 7 start from."""
 import importlib.util
 import json
 import re

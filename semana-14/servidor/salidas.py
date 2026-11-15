@@ -1,9 +1,9 @@
-"""Contrato de salida de las 6 herramientas de la semana 13 (actividad 2 de la semana 14).
+"""The output contract of the 6 week 13 tools (activity 2 of week 14).
 
-Cada herramienta devuelve `{"ok": true, ...}` o `{"ok": false, "error": {...}}` (contrato de la semana 13, sin cambios).
-Aquí ese contrato se vuelve un `outputSchema` publicado en `tools/list`: unión (anyOf) del éxito propio de cada
-herramienta y del error común, con `additionalProperties: false`, sin `$ref` (se resuelven en línea para que ningún
-cliente tenga que seguir referencias) y raíz `type: object`.
+Each tool returns `{"ok": true, ...}` or `{"ok": false, "error": {...}}` (the week 13 contract, unchanged).
+Here that contract becomes an `outputSchema` published in `tools/list`: a union (anyOf) of each tool's own success
+and the common error, with `additionalProperties: false`, no `$ref` (they are resolved inline so that no
+client has to follow references) and a `type: object` root.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ class _Salida(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-# ---------- error común ----------
+# ---------- common error ----------
 
 class DetalleError(_Salida):
     tipo: str
@@ -107,7 +107,7 @@ class Propuesta(_Salida):
     sku: str
     cantidad: int
     motivo: str
-    estado: Literal["PENDING_APPROVAL"]  # nunca otra cosa: la herramienta solo registra
+    estado: Literal["PENDING_APPROVAL"]  # never anything else: the tool only registers
     ejecutada: Literal[False]
 
 
@@ -132,7 +132,7 @@ def adaptador(nombre: str) -> TypeAdapter:
 
 
 def _en_linea(nodo, defs):
-    """Resuelve `{"$ref": "#/$defs/X"}` en línea (los modelos no son recursivos) y quita los `title`."""
+    """Resolves `{"$ref": "#/$defs/X"}` inline (the models are not recursive) and removes the `title` fields."""
     if isinstance(nodo, dict):
         if "$ref" in nodo:
             return _en_linea(defs[nodo["$ref"].rsplit("/", 1)[1]], defs)
@@ -143,12 +143,12 @@ def _en_linea(nodo, defs):
 
 
 def esquema_salida(nombre: str) -> dict:
-    """outputSchema de la herramienta: {"type": "object", "anyOf": [éxito, error]} sin $ref."""
+    """The tool's outputSchema: {"type": "object", "anyOf": [success, error]} without $ref."""
     crudo = adaptador(nombre).json_schema()
     esquema = _en_linea(crudo, crudo.get("$defs", {}))
     return {"type": "object", **esquema}
 
 
 def validar(nombre: str, salida: dict):
-    """Valida una salida real contra el contrato; levanta pydantic.ValidationError si no cumple."""
+    """Validates a real output against the contract; raises pydantic.ValidationError if it does not comply."""
     return adaptador(nombre).validate_python(salida)

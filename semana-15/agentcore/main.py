@@ -1,20 +1,20 @@
-"""Semana 15, actividad 8: el agente Strands de la actividad 4, servido por AgentCore Runtime.
+"""Week 15, activity 8: the activity 4 Strands agent, served by AgentCore Runtime.
 
-Es el mismo `resolver_peticion` que usa el trabajador local (arnes/puente.py): misma entrada (tarea, URL del servidor MCP,
-token del usuario, límites) y misma salida (resultado con el contrato de la semana 13 y trazas comunes). Solo cambian:
+It is the same `resolver_peticion` the local worker uses (arnes/puente.py): the same input (task, MCP server URL,
+user token, limits) and the same output (a result with the week 13 contract and common traces). Only these change:
 
-- **Dónde corre:** una microVM de AgentCore por sesión (ARM64, Python 3.13, paquete CodeZip).
-- **La llave de Anthropic:** no viaja en el paquete ni en variables de entorno. Se pide a AgentCore Identity
-  (proveedor de llave de API) con el *workload access token* que Runtime entrega en cada invocación. Por eso la
-  invocación lleva `runtimeUserId`: con autenticación IAM (SigV4), Runtime solo emite ese token para un usuario.
-- **Arranque:** cada respuesta incluye cuánto lleva vivo el proceso, cuánto tardó en importar y cuántas invocaciones ha
-  atendido, para separar arranque en frío de arranque en caliente.
+- **Where it runs:** one AgentCore microVM per session (ARM64, Python 3.13, a CodeZip package).
+- **The Anthropic key:** it travels neither in the package nor in environment variables. It is requested from AgentCore Identity
+  (an API key provider) with the *workload access token* that Runtime delivers on each invocation. That is why the
+  invocation carries `runtimeUserId`: with IAM authentication (SigV4), Runtime only issues that token for a user.
+- **Start-up:** each response includes how long the process has been alive, how long it took to import and how many invocations it has
+  served, to separate cold starts from warm starts.
 
-    {"ping": true}                       → solo datos de arranque (sin modelo, sin llave)
-    {"tarea": {...}, "mcp_url": ..., "token": ..., "limites": {...}}   → una corrida del agente
+    {"ping": true}                       → start-up data only (no model, no key)
+    {"tarea": {...}, "mcp_url": ..., "token": ..., "limites": {...}}   → one agent run
 
-El token MCP del usuario llega en la carga útil (TLS hasta Runtime) y no se registra: ni este código ni el adaptador
-imprimen la carga útil.
+The user's MCP token arrives in the payload (TLS up to Runtime) and is not logged: neither this code nor the adapter
+prints the payload.
 """
 from __future__ import annotations
 
@@ -25,14 +25,14 @@ from pathlib import Path
 
 T0 = time.time()
 RAIZ = Path(__file__).resolve().parent
-S15 = RAIZ / "semana-15" if (RAIZ / "semana-15").is_dir() else RAIZ.parent   # paquete CodeZip o repositorio
+S15 = RAIZ / "semana-15" if (RAIZ / "semana-15").is_dir() else RAIZ.parent   # CodeZip package or repository
 sys.path.insert(0, str(S15))
 
 from bedrock_agentcore.runtime import BedrockAgentCoreApp  # noqa: E402
 from bedrock_agentcore.runtime.context import BedrockAgentCoreContext  # noqa: E402
 
 from arnes.puente import resolver_peticion  # noqa: E402
-import adaptadores.strands  # noqa: E402,F401  importar aquí: el costo de importación cuenta como arranque, no como tarea
+import adaptadores.strands  # noqa: E402,F401  import here: the import cost counts as start-up, not as the task
 
 IMPORTACION_S = round(time.time() - T0, 3)
 PROVEEDOR = os.environ.get("PROVEEDOR_LLAVE", "semana15-anthropic")
@@ -41,7 +41,7 @@ _estado = {"invocaciones": 0, "llave": False}
 
 
 def _llave_de_identity() -> None:
-    """Pide la llave a AgentCore Identity una vez por proceso y la deja solo en memoria del proceso."""
+    """Requests the key from AgentCore Identity once per process and keeps it only in the process's memory."""
     if _estado["llave"]:
         return
     import boto3
@@ -62,7 +62,7 @@ def invocar(payload: dict, context=None) -> dict:
     if payload.get("ping"):
         return {"ping": True, "arranque": arranque}
     t = time.time()
-    if not payload.get("base_url"):          # con el modelo simulado (pruebas) no hace falta la llave
+    if not payload.get("base_url"):          # with the simulated model (tests) the key is not needed
         try:
             _llave_de_identity()
         except Exception as e:  # noqa: BLE001
@@ -74,4 +74,4 @@ def invocar(payload: dict, context=None) -> dict:
 
 
 if __name__ == "__main__":
-    app.run(port=int(os.environ.get("PUERTO", "8080")))   # en AgentCore, 8080; en pruebas, un puerto libre
+    app.run(port=int(os.environ.get("PUERTO", "8080")))   # 8080 in AgentCore; a free port in tests
