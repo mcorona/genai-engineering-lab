@@ -113,6 +113,7 @@ def test_roles_se_crean_antes_del_sql_legado_y_sus_permisos_despues(monkeypatch)
 LIVE = os.environ.get("S19_DSN_LOCAL")
 
 
+@pytest.mark.vivo  # deselected in CI (-m "not vivo"); run locally with -m vivo and S19_DSN_LOCAL
 @pytest.mark.skipif(not LIVE, reason="prueba viva: define S19_DSN_LOCAL con una base de pruebas local")
 def test_vivo_cargador_idempotente_y_copilot_ro_no_escribe():
     import pg8000.native as pg
