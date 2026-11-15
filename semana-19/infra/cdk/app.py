@@ -116,6 +116,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=["*"]),
         _declaracion(sid="CdkAssumeRoles", actions=["sts:AssumeRole"],
                      resources=[arn_iam(f"role/{PREFIJO_ROLES_CDK}*")]),
+        # Key use by the guardrail creator, only when the call comes through Bedrock in this Region (kms:ViaService).
+        _declaracion(sid="KmsParaBedrockDelLimite", actions=[
+            "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey", "kms:CreateGrant"],
+            resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+            conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
         # Ceiling for the guardrail creator's role (stack semana19-ia): Guardrail actions only, in this account and Region.
         _declaracion(sid="GuardrailDelLimite", actions=[
             "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:GetGuardrail",
