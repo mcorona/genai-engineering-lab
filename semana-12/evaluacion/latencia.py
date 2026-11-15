@@ -1,16 +1,16 @@
-"""Semana 12, actividad 7 (latencia): misma máquina, mismo cliente, misma red y concurrencia 1 para todas las opciones.
+"""Week 12, activity 7 (latency): the same machine, the same client, the same network and concurrency 1 for every option.
 
-100 preguntas del golden de semana 11 (por idioma: 40 respondibles y las 10 sin respuesta). Para cada pregunta se corren
-todas las opciones en orden aleatorio (semilla 12), para que la variación de la red y del momento no favorezca a ninguna:
-- propio            bge-m3 (LM Studio) + pgvector + reranking con Haiku 5.5 (la línea base);
-- propio_sin_rerank lo mismo hasta pgvector (se mide en la misma llamada, antes del reranking);
-- bedrock_ctl       Bedrock Retrieve sobre ctl-chunks (S3 Vectors);
-- bedrock_bda_rag   Bedrock RetrieveAndGenerate sobre adm-fijo-bda con Claude Haiku 4.5 (respuesta completa en una llamada);
-- vertex_ctl_sem    Vertex AI Search vx-ctl, búsqueda híbrida + Ranking API;
-- vertex_adm_sem    Vertex AI Search vx-adm, búsqueda híbrida + Ranking API.
-Respuesta completa = recuperación + generador común (Haiku 5.5 medium, prompt solo_documentos, top 5), medida en serie,
-salvo RetrieveAndGenerate, que ya la incluye. Salida: resultados/latencia_detalle.csv y latencia_resumen.json.
-Costo: ≈ $0.30 (reranking propio, 600 generaciones de Haiku 5.5 y 100 RetrieveAndGenerate con Haiku 4.5).
+100 questions from the week 11 gold set (per language: 40 answerable and the 10 unanswerable). For each question, every
+option runs in random order (seed 12), so that variation in the network and the moment favors none of them:
+- propio            bge-m3 (LM Studio) + pgvector + reranking with Haiku 5.5 (the baseline);
+- propio_sin_rerank the same up to pgvector (measured in the same call, before the reranking);
+- bedrock_ctl       Bedrock Retrieve over ctl-chunks (S3 Vectors);
+- bedrock_bda_rag   Bedrock RetrieveAndGenerate over adm-fijo-bda with Claude Haiku 4.5 (the full answer in one call);
+- vertex_ctl_sem    Vertex AI Search vx-ctl, hybrid search + Ranking API;
+- vertex_adm_sem    Vertex AI Search vx-adm, hybrid search + Ranking API.
+Full answer = retrieval + the common generator (Haiku 5.5 medium, solo_documentos prompt, top 5), measured in series,
+except RetrieveAndGenerate, which already includes it. Output: resultados/latencia_detalle.csv and latencia_resumen.json.
+Cost: ≈ $0.30 (in-house reranking, 600 Haiku 5.5 generations and 100 RetrieveAndGenerate calls with Haiku 4.5).
 """
 import csv
 import json
@@ -107,7 +107,7 @@ def main():
         w = csv.DictWriter(fh, fieldnames=["pregunta", "opcion", "rec", "total", "costo_rec", "costo_gen"])
         w.writeheader()
         w.writerows(filas)
-    print("\n| Opción | Recuperación p50 | Recuperación p95 | Respuesta completa p50 | Respuesta completa p95 |")
+    print("\n| Option | Retrieval p50 | Retrieval p95 | Full answer p50 | Full answer p95 |")
     print("|---|---|---|---|---|")
     for o in ops:
         r = resumen[o]

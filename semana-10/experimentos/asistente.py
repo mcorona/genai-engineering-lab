@@ -1,27 +1,27 @@
-"""Actividad 7: asistente integrado (NLQ + RAG documental) con citas.
+"""Activity 7: the integrated assistant (NLQ + document RAG) with citations.
 
-Configuraciones, sobre el golden set integrado (102 preguntas):
-- integrado: ruteo de la actividad 6 (Haiku low) con respaldo: si la ruta es sql y la consulta da error, 0 filas o la
-  herramienta NLQ se abstiene (NO_SQL: el dato no está en el esquema), también se consultan los documentos. Ruta mixta:
-  ambas herramientas.
-  La abstención aplica solo en la ruta sql (y en solo_sql); en la ruta mixta la NLQ siempre genera consulta.
-- integrado_sin_abstencion: igual, pero la herramienta NLQ no puede abstenerse (respaldo de la actividad 6 tal cual).
-  Mide lo que aporta la abstención; se agregó tras el piloto, donde int-imagen-11 se ruteó a sql y la consulta
-  inventó un "nivel de servicio" con filas, sin activar el respaldo.
-- solo_sql: siempre la herramienta NLQ.
-- solo_docs: siempre la herramienta documental.
-Herramientas:
-- NLQ: Haiku 5.5 low con DDL legado + diccionario (actividad 2); se ejecuta sobre el esquema legado con el rol de solo
-  lectura (NLQ_DSN, search_path = legado).
-- Documental: índice pgvector semana10.chunks con tenant_id y roles (filtro dentro de la consulta), top 20 con bge-m3,
-  reranking con Haiku (semana 8) y top 5. Contenido: corpus de texto de semana 8 + tablas PDF por pdfplumber
-  (actividad 3) + acta y remisión por Haiku (actividad 4) + descripciones de imágenes por Haiku (actividad 5).
-Respuesta: Haiku 5.5 medium, solo con el contexto, citando [SQL] y [D1]..[D5]. Juez: Sonnet 5.5 low contra la referencia.
-Métricas, fijadas antes de correr, por configuración, tipo e idioma: exactitud del juez; precisión de citas de documentos
-(pasajes citados con evidencia / pasajes citados); cita SQL correcta (cita [SQL] y su resultado coincide con el de
-referencia); costo y latencia por pregunta (sin el juez, que se reporta aparte).
-Caché por pregunta y configuración (resultados/asistente_cache.json); --limite N para piloto.
-Requiere PG_ADMIN_DSN (crear el índice), NLQ_DSN (rol copilot_ro), LM Studio con bge-m3 y ANTHROPIC_API_KEY.
+Configurations, over the integrated gold set (102 questions):
+- integrado: activity 6 routing (Haiku low) with a fallback: if the route is sql and the query fails, returns 0 rows or the
+  NLQ tool abstains (NO_SQL: the data is not in the schema), the documents are also queried. Mixed route:
+  both tools.
+  The abstention applies only on the sql route (and in solo_sql); on the mixed route the NLQ always generates a query.
+- integrado_sin_abstencion: the same, but the NLQ tool cannot abstain (the activity 6 fallback as it was).
+  It measures what the abstention contributes; it was added after the pilot, where int-imagen-11 was routed to sql and
+  the query invented a "service level" with rows, without triggering the fallback.
+- solo_sql: always the NLQ tool.
+- solo_docs: always the document tool.
+Tools:
+- NLQ: Haiku 5.5 low with the legacy DDL + the dictionary (activity 2); it runs over the legacy schema with the read-only
+  role (NLQ_DSN, search_path = legado).
+- Document: the pgvector index semana10.chunks with tenant_id and roles (the filter inside the query), top 20 with bge-m3,
+  reranking with Haiku (week 8) and top 5. Content: the week 8 text corpus + PDF tables via pdfplumber
+  (activity 3) + the inventory record and delivery note via Haiku (activity 4) + image descriptions via Haiku (activity 5).
+Answer: Haiku 5.5 medium, using only the context, citing [SQL] and [D1]..[D5]. Judge: Sonnet 5.5 low against the reference.
+Metrics, fixed before the run, per configuration, type and language: the judge's accuracy; document citation precision
+(cited passages with evidence / cited passages); correct SQL citation (it cites [SQL] and its result matches the
+reference's); cost and latency per question (without the judge, which is reported separately).
+Cache per question and configuration (resultados/asistente_cache.json); --limite N for a pilot.
+Requires PG_ADMIN_DSN (to build the index), NLQ_DSN (the copilot_ro role), LM Studio with bge-m3, and ANTHROPIC_API_KEY.
 """
 import argparse
 import csv
@@ -88,13 +88,13 @@ def anthropic(modelo, esfuerzo, sistema, contenido, max_tokens=4000):
                 continue
             raise SystemExit(f"API HTTP {e.code} ({modelo}): {e.read().decode()[:300]}")
     if d.get("stop_reason") == "max_tokens":
-        raise SystemExit(f"Salida truncada por max_tokens ({modelo}).")
+        raise SystemExit(f"Output truncated by max_tokens ({modelo}).")
     u, p = d["usage"], PRECIOS[f"anthropic:{modelo}"]
     return ("".join(b.get("text", "") for b in d["content"] if b.get("type") == "text"),
             (u["input_tokens"] * p["in"] + u["output_tokens"] * p["out"]) / 1e6, time.perf_counter() - t0)
 
 
-# ---------- índice documental ----------
+# ---------- document index ----------
 
 def documentos():
     docs = {p.stem: p.read_text(encoding="utf-8") for p in CORPUS.glob("*.md")}
@@ -109,7 +109,7 @@ def documentos():
         docs[stem] = img[f"desc::{stem}"]["texto"]
     faltan = set(docs) - set(ROLES)
     if faltan:
-        raise SystemExit(f"Documentos sin roles: {sorted(faltan)}")
+        raise SystemExit(f"Documents without roles: {sorted(faltan)}")
     return docs
 
 
@@ -129,10 +129,10 @@ def indexar():
                             (i, "alfa", ROLES[s], s, c, "[" + ",".join(map(str, v)) + "]"))
         conn.execute("GRANT USAGE ON SCHEMA semana10 TO copilot_ro")
         conn.execute("GRANT SELECT ON semana10.chunks TO copilot_ro")
-    print(f"índice: {len(docs)} documentos, {len(filas)} chunks en semana10.chunks", file=sys.stderr)
+    print(f"index: {len(docs)} documents, {len(filas)} chunks in semana10.chunks", file=sys.stderr)
 
 
-# ---------- herramientas ----------
+# ---------- tools ----------
 
 ABSTENCION = ("\n\nIf the schema and dictionary do not contain the data the question asks for (for example service "
               "levels, freight rates, policies, approvals, warehouse layouts or documents), do not approximate it with "
@@ -140,8 +140,8 @@ ABSTENCION = ("\n\nIf the schema and dictionary do not contain the data the ques
 
 
 def ejecutar_lectura(conn, sql):
-    """Actividad 8: cada consulta de la NLQ va en una transacción READ ONLY que siempre se revierte. psycopg no aplica
-    read_only en autocommit, y sin esto `SELECT lo_create(0)` escribía en la base."""
+    """Activity 8: every NLQ query runs in a READ ONLY transaction that is always rolled back. psycopg does not apply
+    read_only in autocommit mode, and without this `SELECT lo_create(0)` wrote to the database."""
     filas = None
     with conn.transaction():
         conn.execute("SET TRANSACTION READ ONLY")
@@ -153,7 +153,7 @@ def ejecutar_lectura(conn, sql):
 class Herramientas:
     def __init__(self):
         self.conn_ref = sl.re7.conectar(os.environ["NLQ_DSN"])
-        # NLQ_LEGADO_DSN: rol copilot_nlq (solo SELECT sobre las vistas legado; actividad 8). Sin él, copilot_ro.
+        # NLQ_LEGADO_DSN: the copilot_nlq role (only SELECT on the legacy views; activity 8). Without it, copilot_ro.
         self.conn_leg = sl.re7.conectar(os.environ.get("NLQ_LEGADO_DSN") or os.environ["NLQ_DSN"])
         self.conn_leg.execute("SET search_path = legado")
         self.conn_doc = sl.re7.conectar(os.environ["NLQ_DSN"])
@@ -221,8 +221,8 @@ def correr(h, x, config):
     else:
         ruta = {"solo_sql": "sql", "solo_docs": "documental"}[config]
     if ruta in ("sql", "mixta"):
-        # La abstención solo aplica a la ruta sql del integrado (donde hay respaldo); en la ruta mixta la pregunta
-        # trae también la parte documental y la herramienta NLQ se abstenía de toda la pregunta (corrida 1: mixtas 0/6 ES).
+        # The abstention applies only to the integrated assistant's sql route (where there is a fallback); on the mixed route the question
+        # also carries the document part, and the NLQ tool abstained from the whole question (run 1: mixed 0/6 ES).
         res_sql = h.sql(x["question"], abstener=config == "solo_sql" or (config == "integrado" and ruta == "sql"))
         costo += res_sql["costo"]
         if config.startswith("integrado") and ruta == "sql" and (res_sql["error"] or not res_sql["filas"]):
@@ -267,7 +267,7 @@ def evidencia(x, s, c):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--limite", type=int, default=0, help="primeras N preguntas de cada tipo (y formato no textual) por idioma (piloto)")
+    ap.add_argument("--limite", type=int, default=0, help="the first N questions of each type (and non-text format) per language (pilot)")
     ap.add_argument("--sin-indexar", action="store_true")
     args = ap.parse_args()
     if not args.sin_indexar:
@@ -317,7 +317,7 @@ def main():
                             "costo_usd": r["costo"], "costo_juez_usd": r["costo_juez"], "latencia_s": r["latencia_s"]})
         print(f"{x['id']} {x['lang']}: " + " ".join(f"{d['config']}={d['correcta']}" for d in detalle[-len(CONFIGS):]), file=sys.stderr)
 
-    print("| Configuración | Tipo | Idioma | Exactitud (juez) | Precisión de citas de documentos | Cita SQL correcta | Costo por pregunta (USD) | Latencia p50 (s) |")
+    print("| Configuration | Type | Language | Accuracy (judge) | Document citation precision | Correct SQL citation | Cost per question (USD) | p50 latency (s) |")
     print("|---|---|---|---|---|---|---|---|")
     grupos = [("sql", lambda t: t == "sql"), ("documental", lambda t: t == "documental"),
               ("no textual", lambda t: t.startswith("no_textual")), ("mixta", lambda t: t == "mixta"), ("TOTAL", lambda t: True)]
@@ -336,9 +336,9 @@ def main():
                       f"{statistics.median(d['latencia_s'] for d in f):.1f} |")
     for cf in ("integrado", "integrado_sin_abstencion"):
         integ = [d for d in detalle if d["config"] == cf]
-        print(f"\nRespaldo a documentos activado en {cf}: {sum(d['respaldo'] for d in integ)} de {len(integ)} preguntas.")
-    print(f"Costo total sin juez: ${sum(d['costo_usd'] for d in detalle):.4f}; juez: ${sum(d['costo_juez_usd'] for d in detalle):.4f}; "
-          f"juicios sin JSON válido: {sum(1 for d in detalle if d['correcta'] == '')}")
+        print(f"\nDocument fallback triggered in {cf}: {sum(d['respaldo'] for d in integ)} of {len(integ)} questions.")
+    print(f"Total cost without the judge: ${sum(d['costo_usd'] for d in detalle):.4f}; judge: ${sum(d['costo_juez_usd'] for d in detalle):.4f}; "
+          f"judgments without valid JSON: {sum(1 for d in detalle if d['correcta'] == '')}")
     with (RES / ("asistente_detalle_prueba.csv" if args.limite else "asistente_detalle.csv")).open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(detalle[0].keys()))
         w.writeheader()

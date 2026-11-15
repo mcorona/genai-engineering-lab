@@ -1,7 +1,7 @@
-"""Actividad 2: ¿el chunking deja cada pasaje de referencia íntegro dentro de un chunk?
+"""Activity 2: does the chunking keep each reference passage whole within a chunk?
 
-No usa embeddings ni APIs. Es la condición necesaria para que la recuperación
-pueda encontrar el pasaje, sin importar el modelo que se use después.
+It uses no embeddings and no APIs. It is the necessary condition for retrieval to be
+able to find the passage, regardless of the model used afterwards.
 """
 import json
 import sys
@@ -15,7 +15,7 @@ from chunker_actual import chunk_markdown  # copia de inventory-copilot/src/rag/
 
 
 def fijo(texto, n=400, solape=80):
-    """Ventana de caracteres fija con solapamiento."""
+    """A fixed character window with overlap."""
     out, i = [], 0
     while i < len(texto):
         out.append(texto[i:i + n])
@@ -26,7 +26,7 @@ def fijo(texto, n=400, solape=80):
 
 
 def recursivo(texto, n=300):
-    """Empaca párrafos; si uno no cabe, lo parte por oraciones. Sin solapamiento."""
+    """Packs paragraphs; if one does not fit, it splits it by sentences. No overlap."""
     piezas = []
     for par in texto.split("\n\n"):
         par = par.strip()
@@ -47,7 +47,7 @@ def recursivo(texto, n=300):
                     actual = o
             if actual:
                 piezas.append(actual)
-    # empaquetado final de piezas cortas contiguas
+    # final packing of short contiguous pieces
     out, actual = [], ""
     for p in piezas:
         cand = (actual + "\n\n" + p) if actual else p
@@ -63,7 +63,7 @@ def recursivo(texto, n=300):
 
 
 def actual(texto, source):
-    """Chunker de inventory-copilot (por encabezados de sección)."""
+    """inventory-copilot's chunker (by section headings)."""
     return [c.content for c in chunk_markdown(texto, source=source)]
 
 
@@ -76,7 +76,7 @@ ESTRATEGIAS = {
 docs = {p.name: p.read_text(encoding="utf-8") for p in CORPUS.glob("*.md")}
 pasajes = {(g["source"], g["passage"]) for l in GOLD.read_text(encoding="utf-8").splitlines()
            for g in json.loads(l)["gold"]}
-print(f"documentos: {len(docs)} · pasajes de referencia únicos: {len(pasajes)}")
+print(f"documents: {len(docs)} · unique reference passages: {len(pasajes)}")
 print(f"{'estrategia':<22}{'chunks':>8}{'prom_chars':>12}{'íntegros':>12}{'partidos':>10}")
 for nombre, f in ESTRATEGIAS.items():
     chunks = {src: f(texto, src) for src, texto in docs.items()}
@@ -90,4 +90,4 @@ for nombre, f in ESTRATEGIAS.items():
             partidos.append((src, pas))
     print(f"{nombre:<22}{total:>8}{prom:>12.0f}{intactos:>7}/{len(pasajes):<4}{len(partidos):>10}")
     for src, pas in partidos[:6]:
-        print(f"    partido: {src} · {pas[:70]}")
+        print(f"    split: {src} · {pas[:70]}")

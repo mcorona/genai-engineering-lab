@@ -1,13 +1,13 @@
-"""Actividad 6: ruteo de preguntas (SQL, documental o mixta).
+"""Activity 6: question routing (SQL, document or mixed).
 
-Golden set integrado (datasets/integrado_{es,en}.jsonl, 51 por idioma). Etiqueta correcta derivada del tipo congelado:
-sql -> sql; documental y no_textual (PDF, escaneo, imagen) -> documental; mixta -> mixta.
-Clasificadores:
-- mayoritaria: siempre 'documental' (piso que cualquier clasificador debe superar).
-- Claude (por defecto Haiku 5.5, esfuerzo low): recibe la descripción de las dos herramientas y devuelve JSON.
-Métricas, fijadas antes de correr: exactitud global, por tipo e idioma; matriz de confusión; fallos de formato;
-costo y latencia p50 por pregunta. Caché de respuestas en resultados/ruteo_<modelo>_<esfuerzo>.json.
-Requiere ANTHROPIC_API_KEY.
+The integrated gold set (datasets/integrado_{es,en}.jsonl, 51 per language). The correct label is derived from the frozen type:
+sql -> sql; document and non_text (PDF, scan, image) -> document; mixed -> mixed.
+Classifiers:
+- majority: always 'documental' (the floor any classifier must beat).
+- Claude (Haiku 5.5 by default, effort low): it receives the description of the two tools and returns JSON.
+Metrics, fixed before the run: overall accuracy, by type and by language; confusion matrix; format failures;
+cost and p50 latency per question. Response cache in resultados/ruteo_<model>_<effort>.json.
+Requires ANTHROPIC_API_KEY.
 """
 import argparse
 import csv
@@ -101,7 +101,7 @@ def main():
                         "costo_usd": c["costo_usd"], "pregunta": x["question"]})
 
     nombre = f"Claude {args.modelo} ({args.esfuerzo})"
-    print(f"| Clasificador | Idioma | Exactitud | sql | documental (texto) | documental (no textual) | mixta |")
+    print(f"| Classifier | Language | Accuracy | sql | document (text) | document (non-text) | mixed |")
     print("|---|---|---|---|---|---|---|")
     for clf, col in (("mayoritaria (siempre documental)", "ok_mayoritaria"), (nombre, "ok_claude")):
         for lang in ("es", "en"):
@@ -113,22 +113,22 @@ def main():
                   f"{parte(lambda t: t == 'sql')} | {parte(lambda t: t == 'documental')} | "
                   f"{parte(lambda t: t.startswith('no_textual'))} | {parte(lambda t: t == 'mixta')} |")
 
-    print(f"\nMatriz de confusión de {nombre} (filas: esperado; columnas: predicho), ambos idiomas")
+    print(f"\nConfusion matrix of {nombre} (rows: expected; columns: predicted), both languages")
     cols = list(CLASES) + ["formato_invalido"]
     conf = Counter((d["esperado"], d["claude"]) for d in detalle)
-    print("| esperado \\ predicho | " + " | ".join(cols) + " |")
+    print("| expected \\ predicted | " + " | ".join(cols) + " |")
     print("|---|" + "---|" * len(cols))
     for e in CLASES:
         print(f"| {e} | " + " | ".join(str(conf[(e, p)]) for p in cols) + " |")
 
     costo = sum(d["costo_usd"] for d in detalle)
-    print(f"\n{nombre}: {len(detalle)} preguntas, costo total ${costo:.5f} (${costo / len(detalle):.6f} por pregunta), "
-          f"latencia p50 {statistics.median(d['latencia_s'] for d in detalle):.2f} s, "
-          f"tokens de salida medios {statistics.mean(d['tokens_out'] for d in detalle):.0f}, "
-          f"salidas truncadas {sum(1 for c in cache.values() if c['stop'] == 'max_tokens')}")
+    print(f"\n{nombre}: {len(detalle)} questions, total cost ${costo:.5f} (${costo / len(detalle):.6f} per question), "
+          f"p50 latency {statistics.median(d['latencia_s'] for d in detalle):.2f} s, "
+          f"mean output tokens {statistics.mean(d['tokens_out'] for d in detalle):.0f}, "
+          f"truncated outputs {sum(1 for c in cache.values() if c['stop'] == 'max_tokens')}")
     for d in detalle:
         if not d["ok_claude"]:
-            print(f"  error: {d['id']} {d['lang']} ({d['tipo']}) esperado={d['esperado']} predicho={d['claude']} | {d['pregunta'][:90]}")
+            print(f"  error: {d['id']} {d['lang']} ({d['tipo']}) expected={d['esperado']} predicted={d['claude']} | {d['pregunta'][:90]}")
     with (RES / f"ruteo_detalle_{args.modelo}_{args.esfuerzo}.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(detalle[0].keys()))
         w.writeheader()

@@ -1,33 +1,33 @@
-"""Semana 11, actividad 3: validación de las métricas de generación (meta-evaluación).
+"""Week 11, activity 3: validating the generation metrics (meta-evaluation).
 
-Muestra: 20 preguntas por idioma (las mismas en ES y EN), 15 base y 5 no textuales, elegidas con semilla 11 entre las
-respondibles cuya referencia trae al menos una cifra que no viene de la pregunta. Contexto: el top 5 del pipeline adoptado de la actividad 2
-(resultados/suite_recuperacion_cache.json); todas tienen su pasaje en ese top 5.
+Sample: 20 questions per language (the same in ES and EN), 15 base and 5 non-text, chosen with seed 11 among the
+answerable questions whose reference carries at least one figure that does not come from the question. Context: the top 5
+of activity 2's adopted pipeline (resultados/suite_recuperacion_cache.json); all of them have their passage in that top 5.
 
-Variantes de respuesta (construidas con reglas fijas, sin modelo):
-- control: la referencia de la actividad 1 (fiel y pertinente).
-- cifra_cambiada: la primera cifra de la referencia que no viene de la pregunta (de preferencia, una del contexto; nunca un año),
-  × 1.5 (o × 2, 3, 5, 7, 10, 0.9, 0.5 si el valor nuevo ya aparece en el contexto o la pregunta, o si un
-  porcentaje pasaría de 100), con el mismo formato.
-- inventada: la referencia más una oración plausible que no está en el contexto (plantilla fija por idioma).
-- fuera_de_tema: la referencia de otra pregunta de la muestra, de otro documento (cierta, pero no responde).
-- evasiva: una negativa genérica ("No tengo suficiente información…").
+Answer variants (built with fixed rules, without a model):
+- control: the activity 1 reference (faithful and relevant).
+- cifra_cambiada: the first figure of the reference that does not come from the question (preferably one from the context;
+  never a year), × 1.5 (or × 2, 3, 5, 7, 10, 0.9, 0.5 if the new value already appears in the context or the question, or if a
+  percentage would exceed 100), with the same format.
+- inventada: the reference plus a plausible sentence that is not in the context (a fixed template per language).
+- fuera_de_tema: the reference of another question in the sample, from another document (true, but it does not answer).
+- evasiva: a generic refusal ("I don't have enough information…").
 
-Métricas, por juez (Haiku 5.5 low y Sonnet 5.5 low): faithfulness y answer relevancy de RAGAS 0.4.3 (embeddings
-bge-m3 de LM Studio), y exactitud con el juez propio de semanas 8 y 10 (SIS_JUEZ de semana-10/experimentos/asistente.py).
+Metrics, per judge (Haiku 5.5 low and Sonnet 5.5 low): RAGAS 0.4.3 faithfulness and answer relevancy (bge-m3
+embeddings from LM Studio), and accuracy with the in-house judge of weeks 8 and 10 (SIS_JUEZ in semana-10/experimentos/asistente.py).
 
-Criterios, fijados antes de correr:
-- Una métrica detecta una variante si la diferencia pareada variante − control tiene IC bootstrap 95 % (2,000
-  remuestreos, semilla 11) por debajo de 0 y la variante queda abajo del control en al menos 80 % de las preguntas
-  (empates cuentan 0.5).
-- Detecciones esperadas: faithfulness detecta cifra_cambiada e inventada; answer relevancy detecta fuera_de_tema y
-  evasiva. El control debe tener faithfulness media >= 0.9.
-- Decisión: el juez más barato que cumpla las cuatro detecciones esperadas y el control. Si ninguno cumple todo, el
-  que cumpla más, con lo que falta documentado.
-Juez de RAGAS: Haiku con llm_factory (modo TOOLS de Instructor); Sonnet con modo JSON de Instructor, porque Sonnet 5.5
-rechaza el tool_choice forzado. Cada juez tiene su propia caché en disco (la clave de RAGAS no incluye el modelo).
-Caché por juez, métrica, pregunta y variante en resultados/meta_evaluacion_cache.json (y caché en disco del juez).
-Requiere LM Studio con bge-m3 y ANTHROPIC_API_KEY.
+Criteria, fixed before the run:
+- A metric detects a variant if the paired difference variant − control has a 95 % bootstrap CI (2,000
+  resamples, seed 11) below 0 and the variant scores below the control on at least 80 % of the questions
+  (ties count 0.5).
+- Expected detections: faithfulness detects cifra_cambiada and inventada; answer relevancy detects fuera_de_tema and
+  evasiva. The control must have a mean faithfulness >= 0.9.
+- Decision: the cheapest judge that meets the four expected detections and the control. If none meets everything, the
+  one that meets the most, with what is missing documented.
+RAGAS judge: Haiku with llm_factory (Instructor's TOOLS mode); Sonnet with Instructor's JSON mode, because Sonnet 5.5
+rejects the forced tool_choice. Each judge has its own disk cache (RAGAS's key does not include the model).
+Cache per judge, metric, question and variant in resultados/meta_evaluacion_cache.json (plus the judge's disk cache).
+Requires LM Studio with bge-m3 and ANTHROPIC_API_KEY.
 """
 import asyncio
 import csv
@@ -48,7 +48,7 @@ MODOS = {"haiku": "Instructor TOOLS", "sonnet": "Instructor JSON"}
 VARIANTES = ("control", "cifra_cambiada", "inventada", "fuera_de_tema", "evasiva")
 ESPERADAS = {("faithfulness", "cifra_cambiada"), ("faithfulness", "inventada"),
              ("answer_relevancy", "fuera_de_tema"), ("answer_relevancy", "evasiva")}
-CONCURRENCIA = 2  # corrida 2: red inestable (timeouts con 8 en paralelo)
+CONCURRENCIA = 2  # run 2: unstable network (timeouts with 8 in parallel)
 INVENTADA = {"es": "Además, esta regla solo aplica a pedidos internacionales y requiere la firma del director general.",
              "en": "In addition, this rule applies only to international orders and requires the CEO's signature."}
 EVASIVA = {"es": "No tengo suficiente información para responder con precisión.",
@@ -56,7 +56,7 @@ EVASIVA = {"es": "No tengo suficiente información para responder con precisión
 SIS_JUEZ = ("Eres un evaluador estricto. Recibes una pregunta, la referencia correcta y la respuesta de un asistente. La "
             "respuesta es correcta si contiene la información esencial de la referencia sin contradecirla (puede agregar "
             "detalles o citas). Si la referencia es una lista o un conjunto de filas, la respuesta debe incluir esos "
-            "elementos. Responde SOLO con JSON: {\"correcta\": true} o {\"correcta\": false}.")  # copia de semana 10
+            "elementos. Responde SOLO con JSON: {\"correcta\": true} o {\"correcta\": false}.")  # copy from week 10
 NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
 
 
@@ -69,11 +69,11 @@ def numeros(t):
 
 
 def cambiar_cifra(texto, contexto, pregunta):
-    """Cambia la primera cifra de la referencia que no viene de la pregunta (de preferencia, una que esté en el
-    contexto), para que el error caiga en el dato de la respuesta y no en la repetición de la pregunta."""
+    """Changes the first figure of the reference that does not come from the question (preferably one that is in the
+    context), so that the error falls on the answer's data and not on the repetition of the question."""
     en_ctx, en_preg = numeros(contexto), numeros(pregunta)
     cands = [m for m in NUM.finditer(texto) if m.group(0).replace(",", "").rstrip(".") not in en_preg
-             and not re.fullmatch(r"(19|20)\d\d", m.group(0).rstrip("."))]  # sin años
+             and not re.fullmatch(r"(19|20)\d\d", m.group(0).rstrip("."))]  # no years
     cands = [m for m in cands if m.group(0).replace(",", "").rstrip(".") in en_ctx] or cands
     if not cands:
         raise ValueError(f"sin cifra propia de la respuesta: {texto}")
@@ -84,7 +84,7 @@ def cambiar_cifra(texto, contexto, pregunta):
     porcentaje = texto[m.start() + len(crudo):].lstrip().startswith("%")
     for factor in (1.5, 2, 3, 5, 7, 10, 0.9, 0.5):
         nuevo = valor * factor if valor else factor
-        if porcentaje and nuevo > 100:  # un porcentaje imposible sería demasiado fácil de detectar
+        if porcentaje and nuevo > 100:  # an impossible percentage would be too easy to detect
             continue
         s = f"{nuevo:,.{dec}f}" if "," in crudo else f"{nuevo:.{dec}f}"
         if s != crudo and s.replace(",", "") not in en_ctx | en_preg:
@@ -111,7 +111,7 @@ def construir(ref, elegidos, rec):
             x = ref[lang][i]
             ctx = [c for _, c in rec[f"adoptado::{i}::{lang}"]["ranking"][:5]]
             if not any(norm(g["passage"]) in norm(c) for g in x["gold"] for c in ctx):
-                raise SystemExit(f"{i} {lang}: el pasaje no está en el top 5 de la actividad 2")
+                raise SystemExit(f"{i} {lang}: the passage is not in the activity 2 top 5")
             otro = next(elegidos[(n + k) % len(elegidos)] for k in range(1, len(elegidos))
                         if not fuentes[elegidos[(n + k) % len(elegidos)]] & fuentes[i])
             respuestas = {"control": x["referencia"],
@@ -151,14 +151,14 @@ async def evaluar(casos, cache, guardar):
             return r
         cliente.messages.create = crear_contando
         clientes[j] = cliente
-        # Corrida 2: la clave de la caché de RAGAS no incluye el modelo, así que en la corrida 1 Sonnet recibió las
-        # respuestas que Haiku dejó en caché. Ahora cada juez tiene su propia caché.
+        # Run 2: the RAGAS cache key does not include the model, so in run 1 Sonnet received the
+        # answers that Haiku had left in the cache. Now each judge has its own cache.
         cache_j = DiskCacheBackend(str(Path.home() / ".cache" / ("ragas_semana11" if j == "haiku" else f"ragas_semana11_{j}")))
         if j == "haiku":
             llm = llm_factory(modelo, provider="anthropic", client=cliente, max_tokens=4000,
                               extra_body={"output_config": {"effort": "low"}}, cache=cache_j)
         else:
-            # Sonnet 5.5 rechaza el tool_choice forzado del modo TOOLS de Instructor (HTTP 400): modo JSON.
+            # Sonnet 5.5 rejects the forced tool_choice of Instructor's TOOLS mode (HTTP 400): JSON mode.
             import instructor
             from ragas.llms.base import InstructorLLM, InstructorModelArgs
             llm = InstructorLLM(client=instructor.from_anthropic(cliente, mode=instructor.Mode.ANTHROPIC_JSON), model=modelo,
@@ -215,7 +215,7 @@ def main():
 
     def guardar():
         CACHE.write_text(json.dumps(cache, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(f"muestra: {elegidos}", file=sys.stderr)
+    print(f"sample: {elegidos}", file=sys.stderr)
     uso = asyncio.run(evaluar(casos, cache, guardar))
     guardar()
 
@@ -236,8 +236,8 @@ def main():
         return {(f["id"], f["lang"]): f["valor"] for f in filas if f["juez"] == j and f["metrica"] == m
                 and f["variante"] == v and (lang is None or f["lang"] == lang) and f["valor"] is not None}
 
-    print("## Medias por juez, métrica y variante (ES / EN / ambos)\n")
-    print("| Juez | Métrica | " + " | ".join(VARIANTES) + " |")
+    print("## Means per judge, metric and variant (ES / EN / both)\n")
+    print("| Judge | Metric | " + " | ".join(VARIANTES) + " |")
     print("|---|---|" + "---|" * len(VARIANTES))
     for j in JUECES:
         for m in ("faithfulness", "answer_relevancy", "exactitud_propia"):
@@ -247,8 +247,8 @@ def main():
                 celdas.append(f"{statistics.mean(es.values()):.2f} / {statistics.mean(en.values()):.2f} / {statistics.mean(ab.values()):.2f}")
             print(f"| {j} | {m} | " + " | ".join(celdas) + " |")
 
-    print("\n## Separación de cada variante contra el control (ambos idiomas, n = 40 pares)\n")
-    print("| Juez | Métrica | Variante | Esperada | Diferencia media | IC 95 % | Variante < control | Detecta |")
+    print("\n## Separation of each variant from the control (both languages, n = 40 pairs)\n")
+    print("| Judge | Metric | Variant | Expected | Mean difference | 95 % CI | Variant < control | Detects |")
     print("|---|---|---|---|---|---|---|---|")
     veredicto = {}
     for j in JUECES:
@@ -265,16 +265,16 @@ def main():
                 print(f"| {j} | {m} | {v} | {'sí' if (m, v) in ESPERADAS else 'no'} | {media:+.3f} | [{lo:+.3f}, {hi:+.3f}] | "
                       f"{tasa:.2f} ({len(pares)}) | {'sí' if detecta else 'no'} |")
 
-    print("\n## Decisión\n")
+    print("\n## Decision\n")
     for j, modelo in JUECES.items():
         ctl = statistics.mean(valores(j, "faithfulness", "control").values())
         ok = [mv for mv in sorted(ESPERADAS) if veredicto[(j, *mv)]]
         p = PRECIOS[f"anthropic:{modelo}"]
         costo = (uso[j]["in"] * p["in"] + uso[j]["out"] * p["out"]) / 1e6
         errores = sum(1 for f in filas if f["juez"] == j and f["valor"] is None)
-        print(f"- {j} ({MODOS[j]}): detecciones esperadas {len(ok)}/4 {ok}; faithfulness del control {ctl:.3f} "
-              f"({'cumple' if ctl >= 0.9 else 'NO cumple'} >= 0.9); sin puntaje {errores}; costo de esta corrida ${costo:.4f} "
-              f"({uso[j]['llamadas']} llamadas, {uso[j]['in']} tokens de entrada y {uso[j]['out']} de salida)")
+        print(f"- {j} ({MODOS[j]}): expected detections {len(ok)}/4 {ok}; control faithfulness {ctl:.3f} "
+              f"({'meets' if ctl >= 0.9 else 'does NOT meet'} >= 0.9); without a score {errores}; cost of this run ${costo:.4f} "
+              f"({uso[j]['llamadas']} calls, {uso[j]['in']} input tokens and {uso[j]['out']} output tokens)")
 
 
 if __name__ == "__main__":

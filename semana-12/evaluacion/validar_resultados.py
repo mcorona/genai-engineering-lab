@@ -1,12 +1,12 @@
-"""Semana 12, actividad 9: valida en cada PR que los resultados versionados estén completos y sean consistentes, sin
-llamar a ninguna nube ni a ningún modelo. Sale con 1 y lista los problemas si algo no cuadra.
+"""Week 12, activity 9: checks on every PR that the versioned results are complete and consistent, without
+calling any cloud or any model. Exits with 1 and lists the problems if anything does not add up.
 
-Por cada corrida de las suites (actividades 3 a 5): existen resumen, detalle y caché; 150 preguntas (65 respondibles por
-idioma y 10 sin respuesta); los ids del detalle son los del golden de semana 11; las métricas están en [0, 1]; las
-medias del resumen se recalculan desde el detalle (tolerancia 5e-4); métricas del juez sin puntaje ≤ 1 % y 0 chunks de
-otro tenant. Seguridad: 56 + 40 casos por sistema, fuga 0 y control sin filtro > 0. Latencia: 100 preguntas, p50 ≤ p95.
-Costos: ingesta, fijo, por consulta y equilibrio para las cinco opciones. La tabla de comparación se valida aparte
-(el workflow la regenera y exige que no cambie).
+For each run of the suites (activities 3 to 5): the summary, detail and cache exist; 150 questions (65 answerable per
+language and 10 unanswerable); the ids of the detail are those of the week 11 gold set; the metrics are in [0, 1]; the
+means of the summary are recomputed from the detail (tolerance 5e-4); judge metrics without a score ≤ 1 % and 0 chunks from
+another tenant. Security: 56 + 40 cases per system, 0 leaks and the control without a filter > 0. Latency: 100 questions,
+p50 ≤ p95. Costs: ingestion, fixed, per query and break-even for the five options. The comparison table is validated
+separately (the workflow regenerates it and requires it not to change).
 """
 import csv
 import json
@@ -113,9 +113,9 @@ def main():
     validar_seguridad()
     validar_latencia_costos()
     if problemas:
-        print("Resultados con problemas:\n- " + "\n- ".join(problemas))
+        print("Results with problems:\n- " + "\n- ".join(problemas))
         sys.exit(1)
-    print(f"Resultados completos y consistentes: {len(SUITES)} corridas de las suites, seguridad, latencia y costos.")
+    print(f"Results complete and consistent: {len(SUITES)} suite runs, security, latency and costs.")
 
 
 if __name__ == "__main__":

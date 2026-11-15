@@ -1,21 +1,21 @@
-"""Actividad 5: imágenes con información que no está en el texto.
+"""Activity 5: images with information that is not in the text.
 
-1. Genera con Pillow dos imágenes desde las fuentes congeladas en la actividad 1:
-   - imagenes/grafica_nivel_servicio.png: barras del nivel de servicio por CEDIS, con el valor rotulado sobre cada barra
-     y el nombre del CEDIS debajo.
-   - imagenes/plano_cedis_occidente.png: plano con andenes de recepción (1 a 4) y de embarque (5 a 8), la zona de SKUs
-     críticos dibujada junto al andén 2 y la zona de cuarentena dentro del pasillo 12.
-2. Usa la imagen de cuatro formas:
-   - sin imagen: solo el corpus de texto (línea base);
-   - Tesseract (spa) sobre la imagen;
-   - Claude describe y extrae los datos (texto que se indexa con el pipeline);
-   - Claude responde la pregunta mirando la imagen directamente (sin RAG).
-3. Métricas, fijadas antes de correr:
-   - Hechos extraídos (7): cada valor o zona con su etiqueta en la MISMA línea del texto extraído (asociación, no solo lectura).
-   - recall@5 de respuestas: preguntas de imagen del golden set (5 por idioma); acierto si un chunk del top 5 viene de la
-     imagen y contiene la respuesta (sin distinguir mayúsculas ni acentos). Índice: corpus de texto + texto extraído.
-   - Exactitud de la respuesta directa: la respuesta del modelo contiene el dato correcto.
-Requiere Pillow, reportlab (solo para ubicar la fuente TTF), Tesseract con 'spa', LM Studio con bge-m3 y ANTHROPIC_API_KEY.
+1. Generates two images with Pillow from the sources frozen in activity 1:
+   - imagenes/grafica_nivel_servicio.png: bars of the service level per distribution center, with the value labeled
+     above each bar and the center's name below it.
+   - imagenes/plano_cedis_occidente.png: a floor plan with receiving docks (1 to 4) and shipping docks (5 to 8), the
+     critical-SKU zone drawn next to dock 2 and the quarantine zone inside aisle 12.
+2. Uses the image in four ways:
+   - no image: only the text corpus (the baseline);
+   - Tesseract (spa) on the image;
+   - Claude describes the image and extracts its data (text that is indexed with the pipeline);
+   - Claude answers the question by looking at the image directly (no RAG).
+3. Metrics, fixed before the run:
+   - Facts extracted (7): each value or zone with its label on the SAME line of the extracted text (association, not just reading).
+   - recall@5 of answers: the gold set's image questions (5 per language); a hit if a chunk in the top 5 comes from the
+     image and contains the answer (case- and accent-insensitive). Index: the text corpus + the extracted text.
+   - Accuracy of the direct answer: the model's answer contains the correct figure.
+Requires Pillow, reportlab (only to locate the TTF font), Tesseract with 'spa', LM Studio with bge-m3, and ANTHROPIC_API_KEY.
 """
 import argparse
 import base64
@@ -44,7 +44,7 @@ from embeddings_comparacion import emb_bge  # noqa: E402
 
 GRAFICA = json.loads((RAIZ / "fuentes" / "grafica_nivel_servicio.json").read_text(encoding="utf-8"))
 PLANO = json.loads((RAIZ / "fuentes" / "plano_cedis_occidente.json").read_text(encoding="utf-8"))
-HECHOS = [  # (imagen, descripción, patrón en una misma línea)
+HECHOS = [  # (image, description, pattern on the same line)
     ("grafica_nivel_servicio", "CEDIS Centro 97.8%", r"centro.*97[.,]8|97[.,]8.*centro"),
     ("grafica_nivel_servicio", "CEDIS Occidente 95.1%", r"occidente.*95[.,]1|95[.,]1.*occidente"),
     ("grafica_nivel_servicio", "CEDIS Norte 98.6%", r"norte.*98[.,]6|98[.,]6.*norte"),
@@ -63,7 +63,7 @@ def sin_acentos(s):
     return "".join(c for c in unicodedata.normalize("NFKD", s.lower()) if not unicodedata.combining(c))
 
 
-# ---------- generación de imágenes ----------
+# ---------- image generation ----------
 
 def fuente(tam):
     from PIL import ImageFont
@@ -76,7 +76,7 @@ def dibujar_grafica(destino):
     img = Image.new("RGB", (W, H), "white")
     d = ImageDraw.Draw(img)
     d.text((60, 30), GRAFICA["titulo"], fill="black", font=fuente(34))
-    x0, y0, x1, y1 = 140, 120, 1120, 660          # área del eje
+    x0, y0, x1, y1 = 140, 120, 1120, 660          # axis area
     vmin, vmax = 90.0, 100.0
     d.line((x0, y0, x0, y1), fill="black", width=2)
     d.line((x0, y1, x1, y1), fill="black", width=2)
@@ -105,7 +105,7 @@ def dibujar_plano(destino):
     img = Image.new("RGB", (W, H), "white")
     d = ImageDraw.Draw(img)
     d.text((60, 30), PLANO["titulo"], fill="black", font=fuente(34))
-    mx0, my0, mx1, my1 = 80, 180, 1320, 860          # muro del edificio
+    mx0, my0, mx1, my1 = 80, 180, 1320, 860          # building wall
     d.rectangle((mx0, my0, mx1, my1), outline="black", width=4)
     anden_w = (mx1 - mx0) / 8
     for n in range(1, 9):
@@ -115,21 +115,21 @@ def dibujar_plano(destino):
         d.text((ax0 + 30, my0 - 45), f"Andén {n}", fill="black", font=fuente(22))
     d.text((mx0 + 1.5 * anden_w, my0 - 110), "Recepción", fill="#1F4E79", font=fuente(26))
     d.text((mx0 + 5.5 * anden_w, my0 - 110), "Embarque", fill="#7F3F00", font=fuente(26))
-    # zona de SKUs críticos, justo bajo el andén 2
-    # del mismo ancho que el andén 2, para que no quede ambigua con el andén 3
+    # critical-SKU zone, right below dock 2
+    # as wide as dock 2, so that it is not ambiguous with dock 3
     zx0, zx1 = mx0 + anden_w + 8, mx0 + 2 * anden_w - 8
     d.rectangle((zx0, my0 + 20, zx1, my0 + 150), outline="#C00000", width=3, fill="#FDECEC")
     f19 = fuente(19)
     for k, linea in enumerate(("Zona de SKUs", "críticos")):
         d.text(((zx0 + zx1) / 2 - d.textlength(linea, font=f19) / 2, my0 + 55 + k * 26), linea, fill="#C00000", font=f19)
-    # pasillos 10 a 14 como franjas verticales; la cuarentena dentro del pasillo 12
+    # aisles 10 to 14 as vertical strips; the quarantine inside aisle 12
     for k, p in enumerate(range(10, 15)):
         px = mx0 + 240 + k * 200
         d.rectangle((px, my0 + 220, px + 70, my1 - 40), outline="#888888", width=2)
         d.text((px - 15, my1 - 35), f"Pasillo {p}", fill="#333333", font=fuente(20))
         if p == 12:
             d.rectangle((px + 4, my0 + 380, px + 66, my0 + 560), outline="#7030A0", width=3, fill="#EFE3F7")
-            # rótulo centrado sobre el pasillo 12 (sin invadir los pasillos 11 y 13) y línea hasta la zona
+            # label centered over aisle 12 (without spilling into aisles 11 and 13) and a line to the zone
             rotulo, f22 = "Zona de cuarentena", fuente(22)
             ancho_rot = d.textlength(rotulo, font=f22)
             d.text((px + 35 - ancho_rot / 2, my0 + 172), rotulo, fill="#7030A0", font=f22)
@@ -138,7 +138,7 @@ def dibujar_plano(destino):
     img.save(destino)
 
 
-# ---------- extractores ----------
+# ---------- extractors ----------
 
 def tesseract(img):
     return subprocess.run(["tesseract", str(img), "stdout", "-l", "spa"], capture_output=True, text=True, check=True).stdout
@@ -160,7 +160,7 @@ def llamar_claude(modelo, esfuerzo, img, texto):
     except urllib.error.HTTPError as e:
         raise SystemExit(f"API HTTP {e.code} ({img.name}): {e.read().decode()[:300]}")
     if d.get("stop_reason") == "max_tokens":
-        raise SystemExit(f"Salida truncada por max_tokens ({img.name}); no se usa.")
+        raise SystemExit(f"Output truncated by max_tokens ({img.name}); it is not used.")
     u, precio = d["usage"], pt.PRECIOS[f"anthropic:{modelo}"]
     return {"texto": "".join(b.get("text", "") for b in d["content"] if b.get("type") == "text"),
             "tokens_in": u["input_tokens"], "tokens_out": u["output_tokens"], "latencia_s": round(time.perf_counter() - t0, 2),
@@ -174,13 +174,13 @@ def main():
     ap.add_argument("--regenerar-claude", action="store_true")
     args = ap.parse_args()
     if "spa" not in subprocess.run(["tesseract", "--list-langs"], capture_output=True, text=True).stdout.split():
-        raise SystemExit("Tesseract no tiene el idioma 'spa'.")
+        raise SystemExit("Tesseract does not have the 'spa' language.")
 
     IMG_DIR.mkdir(parents=True, exist_ok=True)
     imgs = {"grafica_nivel_servicio": IMG_DIR / "grafica_nivel_servicio.png", "plano_cedis_occidente": IMG_DIR / "plano_cedis_occidente.png"}
     dibujar_grafica(imgs["grafica_nivel_servicio"])
     dibujar_plano(imgs["plano_cedis_occidente"])
-    print(f"imágenes: {len(imgs)} en {IMG_DIR.relative_to(REPO)}", file=sys.stderr)
+    print(f"images: {len(imgs)} in {IMG_DIR.relative_to(REPO)}", file=sys.stderr)
 
     EXT_DIR.mkdir(parents=True, exist_ok=True)
     ruta_cache = EXT_DIR / f"claude_{args.modelo}_{args.esfuerzo}.json"
@@ -201,7 +201,7 @@ def main():
             (EXT_DIR / f"{clave}__{s}.txt").write_text(texto, encoding="utf-8")
 
     detalle = []
-    print("| Uso de la imagen | Hechos extraídos (etiqueta y valor en la misma línea) |")
+    print("| Use of the image | Facts extracted (label and value on the same line) |")
     print("|---|---|")
     for nombre, t in textos.items():
         ok = 0
@@ -216,7 +216,7 @@ def main():
                         if d.get("formato") == "imagen"] for lang in ("es", "en")}
     corpus = {p.stem: p.read_text(encoding="utf-8") for p in CORPUS.glob("*.md")}
     vq = {l: emb_bge([q["question"] for q in qs], "query")[0] for l, qs in preguntas.items()}
-    print("\n| Uso de la imagen | Idioma | recall@5 de respuestas |")
+    print("\n| Use of the image | Language | recall@5 of answers |")
     print("|---|---|---|")
     for nombre, t in textos.items():
         chunks = [(s, c) for s, x in {**corpus, **t}.items() for c in pt.trocear(x, s)]
@@ -231,7 +231,7 @@ def main():
                 detalle.append({"uso": nombre, "medida": "recall5", "idioma": lang, "item": q["id"], "acierto": int(hit)})
             print(f"| {nombre} | {lang} | {ok}/{len(qs)} |")
 
-    print(f"\n| Respuesta directa con la imagen ({args.modelo}, {args.esfuerzo}) | Idioma | Exactitud |")
+    print(f"\n| Direct answer with the image ({args.modelo}, {args.esfuerzo}) | Language | Accuracy |")
     print("|---|---|---|")
     for lang, qs in preguntas.items():
         ok = 0
@@ -241,18 +241,18 @@ def main():
             ok += hit
             detalle.append({"uso": "respuesta directa", "medida": "exactitud", "idioma": lang, "item": q["id"],
                             "acierto": int(hit), "respuesta_modelo": r["texto"].strip()[:200]})
-        print(f"| respuesta directa | {lang} | {ok}/{len(qs)} |")
+        print(f"| direct answer | {lang} | {ok}/{len(qs)} |")
 
     v = list(cache.values())
-    print(f"\nClaude {args.modelo} ({args.esfuerzo}): {len(v)} llamadas, tokens de entrada {sum(x['tokens_in'] for x in v)}, "
-          f"de salida {sum(x['tokens_out'] for x in v)}, costo ${sum(x['costo_usd'] for x in v):.5f}, "
-          f"latencia media {sum(x['latencia_s'] for x in v) / len(v):.1f} s")
+    print(f"\nClaude {args.modelo} ({args.esfuerzo}): {len(v)} calls, input tokens {sum(x['tokens_in'] for x in v)}, "
+          f"output {sum(x['tokens_out'] for x in v)}, cost ${sum(x['costo_usd'] for x in v):.5f}, "
+          f"mean latency {sum(x['latencia_s'] for x in v) / len(v):.1f} s")
     campos = sorted({k for x in detalle for k in x})
     with (RES / "imagenes_detalle.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=campos)
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle: {RES / 'imagenes_detalle.csv'}", file=sys.stderr)
+    print(f"detail: {RES / 'imagenes_detalle.csv'}", file=sys.stderr)
 
 
 if __name__ == "__main__":

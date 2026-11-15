@@ -1,17 +1,17 @@
-"""Actividad 2: text-to-SQL sobre un esquema legado.
+"""Activity 2: text-to-SQL over a legacy schema.
 
-Set difícil de semana 7 (nlq_hard_validado.jsonl, 43 preguntas por idioma). Cuatro variantes con el mismo modelo:
-- copilot:      esquema original (semana-07/schema.sql), control con el mismo modelo.
-- legado:       DDL legado con nombres crípticos (legado/esquema_legado.sql), sin diccionario.
-- legado_dic:   DDL legado + diccionario de datos completo (legado/diccionario.json).
-- legado_rec:   DDL y diccionario solo de las 3 tablas más afines a la pregunta (bge-m3 en LM Studio).
-Exactitud por ejecución: el resultado del SQL generado se compara con el del SQL de referencia, con la misma
-normalización de semana 7 (semana-07/run_eval.py). El SQL de referencia corre con el search_path por defecto;
-en las variantes legado, el SQL generado corre con search_path = legado. Ambos con el rol de solo lectura.
+The week 7 hard set (nlq_hard_validado.jsonl, 43 questions per language). Four variants with the same model:
+- copilot:      the original schema (semana-07/schema.sql), a control with the same model.
+- legado:       the legacy DDL with cryptic names (legado/esquema_legado.sql), without a dictionary.
+- legado_dic:   the legacy DDL + the full data dictionary (legado/diccionario.json).
+- legado_rec:   the DDL and dictionary of only the 3 tables most similar to the question (bge-m3 in LM Studio).
+Execution accuracy: the result of the generated SQL is compared with that of the reference SQL, with the same
+normalization as week 7 (semana-07/run_eval.py). The reference SQL runs with the default search_path;
+in the legacy variants, the generated SQL runs with search_path = legado. Both with the read-only role.
 
-Uso: python3 sql_legado.py --modelo claude-sonnet-5-5 --esfuerzo medium [--variantes copilot,legado,...] [--limite N]
-Requiere NLQ_DSN (rol copilot_ro), el esquema legado creado (legado/legado.sql), ANTHROPIC_API_KEY y,
-para legado_rec, LM Studio con bge-m3.
+Usage: python3 sql_legado.py --modelo claude-sonnet-5-5 --esfuerzo medium [--variantes copilot,legado,...] [--limite N]
+Requires NLQ_DSN (the copilot_ro role), the legacy schema created (legado/legado.sql), ANTHROPIC_API_KEY and,
+for legado_rec, LM Studio with bge-m3.
 """
 import argparse
 import csv
@@ -86,7 +86,7 @@ def llamar(modelo, esfuerzo, sis, pregunta):
             if e.code in (429, 500, 502, 503, 529) and intento < 3:
                 time.sleep(2 ** (intento + 1))
                 continue
-            # Error no reintentable (o reintentos agotados): se registra y la corrida sigue.
+            # A non-retryable error (or retries exhausted): it is recorded and the run continues.
             print(f"  API HTTP {e.code}: {cuerpo_error}", file=sys.stderr)
             return f"API HTTP {e.code}: {cuerpo_error}", 0, 0, round(time.perf_counter() - t0, 3), "error_api"
     texto = "".join(b.get("text", "") for b in d["content"] if b.get("type") == "text")
@@ -99,8 +99,8 @@ def main():
     ap.add_argument("--modelo", required=True)
     ap.add_argument("--esfuerzo", required=True, choices=["low", "medium", "high", "xhigh", "max"])
     ap.add_argument("--variantes", default=",".join(VARIANTES))
-    ap.add_argument("--limite", type=int, default=0, help="solo las primeras N preguntas por idioma (prueba)")
-    ap.add_argument("--reanudar", action="store_true", help="salta las combinaciones pregunta-variante ya guardadas en el CSV")
+    ap.add_argument("--limite", type=int, default=0, help="only the first N questions per language (test)")
+    ap.add_argument("--reanudar", action="store_true", help="skip the question-variant combinations already saved in the CSV")
     args = ap.parse_args()
     variantes = args.variantes.split(",")
     precio = PRECIOS[f"anthropic:{args.modelo}"]
@@ -115,7 +115,7 @@ def main():
     vistas = {r[0] for r in conn_leg.execute(
         "SELECT table_name FROM information_schema.views WHERE table_schema = 'legado'").fetchall()}
     if vistas != set(DICCIONARIO):
-        raise SystemExit(f"El esquema legado no está completo para el rol de lectura: {sorted(vistas)}. Corre legado/legado.sql.")
+        raise SystemExit(f"The legacy schema is not complete for the read role: {sorted(vistas)}. Run legado/legado.sql.")
     gold = {x["id"]: re7.ejecutar(conn_ref, x["sql"]) for x in items}
 
     rec_vecs, entradas = {}, []
@@ -140,11 +140,11 @@ def main():
                 f[k] = int(f[k])
             f["latencia_s"], f["costo_usd"] = float(f["latencia_s"]), float(f["costo_usd"])
             f["recuperacion_completa"] = "" if f["recuperacion_completa"] == "" else int(f["recuperacion_completa"])
-            if f["categoria"] != "error_api":  # los errores de API se vuelven a intentar
+            if f["categoria"] != "error_api":  # API errors are retried
                 detalle.append(f)
-        print(f"reanudando: {len(detalle)} combinaciones ya hechas (los errores de API se reintentan)", file=sys.stderr)
+        print(f"resuming: {len(detalle)} combinations already done (API errors are retried)", file=sys.stderr)
     hechas = {(d["id"], d["variante"]) for d in detalle}
-    # El archivo se reescribe con lo ya hecho y se completa con lo nuevo, sin duplicados.
+    # The file is rewritten with what is already done and completed with the new results, without duplicates.
     fh = salida.open("w", encoding="utf-8", newline="")
     escritor = csv.DictWriter(fh, fieldnames=CAMPOS)
     escritor.writeheader()
@@ -179,7 +179,7 @@ def main():
             else:
                 try:
                     cat = "correcta" if re7.results_match(gold[x["id"]], re7.ejecutar(conn, sql), x["order_matters"]) else "resultado_distinto"
-                except Exception as e:  # noqa: BLE001  (cualquier error de SQL cuenta como fallo de ejecución)
+                except Exception as e:  # noqa: BLE001  (any SQL error counts as an execution failure)
                     cat = "error_sql"
             detalle.append({"id": x["id"], "lang": x["lang"], "variante": var, "categoria": cat, "ok": int(cat == "correcta"),
                             "tablas_necesarias": "|".join(sorted(necesarias)),
@@ -192,8 +192,8 @@ def main():
         print(f"{x['id']}: " + " ".join(f"{d['variante']}={d['categoria']}" for d in detalle if d["id"] == x["id"]), file=sys.stderr)
     fh.close()
 
-    print(f"\nModelo {args.modelo}, esfuerzo {args.esfuerzo}. Precio: {precio['in']} / {precio['out']} USD por millón.\n")
-    print("| Variante | Idioma | Exactitud | Correctas | Errores SQL | Resultado distinto | Recuperación completa de tablas | Costo por pregunta (USD) | Latencia p50 (s) | Tokens de salida (media) |")
+    print(f"\nModel {args.modelo}, effort {args.esfuerzo}. Price: {precio['in']} / {precio['out']} USD per million.\n")
+    print("| Variant | Language | Accuracy | Correct | SQL errors | Different result | Complete table retrieval | Cost per question (USD) | p50 latency (s) | Output tokens (mean) |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for var in variantes:
         for lang in ("es", "en"):
@@ -206,9 +206,9 @@ def main():
                   f"{statistics.mean(d['tokens_out'] for d in f):.0f} |")
     otros = [d for d in detalle if d["categoria"] in ("salida_truncada", "no_es_select")]
     api = [d for d in detalle if d["categoria"] == "error_api"]
-    print(f"\nSalidas truncadas o que no son SELECT: {len(otros)}. Errores de API: {len(api)}. "
-          f"Costo total: ${sum(d['costo_usd'] for d in detalle):.4f}")
-    print(f"detalle: {salida}", file=sys.stderr)
+    print(f"\nTruncated outputs or outputs that are not a SELECT: {len(otros)}. API errors: {len(api)}. "
+          f"Total cost: ${sum(d['costo_usd'] for d in detalle):.4f}")
+    print(f"detail: {salida}", file=sys.stderr)
 
 
 if __name__ == "__main__":

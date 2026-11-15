@@ -1,22 +1,22 @@
-"""Semana 12, actividad 6: fuga por rol y entre tenants en los RAG administrados, con las pruebas de semana 10.
+"""Week 12, activity 6: leaks by role and across tenants in the managed RAG services, with the week 10 tests.
 
-Casos (los mismos de semana 10, actividad 8):
-- rol: cada pregunta documental o no textual del golden integrado de semana 10 (15 + 15 por idioma) cuyo documento de
-  referencia no está abierto a todos los roles; usuario del tenant alfa con un solo rol SIN acceso a ese documento (el
-  primero, en el orden de semana 10, que no está entre sus roles);
-- tenant: las 10 preguntas multitenant de semana 9 por idioma (sus documentos existen en alfa y en beta con cifras
-  distintas), con un usuario de alfa y otro de beta, ambos con todos los roles.
-Sistemas: las 4 Knowledge Bases de Bedrock (Retrieve), RetrieveAndGenerate sobre adm-fijo-bda (la opción administrada
-adoptada; se revisan las referencias citadas) y los 2 data stores de Vertex AI Search (búsqueda híbrida), con el filtro
-de tenant y roles dentro de la consulta y top 20.
-Fuga = un chunk en los resultados cuyo tenant o roles reales no autorizan al usuario. El tenant y el documento se toman
-de la ubicación del archivo (no de los metadatos que devuelve el servicio) y los roles del documento, del manifiesto del
-paquete de ingesta (actividad 2). Se cuentan también los casos en que aparece el documento de referencia prohibido.
-Control: las mismas consultas SIN filtro en una KB y un data store; deben aparecer chunks no autorizados, lo que muestra
-que la prueba detecta la fuga cuando no hay filtro. Además se registra cuántos resultados devuelve cada consulta filtrada:
-si el filtro se aplicara después del top k, los usuarios con un solo rol recibirían menos de 20.
-Salida: resultados/seguridad.md (escrito a mano con estos datos), seguridad_resumen.json y seguridad_detalle.csv.
-Costo: Retrieve y búsqueda de Vertex (centavos); RetrieveAndGenerate con Haiku 4.5 (≈ $0.17).
+Cases (the same as week 10, activity 8):
+- role: each document or non-text question of the week 10 integrated gold set (15 + 15 per language) whose reference
+  document is not open to every role; a user of the alfa tenant with a single role WITHOUT access to that document (the
+  first one, in week 10's order, that is not among its roles);
+- tenant: the 10 week 9 multi-tenant questions per language (their documents exist in alfa and in beta with different
+  figures), with an alfa user and a beta user, both with every role.
+Systems: the 4 Bedrock Knowledge Bases (Retrieve), RetrieveAndGenerate over adm-fijo-bda (the adopted managed option;
+the cited references are checked) and the 2 Vertex AI Search data stores (hybrid search), with the tenant and role
+filter inside the query and top 20.
+Leak = a chunk in the results whose real tenant or roles do not authorize the user. The tenant and the document are taken
+from the file's location (not from the metadata the service returns) and the document's roles from the ingestion
+package's manifest (activity 2). The cases in which the forbidden reference document appears are also counted.
+Control: the same queries WITHOUT a filter on one KB and one data store; unauthorized chunks must appear, which shows
+that the test detects the leak when there is no filter. It also records how many results each filtered query returns:
+if the filter were applied after the top k, users with a single role would get fewer than 20.
+Output: resultados/seguridad.md (written by hand from this data), seguridad_resumen.json and seguridad_detalle.csv.
+Cost: Retrieve and Vertex search (cents); RetrieveAndGenerate with Haiku 4.5 (≈ $0.17).
 """
 import csv
 import json
@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import suites as s  # noqa: E402  (helpers de Bedrock y Vertex, golden y asistente)
 
 a, RAIZ, REPO = s.a, s.RAIZ, s.REPO
-ORDEN_ROLES = ["ventas", "calidad", "compras", "almacen", "finanzas", "operaciones"]  # semana 10, seguridad.py
+ORDEN_ROLES = ["ventas", "calidad", "compras", "almacen", "finanzas", "operaciones"]  # week 10, seguridad.py
 TODOS = sorted({r for rs in a.ROLES.values() for r in rs})
 MANIF = json.loads((RAIZ / "ingesta" / "paquete" / "manifiesto.json").read_text(encoding="utf-8"))
 ROLES_DOC = {(d["tenant_id"], d["source"]): set(d["roles"]) for d in MANIF["documentos"]}
@@ -127,13 +127,13 @@ def medir(nombre, fn, cs, hilos=1):
                 "ejemplo": "; ".join(f"{t}/{src}" for t, src in no_aut[:3]), "lat": round(time.perf_counter() - t0, 3)}
     with ThreadPoolExecutor(hilos) as ex:
         filas = list(ex.map(uno, cs))
-    print(f"{nombre}: {sum(f['no_autorizados'] for f in filas)} chunks no autorizados en {len(filas)} consultas", flush=True)
+    print(f"{nombre}: {sum(f['no_autorizados'] for f in filas)} unauthorized chunks in {len(filas)} queries", flush=True)
     return filas
 
 
 def main():
     cs = casos()
-    print(f"casos: {sum(c['tipo'] == 'rol' for c in cs)} por rol, {sum(c['tipo'] == 'tenant' for c in cs)} entre tenants")
+    print(f"cases: {sum(c['tipo'] == 'rol' for c in cs)} by role, {sum(c['tipo'] == 'tenant' for c in cs)} across tenants")
     cli = s._aws("bedrock-agent-runtime")
     cuenta = s._aws("sts").get_caller_identity()["Account"]
     modelo = f"arn:aws:bedrock:us-east-1:{cuenta}:inference-profile/{s.PERFIL_RAG}"
@@ -164,7 +164,7 @@ def main():
         w = csv.DictWriter(fh, fieldnames=list(filas[0].keys()))
         w.writeheader()
         w.writerows(filas + control)
-    print("\n| Sistema | Tipo | Consultas | Chunks no autorizados | Consultas con fuga | Doc. prohibido | Resultados (media / mín) |")
+    print("\n| System | Type | Queries | Unauthorized chunks | Queries with a leak | Forbidden doc. | Results (mean / min) |")
     print("|---|---|---|---|---|---|---|")
     for destino in ("sistemas", "control_sin_filtro"):
         for nombre, v in resumen[destino].items():
@@ -172,7 +172,7 @@ def main():
                 x = v[t]
                 print(f"| {nombre} | {t} | {x['consultas']} | {x['chunks_no_autorizados']} | {x['consultas_con_fuga']} | "
                       f"{x['documento_prohibido']} | {x['resultados_media']} / {x['resultados_min']} |")
-    print(f"\nFUGA TOTAL CON FILTRO: {resumen['fuga_total']} (debe ser 0)")
+    print(f"\nTOTAL LEAK WITH THE FILTER: {resumen['fuga_total']} (must be 0)")
     if resumen["fuga_total"]:
         raise SystemExit("HAY FUGA")
 

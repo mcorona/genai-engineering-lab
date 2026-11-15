@@ -1,24 +1,24 @@
-"""Semana 11, actividad 5: RAG extremo a extremo y atribución de fallas.
+"""Week 11, activity 5: end-to-end RAG and failure attribution.
 
-RAG completo = recuperación (actividad 2) + generación (actividad 4) sobre lo recuperado, con las mismas métricas de la
-suite de generación (juez Haiku 5.5 low): faithfulness y answer relevancy (RAGAS), exactitud (juez propio), precisión y
-cobertura de citas, y abstención. Golden set completo: 75 preguntas por idioma.
+Full RAG = retrieval (activity 2) + generation (activity 4) over what was retrieved, with the same metrics as the
+generation suite (judge Haiku 5.5 low): faithfulness and answer relevancy (RAGAS), accuracy (in-house judge), citation
+precision and coverage, and abstention. The full gold set: 75 questions per language.
 
-Configuraciones:
-- adoptado_top5: el pipeline del asistente (vectorial + filtro + reranking con Haiku, top 5). Los rankings de las
-  respondibles son los de la actividad 2 (resultados/suite_recuperacion_cache.json); los de las 10 sin respuesta por
-  idioma se calculan aquí con el mismo código.
-- estres_base_top3: vectorial + filtro sin reranking y solo 3 chunks. No es una configuración candidata: en la actividad 2
-  fue la única con recall < 1 en el top k (recall@3 0.962 ES, 0.908 EN), así que sirve para comprobar que la atribución
-  separa fallas de recuperación de fallas de generación cuando sí las hay.
+Configurations:
+- adoptado_top5: the assistant's pipeline (vector + filter + reranking with Haiku, top 5). The rankings of the
+  answerable questions are those of activity 2 (resultados/suite_recuperacion_cache.json); those of the 10 unanswerable
+  questions per language are computed here with the same code.
+- estres_base_top3: vector + filter without reranking and only 3 chunks. It is not a candidate configuration: in activity 2
+  it was the only one with recall < 1 in the top k (recall@3 0.962 ES, 0.908 EN), so it serves to check that the
+  attribution separates retrieval failures from generation failures when there are some.
 
-Falla: en una respondible, exactitud 0 según el juez propio; en una sin respuesta, que el generador responda (no se
-abstenga). Atribución, fijada antes de correr:
-- recuperación: algún pasaje de referencia no llegó al contexto (al top k de la configuración);
-- generación: todos los pasajes llegaron y la respuesta falló; las sin respuesta que responden cuentan aquí, porque no
-  hay pasaje que recuperar.
-Cachés por configuración en resultados/e2e_cache_<config>.json; contextos en resultados/e2e_contextos.json.
-Requiere NLQ_DSN (solo la primera vez), LM Studio con bge-m3 y ANTHROPIC_API_KEY.
+Failure: for an answerable question, accuracy 0 according to the in-house judge; for an unanswerable one, the generator
+answering (not abstaining). Attribution, fixed before the run:
+- retrieval: some reference passage did not reach the context (the configuration's top k);
+- generation: every passage arrived and the answer failed; unanswerable questions that get an answer count here, because
+  there is no passage to retrieve.
+Caches per configuration in resultados/e2e_cache_<config>.json; contexts in resultados/e2e_contextos.json.
+Requires NLQ_DSN (only the first time), LM Studio with bge-m3, and ANTHROPIC_API_KEY.
 """
 import asyncio
 import csv
@@ -42,7 +42,7 @@ def contextos(items):
         return json.loads(CONTEXTOS.read_text(encoding="utf-8"))
     rec = json.loads((RES / "suite_recuperacion_cache.json").read_text(encoding="utf-8"))
     local = {k: v for k, v in rec.items() if k.startswith(("base::", "adoptado::"))}
-    sr.recuperar(items, local)  # solo calcula lo que falta (las sin respuesta)
+    sr.recuperar(items, local)  # only computes what is missing (the unanswerable questions)
     ctx = {c: {f"{x['id']}::{x['lang']}": {"chunks": local[f"{orden}::{x['id']}::{x['lang']}"]["ranking"][:k]} for x in items}
            for c, (orden, k) in CONFIGS.items()}
     ctx["_costo_rerank_sin_respuesta"] = sum(local[f"adoptado::{x['id']}::{x['lang']}"].get("costo", 0)
@@ -97,8 +97,8 @@ def main():
         v = [r[c] for r in f if r.get(c) is not None]
         return f"{statistics.mean(v):.3f}" if v else "-"
 
-    print("## Métricas extremo a extremo (respondibles)\n")
-    print("| Configuración | Idioma | n | recall del contexto | exactitud | faithfulness | answer_relevancy | precisión de citas | cobertura de cita | abstención falsa |")
+    print("## End-to-end metrics (answerable questions)\n")
+    print("| Configuration | Language | n | context recall | accuracy | faithfulness | answer_relevancy | citation precision | citation coverage | false abstention |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for config, (filas, _) in resumen.items():
         for lang in ("es", "en"):
@@ -107,15 +107,15 @@ def main():
             print(f"| {config} | {lang} | {len(f)} | {media(f, 'recall_contexto')} | {media(f, 'exactitud')} | {media(f, 'faithfulness')} | "
                   f"{media(f, 'answer_relevancy')} | {sum(r['citas_con_pasaje'] for r in f) / nc:.3f} ({nc}) | "
                   f"{sum(1 for r in f if r['citas_con_pasaje']) / len(f):.3f} | {sum(r['clase'] == 'abstiene' for r in f)}/{len(f)} |")
-    print("\n## Sin respuesta\n")
-    print("| Configuración | Idioma | Abstención correcta | Respuesta inventada |")
+    print("\n## Unanswerable\n")
+    print("| Configuration | Language | Correct abstention | Invented answer |")
     print("|---|---|---|---|")
     for config, (filas, _) in resumen.items():
         for lang in ("es", "en"):
             f = [r for r in filas if r["lang"] == lang and r["tipo"] == "sin_respuesta"]
             print(f"| {config} | {lang} | {sum(r['clase'] == 'abstiene' for r in f)}/{len(f)} | {sum(r['clase'] != 'abstiene' for r in f)}/{len(f)} |")
-    print("\n## Atribución de fallas (idioma × tipo)\n")
-    print("| Configuración | Idioma | Tipo | n | Fallas | Recuperación | Generación |")
+    print("\n## Failure attribution (language × type)\n")
+    print("| Configuration | Language | Type | n | Failures | Retrieval | Generation |")
     print("|---|---|---|---|---|---|---|")
     for config, (filas, _) in resumen.items():
         for lang in ("es", "en"):
@@ -124,25 +124,25 @@ def main():
                 fallas = [r for r in f if r["falla"]]
                 print(f"| {config} | {lang} | {tipo} | {len(f)} | {len(fallas)} | {sum(r['atribucion'] == 'recuperación' for r in fallas)} | "
                       f"{sum(r['atribucion'] == 'generación' for r in fallas)} |")
-    print("\n## Fallas, una por una\n")
+    print("\n## Failures, one by one\n")
     for config, (filas, _) in resumen.items():
         for r in filas:
             if r["falla"]:
                 rc = f"recall del contexto {r['recall_contexto']:.2f}" if "recall_contexto" in r else "sin respuesta"
                 print(f"- {config} {r['id']} {r['lang']} [{r['atribucion']}; {rc}]: {r['respuesta'][:200].replace(chr(10), ' ')}")
-    print("\n## Pasaje fuera del contexto pero respuesta correcta (la atribución no aplica)\n")
+    print("\n## Passage outside the context but a correct answer (attribution does not apply)\n")
     for config, (filas, _) in resumen.items():
         for r in filas:
             if r.get("recall_contexto", 1) < 1 and not r["falla"]:
-                print(f"- {config} {r['id']} {r['lang']}: recall del contexto {r['recall_contexto']:.2f}; {r['respuesta'][:160].replace(chr(10), ' ')}")
+                print(f"- {config} {r['id']} {r['lang']}: context recall {r['recall_contexto']:.2f}; {r['respuesta'][:160].replace(chr(10), ' ')}")
     print()
     for config, (filas, uso) in resumen.items():
         costo_gen = sum(r["costo_gen"] for r in filas)
         costo_ev = (uso["in"] * sg.PRECIO["in"] + uso["out"] * sg.PRECIO["out"]) / 1e6
         sin = sum(1 for r in filas for m in ("faithfulness", "answer_relevancy", "exactitud", "clase") if m in r and r[m] is None)
-        print(f"Costo {config}: generación ${costo_gen:.4f}; evaluación en esta corrida ${costo_ev:.4f} ({uso['llamadas']} llamadas); "
-              f"sin puntaje {sin}; latencia p50 de generación {statistics.median(r['latencia_gen_s'] for r in filas):.1f} s")
-    print(f"Reranking de las preguntas sin respuesta: ${ctx_todos['_costo_rerank_sin_respuesta']:.4f}")
+        print(f"Cost {config}: generation ${costo_gen:.4f}; evaluation in this run ${costo_ev:.4f} ({uso['llamadas']} calls); "
+              f"without a score {sin}; generation p50 latency {statistics.median(r['latencia_gen_s'] for r in filas):.1f} s")
+    print(f"Reranking of the unanswerable questions: ${ctx_todos['_costo_rerank_sin_respuesta']:.4f}")
 
 
 if __name__ == "__main__":

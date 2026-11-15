@@ -1,31 +1,31 @@
-"""Semana 11, actividad 8: eval de RAG en CI, con dos suites separadas (un job de GitHub Actions por suite).
+"""Week 11, activity 8: the RAG eval in CI, with two separate suites (one GitHub Actions job per suite).
 
---suite recuperacion (no llama al modelo de respuesta):
-  índice semana10.chunks (30 documentos, chunking fijo 400/80) reconstruido en el pgvector de servicio, usuario del tenant
-  alfa con todos los roles y filtro dentro de la consulta; top 20 por similitud y reranking con Haiku 5.5 (pipeline
-  adoptado). Métricas exactas sobre las 65 respondibles por idioma: recall@3, recall@5, MRR, nDCG@10 y AP@5 (actividad 2).
-  Sin RAGAS en esta suite: context precision equivale a AP@5 con juez (Pearson 0.84, actividad 2) y cuesta 4 veces más
-  (actividad 7).
---suite generacion (no depende del buscador):
-  contextos fijos de resultados/contextos_generacion.json (actividad 4), generador Haiku 5.5 medium con el prompt
-  solo_documentos (actividad 6), juez Haiku 5.5 low (actividad 3). Las 150 preguntas completas, sin subconjunto: la
-  corrida cuesta ≈ $0.22 (actividad 7). Métricas por idioma: faithfulness y answer relevancy (RAGAS 0.4.3), exactitud
-  (juez propio), precisión de citas, no abstención falsa en las 65 respondibles y abstención correcta en las 10 sin
-  respuesta.
+--suite recuperacion (does not call the answer model):
+  the semana10.chunks index (30 documents, fixed 400/80 chunking) rebuilt in the pgvector service, a user of the alfa
+  tenant with every role and the filter inside the query; top 20 by similarity and reranking with Haiku 5.5 (the adopted
+  pipeline). Exact metrics over the 65 answerable questions per language: recall@3, recall@5, MRR, nDCG@10 and AP@5
+  (activity 2). No RAGAS in this suite: context precision is equivalent to AP@5 with a judge (Pearson 0.84, activity 2)
+  and costs 4 times more (activity 7).
+--suite generacion (does not depend on the retriever):
+  the fixed contexts of resultados/contextos_generacion.json (activity 4), the Haiku 5.5 medium generator with the
+  solo_documentos prompt (activity 6), the Haiku 5.5 low judge (activity 3). All 150 questions, no subset: the
+  run costs ≈ $0.22 (activity 7). Metrics per language: faithfulness and answer relevancy (RAGAS 0.4.3), accuracy
+  (in-house judge), citation precision, no false abstention on the 65 answerable questions, and correct abstention on
+  the 10 unanswerable ones.
 
-Embeddings en CI: text-embedding-3-small (OpenAI), como en semanas 8 a 10 (bge-m3 corre en LM Studio, no en Actions);
-afecta al índice de recuperación y a answer relevancy. Por eso los umbrales se calibran con la primera corrida de CI y no
-con los valores locales.
+Embeddings in CI: text-embedding-3-small (OpenAI), as in weeks 8 to 10 (bge-m3 runs in LM Studio, not in Actions);
+it affects the retrieval index and answer relevancy. That is why the thresholds are calibrated with the first CI run and
+not with the local values.
 
-Regla de calibración (semana 10, fijada antes de la primera corrida): umbral = múltiplo de 0.05 inmediatamente inferior a
-(valor de la primera corrida - max(0.03, 1/n)), con n preguntas por idioma (65 respondibles; 10 sin respuesta). Con
---calibrar no se aplican umbrales: se imprimen los valores y el umbral que resulta.
-Métricas del juez sin puntaje (error de API tras los reintentos): se toleran hasta el 1 % de las llamadas de la corrida y
-se excluyen de las medias; por encima, el job falla.
+Calibration rule (week 10, fixed before the first run): threshold = the multiple of 0.05 immediately below
+(value of the first run - max(0.03, 1/n)), with n questions per language (65 answerable; 10 unanswerable). With
+--calibrar, no thresholds are applied: the values and resulting thresholds are printed.
+Judge metrics without a score (an API error after the retries): up to 1 % of the run's calls are tolerated and
+excluded from the means; above that, the job fails.
 
---local: prueba de humo en la Mac (bge-m3 de LM Studio e índice semana10.chunks ya construido). --limite N: N respondibles
-y 1 sin respuesta por idioma.
-Requiere ANTHROPIC_API_KEY; recuperación: PG_ADMIN_DSN y NLQ_DSN (copilot_ro); sin --local, OPENAI_API_KEY.
+--local: a smoke test on the Mac (bge-m3 from LM Studio and the semana10.chunks index already built). --limite N: N answerable
+questions and 1 unanswerable per language.
+Requires ANTHROPIC_API_KEY; retrieval: PG_ADMIN_DSN and NLQ_DSN (copilot_ro); without --local, OPENAI_API_KEY.
 """
 import argparse
 import asyncio
@@ -41,13 +41,13 @@ from urllib.request import Request, urlopen
 
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "experimentos"))
-import sensibilidad as sens  # noqa: E402  (importa las suites de las actividades 2 y 4 y el asistente de semana 10)
+import sensibilidad as sens  # noqa: E402  (imports the suites of activities 2 and 4 and the week 10 assistant)
 
 sg, sr, a = sens.sg, sens.sr, sens.a
 MODELO_EMB = "text-embedding-3-small"
 MET_REC = ("recall@3", "recall@5", "mrr", "ndcg@10", "ap@5")
 MET_GEN = ("faithfulness", "answer_relevancy", "exactitud", "precision_citas", "no_abstencion_falsa", "abstencion_correcta")
-# Umbrales por suite, métrica e idioma, calibrados con la primera corrida de CI (ver resultados/ci_calibracion.md).
+# Thresholds per suite, metric and language, calibrated with the first CI run (see resultados/ci_calibracion.md).
 UMBRALES = {
     "recuperacion": {"recall@3": {"es": 0.95, "en": 0.95}, "recall@5": {"es": 0.95, "en": 0.95}, "mrr": {"es": 0.90, "en": 0.90},
                      "ndcg@10": {"es": 0.90, "en": 0.90}, "ap@5": {"es": 0.90, "en": 0.90}},
@@ -95,7 +95,7 @@ def golden(limite):
 
 def suite_recuperacion(items, local):
     if not local:
-        a.emb_bge = embed_openai  # el asistente (índice) y la suite de recuperación usan a.emb_bge
+        a.emb_bge = embed_openai  # the assistant (index) and the retrieval suite use a.emb_bge
         a.indexar()
     resp = [x for x in items if x["respondible"]]
     cache = {}
@@ -156,13 +156,13 @@ def suite_generacion(items, local):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--suite", choices=("recuperacion", "generacion"), required=True)
-    ap.add_argument("--calibrar", action="store_true", help="primera corrida: imprime valores y umbrales, sin aplicarlos")
-    ap.add_argument("--local", action="store_true", help="prueba de humo con bge-m3 local y el índice existente")
-    ap.add_argument("--limite", type=int, default=0, help="N respondibles y 1 sin respuesta por idioma (prueba de humo)")
+    ap.add_argument("--calibrar", action="store_true", help="first run: prints the values and thresholds, without applying them")
+    ap.add_argument("--local", action="store_true", help="smoke test with local bge-m3 and the existing index")
+    ap.add_argument("--limite", type=int, default=0, help="N answerable and 1 unanswerable question per language (smoke test)")
     args = ap.parse_args()
     aplicar = not (args.calibrar or args.local or args.limite)
     if aplicar and (UMBRALES is None or args.suite not in UMBRALES):
-        raise SystemExit("Sin umbrales calibrados: corre con --calibrar y fija UMBRALES con la regla de la docstring.")
+        raise SystemExit("No calibrated thresholds: run with --calibrar and set UMBRALES with the rule in the docstring.")
     t0 = time.time()
     items = golden(args.limite)
     correr = suite_recuperacion if args.suite == "recuperacion" else suite_generacion
@@ -192,7 +192,7 @@ def main():
             fh.write(texto + "\n")
     if fallas:
         raise SystemExit("FALLA:\n- " + "\n- ".join(fallas))
-    print("Todos los checks pasaron." if aplicar else "Sin umbrales aplicados (calibración o prueba de humo).")
+    print("All checks passed." if aplicar else "No thresholds applied (calibration or smoke test).")
 
 
 if __name__ == "__main__":

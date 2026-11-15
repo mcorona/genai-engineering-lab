@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Semana 12, actividad 9 (AWS, lo corre el administrador): rol semana12-ci que solo puede asumir, por OIDC de GitHub
-# Actions, un job del entorno nube-semana12 de este repo. Sin llaves de acceso. Permisos de solo consulta: Retrieve,
-# RetrieveAndGenerate e invocar los modelos que usan (Haiku y embeddings). No puede crear ni borrar nada.
+# Week 12, activity 9 (AWS, run by the administrator): the semana12-ci role, which only a GitHub Actions job of this
+# repository's nube-semana12 environment can assume, through GitHub OIDC. No access keys. Query-only permissions: Retrieve,
+# RetrieveAndGenerate and invoking the models they use (Haiku and embeddings). It cannot create or delete anything.
 set -euo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PAGER=""
@@ -11,9 +11,9 @@ PROV=$(aws iam list-open-id-connect-providers --query "OpenIDConnectProviderList
 if [ -z "$PROV" ]; then
   PROV=$(aws iam create-open-id-connect-provider --url https://token.actions.githubusercontent.com --client-id-list sts.amazonaws.com \
     --tags Key=$ETIQUETA_CLAVE,Value=$ETIQUETA_VALOR --query OpenIDConnectProviderArn --output text)
-  echo "proveedor OIDC de GitHub: creado ($PROV)"
+  echo "GitHub OIDC provider: created ($PROV)"
 else
-  echo "proveedor OIDC de GitHub: ya existía ($PROV); no se borra en la actividad 10 si no lo creó la semana 12"
+  echo "GitHub OIDC provider: already existed ($PROV); activity 10 does not delete it if week 12 did not create it"
 fi
 cat > $TMP/confianza.json <<J
 {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Federated":"$PROV"},"Action":"sts:AssumeRoleWithWebIdentity",
@@ -39,4 +39,4 @@ else
 fi
 aws iam put-role-policy --role-name $ROL_CI --policy-name ${PREFIJO}-ci --policy-document file://$TMP/permisos.json
 rm -rf $TMP
-echo "rol $ROL_CI: arn:aws:iam::$CUENTA_AWS:role/$ROL_CI (solo $SUJETO)"
+echo "role $ROL_CI: arn:aws:iam::$CUENTA_AWS:role/$ROL_CI (only $SUJETO)"

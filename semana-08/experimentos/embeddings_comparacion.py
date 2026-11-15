@@ -1,8 +1,8 @@
-"""Actividad 3: comparación de modelos de embeddings con chunking fijo 400/80.
+"""Activity 3: a comparison of embedding models with fixed 400/80 chunking.
 
-Modelos: bge-m3 local (LM Studio), OpenAI text-embedding-3-small y -large, Google gemini-embedding-2.
-Métrica: recall@5 y recall@10 en ES y EN, dimensión, tokens (cuando la API los reporta) y costo.
-Las claves se leen de semana-05/.env, igual que en semana 5.
+Models: local bge-m3 (LM Studio), OpenAI text-embedding-3-small and -large, Google gemini-embedding-2.
+Metrics: recall@5 and recall@10 in ES and EN, dimension, tokens (when the API reports them) and cost.
+The keys are read from semana-05/.env, as in week 5.
 """
 import json
 import math
@@ -91,7 +91,7 @@ def main():
         idioma: [json.loads(l) for l in (DATOS / f"recuperacion_{idioma}.jsonl").read_text(encoding="utf-8").splitlines()]
         for idioma in ("es", "en")
     }
-    print(f"chunks fijo 400/80: {len(chunks)}")
+    print(f"fixed 400/80 chunks: {len(chunks)}")
     for nombre, (funcion, clave_precio) in MODELOS.items():
         try:
             t0 = time.time()
@@ -112,9 +112,9 @@ def main():
                 precio = PRECIOS[clave_precio]["in"]
                 costo = (tokens * precio / 1e6) if (tokens is not None and precio is not None) else None
                 print(f"{idioma} {nombre:<24} dim={dim:<5} r@5={medias[5]:.3f} r@10={medias[10]:.3f} "
-                      f"tokens={tokens} costo_usd={costo if costo is None else round(costo, 6)} "
-                      f"seg={time.time() - t0:.1f}")
-        except Exception as e:  # una API caída no detiene las demás
+                      f"tokens={tokens} cost_usd={costo if costo is None else round(costo, 6)} "
+                      f"sec={time.time() - t0:.1f}")
+        except Exception as e:  # one API being down does not stop the others
             print(f"{nombre}: ERROR {type(e).__name__}: {e}")
 
 

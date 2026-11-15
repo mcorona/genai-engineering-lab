@@ -1,18 +1,18 @@
-"""Actividad 5: filtros por metadatos y ACLs en pgvector, Qdrant y OpenSearch.
+"""Activity 5: metadata filters and ACLs in pgvector, Qdrant and OpenSearch.
 
-Carga los 57 chunks de semana 8 (fijo 400/80, bge-m3) con `tenant_id` y `roles` en índices nuevos
-(semana9.chunks, semana9_acl, semana9_acl) y aplica el filtro DENTRO de la consulta de búsqueda.
+Loads the 57 week 8 chunks (fixed 400/80, bge-m3) with `tenant_id` and `roles` into new indexes
+(semana9.chunks, semana9_acl, semana9_acl) and applies the filter INSIDE the search query.
 
-Mide, por base e idioma:
-- Fuga de permisos: chunks devueltos (top 10) a un usuario sin permiso. Se juzga contra
-  datasets/permisos.json, no contra lo que guarda la base, para detectar también errores de carga.
-  Barrido: 50 preguntas base x 6 roles, con filtro y sin filtro (contraste).
-- recall@5 con filtro frente a sin filtro, en los pares pregunta-rol donde el rol puede ver el documento.
-- Casos de permiso del golden set: permitidos (recall@5) y prohibidos (pasaje devuelto: debe ser 0).
-- Resultados cortos: búsquedas filtradas con menos de k chunks aunque haya k visibles.
+Measures, per database and language:
+- Permission leak: chunks returned (top 10) to a user without permission. It is judged against
+  datasets/permisos.json, not against what the database stores, to also detect loading errors.
+  Sweep: 50 base questions x 6 roles, with and without the filter (contrast).
+- recall@5 with vs. without the filter, on the question-role pairs where the role can see the document.
+- Permission cases from the gold set: allowed (recall@5) and forbidden (passage returned: must be 0).
+- Short results: filtered searches with fewer than k chunks although k are visible.
 
-Sale con código 1 si hay cualquier fuga con filtro.
-Requiere PG_ADMIN_DSN, LM Studio con bge-m3, Qdrant y OpenSearch (semana-08/infra/docker-compose.yml).
+Exits with code 1 on any leak with the filter.
+Requires PG_ADMIN_DSN, LM Studio with bge-m3, Qdrant and OpenSearch (semana-08/infra/docker-compose.yml).
 """
 import json
 import os
@@ -42,7 +42,7 @@ def vec_sql(v):
     return "[" + ",".join(map(str, v)) + "]"
 
 
-# ---------- carga ----------
+# ---------- load ----------
 
 def cargar_pgvector(conn, fs, vecs):
     conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
@@ -93,7 +93,7 @@ def cargar_opensearch(fs, vecs):
     return http("GET", f"{OPENSEARCH}/{NOMBRE}/_count")["count"]
 
 
-# ---------- búsqueda (usuario=None: sin filtro) ----------
+# ---------- search (usuario=None: no filter) ----------
 
 def buscar_pgvector(conn, v, usuario):
     if usuario:
@@ -118,14 +118,14 @@ def buscar_qdrant(v, usuario):
 def buscar_opensearch(v, usuario):
     knn = {"embedding": {"vector": v, "k": K}}
     if usuario:
-        # El filtro va dentro de la cláusula knn (filtrado durante la búsqueda), no después.
+        # The filter goes inside the knn clause (filtering during the search), not afterwards.
         knn["embedding"]["filter"] = {"bool": {"filter": [{"term": {"tenant_id": usuario["tenant"]}},
                                                           {"terms": {"roles": usuario["roles"]}}]}}
     r = http("POST", f"{OPENSEARCH}/{NOMBRE}/_search", {"size": K, "query": {"knn": knn}})
     return [(h["_source"]["source"], h["_source"]["content"], h["_source"]["tenant_id"]) for h in r["hits"]["hits"]]
 
 
-# ---------- medición ----------
+# ---------- measurement ----------
 
 def autorizado(fila, usuario):
     source, _, tenant = fila
@@ -186,7 +186,7 @@ def main():
     fs = filas()
     faltan = {f["source"] for f in fs} - set(ROLES_DOC)
     if faltan:
-        raise SystemExit(f"Documentos sin roles en permisos.json: {sorted(faltan)}")
+        raise SystemExit(f"Documents without roles in permisos.json: {sorted(faltan)}")
     vecs, _ = emb_bge([f["content"] for f in fs], "doc")
 
     conn = psycopg.connect(os.environ["PG_ADMIN_DSN"], autocommit=True)
@@ -197,7 +197,7 @@ def main():
         conn.execute("SET hnsw.iterative_scan = strict_order")
         print("pgvector: hnsw.iterative_scan = strict_order", file=sys.stderr)
     except psycopg.Error:
-        print("pgvector: sin hnsw.iterative_scan (versión < 0.8); se usa ef_search = 100", file=sys.stderr)
+        print("pgvector: no hnsw.iterative_scan (version < 0.8); using ef_search = 100", file=sys.stderr)
 
     print(f"carga: pgvector {cargar_pgvector(conn, fs, vecs)}, qdrant {cargar_qdrant(fs, vecs)}, "
           f"opensearch {cargar_opensearch(fs, vecs)} chunks; tenant '{TENANT}'; roles {ROLES}\n")
@@ -205,9 +205,9 @@ def main():
     bases = [("pgvector", lambda v, u: buscar_pgvector(conn, v, u)),
              ("Qdrant", buscar_qdrant),
              ("OpenSearch", buscar_opensearch)]
-    print("| Base | Idioma | Consultas (pregunta x rol) | Fuga con filtro | Chunks no autorizados sin filtro | "
-          "recall@5 sin filtro | recall@5 con filtro | Permitidos recall@5 (sin / con) | "
-          "Prohibidos devueltos (sin / con) | Resultados cortos |")
+    print("| Database | Language | Queries (question x role) | Leak with filter | Unauthorized chunks without filter | "
+          "recall@5 without filter | recall@5 with filter | Allowed recall@5 (without / with) | "
+          "Forbidden returned (without / with) | Short results |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     total = 0
     for idioma in ("es", "en"):
@@ -217,7 +217,7 @@ def main():
         for nombre, buscar in bases:
             total += medir(nombre, buscar, fs, idioma, items, vq)
     conn.close()
-    print(f"\nfuga total con filtro: {total}")
+    print(f"\ntotal leak with the filter: {total}")
     if total:
         sys.exit(1)
 

@@ -1,25 +1,25 @@
-"""Semana 12, actividad 2: paquete de ingesta congelado para los RAG administrados, con permisos por documento.
+"""Week 12, activity 2: the frozen ingestion package for the managed RAG services, with per-document permissions.
 
-Base documental = la del pipeline propio (índice semana10.chunks de semana 10, actividad 7) más el tenant beta de
-semana 9, que necesitan las pruebas de fuga entre tenants (actividad 6):
-- alfa: 24 documentos de texto (semana-08/corpus) y 6 no textuales de semana 10 en su formato original
-  (2 PDF con tablas, 2 escaneos JPG, 2 imágenes PNG);
-- beta: 10 documentos (semana-09/corpus_beta), los mismos nombres que en alfa con otra cifra en el pasaje.
-Permisos: roles por documento de semana-09/datasets/permisos.json y semana-10/datasets/permisos_semana10.json (los
-mismos del asistente); tenant por carpeta.
+Document base = that of the in-house pipeline (the semana10.chunks index of week 10, activity 7) plus week 9's beta
+tenant, which the cross-tenant leak tests need (activity 6):
+- alfa: 24 text documents (semana-08/corpus) and 6 week 10 non-text documents in their original format
+  (2 PDFs with tables, 2 JPG scans, 2 PNG images);
+- beta: 10 documents (semana-09/corpus_beta), with the same names as in alfa and a different figure in the passage.
+Permissions: roles per document from semana-09/datasets/permisos.json and semana-10/datasets/permisos_semana10.json (the
+same as the assistant's); the tenant by folder.
 
-Salida en semana-12/ingesta/paquete/ (se sube tal cual a S3 y a GCS):
-- administrado/<tenant>/<archivo original>: lo que cada servicio parsea, trocea y embebe con sus opciones nativas;
-- controlado/textos/<tenant>/<doc>.txt: el texto que indexa el pipeline propio (pdfplumber para PDF; transcripción y
-  descripción de Haiku para escaneos e imágenes; el md tal cual);
-- controlado/chunks/<tenant>/<doc>__NNN.txt: los chunks del pipeline propio (fijo 400/80), uno por archivo, para
-  ingerirlos sin re-trocear (Bedrock: chunking NONE);
-- junto a cada archivo, <archivo>.metadata.json (formato de Bedrock Knowledge Bases: metadataAttributes);
-- vertex_<modo>.jsonl: documentos para Vertex AI Search (id, structData con los mismos campos, content.uri en GCS);
-- manifiesto.json: documentos, permisos, sha256 de cada archivo y del golden set, y las validaciones.
-Campos de metadatos (iguales en los dos servicios): tenant_id (texto), roles (lista de texto), source (nombre del
-documento sin extensión, el que usan las métricas de semana 11), doc_id (<tenant>__<source>), tipo y, en chunks, chunk.
-Determinista: correrlo dos veces da los mismos archivos. Sin llamadas a APIs ni costo.
+Output in semana-12/ingesta/paquete/ (uploaded as is to S3 and GCS):
+- administrado/<tenant>/<original file>: what each service parses, chunks and embeds with its native options;
+- controlado/textos/<tenant>/<doc>.txt: the text the in-house pipeline indexes (pdfplumber for PDFs; Haiku's transcription
+  and description for scans and images; the md as is);
+- controlado/chunks/<tenant>/<doc>__NNN.txt: the in-house pipeline's chunks (fixed 400/80), one per file, to
+  ingest them without re-chunking (Bedrock: chunking NONE);
+- next to each file, <file>.metadata.json (the Bedrock Knowledge Bases format: metadataAttributes);
+- vertex_<mode>.jsonl: documents for Vertex AI Search (id, structData with the same fields, content.uri in GCS);
+- manifiesto.json: documents, permissions, the sha256 of each file and of the gold set, and the validations.
+Metadata fields (the same in both services): tenant_id (text), roles (a list of text), source (the document name
+without the extension, the one week 11's metrics use), doc_id (<tenant>__<source>), tipo and, for chunks, chunk.
+Deterministic: running it twice gives the same files. No API calls and no cost.
 """
 import hashlib
 import json
@@ -34,11 +34,11 @@ AQUI = Path(__file__).resolve().parent
 RAIZ = AQUI.parent
 REPO = RAIZ.parent
 SALIDA = AQUI / "paquete"
-sys.modules.setdefault("psycopg", types.ModuleType("psycopg"))  # el asistente lo importa; aquí no se usa la base
+sys.modules.setdefault("psycopg", types.ModuleType("psycopg"))  # the assistant imports it; the database is not used here
 sys.path.insert(0, str(REPO / "semana-10" / "experimentos"))
-import asistente as a  # noqa: E402  (documentos(), trocear() y ROLES: los del pipeline propio)
+import asistente as a  # noqa: E402  (documentos(), trocear() and ROLES: those of the in-house pipeline)
 
-# Nombres del bucket de config.sh (prefijo y proyecto por defecto), para que el paquete y los scripts coincidan.
+# Bucket names from config.sh (the default prefix and project), so that the package and the scripts match.
 _cfg = (RAIZ / "infra" / "config.sh").read_text()
 PREFIJO = re.search(r"^PREFIJO=(\S+)", _cfg, re.M).group(1)
 PROYECTO = re.search(r"^GCP_PROYECTO=\$\{GCP_PROYECTO:-([^}]+)\}", _cfg, re.M).group(1)
@@ -58,7 +58,7 @@ def sha(p):
 
 
 def git_blob(ruta):
-    """Hash del archivo en main (o origin/main en CI); vacío si no hay referencia."""
+    """The file's hash on main (or origin/main in CI); empty if there is no reference."""
     for ref in ("main", "origin/main"):
         r = subprocess.run(["git", "-C", str(REPO), "rev-parse", f"{ref}:{ruta}"], capture_output=True, text=True)
         if r.returncode == 0:
@@ -88,14 +88,14 @@ def main():
             roles = sorted(a.ROLES[stem])
             tipo = "texto" if stem not in ORIGINALES_NO_TEXTO or tenant != "alfa" else Path(ORIGINALES_NO_TEXTO[stem]).suffix[1:]
             base = {"tenant_id": tenant, "roles": roles, "source": stem, "doc_id": f"{tenant}__{stem}", "tipo": tipo}
-            # administrado: el archivo original
+            # managed: the original file
             origen = REPO / (ORIGINALES_NO_TEXTO[stem] if tipo != "texto" else
                              (f"semana-08/corpus/{stem}.md" if tenant == "alfa" else f"semana-09/corpus_beta/{stem}.md"))
             r_adm = SALIDA / "administrado" / tenant / origen.name
             escribir(r_adm, origen=origen, meta=base)
             vertex["administrado"].append({"id": base["doc_id"], "structData": base,
                                            "content": {"mimeType": MIME[origen.suffix], "uri": f"{GCS}/{r_adm.relative_to(SALIDA)}"}})
-            # controlado: texto extraído y chunks del pipeline propio
+            # controlled: the extracted text and the in-house pipeline's chunks
             r_txt = SALIDA / "controlado" / "textos" / tenant / f"{stem}.txt"
             escribir(r_txt, contenido=texto, meta=base)
             vertex["controlado_textos"].append({"id": base["doc_id"], "structData": base,
@@ -111,7 +111,7 @@ def main():
     for modo, filas in vertex.items():
         (SALIDA / f"vertex_{modo}.jsonl").write_text("".join(json.dumps(f, ensure_ascii=False) + "\n" for f in filas), encoding="utf-8")
 
-    # ---------- validaciones ----------
+    # ---------- validations ----------
     v = {}
     alfa = [d for d in docs if d["tenant_id"] == "alfa"]
     beta = [d for d in docs if d["tenant_id"] == "beta"]
@@ -124,7 +124,7 @@ def main():
     v["no_textuales_en_formato_original"] = {d["source"]: d["tipo"] for d in alfa if d["tipo"] != "texto"}
     copias = [(SALIDA / "administrado" / d["tenant_id"] / Path(d["original"]).name, REPO / d["original"]) for d in docs]
     v["originales_identicos"] = {"ok": all(sha(c) == sha(o) for c, o in copias), "n": len(copias)}
-    # cada pasaje de referencia del golden de semana 11 está íntegro en algún chunk de su documento (tenant alfa)
+    # each reference passage of the week 11 gold set is intact in some chunk of its document (tenant alfa)
     chunks_alfa = {}
     for stem, t in textos["alfa"].items():
         chunks_alfa[stem] = a.trocear(t, stem)
@@ -173,7 +173,7 @@ def main():
     print(json.dumps(manifiesto["conteos"]))
     if not all(x.get("ok", True) for x in v.values()):
         raise SystemExit("VALIDACIÓN FALLIDA")
-    print("Paquete válido.")
+    print("Valid package.")
 
 
 if __name__ == "__main__":

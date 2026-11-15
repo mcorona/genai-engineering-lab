@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Semana 12: lista los recursos de la semana que siguen existiendo en cada nube (los que pueden facturar). Solo lectura.
+# Week 12: lists the week's resources that still exist in each cloud (the ones that can bill). Read-only.
 #   ./inventario.sh [aws|gcp|todo]
 set -uo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PAGER=""
 QUE=${1:-todo}; N=0
-linea() { printf "  %-34s %s\n" "$1" "${2:-(ninguno)}"; [ -n "${2:-}" ] && N=$((N+1)); return 0; }
+linea() { printf "  %-34s %s\n" "$1" "${2:-(none)}"; [ -n "${2:-}" ] && N=$((N+1)); return 0; }
 if [ "$QUE" != gcp ]; then
   echo "AWS ($CUENTA_AWS, $REGION)"
   linea "Knowledge Bases semana12" "$(aws bedrock-agent list-knowledge-bases --region $REGION --query "knowledgeBaseSummaries[?starts_with(name,'$PREFIJO')].name" --output text 2>/dev/null)"
@@ -31,4 +31,4 @@ if [ "$QUE" != aws ]; then
 fi
 echo "GitHub ($GH_REPO)"
 linea "Entorno $GH_ENTORNO (secretos)" "$(gh api repos/$GH_REPO/environments --jq ".environments[]|select(.name==\"$GH_ENTORNO\")|.name" 2>/dev/null)"
-echo "Recursos de la semana presentes: $N (los marcados 'sin costo' no facturan)"
+echo "Week resources present: $N (the ones marked 'sin costo' do not bill)"

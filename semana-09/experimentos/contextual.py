@@ -1,17 +1,17 @@
-"""Actividad 4: contextual retrieval con claude-haiku-5-5.
+"""Activity 4: contextual retrieval with claude-haiku-5-5.
 
-Para cada chunk de semana 8 (fijo 400/80, 57 chunks), Haiku recibe el documento completo y el chunk,
-y escribe un contexto breve. El embedding (bge-m3) se calcula sobre "contexto + chunk" y se indexa en
-OpenSearch como `semana9_ctx`. El campo `content` guarda el chunk original, así que la comparación
-contra el pasaje de referencia es la misma que en la línea base (`semana8`).
+For each week 8 chunk (fixed 400/80, 57 chunks), Haiku receives the full document and the chunk,
+and writes a short context. The embedding (bge-m3) is computed over "context + chunk" and indexed in
+OpenSearch as `semana9_ctx`. The `content` field keeps the original chunk, so the comparison
+against the reference passage is the same as in the baseline (`semana8`).
 
-- Los contextos se guardan en resultados/contextos.jsonl y se reutilizan (pasa --regenerar para
-  volver a generarlos). El costo de indexado se calcula con los tokens guardados.
-- Si algún contexto sale vacío, el script se detiene y no indexa.
-- Evalúa base y seguimiento (pregunta original); los casos de permiso van en la actividad 5.
+- The contexts are saved in resultados/contextos.jsonl and reused (pass --regenerar to
+  generate them again). The indexing cost is computed from the saved tokens.
+- If any context comes back empty, the script stops and does not index.
+- It evaluates base and follow-up questions (the original question); the permission cases are in activity 5.
 
-Salidas: tabla en stdout, resultados/contextual_detalle.csv (una fila por consulta).
-Requiere LM Studio con bge-m3, OpenSearch con el índice semana8 y ANTHROPIC_API_KEY.
+Outputs: a table on stdout, and resultados/contextual_detalle.csv (one row per query).
+Requires LM Studio with bge-m3, OpenSearch with the semana8 index, and ANTHROPIC_API_KEY.
 """
 import csv
 import hashlib
@@ -46,7 +46,7 @@ def huella(f):
     return hashlib.sha1(f"{f['source']}|{f['chunk_index']}|{f['content']}".encode("utf-8")).hexdigest()[:12]
 
 
-# max_tokens alto: Haiku usa tokens de razonamiento (bloque thinking) antes del texto (ver HyDE, actividad 3).
+# high max_tokens: Haiku uses reasoning tokens (a thinking block) before the text (see HyDE, activity 3).
 def contexto(documento, fragmento):
     contenido = f"<documento>\n{documento}\n</documento>\n\n<fragmento>\n{fragmento}\n</fragmento>"
     r = http_api("POST", "https://api.anthropic.com/v1/messages", {
@@ -80,7 +80,7 @@ def generar_contextos(fs, regenerar):
     with CACHE.open("w", encoding="utf-8") as out:
         for f in fs:
             out.write(json.dumps(cache[huella(f)], ensure_ascii=False) + "\n")
-    print(f"contextos: {len(fs)} ({nuevos} generados ahora, {len(fs) - nuevos} reutilizados)", file=sys.stderr)
+    print(f"contexts: {len(fs)} ({nuevos} generated now, {len(fs) - nuevos} reused)", file=sys.stderr)
     return [cache[huella(f)] for f in fs]
 
 
@@ -122,18 +122,18 @@ def promedio(filas_m):
 
 
 def main():
-    print(f"precio usado (prices.json, Haiku): {PRECIO}", file=sys.stderr)
+    print(f"price used (prices.json, Haiku): {PRECIO}", file=sys.stderr)
     fs = filas()
     n_base = http_os("GET", f"{OPENSEARCH}/{BASE}/_count")["count"]
     if n_base != len(fs):
-        raise SystemExit(f"El índice {BASE} tiene {n_base} documentos y el chunking da {len(fs)}; no son comparables.")
+        raise SystemExit(f"The index {BASE} has {n_base} documents and the chunking gives {len(fs)}; they are not comparable.")
 
     ctxs = generar_contextos(fs, "--regenerar" in sys.argv)
     vacios = [c for c in ctxs if not c["contexto"]]
     if vacios:
-        raise SystemExit(f"{len(vacios)} contextos vacíos (p. ej. {vacios[0]['source']} #{vacios[0]['chunk_index']}); no se indexa.")
+        raise SystemExit(f"{len(vacios)} empty contexts (e.g. {vacios[0]['source']} #{vacios[0]['chunk_index']}); nothing is indexed.")
     for c in ctxs[:3]:
-        print(f"<!-- contexto {c['source']} #{c['chunk_index']}: {c['contexto']} -->", file=sys.stderr)
+        print(f"<!-- context {c['source']} #{c['chunk_index']}: {c['contexto']} -->", file=sys.stderr)
 
     vecs, _ = emb_bge([c["contexto"] + "\n\n" + f["content"] for f, c in zip(fs, ctxs)], "doc")
     n_ctx = cargar_ctx(fs, ctxs, vecs)
@@ -142,12 +142,12 @@ def main():
     tout = sum(c["tokens_out"] for c in ctxs)
     costo = (tin * PRECIO["in"] + tout * PRECIO["out"]) / 1e6
     lat = [c["latencia_ms"] for c in ctxs]
-    print(f"\nIndexado: {n_ctx} chunks en {CTX}; tokens entrada {tin}, salida {tout}; "
-          f"costo único ${costo:.5f}; latencia por contexto p50 {statistics.median(lat):.0f} ms; "
-          f"tamaño {BASE} {tamano(BASE)} B, {CTX} {tamano(CTX)} B\n")
+    print(f"\nIndexed: {n_ctx} chunks in {CTX}; input tokens {tin}, output {tout}; "
+          f"one-time cost ${costo:.5f}; p50 latency per context {statistics.median(lat):.0f} ms; "
+          f"size {BASE} {tamano(BASE)} B, {CTX} {tamano(CTX)} B\n")
 
     detalle = []
-    print("| Tipo | Idioma | Índice | recall@5 | nDCG@10 | MRR |")
+    print("| Type | Language | Index | recall@5 | nDCG@10 | MRR |")
     print("|---|---|---|---|---|---|")
     for idioma in ("es", "en"):
         items = [json.loads(l) for l in (DATOS / f"avanzado_{idioma}.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -168,7 +168,7 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(detalle[0].keys()))
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle por consulta: {salida}", file=sys.stderr)
+    print(f"detail per query: {salida}", file=sys.stderr)
 
 
 if __name__ == "__main__":

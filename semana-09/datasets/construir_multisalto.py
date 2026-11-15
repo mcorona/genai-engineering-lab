@@ -1,12 +1,12 @@
-"""Construye los dos sets de preguntas multi-salto de la actividad 7 (GraphRAG).
+"""Builds the two sets of multi-hop questions of activity 7 (GraphRAG).
 
-- compuestas (multisalto_*.jsonl): dos documentos por pregunta, con los pasajes de preguntas base del
-  golden set. La pregunta nombra ambos temas. Es el control: preguntas normales de dos documentos.
-- puente (multisalto_puente_*.jsonl): caso más favorable para GraphRAG. La entidad que une los dos
-  documentos NO aparece en la pregunta; el primer pasaje la identifica y el segundo da la respuesta.
+- compound (multisalto_*.jsonl): two documents per question, with the passages of base questions from the
+  gold set. The question names both topics. It is the control: ordinary two-document questions.
+- bridge (multisalto_puente_*.jsonl): the most favorable case for GraphRAG. The entity that links the two
+  documents does NOT appear in the question; the first passage identifies it and the second gives the answer.
 
-Todos los pasajes se validan como texto literal en su documento y completos dentro de un chunk
-(chunking fijo 400/80), y cada pregunta usa dos documentos distintos.
+Every passage is validated as literal text in its document and complete within a chunk
+(fixed 400/80 chunking), and each question uses two different documents.
 """
 import json
 import sys
@@ -19,7 +19,7 @@ sys.path.insert(0, str(R / "semana-08" / "experimentos"))
 from chunking_pasajes import ESTRATEGIAS  # noqa: E402
 trocear = ESTRATEGIAS["fijo_400_solape_80"]
 
-# (id base del primer pasaje, id base del segundo, pregunta ES, pregunta EN)
+# (base id of the first passage, base id of the second, ES question, EN question)
 PREGUNTAS = [
     ("rec-22", "rec-11",
      "¿Quién aprueba la compra urgente de un SKU en riesgo y qué factor de seguridad usa ese tipo de SKU en el punto de reorden?",
@@ -53,7 +53,7 @@ PREGUNTAS = [
      "During their first month, what purchase limit does a new buyer have, and how many quotes does an order over 100,000 pesos need?"),
 ]
 
-# (documento del salto 1, pasaje que identifica la entidad puente, documento del salto 2, pasaje con la respuesta, ES, EN)
+# (hop 1 document, passage that identifies the bridge entity, hop 2 document, passage with the answer, ES, EN)
 PUENTE = [
     ("cedis_monterrey.md", "El CEDIS Norte (Monterrey) tiene capacidad para **12,000 posiciones** de tarima.",
      "transferencias_cedis.md", "Ciudad de México ↔ Monterrey: 2 días.",
@@ -132,5 +132,5 @@ for nombre, conjunto in (("multisalto", compuestas), ("multisalto_puente", puent
         with open(DS / f"{nombre}_{lang}.jsonl", "w", encoding="utf-8") as f:
             for x in items:
                 f.write(json.dumps(x, ensure_ascii=False) + "\n")
-print(f"compuestas: {len(PREGUNTAS)} por idioma; puente: {len(PUENTE)} por idioma; validación OK "
-      "(pasajes literales, completos en un chunk, dos documentos por pregunta)")
+print(f"compound: {len(PREGUNTAS)} per language; bridge: {len(PUENTE)} per language; validation OK "
+      "(literal passages, complete within a chunk, two documents per question)")

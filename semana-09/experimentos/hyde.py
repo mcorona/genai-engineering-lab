@@ -1,17 +1,17 @@
-"""Actividad 3: HyDE con claude-haiku-5-5.
+"""Activity 3: HyDE with claude-haiku-5-5.
 
-Haiku escribe un pasaje hipotético que respondería la pregunta. Ese pasaje se embebe y se usa
-para buscar, en lugar de la pregunta. Se compara contra la pregunta original con el vectorial de
-semana 8 (bge-m3 en OpenSearch, índice semana8).
+Haiku writes a hypothetical passage that would answer the question. That passage is embedded and used
+for the search, instead of the question. It is compared against the original question with the week 8
+vector search (bge-m3 in OpenSearch, semana8 index).
 
-- base: pregunta autónoma (sin pregunta previa).
-- seguimiento: el pasaje hipotético se genera con la pregunta previa como contexto.
-- Casos de permiso fuera de esta métrica: se evalúan en la actividad 5.
+- base: a self-contained question (no previous question).
+- follow-up: the hypothetical passage is generated with the previous question as context.
+- Permission cases are outside this metric: they are evaluated in activity 5.
 
-Salidas: tabla en stdout y resultados/hyde_detalle.csv (una fila por consulta, con los tipos de bloque
-que devuelve la API, para confirmar si hay tokens de razonamiento no visibles).
+Outputs: a table on stdout, and resultados/hyde_detalle.csv (one row per query, with the block types
+the API returns, to confirm whether there are invisible reasoning tokens).
 
-Requiere LM Studio con bge-m3, OpenSearch con el índice semana8 y ANTHROPIC_API_KEY.
+Requires LM Studio with bge-m3, OpenSearch with the semana8 index, and ANTHROPIC_API_KEY.
 """
 import csv
 import json
@@ -34,8 +34,8 @@ SISTEMA = ("Escribes un pasaje breve (2 o 3 oraciones) que respondería la pregu
            "Si hay pregunta previa, úsala como contexto. Responde SOLO con el pasaje, sin títulos ni texto adicional.")
 
 
-# max_tokens alto: Haiku consume tokens de razonamiento (bloque thinking) antes del texto.
-# Con 250 hubo 5 respuestas sin texto, que caían a la pregunta original.
+# high max_tokens: Haiku consumes reasoning tokens (a thinking block) before the text.
+# With 250 there were 5 answers without text, which fell back to the original question.
 def pasaje_hipotetico(previa, pregunta):
     contenido = (f"Pregunta previa: {previa}\nPregunta: {pregunta}" if previa else f"Pregunta: {pregunta}")
     r = http("POST", "https://api.anthropic.com/v1/messages", {
@@ -57,9 +57,9 @@ def costo_llamada(tin, tout):
 
 
 def main():
-    print(f"precio usado (prices.json, Haiku): {PRECIO}", file=sys.stderr)
+    print(f"price used (prices.json, Haiku): {PRECIO}", file=sys.stderr)
     detalle = []
-    print("| Tipo | Idioma | Variante | recall@5 | nDCG@10 | MRR | costo por consulta | latencia HyDE p50 / p95 (ms) |")
+    print("| Type | Language | Variant | recall@5 | nDCG@10 | MRR | cost per query | HyDE latency p50 / p95 (ms) |")
     print("|---|---|---|---|---|---|---|---|")
     for idioma in ("es", "en"):
         items = [json.loads(l) for l in (DATOS / f"avanzado_{idioma}.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -100,7 +100,7 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(detalle[0].keys()))
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle por consulta: {salida}", file=sys.stderr)
+    print(f"detail per query: {salida}", file=sys.stderr)
 
 
 if __name__ == "__main__":

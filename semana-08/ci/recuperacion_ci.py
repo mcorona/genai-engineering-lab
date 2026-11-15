@@ -1,7 +1,7 @@
-"""Actividad 9: eval de recuperación en CI (PR que toque semana-08/**).
+"""Activity 9: retrieval eval in CI (PRs that touch semana-08/**).
 
-Modelo de CI: text-embedding-3-small (OpenAI), porque bge-m3 corre en LM Studio y no está en GitHub Actions.
-Base: pgvector de servicio. Métrica: recall@5 por idioma. Falla si alguno queda bajo UMBRAL.
+CI model: text-embedding-3-small (OpenAI), because bge-m3 runs in LM Studio, which is not available in GitHub Actions.
+Database: a pgvector service. Metric: recall@5 per language. Fails if either falls below UMBRAL.
 """
 import json
 import os
@@ -57,12 +57,12 @@ def main():
                            if any(s == g["source"] and g["passage"] in c for s, c in top))
                 rec.append(hits / len(q["gold"]))
             r5 = sum(rec) / len(rec)
-            print(f"{idioma} recall@5={r5:.3f} (umbral {UMBRAL})")
+            print(f"{idioma} recall@5={r5:.3f} (threshold {UMBRAL})")
             if r5 < UMBRAL:
                 malos.append(idioma)
     if malos:
-        sys.exit(f"Bajo el umbral en: {', '.join(malos)}")
-    print("Recall dentro del umbral en ES y EN")
+        sys.exit(f"Below the threshold in: {', '.join(malos)}")
+    print("Recall within the threshold in ES and EN")
 
 
 if __name__ == "__main__":

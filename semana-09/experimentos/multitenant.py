@@ -1,21 +1,21 @@
-"""Actividad 6: aislamiento multi-tenant en pgvector, Qdrant y OpenSearch.
+"""Activity 6: multi-tenant isolation in pgvector, Qdrant and OpenSearch.
 
-Carga en índices nuevos (semana9.chunks_mt, semana9_mt, semana9_mt) dos tenants:
-- alfa: los 57 chunks de semana 8;
-- beta: corpus_beta/ (10 documentos casi idénticos a los de alfa, con otra cifra en el pasaje de referencia).
-Vectores bge-m3 y chunking fijo 400/80 en ambos. Filtro dentro de la consulta, igual que en la actividad 5.
+Loads two tenants into new indexes (semana9.chunks_mt, semana9_mt, semana9_mt):
+- alfa: the 57 week 8 chunks;
+- beta: corpus_beta/ (10 documents almost identical to alfa's, with a different figure in the reference passage).
+bge-m3 vectors and fixed 400/80 chunking in both. The filter goes inside the query, as in activity 5.
 
-Mide, por base e idioma:
-- Barrido: 50 preguntas base x 2 tenants, usuario con todos los roles (solo actúa el filtro de tenant).
-  Fuga entre tenants con filtro (debe ser 0) y, sin filtro, cuántos chunks del otro tenant verían
-  un usuario de alfa y uno de beta (por separado: sumados dan siempre 10 por pregunta).
-- Casos solapados (datasets/multitenant_*.jsonl): 10 preguntas x 2 tenants, con un rol que ve el documento.
-  Cifra propia en el top 5 con filtro; cifra del otro tenant devuelta (sin / con filtro; con filtro debe ser 0);
-  veces que, sin filtro, el pasaje del otro tenant sale antes que el propio.
-- Resultados cortos: búsquedas filtradas con menos de k chunks aunque haya k visibles.
+Measures, per database and language:
+- Sweep: 50 base questions x 2 tenants, a user with every role (only the tenant filter acts).
+  The leak across tenants with the filter (must be 0) and, without the filter, how many chunks of the other
+  tenant an alfa user and a beta user would see (separately: added together they are always 10 per question).
+- Overlapping cases (datasets/multitenant_*.jsonl): 10 questions x 2 tenants, with a role that sees the document.
+  The tenant's own figure in the top 5 with the filter; the other tenant's figure returned (without / with the
+  filter; with it, it must be 0); how often, without the filter, the other tenant's passage ranks above the own one.
+- Short results: filtered searches with fewer than k chunks although k are visible.
 
-Sale con código 1 si hay cualquier fuga con filtro.
-Requiere PG_ADMIN_DSN, LM Studio con bge-m3, Qdrant y OpenSearch.
+Exits with code 1 on any leak with the filter.
+Requires PG_ADMIN_DSN, LM Studio with bge-m3, Qdrant and OpenSearch.
 """
 import json
 import os
@@ -180,13 +180,13 @@ def main():
         conn.execute("SET hnsw.iterative_scan = strict_order")
     except psycopg.Error:
         print("pgvector: sin hnsw.iterative_scan; se usa ef_search = 100", file=sys.stderr)
-    print(f"carga: pgvector {cargar_pgvector(conn, fs, vecs)}, qdrant {cargar_qdrant(fs, vecs)}, "
+    print(f"load: pgvector {cargar_pgvector(conn, fs, vecs)}, qdrant {cargar_qdrant(fs, vecs)}, "
           f"opensearch {cargar_opensearch(fs, vecs)} chunks\n")
 
     bases = [("pgvector", lambda v, u: buscar_pgvector(conn, v, u)), ("Qdrant", buscar_qdrant), ("OpenSearch", buscar_opensearch)]
-    print("| Base | Idioma | Barrido (pregunta x tenant) | Fuga con filtro | Chunks del otro tenant sin filtro (en el top 10 de alfa / de beta) | "
-          "Casos solapados | Cifra propia en top 5 (con filtro) | Cifra del otro tenant devuelta (sin / con filtro) | "
-          "Otro tenant antes que el propio (sin filtro) | Resultados cortos |")
+    print("| Database | Language | Sweep (question x tenant) | Leak with filter | Other tenant's chunks without filter (in alfa's / beta's top 10) | "
+          "Overlapping cases | Own figure in top 5 (with filter) | Other tenant's figure returned (without / with filter) | "
+          "Other tenant ranked above own (without filter) | Short results |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     total = 0
     for idioma in ("es", "en"):
@@ -198,7 +198,7 @@ def main():
         for nombre, buscar in bases:
             total += medir(nombre, buscar, fs, idioma, base, vb, solap, vs)
     conn.close()
-    print(f"\nfuga total con filtro (incluye cifra del otro tenant): {total}")
+    print(f"\ntotal leak with the filter (including the other tenant's figure): {total}")
     if total:
         sys.exit(1)
 

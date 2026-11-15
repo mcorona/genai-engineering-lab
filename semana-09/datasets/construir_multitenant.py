@@ -1,11 +1,11 @@
-"""Construye el tenant de prueba `beta` para la actividad 6 (multi-tenant).
+"""Builds the `beta` test tenant for activity 6 (multi-tenancy).
 
-- corpus_beta/: 10 documentos copiados del corpus de semana 8 (tenant `alfa`), idénticos salvo
-  la cifra del pasaje de referencia, que cambia. Así los chunks de alfa y beta quedan casi iguales.
-- datasets/multitenant_{es,en}.jsonl: una pregunta por documento, con el pasaje de alfa y el de beta.
+- corpus_beta/: 10 documents copied from the week 8 corpus (tenant `alfa`), identical except for
+  the figure in the reference passage, which changes. That way the alfa and beta chunks are almost the same.
+- datasets/multitenant_{es,en}.jsonl: one question per document, with alfa's passage and beta's.
 
-Valida que cada pasaje aparezca una sola vez en su documento y que, con el chunking fijo 400/80,
-quede completo dentro de algún chunk en ambos tenants.
+It checks that each passage appears only once in its document and that, with fixed 400/80 chunking,
+it stays complete within some chunk in both tenants.
 """
 import json
 import sys
@@ -20,7 +20,7 @@ CORPUS_BETA = R / "semana-09" / "corpus_beta"
 DS = R / "semana-09" / "datasets"
 trocear = ESTRATEGIAS["fijo_400_solape_80"]
 
-# id de la pregunta base: (texto que cambia dentro del pasaje, texto en beta)
+# base question id: (text that changes inside the passage, text in beta)
 CAMBIOS = {
     "rec-01": ("30 días", "20 días"),
     "rec-04": ("98%", "95%"),
@@ -73,4 +73,4 @@ for lang, items in salida.items():
         for x in items:
             f.write(json.dumps(x, ensure_ascii=False) + "\n")
 n_chunks = sum(len(trocear(t, n)) for n, t in docs_beta.items())
-print(f"beta: {len(docs_beta)} documentos, {n_chunks} chunks; {len(salida['es'])} preguntas por idioma; validación OK")
+print(f"beta: {len(docs_beta)} documents, {n_chunks} chunks; {len(salida['es'])} questions per language; validation OK")

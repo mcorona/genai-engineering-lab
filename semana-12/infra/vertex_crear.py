@@ -1,16 +1,16 @@
-"""Semana 12, actividad 5: data stores y apps de Vertex AI Search (Agent Search), con la cuenta de servicio semana12-operador
-por impersonación. Requiere gcp_crear.sh y gcp_bucket_crear.sh (dueño del proyecto) y el paquete de la actividad 2.
+"""Week 12, activity 5: Vertex AI Search (Agent Search) data stores and apps, with the semana12-operador service account
+through impersonation. Requires gcp_crear.sh and gcp_bucket_crear.sh (the project owner) and the activity 2 package.
 
-Dos data stores no estructurados en `global`, con los mismos metadatos que Bedrock (tenant_id, roles, source, doc_id,
-tipo) declarados filtrables en el esquema antes de importar:
-- vx-adm (modo administrado): los originales, parseados y troceados por el servicio con el layout parser y el chunking
-  predeterminado (500 tokens). Vertex no acepta Markdown ni imágenes sueltas como documentos: el layout parser lee HTML,
-  PDF, DOCX, PPTX y XLSX (no TXT) y no importa JPG ni PNG. Como lo haría un cliente, los .md se convierten a HTML y los JPG
-  y PNG a un PDF de una página (el layout parser hace OCR), sin cambiar su contenido.
-- vx-ctl (modo controlado): los 101 chunks del pipeline propio, un documento .txt por chunk, sin re-trocear (parser digital,
-  sin chunking): aísla la calidad del índice y del ranking.
-Cada data store tiene su app de búsqueda (edición Enterprise, sin add-on de LLM). Ids en estado_gcp.json (fuera de Git).
-Idempotente: reutiliza lo que ya existe por id.
+Two unstructured data stores in `global`, with the same metadata as Bedrock (tenant_id, roles, source, doc_id,
+tipo) declared filterable in the schema before importing:
+- vx-adm (managed mode): the originals, parsed and chunked by the service with the layout parser and the default
+  chunking (500 tokens). Vertex does not accept Markdown or loose images as documents: the layout parser reads HTML,
+  PDF, DOCX, PPTX and XLSX (not TXT) and does not import JPG or PNG. As a client would, the .md files are converted to HTML
+  and the JPG and PNG files to a one-page PDF (the layout parser does OCR), without changing their content.
+- vx-ctl (controlled mode): the 101 chunks of the in-house pipeline, one .txt document per chunk, without re-chunking (digital
+  parser, no chunking): it isolates the quality of the index and the ranking.
+Each data store has its search app (Enterprise edition, no LLM add-on). Ids in estado_gcp.json (outside Git).
+Idempotent: it reuses whatever already exists by id.
 """
 import html
 import io
@@ -53,7 +53,7 @@ def token():
     r = subprocess.run(["gcloud", "auth", "print-access-token", f"--impersonate-service-account={SA}"],
                        capture_output=True, text=True)
     if r.returncode:
-        raise SystemExit(f"No se pudo impersonar {SA}: {r.stderr.strip()[-300:]}")
+        raise SystemExit(f"Could not impersonate {SA}: {r.stderr.strip()[-300:]}")
     return r.stdout.strip()
 
 
@@ -82,10 +82,10 @@ def esperar(op, que):
     return op, int(time.time() - t0)
 
 
-# ---------- conversión de formatos para el modo administrado ----------
+# ---------- format conversion for the managed mode ----------
 
 def md_a_html(md, titulo):
-    """Markdown del corpus (títulos, listas, tablas, negritas) a HTML simple, sin cambiar el texto."""
+    """The corpus Markdown (headings, lists, tables, bold) to simple HTML, without changing the text."""
     linea = lambda s: re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(s))  # noqa: E731
     out, i, ls = [f"<!doctype html><html><head><meta charset='utf-8'><title>{html.escape(titulo)}</title></head><body>"], 0, md.splitlines()
     while i < len(ls):
@@ -119,7 +119,7 @@ def md_a_html(md, titulo):
 
 
 def preparar_administrado(tmp):
-    """Convierte y lista los documentos de vx-adm: (ruta local, objeto GCS, entrada JSONL)."""
+    """Converts and lists the vx-adm documents: (local path, GCS object, JSONL entry)."""
     from PIL import Image
     filas = []
     for l in (PAQUETE / "vertex_administrado.jsonl").read_text(encoding="utf-8").splitlines():
@@ -160,10 +160,10 @@ def main():
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
         n = preparar_administrado(tmp)
-        print(f"vx-adm: {len(n)} documentos ({sum(f['content']['mimeType'] == 'text/html' for f in n)} md→HTML, "
-              f"{sum(Path(f['content']['uri']).suffix == '.pdf' for f in n)} PDF, 4 de ellos imágenes convertidas)")
+        print(f"vx-adm: {len(n)} documents ({sum(f['content']['mimeType'] == 'text/html' for f in n)} md→HTML, "
+              f"{sum(Path(f['content']['uri']).suffix == '.pdf' for f in n)} PDF, 4 of them converted images)")
         subir(tmp)
-        print(f"subido a gs://{BUCKET}/ (controlado/, vx-adm/ y los JSONL)")
+        print(f"uploaded to gs://{BUCKET}/ (controlado/, vx-adm/ and the JSONL files)")
     for sid in stores:
         ds_id, cfg = f"{PREFIJO}-{sid}", STORES[sid]
         ds = api("GET", f"{API}/dataStores/{ds_id}", ok404=True)
@@ -172,27 +172,27 @@ def main():
                 "displayName": ds_id, "industryVertical": "GENERIC", "solutionTypes": ["SOLUTION_TYPE_SEARCH"],
                 "contentConfig": "CONTENT_REQUIRED", "documentProcessingConfig": cfg["procesamiento"]})
             esperar(op, f"crear data store {ds_id}")
-            print(f"data store {ds_id}: creado")
+            print(f"data store {ds_id}: created")
         op = api("PATCH", f"{API}/dataStores/{ds_id}/schemas/default_schema", {"jsonSchema": json.dumps(ESQUEMA)})
         if op and not op.get("done", True):
             esperar(op, f"esquema {ds_id}")
-        print(f"data store {ds_id}: esquema con tenant_id y roles filtrables")
+        print(f"data store {ds_id}: schema with filterable tenant_id and roles")
         op = api("POST", f"{API}/dataStores/{ds_id}/branches/0/documents:import", {
             "gcsSource": {"inputUris": [f"gs://{BUCKET}/{cfg['jsonl']}"], "dataSchema": "document"},
             "reconciliationMode": "FULL"})
         op, seg = esperar(op, f"importar {ds_id}")
         meta = op.get("metadata", {})
         errores = op.get("response", {}).get("errorSamples", [])
-        print(f"importación {ds_id}: {meta.get('successCount', 0)} éxitos, {meta.get('failureCount', 0)} fallos, {seg} s")
+        print(f"import {ds_id}: {meta.get('successCount', 0)} successes, {meta.get('failureCount', 0)} failures, {seg} s")
         for e in errores[:8]:
-            print("   fallo:", str(e.get("message", e))[:300])
+            print("   failure:", str(e.get("message", e))[:300])
         eng_id = f"{ds_id}-app"
         if api("GET", f"{API}/engines/{eng_id}", ok404=True) is None:
             op = api("POST", f"{API}/engines?engineId={eng_id}", {
                 "displayName": eng_id, "solutionType": "SOLUTION_TYPE_SEARCH", "industryVertical": "GENERIC",
                 "dataStoreIds": [ds_id], "searchEngineConfig": {"searchTier": "SEARCH_TIER_ENTERPRISE", "searchAddOns": []}})
             esperar(op, f"crear app {eng_id}")
-            print(f"app {eng_id}: creada (Enterprise, sin add-on de LLM)")
+            print(f"app {eng_id}: created (Enterprise, no LLM add-on)")
         estado[sid] = {"data_store": ds_id, "engine": eng_id, "importados": int(meta.get("successCount", 0)),
                        "fallidos": int(meta.get("failureCount", 0)), "importacion_s": seg}
         ESTADO.write_text(json.dumps(estado, indent=1))

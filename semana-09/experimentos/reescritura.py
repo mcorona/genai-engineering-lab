@@ -1,16 +1,16 @@
-"""Actividad 2: query rewriting con claude-haiku-5-5.
+"""Activity 2: query rewriting with claude-haiku-5-5.
 
-Compara recall@5, recall@10, nDCG@10 y MRR de la pregunta original contra la pregunta reescrita,
-con el vectorial de semana 8 (bge-m3 en OpenSearch, índice semana8).
-- seguimiento: la reescritura usa la pregunta previa para volver autónoma la pregunta.
-- base (control): sin pregunta previa; la reescritura no debe cambiar la pregunta ni perjudicar su recall.
+Compares recall@5, recall@10, nDCG@10 and MRR of the original question against the rewritten question,
+with the week 8 vector search (bge-m3 in OpenSearch, semana8 index).
+- follow-up: the rewrite uses the previous question to make the question self-contained.
+- base (control): no previous question; the rewrite must not change the question or hurt its recall.
 
-Salidas:
-- tabla agregada en stdout;
-- resultados/reescritura_detalle.csv: una fila por consulta, con acierto original y reescrito,
-  tokens y costo de su llamada a Haiku, para diagnosticar casos.
+Outputs:
+- an aggregate table on stdout;
+- resultados/reescritura_detalle.csv: one row per query, with the original and rewritten hits,
+  and the tokens and cost of its Haiku call, to diagnose cases.
 
-Requiere LM Studio con bge-m3, OpenSearch con el índice semana8 y ANTHROPIC_API_KEY.
+Requires LM Studio with bge-m3, OpenSearch with the semana8 index, and ANTHROPIC_API_KEY.
 """
 import csv
 import json
@@ -55,9 +55,9 @@ def costo_llamada(tin, tout):
 
 
 def main():
-    print(f"precio usado (prices.json, Haiku): {PRECIO}", file=sys.stderr)
+    print(f"price used (prices.json, Haiku): {PRECIO}", file=sys.stderr)
     detalle = []
-    print("| Tipo | Idioma | Variante | recall@5 | nDCG@10 | MRR | sin cambios | costo por consulta | latencia reescritura p50 / p95 (ms) |")
+    print("| Type | Language | Variant | recall@5 | nDCG@10 | MRR | unchanged | cost per query | rewrite latency p50 / p95 (ms) |")
     print("|---|---|---|---|---|---|---|---|---|")
     for idioma in ("es", "en"):
         items = [json.loads(l) for l in (DATOS / f"avanzado_{idioma}.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -100,7 +100,7 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(detalle[0].keys()))
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle por consulta: {salida}", file=sys.stderr)
+    print(f"detail per query: {salida}", file=sys.stderr)
 
 
 if __name__ == "__main__":

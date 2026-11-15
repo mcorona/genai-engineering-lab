@@ -1,19 +1,19 @@
-"""Actividad 4: OCR de documentos escaneados.
+"""Activity 4: OCR of scanned documents.
 
-1. Escanea 5 documentos: las 2 fuentes de OCR congeladas en la actividad 1 (fuentes/acta_inventario_norte.md,
-   fuentes/remision_r4471.md) y 3 documentos del corpus de semana 8 con texto denso (devoluciones, inventario_ciclico,
-   recepcion_almacen). Markdown -> PDF (mismo generador de la actividad 3) -> imagen a 200 dpi en grises, rotación
-   leve (±1.5°), desenfoque y ruido, con semilla fija -> JPEG en escaneos/.
-2. Extrae el texto con Tesseract (español) y con Claude (imagen como entrada). Referencia superior: el texto original.
-3. Métricas, fijadas antes de correr:
-   - CER: distancia de edición (Levenshtein) entre el texto visible de la página y el extraído, sobre el largo del
-     original. Ambos se normalizan igual: sin marcas de Markdown ni viñetas, espacios colapsados, con mayúsculas y acentos.
-   - recall@5 de pasajes: preguntas base de semana 9 cuyo pasaje está en un documento escaneado (rec-01 a 06 y 18 a 20,
-     9 por idioma). Acierto: algún chunk del top 5 viene de ese documento y contiene el pasaje literal (sin negritas,
-     espacios colapsados, sin distinguir mayúsculas). Un error de OCR dentro del pasaje cuenta como fallo.
-   - recall@5 de respuestas: preguntas de OCR del golden set (datasets/integrado_*.jsonl, formato ocr, 5 por idioma).
-   Se indexa lo extraído de los 5 escaneos junto con el resto del corpus de texto (chunking fijo 400/80, bge-m3).
-Requiere PyMuPDF, Pillow, reportlab, Tesseract con 'spa', LM Studio con bge-m3 y, salvo --sin-claude, ANTHROPIC_API_KEY.
+1. Scans 5 documents: the 2 OCR sources frozen in activity 1 (fuentes/acta_inventario_norte.md,
+   fuentes/remision_r4471.md) and 3 dense-text documents from the week 8 corpus (devoluciones, inventario_ciclico,
+   recepcion_almacen). Markdown -> PDF (the same generator as activity 3) -> an image at 200 dpi in grayscale, a slight
+   rotation (±1.5°), blur and noise, with a fixed seed -> JPEG in escaneos/.
+2. Extracts the text with Tesseract (Spanish) and with Claude (the image as input). Upper reference: the original text.
+3. Metrics, fixed before the run:
+   - CER: the edit distance (Levenshtein) between the visible text of the page and the extracted one, over the length of
+     the original. Both are normalized the same way: no Markdown marks or bullets, collapsed spaces, keeping case and accents.
+   - recall@5 of passages: week 9 base questions whose passage is in a scanned document (rec-01 to 06 and 18 to 20,
+     9 per language). A hit: some chunk in the top 5 comes from that document and contains the literal passage (no bold,
+     collapsed spaces, case-insensitive). An OCR error inside the passage counts as a miss.
+   - recall@5 of answers: the gold set's OCR questions (datasets/integrado_*.jsonl, ocr format, 5 per language).
+   What is extracted from the 5 scans is indexed together with the rest of the text corpus (fixed 400/80 chunking, bge-m3).
+Requires PyMuPDF, Pillow, reportlab, Tesseract with 'spa', LM Studio with bge-m3 and, unless --sin-claude, ANTHROPIC_API_KEY.
 """
 import argparse
 import base64
@@ -37,7 +37,7 @@ EXT_DIR = RES / "ocr_extracciones"
 ESC_DIR = RAIZ / "escaneos"
 CORPUS = REPO / "semana-08" / "corpus"
 sys.path.insert(0, str(AQUI))
-import pdf_tablas as pt  # noqa: E402  (generador de PDF, bloques, coseno; también agrega semana-08 al path)
+import pdf_tablas as pt  # noqa: E402  (PDF generator, blocks, cosine; it also adds semana-08 to the path)
 from embeddings_comparacion import emb_bge  # noqa: E402
 
 trocear = pt.trocear
@@ -49,7 +49,7 @@ PROMPT = ("Transcribe el texto de este documento escaneado, completo y literal, 
           "tablas Markdown. No corrijas, no resumas, no traduzcas y no agregues texto.")
 
 
-# ---------- texto visible y normalización ----------
+# ---------- visible text and normalization ----------
 
 def texto_visible(md):
     partes = []
@@ -87,7 +87,7 @@ def cer(referencia, hipotesis):
     return levenshtein(r, h) / max(1, len(r))
 
 
-# ---------- escaneo ----------
+# ---------- scanning ----------
 
 def escanear():
     import fitz
@@ -123,12 +123,12 @@ def escanear():
             paginas[md.stem].append(destino)
         doc.close()
         pdf.unlink()
-    print(f"escaneos: {sum(len(p) for p in paginas.values())} páginas de {len(DOCS)} documentos en "
-          f"{ESC_DIR.relative_to(REPO)} (fuente {ruta.name}, semilla {SEMILLA})", file=sys.stderr)
+    print(f"scans: {sum(len(p) for p in paginas.values())} pages of {len(DOCS)} documents in "
+          f"{ESC_DIR.relative_to(REPO)} (font {ruta.name}, seed {SEMILLA})", file=sys.stderr)
     return paginas
 
 
-# ---------- extractores ----------
+# ---------- extractors ----------
 
 def tesseract(imagenes):
     salida = []
@@ -160,7 +160,7 @@ def claude(modelo, esfuerzo, regenerar):
             except urllib.error.HTTPError as e:
                 raise SystemExit(f"API HTTP {e.code} en {stem} ({modelo}): {e.read().decode()[:300]}")
             if d.get("stop_reason") == "max_tokens":
-                raise SystemExit(f"Salida truncada por max_tokens en {stem} ({modelo}); no se usa.")
+                raise SystemExit(f"Output truncated by max_tokens in {stem} ({modelo}); it is not used.")
             u = d["usage"]
             cache[stem] = {"texto": "".join(b.get("text", "") for b in d["content"] if b.get("type") == "text"),
                            "tokens_in": u["input_tokens"], "tokens_out": u["output_tokens"],
@@ -182,7 +182,7 @@ def main():
 
     idiomas = subprocess.run(["tesseract", "--list-langs"], capture_output=True, text=True).stdout.split()
     if "spa" not in idiomas:
-        raise SystemExit("Tesseract no tiene el idioma 'spa' (instálalo con brew install tesseract-lang).")
+        raise SystemExit("Tesseract does not have the 'spa' language (install it with brew install tesseract-lang).")
     paginas = escanear()
 
     extractores = {"original (sin escanear)": lambda stem, imgs: texto_visible(next(d for d in DOCS if d.stem == stem).read_text(encoding="utf-8")),
@@ -201,7 +201,7 @@ def main():
         for stem, t in textos[nombre].items():
             (EXT_DIR / f"{clave}__{stem}.txt").write_text(t, encoding="utf-8")
 
-    print("| Extractor | " + " | ".join(f"CER {d.stem}" for d in DOCS) + " | CER medio |")
+    print("| Extractor | " + " | ".join(f"CER {d.stem}" for d in DOCS) + " | Mean CER |")
     print("|---|" + "---|" * (len(DOCS) + 1))
     for nombre in extractores:
         cers = []
@@ -220,7 +220,7 @@ def main():
     norm = lambda s: pt.norm_ws(s).lower()  # noqa: E731
     vp = {l: emb_bge([q["question"] for q in qs], "query")[0] for l, qs in pasajes.items()}
     vr = {l: emb_bge([q["question"] for q in qs], "query")[0] for l, qs in respuestas.items()}
-    print("\n| Extractor | Idioma | recall@5 de pasajes | recall@5 de respuestas |")
+    print("\n| Extractor | Language | recall@5 of passages | recall@5 of answers |")
     print("|---|---|---|---|")
     for nombre in extractores:
         chunks = [(s, c) for s, t in {**otros, **textos[nombre]}.items() for c in trocear(t, s)]
@@ -242,15 +242,15 @@ def main():
 
     for modelo, c in caches.items():
         v = list(c.values())
-        print(f"\nClaude {modelo}: {len(v)} documentos, tokens de entrada {sum(x['tokens_in'] for x in v)}, de salida "
-              f"{sum(x['tokens_out'] for x in v)}, costo ${sum(x['costo_usd'] for x in v):.5f}, "
-              f"latencia media {sum(x['latencia_s'] for x in v) / len(v):.1f} s por documento")
+        print(f"\nClaude {modelo}: {len(v)} documents, input tokens {sum(x['tokens_in'] for x in v)}, output "
+              f"{sum(x['tokens_out'] for x in v)}, cost ${sum(x['costo_usd'] for x in v):.5f}, "
+              f"mean latency {sum(x['latencia_s'] for x in v) / len(v):.1f} s per document")
     campos = sorted({k for d in detalle for k in d})
     with (RES / "ocr_detalle.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=campos)
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle: {RES / 'ocr_detalle.csv'}", file=sys.stderr)
+    print(f"detail: {RES / 'ocr_detalle.csv'}", file=sys.stderr)
 
 
 if __name__ == "__main__":

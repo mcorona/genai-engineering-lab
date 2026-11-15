@@ -1,25 +1,25 @@
-"""Actividad 7: GraphRAG (comparación acotada) con claude-haiku-5-5.
+"""Activity 7: GraphRAG (a scoped comparison) with claude-haiku-5-5.
 
-1. Haiku extrae entidades y relaciones de cada uno de los 57 chunks de semana 8 (fijo 400/80).
-   Caché: resultados/grafo_extraccion.jsonl (--regenerar para rehacerla). Si algún chunk no devuelve
-   JSON válido, el script se detiene sin cargar nada.
-2. El grafo se guarda en Postgres: semana9.entidades (chunk_id, entidad, tipo) y
-   semana9.relaciones (chunk_id, origen, relacion, destino). Nombres normalizados (minúsculas, sin acentos).
-3. Compara, solo en preguntas multi-salto (dos documentos por pregunta), en dos sets reportados por separado:
-   - compuestas (datasets/multisalto_*.jsonl): la pregunta nombra ambos temas (control);
-   - puente (datasets/multisalto_puente_*.jsonl): la entidad que une los documentos no aparece en la
-     pregunta (caso más favorable para GraphRAG).
-   Métodos:
-   - V:   vectorial (OpenSearch semana8, bge-m3), top 10.
-   - V+R: vectorial top 20 + reranking con Haiku, top 10.
-   - G:   3 semillas vectoriales + chunks conectados por entidades compartidas o por una relación,
-          con peso 1/df; las entidades en más del 30 % de los chunks no conectan.
-   - G+Q: Haiku extrae entidades de la pregunta; los chunks que las mencionan (peso 1/df) se fusionan
-          con el vectorial por RRF (k=60).
-Métricas fijadas antes de correr: recall@5 (sobre los dos pasajes), ambos pasajes en el top 5,
-nDCG@10 y MRR; costo por consulta y latencia p50. Costo único de extracción por separado.
+1. Haiku extracts entities and relations from each of the 57 week 8 chunks (fixed 400/80).
+   Cache: resultados/grafo_extraccion.jsonl (--regenerar to redo it). If any chunk does not return
+   valid JSON, the script stops without loading anything.
+2. The graph is stored in Postgres: semana9.entidades (chunk_id, entity, type) and
+   semana9.relaciones (chunk_id, source, relation, target). Normalized names (lowercase, no accents).
+3. It compares, only on multi-hop questions (two documents per question), two sets reported separately:
+   - compound (datasets/multisalto_*.jsonl): the question names both topics (the control);
+   - bridge (datasets/multisalto_puente_*.jsonl): the entity that links the documents does not appear in the
+     question (the most favorable case for GraphRAG).
+   Methods:
+   - V:   vector search (OpenSearch semana8, bge-m3), top 10.
+   - V+R: vector top 20 + reranking with Haiku, top 10.
+   - G:   3 vector seeds + chunks connected by shared entities or by a relation,
+          weighted 1/df; entities in more than 30 % of the chunks do not connect.
+   - G+Q: Haiku extracts entities from the question; the chunks that mention them (weight 1/df) are fused
+          with the vector results by RRF (k=60).
+Metrics fixed before the run: recall@5 (over the two passages), both passages in the top 5,
+nDCG@10 and MRR; cost per query and p50 latency. The one-time extraction cost is reported separately.
 
-Requiere PG_ADMIN_DSN, LM Studio con bge-m3, OpenSearch con el índice semana8 y ANTHROPIC_API_KEY.
+Requires PG_ADMIN_DSN, LM Studio with bge-m3, OpenSearch with the semana8 index, and ANTHROPIC_API_KEY.
 """
 import csv
 import hashlib
@@ -68,8 +68,8 @@ def normalizar(s):
     return re.sub(r"^(el|la|los|las|un|una) ", "", s)
 
 
-# max_tokens alto: Haiku razona (bloque thinking) antes del JSON. Con 2000, 14 de 57 extracciones se
-# cortaron en el límite y los JSON válidos llegaron a 1969 tokens de salida.
+# high max_tokens: Haiku reasons (a thinking block) before the JSON. With 2000, 14 of 57 extractions were
+# cut off at the limit, and the valid JSON outputs reached 1969 output tokens.
 def llamar(sistema, contenido, max_tokens=6000):
     r = http_api("POST", "https://api.anthropic.com/v1/messages", {
         "model": MODELO, "max_tokens": max_tokens, "system": sistema,
@@ -120,7 +120,7 @@ def extraer(fs, regenerar):
     with CACHE.open("w", encoding="utf-8") as out:
         for f in fs:
             out.write(json.dumps(cache[huella(f)], ensure_ascii=False) + "\n")
-    print(f"extracción: {len(fs)} chunks ({nuevos} extraídos ahora, {len(fs) - nuevos} reutilizados)", file=sys.stderr)
+    print(f"extraction: {len(fs)} chunks ({nuevos} extracted now, {len(fs) - nuevos} reused)", file=sys.stderr)
     return [cache[huella(f)] for f in fs]
 
 
@@ -208,18 +208,18 @@ def main():
     ext = extraer(fs, "--regenerar" in sys.argv)
     malos = [e for e in ext if not e["ok"]]
     if malos:
-        raise SystemExit(f"{len(malos)} chunks sin JSON válido (p. ej. {malos[0]['source']} #{malos[0]['chunk_index']}); no se carga el grafo.")
+        raise SystemExit(f"{len(malos)} chunks without valid JSON (e.g. {malos[0]['source']} #{malos[0]['chunk_index']}); the graph is not loaded.")
 
     conn = psycopg.connect(os.environ["PG_ADMIN_DSN"], autocommit=True)
     cargar_grafo(conn, ext)
     menciones, vecinos_rel, df, comunes, ents_chunk, n_rel = leer_grafo(conn, len(fs))
     tin_x, tout_x = sum(e["tokens_in"] for e in ext), sum(e["tokens_out"] for e in ext)
-    print(f"Grafo: {len(menciones)} entidades únicas, {n_rel} relaciones; {len(comunes)} entidades genéricas excluidas "
-          f"de la expansión ({', '.join(sorted(comunes)[:8])}). Extracción: {tin_x} tokens de entrada, {tout_x} de salida, "
-          f"costo único ${costo(tin_x, tout_x):.5f}; p50 {statistics.median(e['latencia_ms'] for e in ext):.0f} ms por chunk.\n")
+    print(f"Graph: {len(menciones)} unique entities, {n_rel} relations; {len(comunes)} generic entities excluded "
+          f"from the expansion ({', '.join(sorted(comunes)[:8])}). Extraction: {tin_x} input tokens, {tout_x} output, "
+          f"one-time cost ${costo(tin_x, tout_x):.5f}; p50 {statistics.median(e['latencia_ms'] for e in ext):.0f} ms per chunk.\n")
 
     detalle = []
-    print("| Set | Idioma | Método | recall@5 | Ambos pasajes en top 5 | nDCG@10 | MRR | Costo por consulta (USD) | Latencia p50 (ms) | Fallos |")
+    print("| Set | Language | Method | recall@5 | Both passages in top 5 | nDCG@10 | MRR | Cost per query (USD) | p50 latency (ms) | Failures |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for conjunto, prefijo, idioma in [(c, p_, i) for c, p_ in (("compuestas", "multisalto"), ("puente", "multisalto_puente"))
                                       for i in ("es", "en")]:
@@ -295,7 +295,7 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(detalle[0].keys()))
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle por consulta: {salida}", file=sys.stderr)
+    print(f"detail per query: {salida}", file=sys.stderr)
 
 
 if __name__ == "__main__":

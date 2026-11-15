@@ -1,16 +1,16 @@
-"""Actividad 9: eval de recuperación y permisos en CI (PR que toque semana-09/**).
+"""Activity 9: retrieval and permissions eval in CI (PRs that touch semana-09/**).
 
-Modelo de CI: text-embedding-3-small (OpenAI), porque bge-m3 corre en LM Studio y no está en GitHub Actions.
-Base: pgvector de servicio, con los chunks de los tenants alfa (semana-08/corpus) y beta (semana-09/corpus_beta),
-`tenant_id` y `roles` (datasets/permisos.json). El filtro va dentro de la consulta.
+CI model: text-embedding-3-small (OpenAI), because bge-m3 runs in LM Studio, which is not available in GitHub Actions.
+Database: a pgvector service, with the chunks of the alfa (semana-08/corpus) and beta (semana-09/corpus_beta) tenants,
+`tenant_id` and `roles` (datasets/permisos.json). The filter goes inside the query.
 
-El check falla si:
-1. recall@5 de las preguntas base (usuario de alfa con todos los roles) queda bajo UMBRAL en algún idioma;
-2. hay fuga por rol: algún chunk no autorizado en el top 10 (50 preguntas x 6 roles) o algún pasaje prohibido
-   devuelto en los casos de permiso;
-3. hay fuga entre tenants: algún chunk del otro tenant (50 preguntas x 2 tenants) o la cifra del otro tenant en
-   los casos casi idénticos (datasets/multitenant_*.jsonl).
-La fuga no tiene umbral: debe ser 0.
+The check fails if:
+1. recall@5 of the base questions (an alfa user with every role) falls below UMBRAL in either language;
+2. there is a leak by role: any unauthorized chunk in the top 10 (50 questions x 6 roles) or any forbidden passage
+   returned in the permission cases;
+3. there is a leak across tenants: any chunk of the other tenant (50 questions x 2 tenants) or the other tenant's figure
+   in the near-identical cases (datasets/multitenant_*.jsonl).
+Leaks have no threshold: they must be 0.
 """
 import json
 import os
@@ -41,7 +41,7 @@ def embed(textos):
                       data=json.dumps({"model": MODELO, "input": textos[i:i + 100]}).encode("utf-8"),
                       headers={"Content-Type": "application/json",
                                "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"})
-        # Reintentos solo para errores transitorios del proveedor (429 y 5xx); el resto falla de inmediato.
+        # Retries only for the provider's transient errors (429 and 5xx); everything else fails immediately.
         for intento in range(4):
             try:
                 with urlopen(req, timeout=120) as r:
@@ -78,7 +78,7 @@ def main():
     filas = chunks()
     faltan = {s for _, s, _ in filas} - set(ROLES_DOC)
     if faltan:
-        sys.exit(f"Documentos sin roles en permisos.json: {sorted(faltan)}")
+        sys.exit(f"Documents without roles in permisos.json: {sorted(faltan)}")
     vecs = embed([c for _, _, c in filas])
     errores = []
     with psycopg.connect(os.environ["PG_DSN"], autocommit=True) as conn:
@@ -144,10 +144,10 @@ def main():
                     otra_cifra += any(x["gold"][otro] in c for _, _, c in res)
                     propia += any(tt == t and x["gold"][t] in c for tt, _, c in res[:5])
 
-            print(f"{idioma}: recall@5={r5:.3f} (umbral {UMBRAL}) | fuga por rol={fuga_rol} | "
-                  f"prohibidos devueltos={prohibidos}/{sum(not x['permitido'] for x in perm)} | "
-                  f"fuga entre tenants={fuga_tenant} | cifra del otro tenant={otra_cifra}/{2 * len(solap)} | "
-                  f"cifra propia en top 5={propia}/{2 * len(solap)}")
+            print(f"{idioma}: recall@5={r5:.3f} (threshold {UMBRAL}) | leak by role={fuga_rol} | "
+                  f"forbidden returned={prohibidos}/{sum(not x['permitido'] for x in perm)} | "
+                  f"leak across tenants={fuga_tenant} | other tenant's figure={otra_cifra}/{2 * len(solap)} | "
+                  f"own figure in top 5={propia}/{2 * len(solap)}")
             if r5 < UMBRAL:
                 errores.append(f"{idioma}: recall@5 {r5:.3f} bajo el umbral {UMBRAL}")
             if fuga_rol or prohibidos:
@@ -156,7 +156,7 @@ def main():
                 errores.append(f"{idioma}: fuga entre tenants ({fuga_tenant} chunks, {otra_cifra} cifras del otro tenant)")
     if errores:
         sys.exit("FALLA: " + "; ".join(errores))
-    print("OK: recall dentro del umbral y fuga 0 (por rol y entre tenants) en ES y EN")
+    print("OK: recall within the threshold and 0 leaks (by role and across tenants) in ES and EN")
 
 
 if __name__ == "__main__":

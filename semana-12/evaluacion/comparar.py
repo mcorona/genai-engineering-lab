@@ -1,6 +1,6 @@
-"""Semana 12, actividad 8: tabla final opción × modo de ingesta × idioma con recall@5, nDCG@10, faithfulness, answer
-relevance, exactitud, fuga, latencia y costo, a partir de los resúmenes de las actividades 3 a 7 (sin llamadas a APIs).
-Escribe resultados/comparacion_tabla.md y resultados/comparacion.json.
+"""Week 12, activity 8: the final table of option × ingestion mode × language with recall@5, nDCG@10, faithfulness, answer
+relevance, accuracy, leaks, latency and cost, built from the summaries of activities 3 to 7 (no API calls).
+Writes resultados/comparacion_tabla.md and resultados/comparacion.json.
 """
 import json
 from pathlib import Path
@@ -11,7 +11,7 @@ LAT, COS, SEG = J("latencia"), J("costos"), J("seguridad")
 PROPIO_GEN = J("propio")["costo_usd_por_consulta"]["generacion"]
 RANKING = COS["precios"]["ranking"]
 
-# (nombre del resumen, opción, modo de ingesta, generador, sistema en seguridad, clave en latencia, clave en costos)
+# (summary name, option, ingestion mode, generator, system in the security results, key in latency, key in costs)
 FILAS = [
     ("propio", "Own pipeline (pgvector + Haiku reranking)", "own chunks", "common", None, "propio", "propio"),
     ("bedrock_adm-pred", "Bedrock KB, Retrieve", "managed: default chunking/parser", "common", "bedrock adm-pred", None, None),
