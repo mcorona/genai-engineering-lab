@@ -12,6 +12,7 @@ Everything external (connection, token, start of the state machine) is injected,
 from __future__ import annotations
 
 import json
+import re
 import ssl
 from pathlib import Path
 from typing import Any, Callable
@@ -21,6 +22,7 @@ from herramientas.guardia_sql import ToolError, guard
 ESQUEMA = "legado"
 OBJETOS = frozenset({"almmst", "artmst", "artnot", "exidet", "ocpcab", "prvmst", "vtadia"})
 USUARIO = "copilot_ro"  # the only database user this function ever uses
+SKU_RE = re.compile(r"SKU-\d{4}")
 LIMITE_FILAS = 200
 TIMEOUT_MS = 5000
 PUERTO = 5432
@@ -64,13 +66,19 @@ def ejecutar_sql(sql: str, conectar: Callable[[], Any]) -> dict:
 
 
 def proponer_orden_compra(entrada: dict, iniciar: Callable[[str], str]) -> dict:
-    """Starts the approval workflow and returns its id. It does not write the order (the workflow's writer does)."""
-    for campo in ("sku", "cantidad", "proveedor_id"):
-        if campo not in entrada:
-            raise ToolError("entrada_invalida", f"falta el campo {campo}")
-    if not isinstance(entrada["cantidad"], int) or entrada["cantidad"] <= 0:
-        raise ToolError("entrada_invalida", "cantidad debe ser un entero positivo")
-    return {"solicitud_id": iniciar(json.dumps(entrada, sort_keys=True))}
+    """Starts the approval workflow and returns its id. It does not write the order (the workflow's writer does).
+    The contract is the one of the agent's catalog (week 13): sku SKU-dddd, cantidad 1..100000, motivo 1..200 characters.
+    Any other field is refused."""
+    if not isinstance(entrada, dict) or set(entrada) - {"sku", "cantidad", "motivo"}:
+        raise ToolError("entrada_invalida", "solo se admiten sku, cantidad y motivo")
+    sku, cantidad, motivo = entrada.get("sku"), entrada.get("cantidad"), entrada.get("motivo")
+    if not isinstance(sku, str) or not SKU_RE.fullmatch(sku):
+        raise ToolError("entrada_invalida", "sku debe tener la forma SKU-dddd")
+    if not isinstance(cantidad, int) or isinstance(cantidad, bool) or not 1 <= cantidad <= 100000:
+        raise ToolError("entrada_invalida", "cantidad debe ser un entero de 1 a 100000")
+    if not isinstance(motivo, str) or not 1 <= len(motivo) <= 200:
+        raise ToolError("entrada_invalida", "motivo debe tener de 1 a 200 caracteres")
+    return {"solicitud_id": iniciar(json.dumps({"sku": sku, "cantidad": cantidad, "motivo": motivo}, sort_keys=True))}
 
 
 def token_iam(host: str, generar: Callable[..., str], region: str) -> str:
