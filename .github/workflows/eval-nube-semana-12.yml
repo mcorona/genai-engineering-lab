@@ -1,14 +1,14 @@
 name: eval-nube-semana-12
 
-# Corrida MANUAL de las suites contra Bedrock y Vertex AI Search (no corre en los PR: cuesta dinero y requiere nube).
-# Sin llaves de nube: OIDC hacia el rol semana12-ci (AWS) y Workload Identity Federation hacia la cuenta de servicio
-# semana12-ci (Google Cloud), que solo aceptan este repo en el entorno nube-semana12 (solo desde main). Las llaves de
-# Anthropic y OpenAI son secretos de ese entorno: ningún otro workflow las ve.
+# MANUAL run of the suites against Bedrock and Vertex AI Search (it does not run on PRs: it costs money and needs the cloud).
+# No cloud keys: OIDC to the semana12-ci role (AWS) and Workload Identity Federation to the semana12-ci service account
+# (Google Cloud), which accept only this repository in the nube-semana12 environment (only from main). The Anthropic and
+# OpenAI keys are secrets of that environment: no other workflow can see them.
 on:
   workflow_dispatch:
     inputs:
       backend:
-        description: "Servicio"
+        description: "Service"
         type: choice
         options: [bedrock, vertex]
         default: bedrock
@@ -17,16 +17,16 @@ on:
         type: string
         default: ctl-chunks
       modo:
-        description: "comun (generador común) o rag (RetrieveAndGenerate, solo bedrock)"
+        description: "comun (the common generator) or rag (RetrieveAndGenerate, bedrock only)"
         type: choice
         options: [comun, rag]
         default: comun
       limite:
-        description: "Preguntas por idioma y tipo (0 = las 150 completas)"
+        description: "Questions per language and type (0 = all 150)"
         type: string
         default: "2"
       seguridad:
-        description: "Correr también las pruebas de fuga (≈ $0.20)"
+        description: "Also run the leak tests (≈ $0.20)"
         type: boolean
         default: false
 
@@ -43,7 +43,7 @@ jobs:
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       EMB_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      LMSTUDIO_BASE_URL: https://api.openai.com/v1      # answer relevancy con text-embedding-3-small (bge-m3 no corre en Actions)
+      LMSTUDIO_BASE_URL: https://api.openai.com/v1      # answer relevancy with text-embedding-3-small (bge-m3 does not run in Actions)
       LMSTUDIO_EMBED_MODEL: text-embedding-3-small
       VX_SIN_IMPERSONAR: "1"
       IN_BACKEND: ${{ inputs.backend }}
@@ -51,48 +51,48 @@ jobs:
       IN_MODO: ${{ inputs.modo }}
       IN_LIMITE: ${{ inputs.limite }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
-      - name: Instalar dependencias (versiones de las semanas 11 y 12)
+      - name: Install dependencies (week 11 and 12 versions)
         run: >-
           pip install "psycopg[binary]==3.3.6" anthropic==1.15.0 openai==3.3.0 instructor==1.17.0 ragas==0.4.3
           langchain-community==0.4.1 langchain-core==1.7.0 langchain-openai==1.7.3 boto3
-      - name: Validar entradas
+      - name: Validate inputs
         run: |
-          [[ "$IN_LIMITE" =~ ^[0-9]+$ ]] || { echo "limite debe ser un número"; exit 1; }
-          [[ "$IN_CONFIG" =~ ^[a-z0-9:-]+$ ]] || { echo "config inválida"; exit 1; }
-      - name: AWS por OIDC (rol semana12-ci)
+          [[ "$IN_LIMITE" =~ ^[0-9]+$ ]] || { echo "limite must be a number"; exit 1; }
+          [[ "$IN_CONFIG" =~ ^[a-z0-9:-]+$ ]] || { echo "invalid config"; exit 1; }
+      - name: AWS through OIDC (semana12-ci role)
         if: inputs.backend == 'bedrock' || inputs.seguridad
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: us-east-1
           role-session-name: eval-nube-semana-12
-      - name: Google Cloud por Workload Identity Federation (semana12-ci)
+      - name: Google Cloud through Workload Identity Federation (semana12-ci)
         if: inputs.backend == 'vertex' || inputs.seguridad
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
         with:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_SA }}
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
         if: inputs.backend == 'vertex' || inputs.seguridad
-      - name: Suites de recuperación y generación
+      - name: Retrieval and generation suites
         run: |
           args=(--backend "$IN_BACKEND" --config "$IN_CONFIG" --modo "$IN_MODO")
           [ "$IN_LIMITE" != "0" ] && args+=(--limite "$IN_LIMITE")
           python -u semana-12/evaluacion/suites.py "${args[@]}" | tee semana-12/resultados/ci_salida.txt
           {
-            echo "## eval-nube-semana-12: $IN_BACKEND $IN_CONFIG ($IN_MODO, límite $IN_LIMITE)"
+            echo "## eval-nube-semana-12: $IN_BACKEND $IN_CONFIG ($IN_MODO, limit $IN_LIMITE)"
             sed -n '/^## /,$p' semana-12/resultados/ci_salida.txt
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Pruebas de fuga (opcional)
+      - name: Leak tests (optional)
         if: inputs.seguridad
         run: python -u semana-12/evaluacion/seguridad.py | tee semana-12/resultados/ci_seguridad.txt
-      - name: Guardar resultados de la corrida
+      - name: Save the run results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: eval-nube-semana-12-${{ github.run_id }}
           path: |
