@@ -213,6 +213,10 @@
       "AWS::EC2::SecurityGroup"
     ],
     [
+      "SgCargadortopl63a5400a443",
+      "AWS::EC2::SecurityGroupEgress"
+    ],
+    [
       "SgCargadortosemana19datosSgBaseDeDatos2A16DBEA5432",
       "AWS::EC2::SecurityGroupEgress"
     ],

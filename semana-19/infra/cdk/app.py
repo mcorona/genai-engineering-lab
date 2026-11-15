@@ -580,6 +580,9 @@ class Datos(Stack):
             description="PostgreSQL: 5432 only from the loader security group.")
         sg_bd.add_ingress_rule(sg_cargador, ec2.Port.tcp(5432), "PostgreSQL desde el cargador")
         sg_cargador.add_egress_rule(sg_bd, ec2.Port.tcp(5432), "PostgreSQL")
+        # S3 is reached through the gateway endpoint, which routes by the managed prefix list (not by a public IP).
+        # Without this egress rule the loader hangs on the first document upload. pl-63a5400a = com.amazonaws.us-east-1.s3.
+        sg_cargador.add_egress_rule(ec2.Peer.prefix_list("pl-63a5400a"), ec2.Port.tcp(443), "HTTPS a S3 (endpoint gateway)")
 
         bd = rds.DatabaseInstance(
             self, "PostgreSQL",
