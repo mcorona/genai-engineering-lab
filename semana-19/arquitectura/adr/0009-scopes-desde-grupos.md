@@ -20,4 +20,5 @@ token without the scope gets 403 needs the check at the authorizer.
 
 - Cost of Essentials: **0.015 USD per MAU** (`semana-19/costos/precios.json`, Price List). With the two test users the
   upper bound is **0.03 USD per month**. Whether the free tier covers them is **not verified**.
-- **Needs Manuel's OK for this cost before the deployment (PR 4).**
+- **Cost authorized by Manuel** (upper bound 0.03 USD per month). Before the deployment (PR 4) the free-tier
+  coverage is still to be verified.
