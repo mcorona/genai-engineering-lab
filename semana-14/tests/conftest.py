@@ -26,7 +26,7 @@ def conexion():
 
 
 def con_cliente(servidor, fn):
-    """Corre `fn(cliente)` con un cliente MCP en memoria (protocolo 2026-07-28) contra `servidor`."""
+    """Runs `fn(cliente)` with an in-memory MCP client (protocol 2026-07-28) against `servidor`."""
     from mcp import Client
 
     async def _correr():
@@ -34,7 +34,7 @@ def con_cliente(servidor, fn):
             return await fn(c)
     try:
         return asyncio.run(_correr())
-    except BaseExceptionGroup as g:  # el cliente corre en un task group de anyio: se propaga el error de protocolo
+    except BaseExceptionGroup as g:  # the client runs in an anyio task group: the protocol error propagates
         hojas = []
 
         def _hojas(e):
@@ -47,9 +47,9 @@ def con_cliente(servidor, fn):
 
 
 def fabrica(usuario, conexion=None, idioma="es"):
-    """Una sola instancia por servidor, como en un proceso real (la bitácora y las propuestas son del contexto)."""
+    """A single instance per server, as in a real process (the call log and the proposals belong to the context)."""
     h = Herramientas(Contexto.de_usuario(usuario, conexion=conexion, idioma=idioma))
     return lambda: h
 
 
-from servidor.lab import ServidorHTTP  # noqa: E402,F401  (vive en servidor/lab.py; la usa también la eval)
+from servidor.lab import ServidorHTTP  # noqa: E402,F401  (it lives in servidor/lab.py; the eval also uses it)

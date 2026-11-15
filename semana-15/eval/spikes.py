@@ -1,11 +1,11 @@
-"""Semana 15, actividad 6: spikes de OpenAI Agents SDK y Google ADK (mismo agente, Claude por LiteLLM, herramientas
-por MCP) sobre las 10 tareas por idioma de la CI de la semana 13, k = 1.
+"""Week 15, activity 6: spikes of the OpenAI Agents SDK and Google ADK (the same agent, Claude through LiteLLM, tools
+over MCP) on the 10 tasks per language of the week 13 CI, k = 1.
 
     cd semana-15 && python eval/spikes.py --simular        # $0
-    python eval/spikes.py --tope-usd 0.30                  # Haiku 5.5 low, ~$0.12 (se autoriza antes)
+    python eval/spikes.py --tope-usd 0.30                  # Haiku 5.5 low, ~$0.12 (authorized beforehand)
 
-Escribe resultados/spikes_detalle.jsonl y resultados/spikes_tablas.md. Como referencia, en las mismas tareas: LangGraph
-y Strands (actividad 5, k = 3), el loop propio y el Claude Agent SDK (semana 13, k = 3).
+Writes resultados/spikes_detalle.jsonl and resultados/spikes_tablas.md. As a reference, on the same tasks: LangGraph
+and Strands (activity 5, k = 3), the in-house loop and the Claude Agent SDK (week 13, k = 3).
 """
 from __future__ import annotations
 
@@ -107,13 +107,13 @@ def main(argv=None) -> int:
                 f.write(json.dumps(fila, ensure_ascii=False, default=str) + "\n")
             with open(trazas, "a", encoding="utf-8") as f:
                 f.writelines(json.dumps(e, ensure_ascii=False, default=str) + "\n" for e in eventos)
-        print(f"{fw:<14} {t['id']:<7} {fila['estado']:<19} éxito={'sí' if fila['exito'] else 'NO':<3} "
+        print(f"{fw:<14} {t['id']:<7} {fila['estado']:<19} success={'yes' if fila['exito'] else 'NO':<3} "
               f"${fila['costo_usd']:.4f} {fila['segundos']:5.1f}s {fila['motivo'][:60] if fila['estado'] == 'error' else ''}"
-              f"[acumulado ${total[0]:.3f}]", flush=True)
+              f"[accumulated ${total[0]:.3f}]", flush=True)
 
     ts = tareas_ci()
-    print(f"{len(ts) * len(SPIKES)} corridas · emisor {a.emisor} · {'SIMULACIÓN ($0)' if a.simular else 'Haiku 5.5 low'} · "
-          f"tope ${a.tope_usd:.2f}", flush=True)
+    print(f"{len(ts) * len(SPIKES)} runs · issuer {a.emisor} · {'SIMULATION ($0)' if a.simular else 'Haiku 5.5 low'} · "
+          f"cap ${a.tope_usd:.2f}", flush=True)
     t0 = time.time()
     try:
         with ThreadPoolExecutor(a.hilos * len(SPIKES)) as ex:

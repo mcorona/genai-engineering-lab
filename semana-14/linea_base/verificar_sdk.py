@@ -1,13 +1,13 @@
-"""Línea base de la semana 14 (actividad 1): qué ofrece el SDK `mcp` instalado para el servidor remoto con OAuth.
+"""The week 14 baseline (activity 1): what the installed `mcp` SDK offers for the remote server with OAuth.
 
-Sin red y sin API: arma un servidor de prueba en memoria (Starlette TestClient) con un verificador de tokens falso y
-comprueba, contra la especificación 2026-07-28, lo que las actividades 2 a 5 dan por hecho. Cada comprobación es
-(nombre, ok, detalle). Uso:
+No network and no API: it builds an in-memory test server (Starlette TestClient) with a fake token verifier and
+checks, against the 2026-07-28 specification, what activities 2 to 5 take for granted. Each check is
+(name, ok, detail). Usage:
 
-    python semana-14/linea_base/verificar_sdk.py            # imprime la tabla; código 1 si algo falla
-    python semana-14/linea_base/verificar_sdk.py --json     # misma salida en JSON
+    python semana-14/linea_base/verificar_sdk.py            # prints the table; exit code 1 if anything fails
+    python semana-14/linea_base/verificar_sdk.py --json     # the same output as JSON
 
-Las brechas conocidas del SDK (lo que hay que construir) se reportan aparte en BRECHAS y no cuentan como falla.
+The SDK's known gaps (what has to be built) are reported separately in BRECHAS and do not count as failures.
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ RECURSO = "http://127.0.0.1:8014/mcp"
 EMISOR = "http://127.0.0.1:8180/realms/legacybridge"
 SCOPE_BASE = "legado:leer"
 
-# Lo que el SDK NO resuelve y se construye en la semana (verificado en la actividad 1).
+# What the SDK does NOT solve and is built during the week (verified in activity 1).
 BRECHAS = [
     ("Validación de JWT", "TokenVerifier es un protocolo: la firma por JWKS, `iss`, `aud`, `exp` y el algoritmo fijo se "
                           "implementan con PyJWT (actividad 5)."),
@@ -56,7 +56,7 @@ def _verificador():
     from mcp.server.auth.provider import AccessToken
 
     class Falso:
-        """Tokens opacos de prueba: el nombre del token decide sus claims."""
+        """Opaque test tokens: the token's name decides its claims."""
         async def verify_token(self, token):
             base = dict(token=token, client_id="cliente-prueba", subject="analista",
                         expires_at=int(time.time()) + 60, resource=RECURSO, scopes=[SCOPE_BASE])
@@ -77,8 +77,8 @@ def _servidor():
                     auth=AuthSettings(issuer_url=EMISOR, resource_server_url=RECURSO, validate_token_resource=True,
                                       required_scopes=[SCOPE_BASE]))
 
-    # Con un tipo de retorno con esquema (modelo Pydantic) el SDK publica outputSchema y devuelve structuredContent;
-    # con un `dict` sin tipar no publica ninguno (verificado en esta actividad).
+    # With a return type that has a schema (a Pydantic model) the SDK publishes outputSchema and returns structuredContent;
+    # with an untyped `dict` it publishes none (verified in this activity).
     @srv.tool(description="Eco de prueba.", annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False))
     def eco(texto: str) -> Eco:
         return Eco(texto=texto)
@@ -180,7 +180,7 @@ def main():
     else:
         for n, o, d in res:
             print(f"{'OK ' if o else 'FALLA'} {n:<52} {d[:90]}")
-        print(f"\n{sum(o for _, o, _ in res)}/{len(res)} comprobaciones")
+        print(f"\n{sum(o for _, o, _ in res)}/{len(res)} checks")
     sys.exit(0 if all(o for _, o, _ in res) else 1)
 
 

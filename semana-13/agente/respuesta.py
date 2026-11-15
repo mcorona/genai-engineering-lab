@@ -1,4 +1,4 @@
-"""Respuesta final estructurada del agente. Se entrega con la herramienta `responder`, cuyo JSON Schema es este modelo."""
+"""The agent's structured final answer. It is delivered with the `responder` tool, whose JSON Schema is this model."""
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field

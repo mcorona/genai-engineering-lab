@@ -1,5 +1,5 @@
-"""Hooks y subagentes de legacy-schema-audit (actividad 4), sin API: entradas guionadas a cada hook (permite / bloquea,
-códigos de salida, bitácora válida) y la lista de herramientas de cada subagente aplicada por la guardia."""
+"""Hooks and subagents of legacy-schema-audit (activity 4), no API: scripted inputs to each hook (allow / block,
+exit codes, a valid log) and each subagent's tool list as enforced by the guard."""
 import json
 import os
 import re
@@ -35,7 +35,7 @@ def proyecto(tmp_path):
 
 @pytest.fixture
 def estado(tmp_path):
-    """Estado de sesión como lo deja SessionStart con un rol de solo lectura (sesión 'segura')."""
+    """The session state as SessionStart leaves it with a read-only role (a 'safe' session)."""
     d = tmp_path / "estado"
     comun.escribir_estado(d, "segura", {"modo": "dsn", "lectura_segura": True, "motivo": "role x is read-only"})
     comun.escribir_estado(d, "insegura", {"modo": "dsn", "lectura_segura": False, "motivo": "role admin can write"})
@@ -47,7 +47,7 @@ def ev(herramienta, entrada, proyecto, sesion="segura", **extra):
             "tool_input": entrada, **extra}
 
 
-# ---------- PreToolUse: guardia ----------
+# ---------- PreToolUse: guard ----------
 
 PERMITE = [
     (P + "run_select", {"sql": "SELECT mov_id FROM movinv WHERE mov_art IS NULL"}),
@@ -163,7 +163,7 @@ def test_guardia_bloquea_si_sessionstart_no_corrio(proyecto, estado):
 
 
 def test_guardia_remota_no_depende_del_estado(proyecto, estado):
-    """El servidor remoto aplica sus propios permisos (OAuth): sin DSN no hay rol que verificar aquí."""
+    """The remote server enforces its own permissions (OAuth): without a DSN there is no role to verify here."""
     p = correr("guardia.py", ev(R + "describir_esquema", {}, proyecto, sesion="desconocida"), estado)
     assert p.returncode == 0
 
@@ -174,7 +174,7 @@ def test_guardia_falla_cerrada(entrada, estado):
     assert p.returncode == 2 and "blocked" in p.stderr
 
 
-# ---------- subagentes: herramientas mínimas ----------
+# ---------- subagents: minimal tools ----------
 
 AGENTES = comun.herramientas_de_agentes()
 PROHIBIDAS_A_TODOS = {"Bash", "Write", "Edit", "MultiEdit", "NotebookEdit", "Read", "Grep", "Glob", "WebFetch",
@@ -188,7 +188,7 @@ def test_subagentes_y_listas_minimas():
         assert not tools & PROHIBIDAS_A_TODOS, agente
         propias = {t for t in tools if t.startswith(P)}
         assert propias <= nombres_servidor and propias, agente
-    assert P + "run_select" not in AGENTES["perfilador"]          # estadísticas, sin SQL libre
+    assert P + "run_select" not in AGENTES["perfilador"]          # statistics, no free-form SQL
     assert P + "profile_table" not in AGENTES["analista-relaciones"]
     assert P + "run_select" in AGENTES["revisor-riesgos"] and P + "run_select" in AGENTES["analista-relaciones"]
 
@@ -212,7 +212,7 @@ def test_subagentes_sin_campos_que_claude_code_ignora():
     ("legacy-schema-audit:revisor-riesgos", R + "ejecutar_sql", True),
     ("legacy-schema-audit:revisor-riesgos", "Write", False),
     ("legacy-schema-audit:revisor-riesgos", "mcp__otro-servidor__borrar", False),
-    ("general-purpose", P + "run_select", True),     # no es del plugin: aplica solo el resto de la guardia
+    ("general-purpose", P + "run_select", True),     # not the plugin's: only the rest of the guard applies
 ])
 def test_subagente_no_usa_herramientas_fuera_de_su_lista(agente, herramienta, permitido, proyecto, estado):
     entrada = {"sql": "SELECT 1"} if herramienta.endswith(("run_select", "ejecutar_sql")) else \
@@ -232,7 +232,7 @@ def test_skill_orquesta_los_tres_subagentes():
     assert "in parallel" in texto and "auditoria/bitacora.jsonl" in texto
 
 
-# ---------- PostToolUse: bitácora ----------
+# ---------- PostToolUse: log ----------
 
 def post(herramienta, entrada, respuesta, proyecto, **extra):
     return {"session_id": "s", "cwd": str(proyecto), "hook_event_name": "PostToolUse", "tool_name": herramienta,
@@ -256,7 +256,7 @@ def test_bitacora_jsonl_valida_sin_filas(forma, proyecto):
     assert e["tool"] == "run_select" and e["server"] == "legacy-sql" and e["sql"] == "SELECT mov_id FROM movinv WHERE x"
     assert e["ok"] is True and e["rows"] == 2 and e["truncated"] is False and e["error"] is None
     assert e["agent"] == "legacy-schema-audit:revisor-riesgos" and e["args"] == {"max_rows": 10}
-    assert "35" not in lineas[0]  # nunca las filas
+    assert "35" not in lineas[0]  # never the rows
 
 
 def test_bitacora_registra_errores_y_remotas(proyecto):
@@ -277,7 +277,7 @@ def test_bitacora_ignora_otras_herramientas_y_nunca_bloquea(proyecto):
     assert correr("bitacora.py", "basura", None).returncode == 0
 
 
-# ---------- SessionStart: rol de solo lectura ----------
+# ---------- SessionStart: read-only role ----------
 
 def sesion(estado, sid, env):
     p = correr("verificar_rol.py", {"session_id": sid, "hook_event_name": "SessionStart", "source": "startup"}, estado,
@@ -296,7 +296,7 @@ def test_sessionstart_sin_dsn_modo_remoto(tmp_path):
 def test_sessionstart_base_inalcanzable_bloquea(tmp_path):
     codigo, salida, est = sesion(tmp_path, "x", {"LEGACY_AUDIT_DSN": "postgresql://nadie:nada@127.0.0.1:1/x"})
     assert codigo == 0 and est["lectura_segura"] is False and "STOP" in salida["additionalContext"]
-    assert "nada@" not in salida["additionalContext"]  # el DSN nunca se imprime
+    assert "nada@" not in salida["additionalContext"]  # the DSN is never printed
 
 
 @pytest.mark.skipif(not (DSN or ADMIN), reason="sin PG_DSN ni PG_ADMIN_DSN")
@@ -369,8 +369,8 @@ def test_hooks_json_exec_y_falla_cerrada():
 
 
 def test_cada_bloqueo_queda_registrado_sin_la_entrada(proyecto, estado):
-    """Criterio de la actividad 6: cada bloqueo en auditoria/bloqueos.jsonl, con el hash de la entrada y no la entrada
-    (un comando bloqueado puede llevar una contraseña)."""
+    """The activity 6 criterion: each block in auditoria/bloqueos.jsonl, with the hash of the input and not the input
+    (a blocked command may carry a password)."""
     for e in ({"command": "PGPASSWORD=s3creto psql -c 'DELETE FROM movinv'"}, {"command": "cat .env"}):
         assert correr("guardia.py", ev("Bash", e, proyecto), estado).returncode == 2
     assert correr("guardia.py", ev("Bash", {"command": "ls auditoria"}, proyecto), estado).returncode == 0

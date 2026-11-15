@@ -1,5 +1,5 @@
-"""Empaquetado para clientes (actividad 9), sin API: marketplace y versiones, README del plugin para clientes, ejemplo
-con datos sintéticos, oferta, y la instalación desde cero en una configuración limpia de Claude Code."""
+"""Packaging for clients (activity 9), no API: the marketplace and versions, the plugin's README for clients, an example
+with synthetic data, the offer, and installation from scratch in a clean Claude Code configuration."""
 import importlib.util
 import json
 import re

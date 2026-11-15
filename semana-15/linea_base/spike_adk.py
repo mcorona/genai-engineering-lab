@@ -1,5 +1,5 @@
-"""Spike Google ADK (sin API): herramientas MCP del servidor de la semana 14 con token Bearer y agente con modelo guionado
-(subclase de `BaseLlm`). Imprime RESULTADO {json}."""
+"""A Google ADK spike (no API): MCP tools of the week 14 server with a Bearer token and an agent with a scripted model
+(a subclass of `BaseLlm`). Prints RESULTADO {json}."""
 import asyncio
 import importlib.metadata as md
 import json

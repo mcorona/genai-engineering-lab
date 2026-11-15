@@ -1,24 +1,24 @@
-"""Semana 15, actividad 4: el agente de la semana 13 en Strands Agents.
+"""Week 15, activity 4: the week 13 agent in Strands Agents.
 
-Strands es un loop dirigido por el modelo (no hay grafo que dibujar): se le dan el modelo, el prompt y las herramientas, y
-las reglas de la semana 13 entran por **hooks**, el mecanismo de extensión del framework:
+Strands is a model-driven loop (there is no graph to draw): it is given the model, the prompt and the tools, and
+the week 13 rules come in through **hooks**, the framework's extension mechanism:
 
-| Hook                    | Qué hace                                                                                |
+| Hook                    | What it does                                                                            |
 |-------------------------|-----------------------------------------------------------------------------------------|
-| `BeforeModelCallEvent`  | Límites antes de cada llamada (3 errores seguidos, pasos, tokens totales, tiempo): `cancel` |
-| `AfterModelCallEvent`   | Cuenta el paso, los tokens, el costo y las herramientas pedidas; traza `modelo`          |
-| `BeforeToolCallEvent`   | `max_herramientas`; `responder` solo en su turno; **interrupción** antes de proponer       |
-| `AfterToolCallEvent`    | Resultado de cada herramienta (error estructurado del servidor incluido); traza `herramienta` |
+| `BeforeModelCallEvent`  | Limits before each call (3 errors in a row, steps, total tokens, time): `cancel`        |
+| `AfterModelCallEvent`   | Counts the step, the tokens, the cost and the tools requested; trace `modelo`           |
+| `BeforeToolCallEvent`   | `max_herramientas`; `responder` only in its turn; an **interrupt** before proposing     |
+| `AfterToolCallEvent`    | The result of each tool (including the server's structured error); trace `herramienta` |
 
-- **Modelo:** `AnthropicModel` directo (no Bedrock), con el modelo, los tokens de salida y el esfuerzo de la semana 13.
-  El uso de tokens de cada llamada se toma del evento `metadata` del stream, porque las métricas del agente se
-  actualizan después de `AfterModelCallEvent`.
-- **Herramientas:** `MCPClient` de Strands con el token del usuario (protocolo 2026-07-28), ejecución secuencial como
-  la semana 13 y sin recorte de la conversación; `responder` con el JSON Schema y la validación de la semana 13.
-- **Fin:** un `responder` válido llama `agent.cancel(after_current_tools=True)`. Sin herramientas, un recordatorio (una
-  segunda invocación con el mismo texto que la semana 13) y luego `sin_responder`.
-- **Human-in-the-loop:** `event.interrupt()` antes de `proponer_orden_compra`; el agente vuelve con
-  `stop_reason="interrupt"` y se reanuda con `interruptResponse`. Mismas políticas que LangGraph.
+- **Model:** `AnthropicModel` directly (not Bedrock), with week 13's model, output tokens and effort.
+  The token usage of each call is taken from the stream's `metadata` event, because the agent's metrics are
+  updated after `AfterModelCallEvent`.
+- **Tools:** Strands' `MCPClient` with the user's token (protocol 2026-07-28), sequential execution as in
+  week 13 and no trimming of the conversation; `responder` with week 13's JSON Schema and validation.
+- **End:** a valid `responder` calls `agent.cancel(after_current_tools=True)`. Without tools, a reminder (a
+  second invocation with the same text as week 13) and then `sin_responder`.
+- **Human-in-the-loop:** `event.interrupt()` before `proponer_orden_compra`; the agent returns with
+  `stop_reason="interrupt"` and is resumed with `interruptResponse`. The same policies as LangGraph.
 """
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ RECORDATORIO = "Deliver your final answer by calling the responder tool."
 
 
 class ModeloContado(AnthropicModel):
-    """AnthropicModel que deja a la vista el uso de la última llamada (evento `metadata` del stream)."""
+    """An AnthropicModel that exposes the usage of the last call (the stream's `metadata` event)."""
     ultimo_uso: dict | None = None
 
     async def stream(self, *a, **kw):
@@ -94,7 +94,7 @@ class ReglasSemana13(HookProvider):
         self.t_modelo = time.perf_counter()
 
     def despues_modelo(self, ev: AfterModelCallEvent):
-        if self.parada or ev.stop_response is None:      # llamada cancelada por un límite: no es un paso
+        if self.parada or ev.stop_response is None:      # a call cancelled by a limit: it is not a step
             if ev.exception is not None and not self.parada:
                 self._parar("error", f"api: {ev.exception}"[:300])
             return
@@ -126,7 +126,7 @@ class ReglasSemana13(HookProvider):
             return
         if nombre.split("__")[-1] == HERRAMIENTA_HITL and self.aprobacion is not None and nombre in self.conocidas:
             pausa = {"herramienta": nombre, "argumentos": ev.tool_use["input"], "corrida": self.reg.r.corrida}
-            decision = ev.interrupt("aprobacion_" + nombre, reason=pausa)     # la primera vez detiene el agente
+            decision = ev.interrupt("aprobacion_" + nombre, reason=pausa)     # the first time, it stops the agent
             self.decisiones.append({"herramienta": nombre, "decision": decision})
             if decision != "aprobar":
                 ev.cancel_tool = json.dumps({"ok": False, "error": {"tipo": "rechazada_por_humano", "mensaje":

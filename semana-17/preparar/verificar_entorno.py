@@ -113,7 +113,7 @@ def main(argv=None) -> int:
     for nombre, ok, detalle in r:
         print(f"  {'OK' if ok else 'FALTA'}  {nombre}" + (f"  ({detalle})" if detalle else ""))
     faltan = [n for n, ok, _ in r if not ok]
-    print(f"\n{len(r) - len(faltan)}/{len(r)} listos" + (f"; falta: {', '.join(faltan)}" if faltan else ""))
+    print(f"\n{len(r) - len(faltan)}/{len(r)} ready" + (f"; missing: {', '.join(faltan)}" if faltan else ""))
     if a.json:
         a.json.write_text(json.dumps([{"check": n, "ok": ok, "detalle": d} for n, ok, d in r], ensure_ascii=False,
                                      indent=1) + "\n", encoding="utf-8")

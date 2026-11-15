@@ -1,22 +1,22 @@
-"""Semana 15, actividad 7: supervisor en LangGraph con tres especialistas, uno de ellos remoto en Strands por A2A.
+"""Week 15, activity 7: a LangGraph supervisor with three specialists, one of them remote in Strands over A2A.
 
-    supervisor (LangGraph, grafo explícito de la actividad 3)
-      ├─ analista_sql        (LangGraph, en proceso): describir_esquema, muestrear_valores, validar_sql, ejecutar_sql
-      ├─ reglas_negocio      (LangGraph, en proceso): buscar_regla_negocio
-      ├─ especialista_compras (Strands, otro proceso, A2A con OAuth de audiencia propia): sin herramientas
-      └─ proponer_orden_compra (MCP, con el token del usuario): registra la propuesta en PENDING_APPROVAL
+    supervisor (LangGraph, the explicit graph of activity 3)
+      ├─ analista_sql        (LangGraph, in-process): describir_esquema, muestrear_valores, validar_sql, ejecutar_sql
+      ├─ reglas_negocio      (LangGraph, in-process): buscar_regla_negocio
+      ├─ especialista_compras (Strands, another process, A2A with OAuth with its own audience): no tools
+      └─ proponer_orden_compra (MCP, with the user's token): registers the proposal in PENDING_APPROVAL
 
-- **Mismo contrato que el agente único:** la respuesta final es la de la semana 13 (`responder`, una clave por salida
-  con su SELECT), así que se verifica igual. El supervisor no tiene SQL propio: lo obtiene del analista.
-- **Permisos por agente:** cada especialista solo ve sus herramientas; ninguno puede delegar (no hay bucles entre
-  agentes por construcción). El especialista remoto no tiene herramientas ni credenciales de datos: recibe hechos y
-  devuelve una propuesta. Solo el supervisor registra propuestas, con el token del usuario, y el servidor MCP las deja
-  en PENDING_APPROVAL.
-- **Datos no confiables:** todo lo que devuelve un especialista llega al supervisor dentro de `untrusted_data` con su
-  `fuente` (`a2a:compras` para el remoto).
-- **Presupuesto total por tarea:** los límites de la semana 13 (pasos, tokens, tiempo) cuentan las llamadas al modelo
-  de **todos** los agentes, incluido el remoto (su uso llega en `result.metadata.uso`); máximo 6 delegaciones por tarea;
-  cada especialista, máximo 6 pasos.
+- **The same contract as the single agent:** the final answer is week 13's (`responder`, one key per output
+  with its SELECT), so it is verified the same way. The supervisor has no SQL of its own: it gets it from the analyst.
+- **Permissions per agent:** each specialist sees only its own tools; none can delegate (there are no loops between
+  agents by construction). The remote specialist has no tools and no data credentials: it receives facts and
+  returns a proposal. Only the supervisor registers proposals, with the user's token, and the MCP server leaves them
+  in PENDING_APPROVAL.
+- **Untrusted data:** everything a specialist returns reaches the supervisor inside `untrusted_data` with its
+  `fuente` (`a2a:compras` for the remote one).
+- **Total budget per task:** week 13's limits (steps, tokens, time) count the model calls
+  of **every** agent, including the remote one (its usage arrives in `result.metadata.uso`); at most 6 delegations per task;
+  each specialist, at most 6 steps.
 """
 from __future__ import annotations
 
@@ -98,7 +98,7 @@ class AdaptadorMultiagente(Adaptador):
         self.a2a = ClienteA2A(a2a_url, a2a_token, emisor) if a2a_url else None
         self.propuestas: list[dict] = []
         self.delegaciones: list[str] = []
-        self.pedidos: list[dict] = []          # qué pidió el supervisor a cada especialista (para la eval de inyección)
+        self.pedidos: list[dict] = []          # what the supervisor asked each specialist (for the injection eval)
 
     def _chat(self, max_tokens: int):
         extra = {"base_url": self.base_url, "api_key": "doble"} if self.base_url else {}
@@ -182,7 +182,7 @@ class AdaptadorMultiagente(Adaptador):
             supervisor_tools = self._delegaciones(reg, mcp) + ([mcp["proponer_orden_compra"]]
                                                                 if "proponer_orden_compra" in mcp else [])
             proponer = mcp.get("proponer_orden_compra")
-            if proponer is not None:                             # registra lo que devuelve el servidor (PENDING_APPROVAL)
+            if proponer is not None:                             # records what the server returns (PENDING_APPROVAL)
                 original = proponer.coroutine
 
                 async def registrar(*a, **kw):

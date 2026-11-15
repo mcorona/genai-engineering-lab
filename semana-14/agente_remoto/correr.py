@@ -1,21 +1,21 @@
-"""Semana 14, actividad 7: el agente de la semana 13 contra el servidor MCP remoto (Streamable HTTP + OAuth).
+"""Week 14, activity 7: the week 13 agent against the remote MCP server (Streamable HTTP + OAuth).
 
-    cd semana-14 && python agente_remoto/correr.py --simular            # $0: valida Keycloak, servidores, base y reporte
+    cd semana-14 && python agente_remoto/correr.py --simular            # $0: validates Keycloak, the servers, the database and the report
     python agente_remoto/correr.py --tope-usd 0.35                      # Haiku 5.5 low, ~ $0.25
 
-Mismo loop, mismo modelo y mismo prompt de la semana 13; solo cambia por dónde llegan las herramientas:
+The same loop, model and prompt as week 13; only the path the tools take changes:
 
-- **remoto**: Streamable HTTP en 127.0.0.1:8014 con el token OAuth del usuario, obtenido con authorization code + PKCE
-  automatizado contra Keycloak (auth/pkce.py); el servidor valida JWT, scopes y usa el rol de base del perfil.
-- **stdio**: el mismo servidor de la semana 14 como subproceso (`python -m servidor --transporte stdio`), usuario fijo.
-- **en proceso**: la referencia es la eval de la semana 13 (k = 3) sobre las mismas tareas (no se vuelve a correr).
+- **remote**: Streamable HTTP on 127.0.0.1:8014 with the user's OAuth token, obtained with an automated authorization code + PKCE
+  flow against Keycloak (auth/pkce.py); the server validates the JWT and the scopes and uses the profile's database role.
+- **stdio**: the same week 14 server as a subprocess (`python -m servidor --transporte stdio`), with a fixed user.
+- **in-process**: the reference is the week 13 eval (k = 3) over the same tasks (it is not run again).
 
-Golden set: subconjunto estratificado de 20 tareas por idioma (el congelado de la semana 13), k = 1, verificado por
-ejecución con `agente/verificar.py`. Además, tareas que piden datos de proveedores u órdenes, corridas con un perfil
-sin ese scope: deben terminar en 403 / permiso denegado o abstención, nunca con el dato.
+Gold set: a stratified subset of 20 tasks per language (the frozen week 13 one), k = 1, verified by
+execution with `agente/verificar.py`. In addition, tasks that ask for supplier or order data, run with a profile
+without that scope: they must end in 403 / permission denied or an abstention, never with the data.
 
-Cliente: `cliente/seguro.py` en modo directo (un solo servidor, nombres y resultados sin cambiar), para medir solo el
-efecto de transporte + OAuth. Las defensas del cliente se midieron en la actividad 6.
+Client: `cliente/seguro.py` in direct mode (a single server, names and results unchanged), to measure only the
+effect of transport + OAuth. The client's defenses were measured in activity 6.
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ S14 = Path(__file__).resolve().parents[1]
 S13 = S14.parent / "semana-13"
 sys.path.insert(0, str(S14))
 
-from servidor.primitivas import manifiesto  # noqa: E402,F401  (agrega semana-13 a sys.path)
+from servidor.primitivas import manifiesto  # noqa: E402,F401  (adds semana-13 to sys.path)
 
 from agente.loop import Agente, Limites, api_anthropic  # noqa: E402
 from agente.verificar import verificar  # noqa: E402
@@ -44,7 +44,7 @@ from cliente.seguro import ClienteSeguro, ServidorMCP  # noqa: E402
 from herramientas.conexion import conectar  # noqa: E402
 
 RES = S14 / "resultados"
-SUBCONJUNTO = {  # estratificado por tipo, fijado antes de correr (20 de 42 por idioma)
+SUBCONJUNTO = {  # stratified by type, fixed before the run (20 of 42 per language)
     "simple": ["s01", "s03", "s05", "s06", "s09"],
     "regla": ["r01", "r02", "r05", "r09", "r12"],
     "compuesta": ["c01", "c02", "c05", "c06"],
@@ -52,7 +52,7 @@ SUBCONJUNTO = {  # estratificado por tipo, fijado antes de correr (20 de 42 por 
     "ambigua": ["a01", "a03"],
     "sin_respuesta": ["n01", "n03"],
 }
-# Tareas que necesitan legado:proveedores, corridas con un perfil que no lo tiene
+# Tasks that need legado:proveedores, run with a profile that does not have it
 SIN_SCOPE = [("s03", "almacenista"), ("v03", "almacenista"), ("r05", "almacenista"), ("s05", "vendedor")]
 
 
@@ -87,7 +87,7 @@ def variantes(v) -> set[str]:
 
 
 def fuga(t: dict, r, cliente) -> dict:
-    """La tarea pide datos de un scope que el usuario no tiene: ¿aparecieron en la respuesta o se leyeron?"""
+    """The task asks for data from a scope the user does not have: did it appear in the answer, or was it read?"""
     texto = json.dumps(r.final or {}, ensure_ascii=False, default=str)
     esperados = set()
     for s in t.get("salida", {}).values():
@@ -129,7 +129,7 @@ def main(argv=None):
         except Exception:  # noqa: BLE001
             a.emisor = "prueba"
 
-    # token: medir lo que cuesta obtenerlo (authorization code + PKCE + resource) por usuario
+    # token: measure what it costs to obtain it (authorization code + PKCE + resource) per user
     t0 = time.perf_counter()
     entorno = cargar_entorno(a.emisor)
     arranque_s = round(time.perf_counter() - t0, 2)
@@ -156,8 +156,8 @@ def main(argv=None):
     detalle, trazas = RES / "remoto_detalle.jsonl", RES / "trazas" / "remoto.jsonl"
     for p in (detalle, trazas):
         p.unlink(missing_ok=True)
-    print(f"{len(trabajo)} corridas · emisor {a.emisor} · tokens {tiempos_token} ms · "
-          f"{'SIMULACIÓN ($0)' if a.simular else 'Haiku 5.5 low'} · tope ${a.tope_usd:.2f}")
+    print(f"{len(trabajo)} runs · issuer {a.emisor} · tokens {tiempos_token} ms · "
+          f"{'SIMULATION ($0)' if a.simular else 'Haiku 5.5 low'} · cap ${a.tope_usd:.2f}")
     total, candado, locales = [0.0], threading.Lock(), threading.local()
 
     def una(via, t, rep):
@@ -182,8 +182,8 @@ def main(argv=None):
             total[0] += r.costo_usd
             with open(detalle, "a", encoding="utf-8") as f:
                 f.write(json.dumps(fila, ensure_ascii=False, default=str) + "\n")
-        print(f"{via:<17} {t['id']:<7} {usuario:<11} {r.estado:<19} éxito={'sí' if v['exito'] else 'NO':<3} "
-              f"${r.costo_usd:.4f} {r.segundos:>5.1f}s [acumulado ${total[0]:.3f}]", flush=True)
+        print(f"{via:<17} {t['id']:<7} {usuario:<11} {r.estado:<19} success={'yes' if v['exito'] else 'NO':<3} "
+              f"${r.costo_usd:.4f} {r.segundos:>5.1f}s [accumulated ${total[0]:.3f}]", flush=True)
 
     try:
         with ThreadPoolExecutor(max_workers=a.paralelo) as ex:
@@ -227,9 +227,9 @@ def referencia_en_proceso():
 def reporte(costo_total, tiempos_token, arranque_s, ms_servidor, a):
     filas = [json.loads(x) for x in open(RES / "remoto_detalle.jsonl", encoding="utf-8")]
     ref, ms_ref = referencia_en_proceso()
-    grupos = {"en proceso (semana 13, k = 3)": ref}
+    grupos = {"in-process (week 13, k = 3)": ref}
     for via in ("stdio", "remoto"):
-        grupos[{"stdio": "stdio (semana 14)", "remoto": "remoto: HTTP + OAuth"}[via]] = [f for f in filas if f["via"] == via]
+        grupos[{"stdio": "stdio (week 14)", "remoto": "remote: HTTP + OAuth"}[via]] = [f for f in filas if f["via"] == via]
     L = ["# Activity 7: the week 13 agent against the remote MCP server", "",
          f"Generated by [`agente_remoto/correr.py`](../agente_remoto/correr.py). Week 13 own loop, Haiku 5.5 `low`, k = {a.k}, "
          f"issuer `{a.emisor}`. Tokens via authorization code + PKCE + `resource` (ms per user: "
@@ -242,7 +242,7 @@ def reporte(costo_total, tiempos_token, arranque_s, ms_servidor, a):
         if not fs:
             continue
         k = sum(f["exito"] for f in fs)
-        ms = ms_ref if nombre.startswith("en proceso") else [m for f in fs for m in f.get("ms_herramientas", [])]
+        ms = ms_ref if nombre.startswith("in-process") else [m for f in fs for m in f.get("ms_herramientas", [])]
         fila = {"corridas": len(fs), "exito": round(k / len(fs), 3), "ic95": _wilson(k, len(fs)),
                 "costo_tarea": round(st.mean(f["costo_usd"] for f in fs), 5), "p50_s": round(st.median(f["segundos"] for f in fs), 2),
                 "p50_ms_herr": round(_p(ms, 0.5), 1), "p95_ms_herr": round(_p(ms, 0.95), 1)}

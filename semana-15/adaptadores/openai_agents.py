@@ -1,15 +1,15 @@
-"""Semana 15, actividad 6 (spike): el agente de la semana 13 en OpenAI Agents SDK, con Claude por LiteLLM.
+"""Week 15, activity 6 (spike): the week 13 agent in the OpenAI Agents SDK, with Claude through LiteLLM.
 
-- **Modelo:** `LitellmModel("anthropic/claude-haiku-5-5")` con `max_tokens` y el esfuerzo de la semana 13 en
-  `ModelSettings.extra_args` (con `extra_body`, LiteLLM 1.83 manda la clave `extra_body` literal dentro del JSON, que la
-  API de Anthropic rechazaría; con `reasoning_effort` la traduce a `thinking` con presupuesto de 1024 tokens).
-- **Herramientas:** `MCPServerStreamableHttp` con el token del usuario (protocolo 2026-07-28); `responder` es un
-  `FunctionTool` con el JSON Schema y la validación de la semana 13; `tool_use_behavior` termina la corrida solo cuando
-  la respuesta final es válida.
-- **Reglas de la semana 13:** `RunHooks` (antes y después de cada llamada al modelo y de cada herramienta). Un límite
-  alcanzado lanza `Parada` desde el hook y la corrida termina con ese estado.
-- **Tracing:** desactivado; el exportador por defecto envía las trazas a OpenAI (actividad 1).
-- Sin human-in-the-loop en el spike (el SDK lo ofrece con aprobaciones de herramientas MCP).
+- **Model:** `LitellmModel("anthropic/claude-haiku-5-5")` with week 13's `max_tokens` and effort in
+  `ModelSettings.extra_args` (with `extra_body`, LiteLLM 1.83 sends the literal key `extra_body` inside the JSON, which the
+  Anthropic API would reject; with `reasoning_effort` it translates it to `thinking` with a 1024-token budget).
+- **Tools:** `MCPServerStreamableHttp` with the user's token (protocol 2026-07-28); `responder` is a
+  `FunctionTool` with week 13's JSON Schema and validation; `tool_use_behavior` ends the run only when
+  the final answer is valid.
+- **Week 13 rules:** `RunHooks` (before and after each model call and each tool). A limit
+  reached raises `Parada` from the hook, and the run ends with that state.
+- **Tracing:** disabled; the default exporter sends the traces to OpenAI (activity 1).
+- No human-in-the-loop in the spike (the SDK offers it with approvals of MCP tools).
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ class Parada(Exception):
 
 
 def _salida(texto) -> dict:
-    """El SDK entrega el resultado MCP como dict o lista de bloques ({"type": "text", "text": ...}), o como su texto."""
+    """The SDK delivers the MCP result as a dict or a list of blocks ({"type": "text", "text": ...}), or as its text."""
     if isinstance(texto, list):
         return _salida("".join(b.get("text", "") if isinstance(b, dict) else str(b) for b in texto))
     if isinstance(texto, dict):
@@ -49,7 +49,7 @@ def _salida(texto) -> dict:
         s = json.loads(str(texto))
         if isinstance(s, dict):
             return _salida(s) if s.get("type") == "text" and "text" in s else s
-        if isinstance(s, list):                       # bloques de contenido MCP
+        if isinstance(s, list):                       # MCP content blocks
             return _salida(s)
     except json.JSONDecodeError:
         pass

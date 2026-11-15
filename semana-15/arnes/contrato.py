@@ -1,11 +1,11 @@
-"""Contrato común de la semana 15: el mismo `Resultado`, el mismo prompt, la misma respuesta final y el mismo costo que la
-semana 13, para cualquier framework.
+"""Week 15's common contract: the same `Resultado`, prompt, final answer and cost as
+week 13, for any framework.
 
-Se importa tanto en el entorno principal como en el entorno virtual de cada framework, que no tienen psycopg ni sqlglot:
-`semana13()` carga `agente/loop.py` y `agente/respuesta.py` de la semana 13 con un sustituto vacío del paquete
-`herramientas` (el loop solo lo usa al ejecutar herramientas en proceso). Así el prompt de sistema, el mensaje de la
-tarea, `RespuestaFinal`, `revisar_final`, `Limites`, `Resultado` y la tabla de precios son los objetos de la semana 13,
-no copias que puedan divergir.
+It is imported both in the main environment and in each framework's virtual environment, which have no psycopg or sqlglot:
+`semana13()` loads week 13's `agente/loop.py` and `agente/respuesta.py` with an empty stand-in for the
+`herramientas` package (the loop only uses it when executing tools in-process). That way the system prompt, the task
+message, `RespuestaFinal`, `revisar_final`, `Limites`, `Resultado` and the price table are week 13's objects,
+not copies that could diverge.
 """
 from __future__ import annotations
 
@@ -25,12 +25,12 @@ ESTADOS = ("respondida", "requiere_aclaracion", "abstenida", "limite_alcanzado",
 
 @lru_cache(maxsize=1)
 def semana13():
-    """El módulo `agente.loop` de la semana 13 (con su `SISTEMA`, `mensaje_tarea`, `revisar_final`, `costo`...)."""
+    """Week 13's `agente.loop` module (with its `SISTEMA`, `mensaje_tarea`, `revisar_final`, `costo`...)."""
     if str(S13) not in sys.path:
         sys.path.insert(0, str(S13))
     try:
         importlib.import_module("herramientas")
-    except Exception:  # noqa: BLE001  entorno de un framework: sin psycopg/sqlglot
+    except Exception:  # noqa: BLE001  a framework's environment: no psycopg/sqlglot
         sustituto = types.ModuleType("herramientas")
         sustituto.Herramientas = object
         sustituto.definiciones = lambda: []
@@ -38,7 +38,7 @@ def semana13():
     return importlib.import_module("agente.loop")
 
 
-def Resultado(**kw):  # noqa: N802  el dataclass de la semana 13, construido con nombres
+def Resultado(**kw):  # noqa: N802  week 13's dataclass, built with names
     return semana13().Resultado(**{"estado": "error", "final": None, "pasos": 0, "herramientas": 0, "tokens_in": 0,
                                    "tokens_out": 0, "costo_usd": 0.0, "segundos": 0.0, **kw})
 
@@ -52,16 +52,16 @@ def resultado_de_dict(d: dict):
     return semana13().Resultado(**{k: v for k, v in d.items() if k in nombres})
 
 
-# ---------- uso y costo ----------
+# ---------- usage and cost ----------
 
 _CLAVES_ENTRADA = ("input_tokens", "inputTokens", "prompt_tokens", "prompt_token_count")
 _CLAVES_SALIDA = ("output_tokens", "outputTokens", "completion_tokens", "candidates_token_count")
 
 
 def normalizar_uso(uso) -> tuple[int, int]:
-    """Tokens (entrada, salida) desde el formato de cualquier framework: Anthropic/LangChain (`input_tokens`),
+    """Tokens (input, output) from any framework's format: Anthropic/LangChain (`input_tokens`),
     Strands/Bedrock (`inputTokens`), OpenAI/LiteLLM (`prompt_tokens`), Gemini/ADK (`prompt_token_count`).
-    Acepta dicts u objetos con esos atributos; lo que falte cuenta 0. Nunca suma `total_tokens`."""
+    It accepts dicts or objects with those attributes; anything missing counts as 0. It never adds `total_tokens`."""
     if uso is None:
         return 0, 0
     leer = (lambda k: uso.get(k)) if isinstance(uso, dict) else (lambda k: getattr(uso, k, None))
@@ -73,15 +73,15 @@ def normalizar_uso(uso) -> tuple[int, int]:
 
 
 def costo(modelo: str, tin: int, tout: int) -> float:
-    """Precio de la semana 13 (semana-07/prices.json). Igual para todos los frameworks: los que reportan su propio costo
-    (LiteLLM) se comparan contra este, no se usan."""
+    """Week 13's price (semana-07/prices.json). The same for every framework: those that report their own cost
+    (LiteLLM) are compared against it, not used."""
     return semana13().costo(modelo, tin, tout)
 
 
-# ---------- validación del contrato ----------
+# ---------- contract validation ----------
 
 def validar_resultado(r, tarea: dict | None = None, modelo: str = "claude-haiku-5-5") -> list[str]:
-    """Problemas del `Resultado` frente al contrato (lista vacía = válido)."""
+    """Problems of the `Resultado` against the contract (an empty list = valid)."""
     problemas = []
     if r.estado not in ESTADOS:
         problemas.append(f"estado desconocido: {r.estado!r}")

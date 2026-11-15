@@ -1,6 +1,6 @@
-"""Actividad 4: el servidor de autorización (Keycloak local, realm legacybridge) emite exactamente los tokens que el
-servidor MCP va a exigir. Requiere Keycloak corriendo (auth/arrancar.sh) y auth/.secretos.env; si no, se omite.
-Sin API ($0)."""
+"""Activity 4: the authorization server (a local Keycloak, the legacybridge realm) issues exactly the tokens the
+MCP server is going to require. Requires Keycloak running (auth/arrancar.sh) and auth/.secretos.env; otherwise it is skipped.
+No API ($0)."""
 import json
 import time
 import urllib.parse
@@ -22,7 +22,7 @@ def _disponible():
 
 pytestmark = pytest.mark.skipif(not _disponible(), reason="Keycloak no está corriendo (semana-14/auth/arrancar.sh)")
 
-PERFILES = {  # scopes que cada perfil puede recibir (decisiones del plan, amenazas.md)
+PERFILES = {  # the scopes each profile can receive (the plan's decisions, amenazas.md)
     "analista": {"legado:leer", "legado:ventas", "legado:proveedores", "legado:compras:proponer"},
     "almacenista": {"legado:leer"},
     "vendedor": {"legado:leer", "legado:ventas"},
@@ -45,7 +45,7 @@ def test_descubrimiento(meta):
 
 @pytest.mark.parametrize("usuario", list(PERFILES))
 def test_token_por_perfil(usuario):
-    """Pide los 4 scopes: cada perfil recibe solo los suyos; aud = URI canónica del servidor MCP (RFC 8707)."""
+    """Asks for the 4 scopes: each profile receives only its own; aud = the MCP server's canonical URI (RFC 8707)."""
     tok = obtener_token(usuario, scopes=SCOPES_TODOS)
     c = claims(tok["access_token"])
     assert set(c["scope"].split()) & set(SCOPES_TODOS) == PERFILES[usuario]
@@ -62,7 +62,7 @@ def test_scope_minimo():
 
 
 def test_firma_rs256_verificable_con_jwks(meta):
-    """Lo que hará el servidor MCP (actividad 5): firma por JWKS, alg fijo, iss y aud exactos, exp."""
+    """What the MCP server will do (activity 5): the signature via JWKS, a fixed alg, exact iss and aud, exp."""
     import jwt
     tok = obtener_token("vendedor", scopes=["legado:leer"])["access_token"]
     assert jwt.get_unverified_header(tok)["alg"] == "RS256"
@@ -75,10 +75,10 @@ def test_firma_rs256_verificable_con_jwks(meta):
 
 
 def test_sin_resource_la_audiencia_sigue_siendo_la_uri_canonica():
-    """El mapper de audiencia del cliente agente emite la URI canónica del servidor MCP (no el client id `legado-mcp`).
-    Motivo: Keycloak 26.8 pierde la audiencia de `resource` al refrescar tokens offline, y Claude Code siempre pide
-    `offline_access`. Con un solo resource server en el realm, la audiencia queda fija a él; un `resource` distinto
-    sigue siendo `invalid_target` (pruebas siguientes)."""
+    """The agent client's audience mapper issues the MCP server's canonical URI (not the client id `legado-mcp`).
+    Reason: Keycloak 26.8 loses the `resource` audience when refreshing offline tokens, and Claude Code always asks for
+    `offline_access`. With a single resource server in the realm, the audience stays fixed to it; a different `resource`
+    is still `invalid_target` (the following tests)."""
     c = claims(obtener_token("analista", scopes=["legado:leer"], resource=None)["access_token"])
     assert c["aud"] in (RECURSO, [RECURSO])
 
@@ -123,7 +123,7 @@ def test_redirect_solo_loopback_registrado():
         with pytest.raises(ErrorOAuth) as e:
             autorizar("analista", pkce.password("analista"), ["legado:leer"], redirect=redirect)
         assert e.value.error == "pagina_de_error", redirect
-    # loopback con cualquier puerto (RFC 8252 §7.3)
+    # loopback with any port (RFC 8252 §7.3)
     assert autorizar("analista", pkce.password("analista"), ["legado:leer"],
                      redirect="http://127.0.0.1:61234/callback")["code"]
 
@@ -149,7 +149,7 @@ def test_contrasena_incorrecta():
 
 
 def test_el_servidor_mcp_no_inicia_flujos(meta):
-    """legado-mcp es solo audiencia (bearer-only): no puede pedir tokens ni autorizar usuarios."""
+    """legado-mcp is only an audience (bearer-only): it cannot request tokens or authorize users."""
     with pytest.raises(ErrorOAuth):
         pkce._token(meta["token_endpoint"], {"grant_type": "client_credentials", "client_id": "legado-mcp"})
     with pytest.raises(ErrorOAuth):
@@ -162,16 +162,16 @@ def test_refresh_conserva_audiencia_y_scopes():
     c = claims(nuevo["access_token"])
     assert c["aud"] in (RECURSO, [RECURSO]) and set(c["scope"].split()) & set(SCOPES_TODOS) == PERFILES["vendedor"]
     with pytest.raises(ErrorOAuth) as e:
-        pkce.refrescar(tok)                      # revokeRefreshToken: el refresh token anterior ya no sirve
+        pkce.refrescar(tok)                      # revokeRefreshToken: the previous refresh token no longer works
     assert e.value.error == "invalid_grant"
 
 
 
 
 def test_offline_access_para_clientes_mcp():
-    """Claude Code pide `scope=<del desafío> offline_access`: el realm lo acepta, el refresh token es offline (acotado
-    por offlineSessionIdleTimeout / offlineSessionMaxLifespan) y la audiencia sobrevive al refresh. Sin el mapper de
-    URI canónica, Keycloak 26.8 devolvía `aud=legado-mcp` tras refrescar un token offline y el servidor respondía 401."""
+    """Claude Code asks for `scope=<from the challenge> offline_access`: the realm accepts it, the refresh token is offline (bounded
+    by offlineSessionIdleTimeout / offlineSessionMaxLifespan) and the audience survives the refresh. Without the canonical
+    URI mapper, Keycloak 26.8 returned `aud=legado-mcp` after refreshing an offline token and the server answered 401."""
     tok = obtener_token("almacenista", scopes=["legado:leer", "offline_access"])
     c = claims(tok["access_token"])
     assert c["aud"] in (RECURSO, [RECURSO])
@@ -182,12 +182,12 @@ def test_offline_access_para_clientes_mcp():
     assert claims(pkce.refrescar(nuevo, resource=None)["access_token"])["aud"] in (RECURSO, [RECURSO])
 
 
-A2A = "http://127.0.0.1:8015/"   # semana 15, actividad 7: especialista de compras remoto
+A2A = "http://127.0.0.1:8015/"   # week 15, activity 7: the remote purchasing specialist
 
 
 def test_token_a2a_con_audiencia_propia():
-    """El supervisor pide el token del especialista A2A con su propio cliente y `resource`: la audiencia es solo el
-    especialista (no el servidor MCP), y solo un perfil con compras recibe el scope."""
+    """The supervisor asks for the A2A specialist's token with its own client and `resource`: the audience is only the
+    specialist (not the MCP server), and only a profile with purchasing receives the scope."""
     c = claims(obtener_token("analista", scopes=["legado:compras:proponer"], resource=A2A,
                              cliente="legacybridge-supervisor")["access_token"])
     assert c["aud"] in (A2A, [A2A]) and c["azp"] == "legacybridge-supervisor"

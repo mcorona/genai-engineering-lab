@@ -1,4 +1,4 @@
-"""Semana 16, actividad 1 ($0, sin modelo): la línea base de Claude Code se verifica con la CLI instalada."""
+"""Week 16, activity 1 ($0, no model): the Claude Code baseline is verified with the installed CLI."""
 import importlib.util
 import shutil
 from pathlib import Path

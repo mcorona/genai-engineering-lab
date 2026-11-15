@@ -1,22 +1,22 @@
-"""Semana 15, actividad 3: el agente de la semana 13 en LangGraph.
+"""Week 15, activity 3: the week 13 agent in LangGraph.
 
-Grafo explícito, sin el agente prefabricado (`create_react_agent`), para que cada regla de la semana 13 sea visible:
+An explicit graph, without the prebuilt agent (`create_react_agent`), so that each week 13 rule is visible:
 
-    START → modelo ─┬─(pide herramientas)→ herramientas ─┬─(sigue)→ modelo
-                    │                                    └─(responder válido, límite o 3 errores seguidos)→ END
-                    └─(sin herramientas: un recordatorio; la segunda vez, límite)→ END
+    START → model ─┬─(asks for tools)→ tools ─┬─(continues)→ model
+                   │                          └─(valid responder, a limit or 3 errors in a row)→ END
+                   └─(no tools: a reminder; the second time, a limit)→ END
 
-- **Modelo:** `ChatAnthropic` con el prompt de sistema, el modelo, el esfuerzo (`output_config`) y los tokens de salida
-  de la semana 13, más las herramientas del servidor MCP y `responder`.
-- **Herramientas:** el adaptador MCP de LangChain (`langchain-mcp-adapters`) con el token del usuario en una sola
-  sesión por tarea (la actividad 1 mostró que sin sesión abre una por llamada). `responder` se valida con el mismo
-  código que la semana 13 (`arnes.Registro`).
-- **Límites:** los de la semana 13 (pasos, herramientas, tokens totales, que acotan el costo, y tiempo), revisados en el
-  grafo antes de cada llamada; el `recursion_limit` de LangGraph queda como red de seguridad, no como límite real.
-- **Checkpoints en memoria** (`InMemorySaver`), un hilo por corrida.
-- **Human-in-the-loop:** antes de `proponer_orden_compra` el grafo se detiene con `interrupt()` y espera la decisión
-  (`Command(resume="aprobar" | "rechazar")`). En la eval decide la política `aprobacion`; en la semana 17 la decide una
-  persona. Una propuesta rechazada no llega al servidor y el modelo recibe el rechazo como error de herramienta.
+- **Model:** `ChatAnthropic` with week 13's system prompt, model, effort (`output_config`) and output tokens,
+  plus the MCP server's tools and `responder`.
+- **Tools:** LangChain's MCP adapter (`langchain-mcp-adapters`) with the user's token in a single
+  session per task (activity 1 showed that without a session it opens one per call). `responder` is validated with the same
+  code as week 13 (`arnes.Registro`).
+- **Limits:** week 13's (steps, tools, total tokens, which bound the cost, and time), checked in the
+  graph before each call; LangGraph's `recursion_limit` stays as a safety net, not as the real limit.
+- **In-memory checkpoints** (`InMemorySaver`), one thread per run.
+- **Human-in-the-loop:** before `proponer_orden_compra` the graph stops with `interrupt()` and waits for the decision
+  (`Command(resume="aprobar" | "rechazar")`). In the eval the `aprobacion` policy decides; in week 17 a
+  person decides. A rejected proposal does not reach the server and the model receives the rejection as a tool error.
 """
 from __future__ import annotations
 
@@ -50,9 +50,9 @@ class Estado(TypedDict):
 
 
 def _texto_salida(contenido) -> str:
-    """El adaptador devuelve el resultado MCP como texto o como bloques; el JSON de la herramienta va en el texto."""
+    """The adapter returns the MCP result as text or as blocks; the tool's JSON is in the text."""
     if isinstance(contenido, (list, tuple)):
-        if len(contenido) == 2 and not isinstance(contenido[0], dict):   # (contenido, artefacto)
+        if len(contenido) == 2 and not isinstance(contenido[0], dict):   # (content, artifact)
             contenido = contenido[0]
         partes = [c.get("text", "") if isinstance(c, dict) else str(c) for c in contenido]
         return "".join(partes)
@@ -68,7 +68,7 @@ def construir_grafo(modelo_lc, herramientas_mcp: dict, reg: Registro, aprobacion
         t = time.perf_counter()
         try:
             ai: AIMessage = await modelo_lc.ainvoke([SystemMessage(reg.sistema())] + st["messages"])
-        except Exception as e:  # noqa: BLE001  como la semana 13: un error de la API termina la tarea
+        except Exception as e:  # noqa: BLE001  as in week 13: an API error ends the task
             return {"parada": {"estado": "error", "motivo": f"api: {e}"[:300]}}
         pedidas = [c["name"] for c in ai.tool_calls]
         reg.modelo(ai.usage_metadata, 1000 * (time.perf_counter() - t), pedidas)
@@ -114,8 +114,8 @@ def construir_grafo(modelo_lc, herramientas_mcp: dict, reg: Registro, aprobacion
                     texto = _texto_salida(await herramientas_mcp[c["name"]].ainvoke(c["args"]))
                     salida = json.loads(texto)
                 except Exception as e:  # noqa: BLE001
-                    # el adaptador convierte isError=true en ToolException con el texto de la herramienta: es el error
-                    # estructurado del servidor (permiso_denegado, sql_invalido...), no un fallo del protocolo
+                    # the adapter turns isError=true into a ToolException with the tool's text: it is the server's
+                    # structured error (permiso_denegado, sql_invalido...), not a protocol failure
                     try:
                         salida = json.loads(str(e))
                     except json.JSONDecodeError:
@@ -152,8 +152,8 @@ class AdaptadorLangGraph(Adaptador):
     framework = "langgraph"
 
     def __init__(self, *a, aprobacion: str | None = "aprobar", **kw):
-        """`aprobacion`: política del human-in-the-loop en corridas sin persona ("aprobar", "rechazar"), o None para no
-        interrumpir. `decidir`: función (pausa) -> decisión; si existe, tiene prioridad (la semana 17 pone ahí a la persona)."""
+        """`aprobacion`: the human-in-the-loop policy for runs without a person ("aprobar", "rechazar"), or None to not
+        interrupt. `decidir`: a function (pause) -> decision; if present, it takes priority (week 17 puts the person there)."""
         self.decidir = kw.pop("decidir", None)
         super().__init__(*a, **kw)
         self.aprobacion = aprobacion

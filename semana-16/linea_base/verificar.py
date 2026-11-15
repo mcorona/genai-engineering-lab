@@ -1,21 +1,21 @@
-"""Semana 16, actividad 1: verifica con la CLI instalada lo que la línea base afirma de Claude Code.
+"""Week 16, activity 1: verifies with the installed CLI what the baseline claims about Claude Code.
 
-    cd semana-16 && python linea_base/verificar.py                 # $0: sin modelo
-    python linea_base/verificar.py --con-modelo                    # + 2 corridas headless (suscripción, no API)
+    cd semana-16 && python linea_base/verificar.py                 # $0: no model
+    python linea_base/verificar.py --con-modelo                    # + 2 headless runs (subscription, not the API)
 
-Sin modelo:
-1. Versión de Claude Code y subcomandos de `claude plugin`.
-2. `claude plugin validate --strict` del plugin mínimo y del marketplace local; dos negativos: nombre reservado y ruta
-   con `..` (el validador debe rechazarlos).
-3. Marketplace local → instalación → `claude plugin details` (inventario y costo en tokens) → `configure` (userConfig
-   sensible) en un CLAUDE_CONFIG_DIR temporal: no toca tu configuración.
-4. `claude plugin eval init --bare` en una copia: estructura de casos y graders.
-5. El hook PreToolUse con entradas guionadas (exit 0 / 2) y el PostToolUse (bitácora JSONL).
+Without a model:
+1. The Claude Code version and the `claude plugin` subcommands.
+2. `claude plugin validate --strict` of the minimal plugin and the local marketplace; two negatives: a reserved name and a path
+   with `..` (the validator must reject them).
+3. Local marketplace → install → `claude plugin details` (inventory and token cost) → `configure` (sensitive
+   userConfig) in a temporary CLAUDE_CONFIG_DIR: it does not touch your configuration.
+4. `claude plugin eval init --bare` on a copy: the structure of cases and graders.
+5. The PreToolUse hook with scripted inputs (exit 0 / 2) and the PostToolUse hook (JSONL log).
 
-Con modelo (`--con-modelo`, cuenta contra tu plan de Claude Code; `claude -p --plugin-dir`):
-6. Una petición natural ("documenta este esquema legado...") debe disparar la skill y ejecutar `lb-version` (bin/).
-7. Una petición de escribir fuera de `auditoria/` debe quedar bloqueada por el hook: el archivo no existe al final.
-Escribe resultados/linea_base.json.
+With a model (`--con-modelo`, counts against your Claude Code plan; `claude -p --plugin-dir`):
+6. A natural request ("document this legacy schema...") must trigger the skill and run `lb-version` (bin/).
+7. A request to write outside `auditoria/` must be blocked by the hook: the file does not exist at the end.
+Writes resultados/linea_base.json.
 """
 from __future__ import annotations
 
@@ -200,7 +200,7 @@ def main(argv=None) -> int:
     (RES / "linea_base.json").write_text(json.dumps({"fecha": time.strftime("%Y-%m-%d"), "checks": r}, indent=1,
                                                     ensure_ascii=False) + "\n")
     malos = [x for x in r if not x["ok"]]
-    print(f"\n{len(r) - len(malos)}/{len(r)} checks en verde")
+    print(f"\n{len(r) - len(malos)}/{len(r)} checks green")
     return 1 if malos else 0
 
 

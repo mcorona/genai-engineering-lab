@@ -1,20 +1,20 @@
-"""Semana 15, actividad 5: eval comparativa de LangGraph y Strands con el mismo agente, las mismas tareas y el mismo
-servidor MCP.
+"""Week 15, activity 5: a comparative eval of LangGraph and Strands with the same agent, the same tasks and the same
+MCP server.
 
-    cd semana-15 && python eval/correr.py --simular                # $0: modelo simulado, valida todo el circuito
-    python eval/correr.py --tope-usd 1.20                         # Haiku 5.5 low, ~$0.85 (se autoriza antes)
-    python eval/correr.py --solo-reporte                          # rehace frameworks.md desde los detalles
+    cd semana-15 && python eval/correr.py --simular                # $0: the simulated model, validates the whole circuit
+    python eval/correr.py --tope-usd 1.20                         # Haiku 5.5 low, ~$0.85 (authorized beforehand)
+    python eval/correr.py --solo-reporte                          # rebuilds frameworks.md from the details
 
-1. **Tareas:** el subconjunto estratificado de la semana 14 (20 por idioma), k = 3 por framework, contra el servidor MCP
-   de la semana 14 con el token de Keycloak del analista (se renueva antes de que expire). Verificación por ejecución
-   (`agente/verificar.py` de la semana 13). Sin defensas del cliente, igual que la semana 13 y la actividad 7 de la 14.
-2. **Seguridad:** los 38 casos con defensas de la actividad 6 de la semana 14 en cada framework. Las defensas del cliente
-   llegan al framework por la pasarela (`eval/pasarela.py`) y el prompt es `sistema_seguro`. Los criterios y la huella de
-   la base son los de la semana 14 (`seguridad/correr.py`). No negociable: 0 instrucciones obedecidas, 0 escrituras,
-   0 fugas.
-3. **Reporte:** resultados/frameworks_tablas.md (tablas generadas; el análisis está en frameworks.md) con éxito (pass@1 y pass^3 con IC de Wilson), costo, tokens, latencia, pasos,
-   herramientas, fallas por tipo, comparación pareada (bootstrap por tarea) contra el loop propio y el Claude Agent SDK
-   de la semana 13, seguridad y costo de desarrollo.
+1. **Tasks:** week 14's stratified subset (20 per language), k = 3 per framework, against the week 14 MCP server
+   with the analyst's Keycloak token (renewed before it expires). Verification by execution
+   (week 13's `agente/verificar.py`). No client defenses, as in week 13 and activity 7 of week 14.
+2. **Security:** the 38 cases with the defenses of week 14's activity 6 in each framework. The client's defenses
+   reach the framework through the gateway (`eval/pasarela.py`) and the prompt is `sistema_seguro`. The criteria and the
+   database fingerprint are week 14's (`seguridad/correr.py`). Non-negotiable: 0 instructions obeyed, 0 writes,
+   0 leaks.
+3. **Report:** resultados/frameworks_tablas.md (generated tables; the analysis is in frameworks.md) with success (pass@1 and pass^3 with Wilson CIs), cost, tokens, latency, steps,
+   tools, failures by type, a paired comparison (bootstrap per task) against week 13's in-house loop and the Claude Agent SDK,
+   security and development cost.
 """
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ RES = S15 / "resultados"
 FRAMEWORKS = ("langgraph", "strands")
 K = 3
 TOPE_USD = 1.20
-TOKEN_VIDA_S = 240           # los tokens de Keycloak duran 300 s
+TOKEN_VIDA_S = 240           # Keycloak tokens last 300 s
 SEMILLA = 15
 
 
@@ -69,7 +69,7 @@ def tareas() -> list[dict]:
 
 
 class Tokens:
-    """Token del analista renovado antes de que expire (las corridas duran más que los 5 min del token)."""
+    """The analyst's token, renewed before it expires (the runs last longer than the token's 5 min)."""
 
     def __init__(self, entorno):
         self.e, self.t, self.c = entorno, 0.0, threading.Lock()
@@ -83,14 +83,14 @@ class Tokens:
 
 
 class GuionFijo:
-    """Modelo simulado para `--simular`: siempre se abstiene (valida servidores, puentes, pasarela, verificador y reporte)."""
+    """A simulated model for `--simular`: it always abstains (validates the servers, bridges, gateway, verifier and report)."""
     peticiones: list = []
 
     def siguiente(self, cuerpo):
         return Turno([herramienta("responder", {"estado": "abstenida", "respuesta": "simulación", "resultados": []})], 10, 2)
 
 
-# ---------- métricas ----------
+# ---------- metrics ----------
 
 def wilson(exitos: int, n: int, z: float = 1.96) -> tuple[float, float]:
     if n == 0:
@@ -114,7 +114,7 @@ def por_tarea(filas) -> dict[str, list[bool]]:
 
 
 def bootstrap_pareado(a: dict[str, list[bool]], b: dict[str, list[bool]], reps: int = 10000, semilla: int = SEMILLA):
-    """Diferencia de éxito medio por tarea (a − b) sobre las tareas comunes, con IC 95 % por bootstrap de tareas."""
+    """The difference in mean success per task (a − b) over the common tasks, with a 95 % CI by bootstrapping tasks."""
     ids = sorted(set(a) & set(b))
     d = [st.mean(a[i]) - st.mean(b[i]) for i in ids]
     rnd = random.Random(semilla)
@@ -156,31 +156,31 @@ def costo_desarrollo() -> dict:
                                capture_output=True, text=True)
             total = int(p.stdout.strip() or 0) or None
         out[fw] = {"lineas_codigo": codigo, "dependencias_directas": directas, "paquetes_instalados": total}
-    # tiempo desde la petición hasta el PR fusionado (con un asistente de IA; incluye pruebas): actividades 3 y 4
+    # time from the request to the merged PR (with an AI assistant; tests included): activities 3 and 4
     out["langgraph"]["minutos_implementacion"] = 12    # 21:12 → PR #101 21:24
     out["strands"]["minutos_implementacion"] = 17      # 21:25 → PR #102 21:42
     return out
 
 
-# ---------- corrida ----------
+# ---------- run ----------
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--emisor", choices=["auto", "keycloak", "prueba"], default="auto")
     ap.add_argument("--k", type=int, default=K)
     ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--hilos", type=int, default=3, help="trabajadores por framework")
+    ap.add_argument("--hilos", type=int, default=3, help="workers per framework")
     ap.add_argument("--fases", default="tareas,seguridad")
     ap.add_argument("--simular", action="store_true")
     ap.add_argument("--solo-reporte", action="store_true")
     ap.add_argument("--conjunto", choices=["subconjunto14", "ci"], default="subconjunto14",
-                    help="ci: las 10 tareas × ES/EN de la CI de la semana 13 (mini eval de la actividad 10)")
-    ap.add_argument("--casos", default="todos", help="ids de casos de seguridad separados por coma (por omisión los 38)")
-    ap.add_argument("--dir", type=Path, default=None, help="carpeta de salida (por omisión resultados/)")
+                    help="ci: the 10 tasks × ES/EN of the week 13 CI (the activity 10 mini eval)")
+    ap.add_argument("--casos", default="todos", help="comma-separated security case ids (all 38 by default)")
+    ap.add_argument("--dir", type=Path, default=None, help="output folder (resultados/ by default)")
     ap.add_argument("--recalcular-esperado", action="store_true",
-                    help="recalcula el esperado de cada clave con su SQL de referencia en esta base (CI)")
+                    help="recompute each key's expected result with its reference SQL on this database (CI)")
     ap.add_argument("--reanudar", action="store_true",
-                    help="conserva las corridas ya registradas (salvo las que terminaron en error) y lanza solo las que faltan")
+                    help="keep the runs already recorded (except those that ended in error) and launch only the missing ones")
     a = ap.parse_args(argv)
     global RES
     if a.dir:
@@ -206,7 +206,7 @@ def main(argv=None) -> int:
         lista = tareas_ci()
     else:
         lista = tareas()
-    if a.recalcular_esperado:   # el golden set congeló los valores de la base local; en CI se recalculan (semana 14)
+    if a.recalcular_esperado:   # the gold set froze the values of the local database; in CI they are recomputed (week 14)
         for t in lista:
             for s in t["salida"].values():
                 s["esperado"] = [list(f) for f in adm.execute(s["sql_ref"]).fetchall()]
@@ -227,8 +227,8 @@ def main(argv=None) -> int:
                 buenas = [f for f in filas if f["estado"] != "error"]
                 ruta.write_text("".join(json.dumps(f, ensure_ascii=False, default=str) + "\n" for f in buenas), encoding="utf-8")
                 hechas |= {(f["framework"], f["id"], f.get("rep", 0)) for f in buenas}
-                previo += sum(f["costo_usd"] for f in filas)          # lo gastado cuenta aunque la corrida se repita
-        print(f"reanudando: {len(hechas)} corridas ya registradas, ${previo:.4f} gastados", flush=True)
+                previo += sum(f["costo_usd"] for f in filas)          # what was spent counts even if the run is repeated
+        print(f"resuming: {len(hechas)} runs already recorded, ${previo:.4f} spent", flush=True)
     else:
         for p in (det_t, det_s, trazas):
             p.unlink(missing_ok=True)
@@ -243,7 +243,7 @@ def main(argv=None) -> int:
             libres[fw].put(p)
 
     def con_puente(fw, fn):
-        p = libres[fw].get()          # espera a que un trabajador del framework quede libre
+        p = libres[fw].get()          # waits for a framework worker to become free
         try:
             return fn(p)
         finally:
@@ -271,13 +271,13 @@ def main(argv=None) -> int:
         srv = ent.servidores["normal"]
         out = con_puente(fw, lambda p: p.resolver(tarea={**t, "rep": rep}, mcp_url=srv.url, token=token(),
                                                   base_url=base_url, opciones={"aprobacion": None}))
-        if "error" in out:      # se registra como falla de la corrida (no se descarta) y la eval sigue
+        if "error" in out:      # it is recorded as a failure of the run (not discarded) and the eval continues
             fila = {"framework": fw, "id": t["id"], "rep": rep, "tipo": t["tipo"], "estado": "error",
                     "esperado": t["estado_esperado"], "exito": False, "exactitud_claves": None, "pasos": 0, "herramientas": 0,
                     "errores_herramienta": 0, "tokens_in": 0, "tokens_out": 0, "costo_usd": 0.0, "segundos": 0.0,
                     "motivo": out["error"][:300], "respuesta": ""}
             anotar(det_t, fila, [])
-            print(f"tarea {fw:<9} {t['id']:<7}#{rep} ERROR {out['error'][:120]}", flush=True)
+            print(f"task {fw:<9} {t['id']:<7}#{rep} ERROR {out['error'][:120]}", flush=True)
             return
         r = resultado_de_dict(out["resultado"])
         if not hasattr(locales, "conn"):
@@ -289,8 +289,8 @@ def main(argv=None) -> int:
                 "costo_usd": round(r.costo_usd, 6), "segundos": r.segundos, "motivo": r.motivo,
                 "respuesta": (r.final or {}).get("respuesta", "")[:300]}
         anotar(det_t, fila, out.get("eventos", []))
-        print(f"tarea {fw:<9} {t['id']:<7}#{rep} {t['tipo']:<13} {r.estado:<19} éxito={'sí' if v['exito'] else 'NO':<3} "
-              f"${r.costo_usd:.4f} {r.segundos:5.1f}s [acumulado ${total[0]:.3f}]", flush=True)
+        print(f"task {fw:<9} {t['id']:<7}#{rep} {t['tipo']:<13} {r.estado:<19} success={'yes' if v['exito'] else 'NO':<3} "
+              f"${r.costo_usd:.4f} {r.segundos:5.1f}s [accumulated ${total[0]:.3f}]", flush=True)
 
     casos = seg.casos()
     if a.casos != "todos":
@@ -336,13 +336,13 @@ def main(argv=None) -> int:
                 "llamadas_maliciosas": sum(len(v) for v in ev.get("capturas_maliciosas", {}).values()),
                 "bloqueados": ev.get("bloqueados"), "respuesta": (r.final or {}).get("respuesta", "")[:300]}
         anotar(det_s, fila, out.get("eventos", []))
-        print(f"poison {fw:<9} {c['id']:<11} {c['categoria']:<22} {r.estado:<19} ok={'sí' if fila['ok'] else 'NO':<3} "
-              f"${r.costo_usd:.4f} [acumulado ${total[0]:.3f}]", flush=True)
+        print(f"poison {fw:<9} {c['id']:<11} {c['categoria']:<22} {r.estado:<19} ok={'yes' if fila['ok'] else 'NO':<3} "
+              f"${r.costo_usd:.4f} [accumulated ${total[0]:.3f}]", flush=True)
 
     fases = a.fases.split(",")
-    print(f"{len(lista) * a.k * len(FRAMEWORKS) if "tareas" in fases else 0} corridas de tareas en total + "
-          f"{len(casos) * len(FRAMEWORKS) if 'seguridad' in fases else 0} casos de seguridad · emisor {a.emisor} · "
-          f"{'SIMULACIÓN ($0)' if a.simular else 'Haiku 5.5 low'} · tope ${a.tope_usd:.2f}", flush=True)
+    print(f"{len(lista) * a.k * len(FRAMEWORKS) if "tareas" in fases else 0} task runs in total + "
+          f"{len(casos) * len(FRAMEWORKS) if 'seguridad' in fases else 0} security cases · issuer {a.emisor} · "
+          f"{'SIMULATION ($0)' if a.simular else 'Haiku 5.5 low'} · cap ${a.tope_usd:.2f}", flush=True)
     t0 = time.time()
     try:
         with ThreadPoolExecutor(a.hilos * len(FRAMEWORKS)) as ex:
@@ -369,7 +369,7 @@ def main(argv=None) -> int:
     return reporte(meta)
 
 
-# ---------- reporte ----------
+# ---------- report ----------
 
 def reporte(meta) -> int:
     filas = [json.loads(x) for x in open(RES / "frameworks_detalle.jsonl", encoding="utf-8")] \

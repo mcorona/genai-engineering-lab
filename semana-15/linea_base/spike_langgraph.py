@@ -1,5 +1,5 @@
-"""Spike LangGraph (sin API): herramientas MCP del servidor de la semana 14 con token Bearer, agente con modelo guionado,
-checkpoint e interrupción. Imprime RESULTADO {json}."""
+"""A LangGraph spike (no API): MCP tools of the week 14 server with a Bearer token, an agent with a scripted model,
+a checkpoint and an interrupt. Prints RESULTADO {json}."""
 import asyncio
 import importlib.metadata as md
 import json
@@ -40,7 +40,7 @@ async def main():
     sql_msg = next(m for m in tool_msgs if m.name == "ejecutar_sql")
     ok = '"ok": true' in str(sql_msg.content).replace("'ok': True", '"ok": true') or '"ok":true' in str(sql_msg.content)
 
-    # checkpoint + human-in-the-loop: interrupción antes de una acción, reanudación con Command(resume=...)
+    # checkpoint + human-in-the-loop: an interrupt before an action, resumed with Command(resume=...)
     from langgraph.graph import StateGraph, START, END
     from typing_extensions import TypedDict
 
@@ -73,7 +73,7 @@ async def main():
         "usage_metadata": "usage_metadata" in AIMessage.model_fields,
         "limite_pasos": "recursion_limit (config)",
         "multiagente": {"langgraph_supervisor": supervisor, "subgrafos": True, "handoffs": "langgraph_supervisor / Command(goto)"},
-        "a2a_en_libreria": False,   # A2A lo ofrece el Agent Server alojado de LangGraph, no la librería
+        "a2a_en_libreria": False,   # A2A is offered by LangGraph's hosted Agent Server, not by the library
     }
     print("RESULTADO " + json.dumps({
         "framework": "langgraph", "version": md.version("langgraph"), "adaptador_mcp": md.version("langchain-mcp-adapters"),

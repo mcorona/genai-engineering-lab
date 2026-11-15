@@ -1,4 +1,4 @@
-"""Plugin legacy-schema-audit (actividad 3): estructura, validate --strict, guardia SQL y servidor MCP de solo lectura."""
+"""The legacy-schema-audit plugin (activity 3): structure, validate --strict, the SQL guard and the read-only MCP server."""
 import asyncio
 import importlib.util
 import json
@@ -29,7 +29,7 @@ def frontmatter(p: Path) -> dict:
     return dict(re.findall(r"^([\w-]+):\s*(.*)$", m.group(1), re.M))
 
 
-# ---------- estructura ----------
+# ---------- structure ----------
 
 def test_manifiesto_con_userconfig_sensible():
     m = json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text())
@@ -42,7 +42,7 @@ def test_mcp_usa_userconfig_y_ruta_del_plugin():
     s = json.loads((PLUGIN / ".mcp.json").read_text())["mcpServers"]["legacy-sql"]
     assert s["args"] == ["${CLAUDE_PLUGIN_ROOT}/servidor/sql_lectura.py"]
     assert s["env"] == {"PG_DSN": "${user_config.pg_dsn}", "AUDIT_SCHEMA": "${user_config.audit_schema}"}
-    assert not (PLUGIN / "bin").exists()  # bin/ bloquea la distribución por claude.ai y Cowork (actividad 1)
+    assert not (PLUGIN / "bin").exists()  # bin/ blocks distribution through claude.ai and Cowork (activity 1)
 
 
 def test_skill_y_comandos():
@@ -68,7 +68,7 @@ def test_validate_strict_limpio():
     assert p.returncode == 0 and "Validation passed" in salida and "‼" not in salida and "warning" not in salida.lower(), salida
 
 
-# ---------- guardia (sin base) ----------
+# ---------- guard (no database) ----------
 
 PERMITIDAS = ["SELECT mov_id FROM movinv WHERE mov_art IS NULL",
               "SELECT a.art_cd FROM legado.artmst a JOIN prvmst p ON p.prv_id = a.art_prv",
@@ -106,7 +106,7 @@ def test_esquema_invalido():
         srv.Database("x", "legado; DROP SCHEMA x")
 
 
-# ---------- con base ----------
+# ---------- with a database ----------
 
 @con_base
 def test_herramientas_contra_la_base():
@@ -115,7 +115,7 @@ def test_herramientas_contra_la_base():
     assert objs["ok"] and {o["name"] for o in objs["objects"]} == OBJETOS
     d = srv.call(db, "describe_object", {"name": "legado.movinv"})
     assert d["ok"] and [c["type"] for c in d["declared_constraints"]] == ["primary key"]
-    assert srv.call(db, "describe_object", {"name": "artmst"})["note"]  # las vistas no declaran llaves
+    assert srv.call(db, "describe_object", {"name": "artmst"})["note"]  # views do not declare keys
     p = srv.call(db, "profile_table", {"name": "prvcto", "top": 2})
     assert p["ok"] and p["rows"] == 15 and next(c for c in p["columns"] if c["column"] == "cto_prv")["nulls"] == 1
     r = srv.call(db, "run_select", {"sql": "SELECT mov_id FROM movinv WHERE mov_art IS NULL OR mov_alm IS NULL ORDER BY 1"})
@@ -164,7 +164,7 @@ def test_configuracion_desde_el_entorno(env, esperado):
 
 
 def test_el_servidor_dice_que_no_puede_modificar_datos():
-    """La eval de la actividad 5 (caso 10) encontró que el modelo ofrecía borrar filas cuando la skill no se disparaba."""
+    """The activity 5 eval (case 10) found that the model offered to delete rows when the skill did not trigger."""
     d = next(t for t in srv.TOOLS if t["name"] == "run_select")["description"]
     assert "never offer to run it" in d and "only have read access" in d
     mock = json.loads((PLUGIN / "evals" / "mocks" / "legacy-sql" / "_tools.json").read_text())["tools"]

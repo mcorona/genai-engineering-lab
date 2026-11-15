@@ -15,4 +15,4 @@ EOF
   docker pull -q "$imagen" >/dev/null
   echo "            $(docker image inspect --format '{{index .RepoDigests 0}}' "$imagen")"
 done
-echo "[imagenes] listas"
+echo "[imagenes] ready"

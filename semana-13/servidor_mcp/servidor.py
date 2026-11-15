@@ -1,14 +1,14 @@
-"""Semana 13, actividad 4: servidor MCP (stdio) con el mismo catálogo de herramientas.
+"""Week 13, activity 4: an MCP server (stdio) with the same tool catalog.
 
-Expone las cinco herramientas de la actividad 2 con los mismos nombres, descripciones y JSON Schema
-(`herramientas.definiciones()`), y ejecuta cada llamada con la misma implementación (`Herramientas.llamar`). Así el
-servidor no duplica lógica: guard, permisos, límites y errores estructurados son los mismos.
+It exposes the five activity 2 tools with the same names, descriptions and JSON Schemas
+(`herramientas.definiciones()`), and runs each call with the same implementation (`Herramientas.llamar`). That way the
+server duplicates no logic: the guard, permissions, limits and structured errors are the same.
 
-Permisos: el usuario lo fija quien registra el servidor (el host: Claude Code, el agente o el inspector) con la variable
-MCP_USUARIO (por defecto, analista), nunca el modelo. Los argumentos de las herramientas no admiten roles ni usuario.
+Permissions: the user is set by whoever registers the server (the host: Claude Code, the agent or the inspector) with the
+MCP_USUARIO variable (analista by default), never by the model. The tools' arguments admit no roles or user.
 
-Base de datos (herramientas/conexion.py): NLQ_LEGADO_DSN, o PG_ADMIN_DSN para recrear copilot_nlq, o PG_DSN
-(copilot_ro). Sin ninguna, las herramientas que no necesitan base funcionan y las demás devuelven `sin_base`.
+Database (herramientas/conexion.py): NLQ_LEGADO_DSN, or PG_ADMIN_DSN to recreate copilot_nlq, or PG_DSN
+(copilot_ro). Without any of them, the tools that need no database work and the others return `sin_base`.
 
     MCP_USUARIO=analista python semana-13/servidor_mcp/servidor.py
 """
@@ -38,9 +38,9 @@ def herramientas() -> Herramientas:
         if any(os.environ.get(v) for v in ("NLQ_LEGADO_DSN", "PG_ADMIN_DSN", "PG_DSN")):
             from herramientas.conexion import conectar
             conn, rol = conectar()
-            print(f"[servidor MCP] usuario {USUARIO}, rol de base {rol}", file=sys.stderr)
+            print(f"[MCP server] user {USUARIO}, database role {rol}", file=sys.stderr)
         else:
-            print(f"[servidor MCP] usuario {USUARIO}, sin base de datos", file=sys.stderr)
+            print(f"[MCP server] user {USUARIO}, no database", file=sys.stderr)
         _h = Herramientas(Contexto.de_usuario(USUARIO, conexion=conn, idioma=IDIOMA))
     return _h
 
@@ -53,7 +53,7 @@ async def listar(ctx, params) -> types.ListToolsResult:
 async def llamar(ctx, params) -> types.CallToolResult:
     h = herramientas()
     res = h.llamar(params.name, params.arguments or {})
-    del h.ctx.llamadas[:-200]  # la bitácora del proceso no crece sin límite
+    del h.ctx.llamadas[:-200]  # the process's call log does not grow without bound
     return types.CallToolResult(content=[types.TextContent(type="text", text=json.dumps(res, ensure_ascii=False, default=str))],
                                 structured_content=res, is_error=not res["ok"])
 

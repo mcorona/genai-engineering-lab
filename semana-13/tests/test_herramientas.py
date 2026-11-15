@@ -1,8 +1,8 @@
-"""Pruebas de las herramientas de semana 13 (actividad 2).
+"""Tests of the week 13 tools (activity 2).
 
-Sin base: contrato (JSON Schema estricto, argumentos inválidos, campos extra como roles), reglas de negocio y el
-guard de SQL. Con base (PG_ADMIN_DSN, NLQ_LEGADO_DSN o PG_DSN): esquema por permisos, muestreo, EXPLAIN, ejecución,
-truncado, tiempo agotado, errores de la base y la defensa en profundidad (solo lectura aunque el guard se salte).
+Without a database: the contract (strict JSON Schema, invalid arguments, extra fields such as roles), business rules and the
+SQL guard. With a database (PG_ADMIN_DSN, NLQ_LEGADO_DSN or PG_DSN): schema by permissions, sampling, EXPLAIN, execution,
+truncation, timeouts, database errors and defense in depth (read-only even if the guard is bypassed).
 """
 import json
 
@@ -28,7 +28,7 @@ def guard(sql, usuario="analista"):
         return e.tipo
 
 
-# ---------- contrato ----------
+# ---------- contract ----------
 
 def test_definiciones_estrictas():
     defs = definiciones()
@@ -52,10 +52,10 @@ def test_requeridos():
 
 
 @pytest.mark.parametrize("nombre,args", [
-    ("ejecutar_sql", {"sql": "SELECT 1", "roles": ["finanzas"]}),       # el modelo intenta elevarse
-    ("ejecutar_sql", {"sql": "SELECT 1", "max_filas": 100000}),          # fuera de límite
-    ("ejecutar_sql", {}),                                                # falta sql
-    ("describir_esquema", {"tablas": ["pg_roles"]}),                     # tabla fuera del enum
+    ("ejecutar_sql", {"sql": "SELECT 1", "roles": ["finanzas"]}),       # the model tries to escalate
+    ("ejecutar_sql", {"sql": "SELECT 1", "max_filas": 100000}),          # out of range
+    ("ejecutar_sql", {}),                                                # sql is missing
+    ("describir_esquema", {"tablas": ["pg_roles"]}),                     # table outside the enum
     ("buscar_regla_negocio", {"consulta": ""}),
     ("muestrear_valores", {"tabla": "artmst", "columna": "art_cst", "limite": 999}),
 ])
@@ -74,7 +74,7 @@ def test_bitacora(h_sin_base):
         ("buscar_regla_negocio", True, None), ("ejecutar_sql", False, "argumentos_invalidos")]
 
 
-# ---------- describir_esquema sin base (no la necesita) ----------
+# ---------- describir_esquema without a database (it does not need one) ----------
 
 def test_esquema_analista(h_sin_base):
     r = h_sin_base.llamar("describir_esquema", {})
@@ -91,7 +91,7 @@ def test_esquema_por_permisos():
     assert err(h.llamar("describir_esquema", {"tablas": ["vtadia"]})) == "tabla_no_disponible"
 
 
-# ---------- reglas de negocio ----------
+# ---------- business rules ----------
 
 @pytest.mark.parametrize("consulta,idioma,esperada", [
     ("días de cobertura", "es", "R-COB"),
@@ -121,7 +121,7 @@ def test_regla_sin_coincidencia(h_sin_base):
     assert r["ok"] and r["reglas"] == [] and "R-COB" in r["sugerencia"]
 
 
-# ---------- guard (sin base) ----------
+# ---------- guard (no database) ----------
 
 @pytest.mark.parametrize("sql,tipo", [
     ("SELECT art_cd FROM artmst WHERE art_crt", "ok"),
@@ -154,10 +154,10 @@ def test_guard(sql, tipo):
 
 
 @pytest.mark.parametrize("usuario,sql,tipo", [
-    ("almacenista", "SELECT vta_art FROM vtadia", "permiso_denegado"),            # tabla de otro rol
-    ("almacenista", "SELECT art_cd, art_cst FROM artmst", "permiso_denegado"),    # columna restringida
-    ("vendedor", "SELECT * FROM artmst", "permiso_denegado"),                     # * incluiría art_cst
-    ("vendedor", "SELECT COUNT(*) FROM artmst", "ok"),                            # COUNT(*) no expone columnas
+    ("almacenista", "SELECT vta_art FROM vtadia", "permiso_denegado"),            # another role's table
+    ("almacenista", "SELECT art_cd, art_cst FROM artmst", "permiso_denegado"),    # restricted column
+    ("vendedor", "SELECT * FROM artmst", "permiso_denegado"),                     # * would include art_cst
+    ("vendedor", "SELECT COUNT(*) FROM artmst", "ok"),                            # COUNT(*) exposes no columns
     ("vendedor", "SELECT art_cd, art_dsc FROM artmst", "ok"),
     ("analista", "SELECT SUM(art_cst) FROM artmst", "ok"),
 ])
@@ -175,7 +175,7 @@ def test_sin_base_no_ejecuta(h_sin_base):
     assert err(h_sin_base.llamar("ejecutar_sql", {"sql": "SELECT 1"})) == "sin_base"
 
 
-# ---------- con base ----------
+# ---------- with a database ----------
 
 def test_rol_de_solo_lectura(conexion):
     rol = conexion.execute("SELECT current_user").fetchone()[0]
@@ -232,7 +232,7 @@ def test_tiempo_agotado(conexion):
 
 
 def test_defensa_en_profundidad(conexion):
-    """Aunque el guard dejara pasar algo, la sesión es de solo lectura y el rol no tiene privilegios de escritura."""
+    """Even if the guard let something through, the session is read-only and the role has no write privileges."""
     h = herramientas("analista", conexion)
     for sql in ("SELECT lo_create(0)", "DELETE FROM exidet WHERE false", "CREATE TEMP TABLE t AS SELECT 1"):
         with pytest.raises(ErrorHerramienta) as e:
@@ -242,14 +242,14 @@ def test_defensa_en_profundidad(conexion):
 
 
 def test_golden_simple_con_herramientas(conexion):
-    """La herramienta reproduce un resultado del golden set (s03: proveedor con más productos críticos)."""
+    """The tool reproduces a gold-set result (s03: the supplier with the most critical products)."""
     import pathlib
     tarea = next(json.loads(x) for x in open(pathlib.Path(__file__).parents[1] / "golden" / "tareas_es.jsonl")
                  if json.loads(x)["id"] == "s03-es")
     r = herramientas("analista", conexion).llamar("ejecutar_sql", {"sql":
         "SELECT p.prv_nm FROM artmst a JOIN prvmst p ON p.prv_id = a.art_prv WHERE a.art_crt "
         "GROUP BY p.prv_nm ORDER BY COUNT(*) DESC, p.prv_nm LIMIT 1"})
-    # el esperado se recalcula en esta base (en CI los datos son sintéticos, semilla 42) con el SQL de referencia
+    # the expected result is recomputed on this database (in CI the data is synthetic, seed 42) with the reference SQL
     import os
     import psycopg
     with psycopg.connect(os.environ.get("PG_ADMIN_DSN") or os.environ["PG_DSN"]) as ref:
@@ -266,7 +266,7 @@ def test_nunca_excepcion_hacia_el_modelo(h_sin_base, monkeypatch):
     assert r["ok"] is False and r["error"]["tipo"] == "error_interno" and "RuntimeError" in r["error"]["mensaje"]
 
 
-# ---------- propuestas (nunca se ejecutan) ----------
+# ---------- proposals (never executed) ----------
 
 def test_propuesta_solo_se_registra(h_sin_base):
     r = h_sin_base.llamar("proponer_orden_compra", {"sku": "SKU-0009", "cantidad": 300, "motivo": "reorden"})
@@ -276,7 +276,7 @@ def test_propuesta_solo_se_registra(h_sin_base):
 
 @pytest.mark.parametrize("args", [
     {"sku": "SKU-9", "cantidad": 1, "motivo": "x"}, {"sku": "SKU-0009", "cantidad": 0, "motivo": "x"},
-    {"sku": "SKU-0009", "cantidad": 1, "motivo": "x", "estado": "APPROVED"},  # el modelo no puede aprobar
+    {"sku": "SKU-0009", "cantidad": 1, "motivo": "x", "estado": "APPROVED"},  # the model cannot approve
 ])
 def test_propuesta_argumentos(h_sin_base, args):
     assert err(h_sin_base.llamar("proponer_orden_compra", args)) == "argumentos_invalidos"

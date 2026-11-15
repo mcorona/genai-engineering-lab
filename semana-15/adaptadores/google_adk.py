@@ -1,16 +1,16 @@
-"""Semana 15, actividad 6 (spike): el agente de la semana 13 en Google ADK, con Claude por LiteLLM.
+"""Week 15, activity 6 (spike): the week 13 agent in Google ADK, with Claude through LiteLLM.
 
-- **Modelo:** `LiteLlm("anthropic/claude-haiku-5-5")` con `max_tokens` y `output_config` de la semana 13. El `Claude`
-  nativo de ADK solo funciona por Vertex AI.
-- **Prompt:** la instrucción va como función (`InstructionProvider`) para que ADK no interprete llaves como variables de
-  estado. ADK agrega siempre una línea de identidad al prompt de sistema ("You are an agent. Your internal name is
-  ..."), así que el prompt no es idéntico al de la semana 13: es el de la semana 13 más esa línea.
-- **Herramientas:** `McpToolset` con el token del usuario (ADK negocia el protocolo 2025-11-25, actividad 1);
-  `responder` es un `BaseTool` con el JSON Schema de la semana 13; una respuesta válida activa `skip_summarization`
-  para que ADK no vuelva a llamar al modelo.
-- **Reglas de la semana 13:** callbacks del agente (`before_model`, `after_model`, `before_tool`, `after_tool`). Un límite
-  alcanzado en `before_model` devuelve una respuesta sin llamar al modelo y la corrida termina con ese estado.
-- Sin human-in-the-loop en el spike (ADK lo ofrece con `require_confirmation`).
+- **Model:** `LiteLlm("anthropic/claude-haiku-5-5")` with week 13's `max_tokens` and `output_config`. ADK's native
+  `Claude` only works through Vertex AI.
+- **Prompt:** the instruction goes in as a function (`InstructionProvider`) so that ADK does not interpret braces as state
+  variables. ADK always adds an identity line to the system prompt ("You are an agent. Your internal name is
+  ..."), so the prompt is not identical to week 13's: it is week 13's plus that line.
+- **Tools:** `McpToolset` with the user's token (ADK negotiates protocol 2025-11-25, activity 1);
+  `responder` is a `BaseTool` with week 13's JSON Schema; a valid answer sets `skip_summarization`
+  so that ADK does not call the model again.
+- **Week 13 rules:** agent callbacks (`before_model`, `after_model`, `before_tool`, `after_tool`). A limit
+  reached in `before_model` returns a response without calling the model, and the run ends with that state.
+- No human-in-the-loop in the spike (ADK offers it with `require_confirmation`).
 """
 from __future__ import annotations
 

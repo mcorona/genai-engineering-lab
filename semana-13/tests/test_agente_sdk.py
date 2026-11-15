@@ -1,4 +1,4 @@
-"""Pruebas del adaptador del Claude Agent SDK (actividad 10), sin llamar a la API ni al CLI."""
+"""Tests of the Claude Agent SDK adapter (activity 10), without calling the API or the CLI."""
 import asyncio
 import json
 

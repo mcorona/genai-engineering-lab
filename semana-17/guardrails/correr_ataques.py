@@ -208,8 +208,8 @@ def main_obediente(a) -> int:
             filas.append({"id": c["id"], "categoria": c["categoria"], "usuario": c["usuario"],
                           "con_guardrails": correr_obediente(c, entorno, True), "sin_guardrails": correr_obediente(c, entorno, False)})
             f = filas[-1]
-            print(f"{c['id']:<10} {c['categoria']:<22} sin: {'OBEDECE' if f['sin_guardrails']['peligro_ejecutado'] else 'no':<8} "
-                  f"con: {'OBEDECE' if f['con_guardrails']['peligro_ejecutado'] else 'no':<8} entrada: {f['con_guardrails']['entrada'] or '-'}", flush=True)
+            print(f"{c['id']:<10} {c['categoria']:<22} without: {'OBEYS' if f['sin_guardrails']['peligro_ejecutado'] else 'no':<8} "
+                  f"with: {'OBEYS' if f['con_guardrails']['peligro_ejecutado'] else 'no':<8} input: {f['con_guardrails']['entrada'] or '-'}", flush=True)
     finally:
         entorno.cerrar()
     despues = seg.huella(adm)

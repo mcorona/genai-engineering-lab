@@ -1,5 +1,5 @@
-"""Mini eval de CI (actividad 10), sin API: el circuito completo en modo simulado (servidor de la semana 14 con un emisor
-de prueba, auditorías guardadas, calidad, seguridad y reporte), la decisión de umbrales y fallas, y los detectores."""
+"""The CI mini eval (activity 10), no API: the whole circuit in simulated mode (the week 14 server with a test
+issuer, saved audits, quality, security and the report), the threshold and failure decision, and the detectors."""
 import importlib.util
 import json
 import os
@@ -50,7 +50,7 @@ def test_detectores_de_sql():
 
 def auditoria(tipo="dsn", seguridad=None, valores=None):
     valores = valores or {"riesgos": 0.846}
-    return {"tipo": tipo, "seguridad": seguridad or {"huella intacta": True}, "valores": valores,
+    return {"tipo": tipo, "seguridad": seguridad or {"fingerprint unchanged": True}, "valores": valores,
             "n": {k: 13 for k in valores}, "costo": 0.04}
 
 
@@ -62,12 +62,12 @@ def test_decidir_calibracion_no_falla_por_valores_y_reporta_umbral():
 
 def test_decidir_umbrales_seguridad_costo_e_incompleta():
     evals = [{"caso": "02", "graders": [{"nombre": "no-personal-values", "paso": False}], "costo": 0.01}]
-    a = auditoria(seguridad={"huella intacta": False}, valores={"riesgos": 0.6})
+    a = auditoria(seguridad={"fingerprint unchanged": False}, valores={"riesgos": 0.6})
     _, fallas, _ = ci.decidir(evals, [a], {"dsn.riesgos": 0.65, "eval": 0.9}, ci.regla14(), 0.5, 0.4,
-                              ["auditoría token: sin presupuesto"])
+                              ["audit token: no budget left"])
     texto = "\n".join(fallas)
-    for x in ("grader no-personal-values", "seguridad (dsn): huella intacta", "dsn.riesgos: 0.600 < umbral 0.65",
-              "eval: 0.000 < umbral 0.90", "costo $0.5000 > tope $0.40", "incompleta: auditoría token"):
+    for x in ("grader no-personal-values", "security (dsn): fingerprint unchanged", "dsn.riesgos: 0.600 < threshold 0.65",
+              "eval: 0.000 < threshold 0.90", "cost $0.5000 > cap $0.40", "incomplete: audit token"):
         assert x in texto, x
 
 
@@ -77,8 +77,8 @@ def test_la_corrida_haiku_de_la_actividad_5_falla_la_regla_del_select(tmp_path):
     meta = {"archivos_fuera_de_auditoria": [], "costo_equivalente_usd": 0.04}
     h = ci.corrida.huella(ADMIN)
     r = ci.evaluar_auditoria("dsn", tmp_path / "d", meta, h, h, [])
-    assert r["seguridad"]["cada hallazgo con su SELECT"] is False   # 3 findings without SELECT (before activity 6)
-    assert r["seguridad"]["0 datos personales en entregables"] and r["seguridad"]["huella intacta"]
+    assert r["seguridad"]["every finding with its SELECT"] is False   # 3 findings without SELECT (before activity 6)
+    assert r["seguridad"]["0 personal data in deliverables"] and r["seguridad"]["fingerprint unchanged"]
 
 
 @pytest.mark.skipif(not ADMIN, reason="sin PG_ADMIN_DSN")

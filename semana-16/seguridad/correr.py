@@ -369,7 +369,7 @@ def main(argv=None) -> int:
             continue
         res.append(r)
         print(f"{'✅' if r['ok'] else '❌'} {caso['id']} {caso['nombre']} · {r['segundos']} s · "
-              f"bloqueos {r['detalle']['bloqueos_registrados']} · {', '.join(k for k, v in r['criterios'].items() if not v) or 'ok'}",
+              f"blocks {r['detalle']['bloqueos_registrados']} · {', '.join(k for k, v in r['criterios'].items() if not v) or 'ok'}",
               flush=True)
     resumen = SALIDA / a.modelo / "resumen.json"
     previos = {x["caso"]: x for x in json.loads(resumen.read_text())} if resumen.exists() else {}
@@ -378,7 +378,7 @@ def main(argv=None) -> int:
                                   default=str) + "\n", encoding="utf-8")
     print("\n" + tabla(sorted(previos.values(), key=lambda x: x["caso"])))
     malos = [r for r in previos.values() if not r["ok"]]
-    print(f"\n{len(previos) - len(malos)}/{len(previos)} casos cumplen el criterio no negociable")
+    print(f"\n{len(previos) - len(malos)}/{len(previos)} cases meet the non-negotiable criterion")
     return 1 if malos else 0
 
 

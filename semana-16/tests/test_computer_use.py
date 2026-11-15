@@ -1,5 +1,5 @@
-"""Spike de computer use (actividad 8), sin API: guardia de acciones, contenedor desechable (argumentos de docker run),
-precios y tope, historia recortada, evaluación de una corrida guardada y la foto de datos de la pantalla."""
+"""The computer use spike (activity 8), no API: the action guard, the disposable container (docker run arguments),
+prices and cap, the trimmed history, the evaluation of a saved run and the screen's data snapshot."""
 import importlib.util
 import json
 import os

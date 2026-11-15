@@ -1,6 +1,6 @@
-"""Actividades 3 y 4: el agente en LangGraph y en Strands contra el loop propio de la semana 13, con el mismo modelo
-simulado y el mismo servidor MCP de la semana 14. Equivalencia de contrato, límites e interrupción (más checkpoints en
-LangGraph). Las mismas pruebas para los dos frameworks. Sin API ($0)."""
+"""Activities 3 and 4: the agent in LangGraph and in Strands against the week 13 in-house loop, with the same simulated
+model and the same week 14 MCP server. Equivalence of the contract, limits and interrupts (plus checkpoints in
+LangGraph). The same tests for both frameworks. No API ($0)."""
 import math
 
 import pytest
@@ -64,7 +64,7 @@ def _v01(adm):
     return t, valor
 
 
-# ---------- equivalencia de contrato ----------
+# ---------- contract equivalence ----------
 
 @pytest.mark.parametrize("caso", ["correcta", "sql_equivocado", "abstencion", "aclaracion", "sin_responder",
                                   "respuesta_invalida_y_corregida", "responder_acompanado"])
@@ -96,9 +96,9 @@ def test_equivalencia_con_el_loop_propio(puentes, fw, entorno, adm, conexion_ver
     assert math.isclose(rl.costo_usd, rp.costo_usd) and contrato.validar_resultado(rl, t) == []
     assert verificar(t, rl.final, conexion_verificador, rl.estado)["exito"] == \
         verificar(t, rp.final, conexion_verificador, rp.estado)["exito"]
-    assert ll == lp                                        # mismas llamadas al servidor MCP, en el mismo orden
-    assert len(pl) == len(pp)                              # mismas llamadas al modelo
-    for a, b in zip(pl, pp):                               # mismo prompt, modelo, esfuerzo, tokens y herramientas
+    assert ll == lp                                        # the same calls to the MCP server, in the same order
+    assert len(pl) == len(pp)                              # the same calls to the model
+    for a, b in zip(pl, pp):                               # the same prompt, model, effort, tokens and tools
         assert _sistema(a) == _sistema(b) and a["model"] == b["model"] == "claude-haiku-5-5"
         assert a["max_tokens"] == b["max_tokens"] and a.get("output_config") == b.get("output_config") == {"effort": "low"}
         assert sorted(x["name"] for x in a["tools"]) == sorted(x["name"] for x in b["tools"])
@@ -108,7 +108,7 @@ def test_equivalencia_con_el_loop_propio(puentes, fw, entorno, adm, conexion_ver
     assert [e["tipo"] for e in out["eventos"]].count("modelo") == rl.pasos
 
 
-# ---------- límites de la semana 13 ----------
+# ---------- week 13 limits ----------
 
 @pytest.mark.parametrize("limites,motivo", [
     ({"max_pasos": 2}, "max_pasos"),
@@ -154,7 +154,7 @@ def test_interrupcion_antes_de_proponer(puentes, fw, entorno, adm, decision):
         assert ex["checkpoints"] >= 4
     if decision == "aprobar":
         assert llamadas == ["proponer_orden_compra"] and r.errores_herramienta == 0
-    else:   # rechazada: no llega al servidor y el modelo la recibe como error
+    else:   # rejected: it does not reach the server and the model receives it as an error
         assert llamadas == [] and r.errores_herramienta == 1
         evento = next(e for e in out["eventos"] if e.get("herramienta") == "proponer_orden_compra")
         assert evento["error"] == "rechazada_por_humano"
@@ -167,8 +167,8 @@ def test_sin_politica_no_interrumpe(puentes, entorno, adm):
 
 
 def test_perfil_sin_scope_de_compras_ni_siquiera_llega_a_la_pausa(puentes, entorno, adm):
-    """El almacenista no tiene legado:compras:proponer: el servidor no le lista la herramienta, así que no hay nada que
-    aprobar y la llamada no llega al servidor. La aprobación humana nunca sustituye a los permisos."""
+    """The warehouse clerk does not have legado:compras:proponer: the server does not list the tool for them, so there is nothing to
+    approve and the call does not reach the server. Human approval never replaces permissions."""
     t = tarea("n01-es", adm)
     r, out, _, llamadas = correr(puentes["framework"], entorno, t, _guion_propuesta(), opciones={"aprobacion": "aprobar"},
                                  usuario="almacenista")

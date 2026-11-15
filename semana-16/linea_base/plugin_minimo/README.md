@@ -1,5 +1,5 @@
 # lb-spike
 
-Plugin mínimo de la semana 16, actividad 1. Verifica skills, subagentes, hooks (PreToolUse bloquea escrituras,
-PostToolUse registra comandos, SessionStart agrega contexto), `userConfig` sensible y `bin/`. No es para clientes:
-el plugin real es `legacy-schema-audit` (actividades 3 a 9).
+The minimal plugin of week 16, activity 1. It verifies skills, subagents, hooks (PreToolUse blocks writes,
+PostToolUse logs commands, SessionStart adds context), sensitive `userConfig` and `bin/`. It is not for clients:
+the real plugin is `legacy-schema-audit` (activities 3 to 9).

@@ -1,11 +1,11 @@
-"""Semana 15, actividad 1: ¿cada framework habla con Claude (Haiku 5.5) y reporta tokens y costo? Sin API ($0).
+"""Week 15, activity 1: does each framework talk to Claude (Haiku 5.5) and report tokens and cost? No API ($0).
 
     cd semana-15 && python linea_base/sonda_anthropic.py
 
-Levanta en 127.0.0.1 un doble de la API de Mensajes de Anthropic (POST /v1/messages, con y sin streaming) que responde
-siempre lo mismo: texto, 1200 tokens de entrada y 300 de salida. Cada framework apunta ahí con su integración de Claude
-(nativa o por LiteLLM) y el modelo `claude-haiku-5-5`. Se registra qué pidió cada uno (modelo, streaming, herramientas)
-y qué uso y costo reporta. Ningún dato sale del equipo. Escribe resultados/sonda_anthropic.json.
+It starts on 127.0.0.1 a double of Anthropic's Messages API (POST /v1/messages, with and without streaming) that always
+answers the same thing: text, 1200 input tokens and 300 output tokens. Each framework points there with its Claude integration
+(native or through LiteLLM) and the `claude-haiku-5-5` model. It records what each one requested (model, streaming, tools)
+and what usage and cost it reports. No data leaves the machine. Writes resultados/sonda_anthropic.json.
 """
 from __future__ import annotations
 
@@ -129,7 +129,7 @@ def main() -> int:
         antes = len(PETICIONES)
         prog = (f"MODELO={MODELO!r}; BASE={base!r}; ENTRADA={ENTRADA}; SALIDA={SALIDA}\n" + codigo
                 + "\nimport json; print('RESULTADO ' + json.dumps(out, default=str))")
-        env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}   # nunca la llave real
+        env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}   # never the real key
         p = subprocess.run([str(VENVS / venv / "bin" / "python"), "-c", prog], capture_output=True, text=True, timeout=120,
                            env={**env, "ANTHROPIC_BASE_URL": base, "ANTHROPIC_API_KEY": "doble"})
         linea = next((x for x in reversed(p.stdout.splitlines()) if x.startswith("RESULTADO ")), None)

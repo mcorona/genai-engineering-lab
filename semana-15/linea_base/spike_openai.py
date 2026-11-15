@@ -1,5 +1,5 @@
-"""Spike OpenAI Agents SDK (sin API): herramientas MCP del servidor de la semana 14 con token Bearer y agente con modelo
-guionado (interfaz `Model` del SDK). El tracing hacia OpenAI se desactiva: no sale nada del equipo. Imprime RESULTADO {json}."""
+"""An OpenAI Agents SDK spike (no API): MCP tools of the week 14 server with a Bearer token and an agent with a scripted
+model (the SDK's `Model` interface). Tracing to OpenAI is disabled: nothing leaves the machine. Prints RESULTADO {json}."""
 import asyncio
 import importlib.metadata as md
 import json

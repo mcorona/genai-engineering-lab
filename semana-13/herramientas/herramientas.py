@@ -1,22 +1,22 @@
-"""Semana 13, actividad 2: herramientas con contrato sobre el esquema legado.
+"""Week 13, activity 2: tools with a contract over the legacy schema.
 
-Cinco herramientas, las mismas para todos los patrones, así la diferencia entre patrones es solo la orquestación:
+Five tools, the same for every pattern, so that the difference between patterns is only the orchestration:
 
-- describir_esquema(tablas?)            tablas y columnas visibles para el usuario, con el diccionario de datos.
-- buscar_regla_negocio(consulta, max)   reglas de negocio (semana-13/golden/reglas_negocio.json) por palabras o por id.
-- muestrear_valores(tabla, columna)     valores distintos más frecuentes de una columna, para no adivinar formatos.
-- validar_sql(sql)                      guard sin ejecutar: una sola sentencia SELECT, sin funciones peligrosas, solo
-                                        tablas y columnas permitidas al usuario; además EXPLAIN en la base.
-- ejecutar_sql(sql, max_filas)          valida y ejecuta en una transacción READ ONLY que siempre se revierte, con límite
-                                        de tiempo y de filas.
+- describir_esquema(tablas?)            the tables and columns visible to the user, with the data dictionary.
+- buscar_regla_negocio(consulta, max)   business rules (semana-13/golden/reglas_negocio.json) by keyword or by id.
+- muestrear_valores(tabla, columna)     the most frequent distinct values of a column, so that formats are not guessed.
+- validar_sql(sql)                      the guard without executing: a single SELECT statement, no dangerous functions, only
+                                        tables and columns allowed to the user; plus EXPLAIN on the database.
+- ejecutar_sql(sql, max_filas)          validates and executes in a READ ONLY transaction that is always rolled back, with
+                                        time and row limits.
 
-Contrato:
-- Entradas validadas con Pydantic (extra="forbid"): el JSON Schema de cada herramienta no admite propiedades extra, así
-  que el modelo no puede pasar roles, usuario ni límites que el sistema no le dio.
-- Salida siempre JSON: {"ok": true, ...} o {"ok": false, "error": {"tipo", "mensaje", "sugerencia"}}. Nunca excepciones.
-- Salidas resumidas: filas truncadas a max_filas, textos largos recortados y un tope de caracteres por respuesta.
-- Permisos: los roles del usuario vienen en el Contexto, que crea el sistema. Defensa en profundidad: el guard y,
-  debajo, el rol de base de datos de solo lectura con transacción READ ONLY.
+Contract:
+- Inputs validated with Pydantic (extra="forbid"): each tool's JSON Schema admits no extra properties, so
+  the model cannot pass roles, a user or limits that the system did not give it.
+- Output always JSON: {"ok": true, ...} or {"ok": false, "error": {"tipo", "mensaje", "sugerencia"}}. Never exceptions.
+- Summarized outputs: rows truncated to max_filas, long texts trimmed and a character cap per response.
+- Permissions: the user's roles come in the Contexto, which the system creates. Defense in depth: the guard and,
+  underneath, the read-only database role with a READ ONLY transaction.
 """
 from __future__ import annotations
 
@@ -37,14 +37,14 @@ from sqlglot import exp
 AQUI = Path(__file__).resolve().parent
 RAIZ = AQUI.parents[1]
 DICCIONARIO = json.loads((RAIZ / "semana-10" / "legado" / "diccionario.json").read_text(encoding="utf-8"))
-# Semana 13: tabla legada de notas libres (artnot), creada por seguridad/artnot.sql; sirve para probar inyección en datos.
+# Week 13: a legacy free-text notes table (artnot), created by seguridad/artnot.sql; used to test injection in data.
 DICCIONARIO.update(json.loads((AQUI / "diccionario_extra.json").read_text(encoding="utf-8")))
 REGLAS = json.loads((RAIZ / "semana-13" / "golden" / "reglas_negocio.json").read_text(encoding="utf-8"))["reglas"]
 PERMISOS = json.loads((AQUI / "permisos.json").read_text(encoding="utf-8"))
 TABLAS = tuple(DICCIONARIO)  # prvmst, artmst, almmst, exidet, vtadia, ocpcab, artnot
 MAX_CARACTERES = 6000
 
-# Funciones que escriben, leen fuera del esquema o pueden bloquear la base. Se comparan por prefijo, en minúsculas.
+# Functions that write, read outside the schema or can lock the database. Compared by prefix, in lowercase.
 FUNCIONES_PROHIBIDAS = ("lo_", "pg_", "dblink", "set_config", "current_setting", "nextval", "setval", "txid_",
                         "query_to_xml", "table_to_xml", "copy", "has_", "version", "inet_", "current_user", "session_user")
 NODOS_PROHIBIDOS = tuple(getattr(exp, n) for n in ("Insert", "Update", "Delete", "Merge", "Create", "Drop", "Alter",
@@ -54,7 +54,7 @@ NODOS_PROHIBIDOS = tuple(getattr(exp, n) for n in ("Insert", "Update", "Delete",
 RAICES_PERMITIDAS = tuple(getattr(exp, n) for n in ("Select", "Union", "Intersect", "Except", "SetOperation") if hasattr(exp, n))
 
 
-# ---------- contrato de entrada ----------
+# ---------- input contract ----------
 
 class _Entrada(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -127,19 +127,19 @@ def definiciones() -> list[dict]:
     return out
 
 
-# ---------- contexto que crea el sistema ----------
+# ---------- context that the system creates ----------
 
 @dataclass
 class Contexto:
-    """Lo inyecta el sistema, nunca el modelo."""
+    """Injected by the system, never by the model."""
     usuario: str
     roles: list[str]
-    conexion: object | None = None          # psycopg.Connection con un rol de solo lectura; None = sin base
+    conexion: object | None = None          # psycopg.Connection with a read-only role; None = no database
     idioma: Literal["es", "en"] = "es"
     timeout_ms: int = 5000
-    llamadas: list[dict] = field(default_factory=list)  # bitácora de llamadas (traza)
-    propuestas: list[dict] = field(default_factory=list)  # propuestas registradas (nunca se ejecutan)
-    reglas_extra: list[dict] = field(default_factory=list)  # solo pruebas de seguridad: documentos de reglas adicionales
+    llamadas: list[dict] = field(default_factory=list)  # call log (trace)
+    propuestas: list[dict] = field(default_factory=list)  # registered proposals (never executed)
+    reglas_extra: list[dict] = field(default_factory=list)  # security tests only: additional rule documents
 
     @classmethod
     def de_usuario(cls, usuario: str, **kw) -> "Contexto":
@@ -154,7 +154,7 @@ class Contexto:
         return req is None or bool(set(req) & set(self.roles))
 
     def restringidas(self) -> set[str]:
-        """Columnas (por nombre) que el usuario no puede leer."""
+        """Columns (by name) that the user cannot read."""
         return {k.split(".")[1] for k, req in PERMISOS["columnas_restringidas"].items() if not set(req) & set(self.roles)}
 
 
@@ -187,14 +187,14 @@ def _valor(v):
     return v
 
 
-# ---------- implementación ----------
+# ---------- implementation ----------
 
 class Herramientas:
     def __init__(self, ctx: Contexto):
         self.ctx = ctx
 
     def llamar(self, nombre: str, argumentos: dict) -> dict:
-        """Punto único de entrada: valida argumentos, ejecuta y devuelve siempre un dict serializable."""
+        """The single entry point: validates the arguments, executes and always returns a serializable dict."""
         inicio = time.perf_counter()
         if nombre not in ENTRADAS:
             res = _error("herramienta_desconocida", f"No existe la herramienta {nombre!r}.",
@@ -208,7 +208,7 @@ class Herramientas:
                 res = _error("argumentos_invalidos", detalle, "Revisa el esquema de entrada de la herramienta; no admite campos extra.")
             except ErrorHerramienta as e:
                 res = _error(e.tipo, e.mensaje, e.sugerencia)
-            except Exception as e:  # noqa: BLE001  contrato: nunca una excepción hacia el modelo
+            except Exception as e:  # noqa: BLE001  contract: never an exception toward the model
                 res = _error("error_interno", f"{type(e).__name__}: {str(e).splitlines()[0][:300] if str(e) else ''}",
                              "Revisa la entrada; si persiste, reformula la consulta de forma más simple.")
         res = self._recortar(res)
@@ -323,7 +323,7 @@ class Herramientas:
     def _guard(self, sql: str) -> str:
         try:
             sentencias = [s for s in sqlglot.parse(sql, read="postgres") if s is not None]
-        except sqlglot.errors.SqlglotError as err:  # ParseError, TokenError y demás errores del analizador
+        except sqlglot.errors.SqlglotError as err:  # ParseError, TokenError and the other parser errors
             raise ErrorHerramienta("sql_invalido", f"No se pudo interpretar el SQL: {str(err).splitlines()[0]}",
                                    "Escribe una sola sentencia SELECT de PostgreSQL.")
         if len(sentencias) != 1:
@@ -369,7 +369,7 @@ class Herramientas:
                                            "Enumera las columnas que necesitas.")
         return raiz.sql(dialect="postgres")
 
-    # ---------- base de datos ----------
+    # ---------- database ----------
     def _correr(self, sql: str, explicar: bool = False):
         import psycopg
 

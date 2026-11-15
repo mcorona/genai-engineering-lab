@@ -1,5 +1,5 @@
-"""Spike Strands Agents (sin API): herramientas MCP del servidor de la semana 14 con token Bearer y agente con modelo
-guionado (implementa la interfaz `Model` de Strands). Imprime RESULTADO {json}."""
+"""A Strands Agents spike (no API): MCP tools of the week 14 server with a Bearer token and an agent with a scripted
+model (it implements Strands' `Model` interface). Prints RESULTADO {json}."""
 import importlib.metadata as md
 import json
 import os

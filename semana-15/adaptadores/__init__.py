@@ -1,1 +1,1 @@
-"""Semana 15: el mismo agente en cada framework (actividades 3, 4 y 6). Cada módulo corre en el entorno de su framework."""
+"""Week 15: the same agent in each framework (activities 3, 4 and 6). Each module runs in its framework's environment."""

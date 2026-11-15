@@ -1,1 +1,1 @@
-"""Semana 13, actividad 10: el mismo agente construido con el Claude Agent SDK."""
+"""Week 13, activity 10: the same agent built with the Claude Agent SDK."""

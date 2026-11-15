@@ -1,4 +1,4 @@
-# Disposable desktop for the semana 16 computer use spike (activity 8): Xvfb + Chromium in kiosk mode on the MOV-010
+# Disposable desktop for the week 16 computer use spike (activity 8): Xvfb + Chromium in kiosk mode on the MOV-010
 # legacy screen. No credentials and no database inside; it runs with --network none, --read-only and --cap-drop ALL,
 # and the model's API calls happen outside it (computer_use/correr.py). The app files are mounted read-only at /app.
 #   docker build -t legacy-screen-desktop:1 semana-16/computer_use

@@ -1,10 +1,10 @@
-"""Modelo simulado para pruebas deterministas sin API: un doble local de la API de Mensajes de Anthropic
-(POST /v1/messages, con y sin streaming SSE) que sigue un guion.
+"""A simulated model for deterministic tests without the API: a local double of Anthropic's Messages API
+(POST /v1/messages, with and without SSE streaming) that follows a script.
 
-Todos los frameworks de la semana hablan con Claude por esa API (nativa o por LiteLLM) y aceptan otra `base_url`, así
-que el mismo guion recorre el código real de cada framework: su loop, su despacho de herramientas por MCP y su conteo de
-tokens. Nada sale del equipo y el costo es $0. Cada turno del guion es una lista de bloques (`texto(...)`,
-`herramienta(...)`) con su uso de tokens; si el guion se acaba, el doble responde un texto sin herramientas.
+Every framework of the week talks to Claude through that API (natively or through LiteLLM) and accepts another `base_url`, so
+the same script runs through each framework's real code: its loop, its MCP tool dispatch and its token
+counting. Nothing leaves the machine and the cost is $0. Each turn of the script is a list of blocks (`texto(...)`,
+`herramienta(...)`) with its token usage; if the script runs out, the double answers with text and no tools.
 """
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def _sse(msg: dict) -> bytes:
 
 
 class DobleAnthropic:
-    """`with DobleAnthropic(guion) as d:` → `d.base_url` para el cliente de Anthropic del framework."""
+    """`with DobleAnthropic(guion) as d:` → `d.base_url` for the framework's Anthropic client."""
 
     def __init__(self, guion: Guion):
         self.guion = guion
@@ -115,7 +115,7 @@ class DobleAnthropic:
 
 
 def api_doble(base_url: str):
-    """Sustituto de `api_anthropic` de la semana 13 que llama al doble (para el loop propio)."""
+    """A stand-in for week 13's `api_anthropic` that calls the double (for the in-house loop)."""
     def api(cuerpo: dict) -> dict:
         req = urllib.request.Request(base_url + "/v1/messages", data=json.dumps(cuerpo).encode(),
                                      headers={"content-type": "application/json", "x-api-key": "doble"})
@@ -126,8 +126,8 @@ def api_doble(base_url: str):
 
 def guion_respuesta(tarea: dict, resultados: list[dict] | None = None, estado: str | None = None,
                     sql_exploracion: str | None = None) -> Guion:
-    """Guion de un agente disciplinado: describe el esquema, ejecuta el SQL de cada clave y responde.
-    `resultados`: [{"clave", "sql", "valor"}]; `estado` por omisión es el esperado de la tarea."""
+    """The script of a disciplined agent: it describes the schema, runs each key's SQL and answers.
+    `resultados`: [{"clave", "sql", "valor"}]; `estado` defaults to the task's expected state."""
     estado = estado or tarea["estado_esperado"]
     turnos = [Turno([herramienta("describir_esquema", {})], 1200, 40)]
     for r in resultados or []:

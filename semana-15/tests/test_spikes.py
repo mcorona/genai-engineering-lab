@@ -1,6 +1,6 @@
-"""Actividad 6: los spikes (OpenAI Agents SDK y Google ADK, con Claude por LiteLLM) contra el loop propio de la semana 13,
-con el mismo modelo simulado y el mismo servidor MCP. Las diferencias de cada framework quedan registradas como prueba
-(no se ocultan). Sin API ($0)."""
+"""Activity 6: the spikes (OpenAI Agents SDK and Google ADK, with Claude through LiteLLM) against the week 13 in-house loop,
+with the same simulated model and the same MCP server. Each framework's differences are recorded as tests
+(they are not hidden). No API ($0)."""
 import math
 
 import pytest
@@ -55,10 +55,10 @@ def test_spike_equivale_al_loop_propio(todos, entorno, adm, conexion_verificador
     assert ls == lp and len(ps) == len(pp)
     for a in ps:
         assert a["model"] == "claude-haiku-5-5" and a["max_tokens"] == 4000 and a.get("output_config") == {"effort": "low"}
-        assert "extra_body" not in a                                  # LiteLLM no debe mandar la clave literal
+        assert "extra_body" not in a                                  # LiteLLM must not send the literal key
         assert sorted(x["name"] for x in a["tools"]) == sorted(x["name"] for x in pp[0]["tools"])
         if fw == "openai_agents":
             assert _sistema(a) == l13.SISTEMA
-        else:   # ADK agrega su línea de identidad al prompt de sistema (fricción documentada)
+        else:   # ADK adds its identity line to the system prompt (documented friction)
             assert _sistema(a).startswith(l13.SISTEMA) and "Your internal name is" in _sistema(a)
     assert {e["framework"] for e in out["eventos"]} == {fw}

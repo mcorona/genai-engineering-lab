@@ -1,1 +1,1 @@
-"""Semana 13, actividad 7: seguridad básica a través del agente."""
+"""Week 13, activity 7: basic security through the agent."""

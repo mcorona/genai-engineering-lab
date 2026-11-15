@@ -1,4 +1,4 @@
-"""Actividad 9 ($0): la matriz de decisión es consistente con su evidencia y el documento está al día."""
+"""Activity 9 ($0): the decision matrix is consistent with its evidence and the document is up to date."""
 import json
 import subprocess
 import sys
@@ -6,7 +6,7 @@ import sys
 import pytest
 from conftest import S15
 
-from eval import matriz as m  # noqa: E402  (sin agregar eval/ a sys.path: eval/multiagente.py taparía el paquete)
+from eval import matriz as m  # noqa: E402  (without adding eval/ to sys.path: eval/multiagente.py would shadow the package)
 
 RES = S15 / "resultados"
 
@@ -23,16 +23,16 @@ def test_cada_celda_tiene_puntaje_estado_y_evidencia():
     for c, o, k, (puntaje, estado, nota, evidencia) in _celdas():
         n += 1
         assert puntaje in range(1, 6) and estado in ("M", "D", "N") and nota, (c, o, k)
-        if estado in ("M", "D"):                                   # lo medido o documentado enlaza su evidencia
+        if estado in ("M", "D"):                                   # what is measured or documented links to its evidence
             assert evidencia, (c, o, k)
         for e in evidencia:
-            assert (RES / m.EV[e]).resolve().exists(), (c, o, e)   # y la evidencia existe en el repositorio
-    assert n == 5 * (8 + 4 + 3)                                     # 8 criterios fijos + 4 proveedores + 3 plataformas
+            assert (RES / m.EV[e]).resolve().exists(), (c, o, e)   # and the evidence exists in the repository
+    assert n == 5 * (8 + 4 + 3)                                     # 8 fixed criteria + 4 providers + 3 platforms
 
 
 def test_el_costo_sale_de_lo_medido():
     assert {o: m.P["costo"][o][0] for o in m.OPCIONES} == {o: m.puntaje_costo(o) for o in m.OPCIONES}
-    assert m.puntaje_costo("propio") == 5 and m.puntaje_costo("adk") == 2   # $0.0027 el más barato; ADK +70 %
+    assert m.puntaje_costo("propio") == 5 and m.puntaje_costo("adk") == 2   # $0.0027 the cheapest; ADK +70 %
 
 
 @pytest.mark.parametrize("esc", list(m.ESCENARIOS))

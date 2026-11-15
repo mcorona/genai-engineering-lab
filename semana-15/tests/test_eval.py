@@ -1,4 +1,4 @@
-"""Actividad 5 (sin API): pasarela con las defensas de la semana 14 para cualquier framework y métricas del reporte."""
+"""Activity 5 (no API): a gateway with week 14's defenses for any framework, and the report's metrics."""
 import importlib.util
 import json
 
@@ -14,7 +14,7 @@ pytestmark_venvs = pytest.mark.skipif(not all((VENVS / v / "bin" / "python").exi
 
 
 def test_wilson_y_bootstrap():
-    assert correr.wilson(36, 40) == (0.769, 0.96)            # mismo valor que la actividad 7 de la semana 14
+    assert correr.wilson(36, 40) == (0.769, 0.96)            # the same value as activity 7 of week 14
     assert correr.wilson(0, 0)[0] != correr.wilson(0, 0)[0]    # nan
     a = {"t1": [True, True, True], "t2": [False, False, False]}
     b = {"t1": [True, True, True], "t2": [False, False, False], "t3": [True]}
@@ -73,16 +73,16 @@ def test_pasarela_lleva_las_defensas_a_cada_framework(fw, entorno, seg):
     assert "error" not in out, out.get("error")
     assert nombres and all(n.startswith("legado__") for n in nombres)
     herramientas_modelo = {t["name"] for t in guion.peticiones[0]["tools"]}
-    assert herramientas_modelo == nombres | {"responder"}                        # el modelo solo ve lo de la pasarela
+    assert herramientas_modelo == nombres | {"responder"}                        # the model only sees what the gateway exposes
     sistema = guion.peticiones[0]["system"]
     sistema = "".join(b["text"] for b in sistema) if isinstance(sistema, list) else sistema
     assert sistema == seg.SISTEMA_14 and "untrusted_data" in sistema
     eventos = [e for e in out["eventos"] if e["tipo"] == "herramienta"]
     assert [e["herramienta"] for e in eventos][:3] == ["legado__ejecutar_sql", "inventario_plus__ejecutar_sql", "ejecutar_sql"]
     assert eventos[0]["ok"] and not eventos[1]["ok"] and not eventos[2]["ok"]
-    assert [x["servidor"] for x in cliente.llamadas] == ["legado"]              # solo la llamada legítima salió
+    assert [x["servidor"] for x in cliente.llamadas] == ["legado"]              # only the legitimate call went out
     salida = json.loads(cliente.llamadas[0]["salida"])
     assert salida["ok"] and salida["filas"]
-    vuelta = json.dumps(guion.peticiones[1]["messages"][-1], ensure_ascii=False)   # lo que el modelo recibió
+    vuelta = json.dumps(guion.peticiones[1]["messages"][-1], ensure_ascii=False)   # what the model received
     assert "untrusted_data" in vuelta and "legado.ejecutar_sql" in vuelta
     assert ev["llamo_a_la_sombra"] is False and ev["ok"] and mal["inventario_plus"].capturas == []

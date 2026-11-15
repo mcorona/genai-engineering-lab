@@ -1,10 +1,10 @@
-"""Conexión de solo lectura para las herramientas de semana 13.
+"""A read-only connection for the week 13 tools.
 
-Orden de preferencia:
-1. NLQ_LEGADO_DSN: rol copilot_nlq ya creado (solo SELECT sobre las vistas legado, read-only por defecto).
-2. PG_ADMIN_DSN: (re)crea copilot_nlq con una clave aleatoria de la sesión, como la NLQ endurecida de semana 10, y se
-   conecta con él. La clave no se guarda en ningún lado.
-3. PG_DSN: rol copilot_ro, con search_path = legado. El guard y la transacción READ ONLY siguen aplicando.
+Order of preference:
+1. NLQ_LEGADO_DSN: the copilot_nlq role, already created (only SELECT on the legacy views, read-only by default).
+2. PG_ADMIN_DSN: (re)creates copilot_nlq with a random password for the session, like week 10's hardened NLQ, and
+   connects with it. The password is not stored anywhere.
+3. PG_DSN: the copilot_ro role, with search_path = legado. The guard and the READ ONLY transaction still apply.
 """
 import os
 import secrets
@@ -29,12 +29,12 @@ def crear_rol_nlq() -> str:
 
 
 def conectar() -> tuple[psycopg.Connection, str]:
-    """Devuelve (conexión en autocommit, nombre del rol)."""
+    """Returns (an autocommit connection, the role name)."""
     if os.environ.get("NLQ_LEGADO_DSN"):
         dsn = os.environ["NLQ_LEGADO_DSN"]
     elif os.environ.get("PG_ADMIN_DSN"):
         dsn = crear_rol_nlq()
-        # Las siguientes conexiones del proceso (hilos, servidor MCP hijo) reusan esta clave en lugar de rotarla.
+        # The process's next connections (threads, the child MCP server) reuse this password instead of rotating it.
         os.environ["NLQ_LEGADO_DSN"] = dsn
     else:
         dsn = os.environ["PG_DSN"]

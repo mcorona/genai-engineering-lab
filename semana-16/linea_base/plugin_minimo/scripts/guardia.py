@@ -1,9 +1,9 @@
-"""Hook PreToolUse del spike: bloquea escrituras.
+"""The spike's PreToolUse hook: blocks writes.
 
-- Write/Edit/MultiEdit/NotebookEdit fuera de `auditoria/` del proyecto: bloqueado.
-- Bash con SQL de escritura (INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, CREATE, GRANT, COPY ... FROM) o con
-  `psql -c` que no sea SELECT: bloqueado.
-Bloquea con código de salida 2 y el motivo en stderr (Claude lo recibe). Todo lo demás: salida 0 sin texto.
+- Write/Edit/MultiEdit/NotebookEdit outside the project's `auditoria/`: blocked.
+- Bash with write SQL (INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, CREATE, GRANT, COPY ... FROM) or with a
+  `psql -c` that is not a SELECT: blocked.
+It blocks with exit code 2 and the reason on stderr (Claude receives it). Everything else: exit 0 with no text.
 """
 import json
 import os
@@ -34,7 +34,7 @@ def decidir(evento: dict) -> tuple[int, str]:
 def main() -> int:
     try:
         codigo, motivo = decidir(json.load(sys.stdin))
-    except Exception as e:  # noqa: BLE001  falla cerrada: una entrada que no se entiende no pasa
+    except Exception as e:  # noqa: BLE001  fail closed: an input that is not understood does not pass
         codigo, motivo = 2, f"lb-spike: guardia sin decisión ({type(e).__name__}); se bloquea"
     if motivo:
         print(motivo, file=sys.stderr)

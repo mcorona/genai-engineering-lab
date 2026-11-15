@@ -1,8 +1,8 @@
-"""Actividad 5: el servidor MCP como resource server OAuth con permisos mínimos. Sin API ($0).
+"""Activity 5: the MCP server as an OAuth resource server with least privilege. No API ($0).
 
-Los tokens se firman aquí con llaves RSA de prueba y un JWKS local (file://): así cada caso negativo es exacto y no
-depende de Keycloak. La prueba de punta a punta con Keycloak real corre si está levantado (auth/arrancar.sh).
-Las pruebas de base de datos corren con PG_ADMIN_DSN (crean los roles por perfil de auth/roles_bd.sql)."""
+The tokens are signed here with test RSA keys and a local JWKS (file://): that way each negative case is exact and does not
+depend on Keycloak. The end-to-end test with a real Keycloak runs if it is up (auth/arrancar.sh).
+The database tests run with PG_ADMIN_DSN (they create the per-profile roles of auth/roles_bd.sql)."""
 import asyncio
 import base64
 import json
@@ -29,7 +29,7 @@ PERFILES = {"analista": ["legado:leer", "legado:ventas", "legado:proveedores", "
             "vendedor": ["legado:leer", "legado:ventas"]}
 
 
-# ---------- llaves, JWKS y tokens de prueba ----------
+# ---------- test keys, JWKS and tokens ----------
 
 def _llave():
     return rsa.generate_private_key(public_exponent=65537, key_size=2048)
@@ -40,7 +40,7 @@ LLAVE, OTRA_LLAVE = _llave(), _llave()
 
 @pytest.fixture(scope="module")
 def jwks():
-    """JWKS del emisor de prueba servido por HTTP en loopback (PyJWT solo acepta http/https para el JWKS)."""
+    """The test issuer's JWKS served over HTTP on loopback (PyJWT only accepts http/https for the JWKS)."""
     import http.server
     import threading
     jwk = json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(LLAVE.public_key()))
@@ -102,7 +102,7 @@ LISTA = peticion("tools/list")
 
 
 def _trazas(s, n=1, espera_s=2.0):
-    """La traza se escribe después de enviar la respuesta (incluye estado y bytes): se espera a que exista."""
+    """The trace is written after the response is sent (it includes status and bytes): wait until it exists."""
     fin = time.monotonic() + espera_s
     while len(s.trazas.ultimas) < n and time.monotonic() < fin:
         time.sleep(0.01)
@@ -146,14 +146,14 @@ def test_otro_emisor_401(jwks):
 
 def test_token_otra_audiencia_401(jwks):
     _rechazado_401(jwks, lambda r: token(r, aud="http://127.0.0.1:9999/mcp"))
-    _rechazado_401(jwks, lambda r: token(r, aud="legado-mcp"))      # lo que emitía Keycloak sin resource y lo que emite al refrescar un token offline sin el mapper de URI
+    _rechazado_401(jwks, lambda r: token(r, aud="legado-mcp"))      # what Keycloak issued without resource, and what it issues when refreshing an offline token without the URI mapper
 
 
 def test_firma_alterada_401(jwks):
     def alterado(r):
         cab, cuerpo, firma = token(r, sub="almacenista").split(".")
         c = json.loads(base64.urlsafe_b64decode(cuerpo + "=" * (-len(cuerpo) % 4)))
-        c["scope"] = "legado:leer legado:ventas legado:proveedores legado:compras:proponer"   # escalar scopes
+        c["scope"] = "legado:leer legado:ventas legado:proveedores legado:compras:proponer"   # escalating scopes
         nuevo = base64.urlsafe_b64encode(json.dumps(c).encode()).rstrip(b"=").decode()
         return f"{cab}.{nuevo}.{firma}"
     _rechazado_401(jwks, alterado)
@@ -166,7 +166,7 @@ def test_alg_none_401(jwks):
         return f"{cab}.{cuerpo}."
     _rechazado_401(jwks, none)
 
-    def hs256_con_llave_publica(r):   # confusión HS/RS: la llave pública como secreto HMAC
+    def hs256_con_llave_publica(r):   # HS/RS confusion: the public key as an HMAC secret
         pub = LLAVE.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
         import hashlib
         import hmac
@@ -214,15 +214,15 @@ def test_jwks_con_cache(jwks):
     for i in range(25):
         assert v.verificar(token("http://127.0.0.1:8014/mcp", sub="vendedor")).subject == "sub-vendedor"
     assert len(llamadas) == 1
-    # kid desconocido: se rechaza; dentro de la ventana de enfriamiento (30 s) no fuerza otra descarga del JWKS, así un
-    # atacante no puede usar tokens con kid inventados para inundar al emisor
+    # unknown kid: rejected; within the cooldown window (30 s) it does not force another JWKS download, so an
+    # attacker cannot use tokens with invented kids to flood the issuer
     for _ in range(10):
         with pytest.raises(oauth.ErrorToken):
             v.verificar(token("http://127.0.0.1:8014/mcp", llave=OTRA_LLAVE, kid="k9"))
     assert len(llamadas) == 1
 
 
-# ---------- scopes: 403, listas filtradas y herramientas no listadas ----------
+# ---------- scopes: 403, filtered lists and unlisted tools ----------
 
 def test_scope_insuficiente_403_con_scope(jwks):
     with srv_oauth(jwks) as s:
@@ -249,7 +249,7 @@ def test_proponer_requiere_scope(jwks):
 
 
 def test_herramienta_no_listada(jwks):
-    """Una herramienta que no aparece en tools/list no se ejecuta: 403 con los scopes que pide (step-up)."""
+    """A tool that does not appear in tools/list is not executed: 403 with the scopes it needs (step-up)."""
     with srv_oauth(jwks) as s:
         tok = token(s.recurso, sub="almacenista")
         lista = json.loads(con_token(s, tok, LISTA)[2])["result"]["tools"]
@@ -263,7 +263,7 @@ def test_herramienta_no_listada(jwks):
 
 
 def test_defensa_en_profundidad_sin_frontera():
-    """Aunque se saltara la frontera, el handler no ejecuta una herramienta fuera del scope del contexto."""
+    """Even if the boundary were bypassed, the handler does not execute a tool outside the context's scope."""
     from mcp.server.auth.provider import AccessToken
     from conftest import con_cliente
     from herramientas import Herramientas
@@ -284,7 +284,7 @@ ESPERADO = {
 
 @pytest.mark.parametrize("usuario", list(PERFILES))
 def test_tools_list_filtrado_por_scope(jwks, usuario):
-    """Cliente HTTP del SDK con el token: herramientas, resources y prompts según los scopes, no según el usuario."""
+    """The SDK's HTTP client with the token: tools, resources and prompts according to the scopes, not the user."""
     with srv_oauth(jwks) as s:
         async def fn(c):
             artmst = await c.read_resource("legado://esquema/artmst")
@@ -318,7 +318,7 @@ def test_scopes_requeridos_por_operacion():
     assert scopes_requeridos("prompts/get", "proponer_reabasto") == set(PERFILES["analista"])
 
 
-# ---------- escalada de permisos por argumentos ----------
+# ---------- privilege escalation through arguments ----------
 
 CASOS_ESCALADA = [
     ("describir_esquema", {"usuario": "analista"}, "argumentos_invalidos"),
@@ -344,7 +344,7 @@ def test_escalada_por_argumentos(jwks, nombre, args, tipo):
     assert r[0] == 200 and res["isError"] and res["structuredContent"]["error"]["tipo"] == tipo, res["structuredContent"]
 
 
-# ---------- el token no sale del servidor ----------
+# ---------- the token does not leave the server ----------
 
 def test_token_no_se_reenvia_ni_se_registra(jwks, tmp_path, monkeypatch):
     from herramientas import Herramientas
@@ -363,15 +363,15 @@ def test_token_no_se_reenvia_ni_se_registra(jwks, tmp_path, monkeypatch):
         con_token(s, token(s.recurso, aud="http://otra/mcp"), LISTA)
     texto = ruta.read_text(encoding="utf-8")
     firma = tok.split(".")[2]
-    assert vistos and all(firma not in v and tok not in v for v in vistos)          # ni al contexto ni a la base
-    assert firma not in texto and "Bearer" not in texto                             # ni a las trazas
+    assert vistos and all(firma not in v and tok not in v for v in vistos)          # neither to the context nor to the database
+    assert firma not in texto and "Bearer" not in texto                             # nor to the traces
     lineas = [json.loads(x) for x in texto.splitlines()]
     assert lineas[0]["sujeto"] == "sub-analista" and lineas[0]["cliente_oauth"] == "legacybridge-agente"
     assert lineas[0]["scopes"] == sorted(PERFILES["analista"])
     assert lineas[-1]["estado"] == 401 and lineas[-1]["sujeto"] is None
 
 
-# ---------- base de datos: un rol por perfil (A05) ----------
+# ---------- database: one role per profile (A05) ----------
 
 @pytest.fixture(scope="module")
 def roles_bd(conexion):
@@ -393,7 +393,7 @@ def test_rol_de_bd_segun_scope(roles_bd):
             with c.transaction():
                 assert c.execute("SELECT current_user").fetchone()[0] == rol
                 assert c.execute("SELECT current_setting('default_transaction_read_only')").fetchone()[0] == "on"
-        # el rol de conexión no conserva el perfil entre transacciones (SET LOCAL)
+        # the connection role does not keep the profile across transactions (SET LOCAL)
         conn = pool.tomar()
         assert conn.execute("SELECT current_user").fetchone()[0] == "copilot_nlq"
         pool.devolver(conn)
@@ -402,7 +402,7 @@ def test_rol_de_bd_segun_scope(roles_bd):
 
 
 def test_fk_art_prv_sin_scope_proveedores(roles_bd, jwks):
-    """Cierra el hallazgo art_prv de la semana 13: aunque el SQL esquive el guard, la base niega la columna."""
+    """Closes the week 13 art_prv finding: even if the SQL evades the guard, the database denies the column."""
     import psycopg
     pool = PoolConexiones(os.environ["NLQ_LEGADO_DSN"], 2)
     try:
@@ -419,7 +419,7 @@ def test_fk_art_prv_sin_scope_proveedores(roles_bd, jwks):
                 assert ok is permitido, (rol, sql)
     finally:
         pool.cerrar()
-    # por el servidor completo: row_to_json pasa el guard (no nombra columnas) y lo detiene la base
+    # through the full server: row_to_json passes the guard (it names no columns) and the database stops it
     with srv_oauth(jwks, conexion=roles_bd) as s:
         for usuario, esperado in (("vendedor", "permiso_denegado"), ("almacenista", "permiso_denegado"), ("analista", None)):
             r = json.loads(con_token(s, token(s.recurso, sub=usuario), peticion(
@@ -441,7 +441,7 @@ def test_consultas_permitidas_con_base(roles_bd, jwks):
         assert sql("analista", "SELECT p.prv_nm, COUNT(*) FROM artmst a JOIN prvmst p ON p.prv_id = a.art_prv GROUP BY 1")["ok"]
 
 
-# ---------- de punta a punta con Keycloak real ----------
+# ---------- end to end with a real Keycloak ----------
 
 def _keycloak():
     try:
@@ -461,9 +461,9 @@ def test_keycloak_de_punta_a_punta():
             tok = pkce.obtener_token(usuario)["access_token"]
             tools = cliente(s.url, tok, lambda c: c.list_tools())
             assert len(tools.tools) == n, usuario
-        # Desde la actividad 7 el mapper del cliente agente emite la URI canónica aunque falte `resource` (Keycloak 26.8
-        # pierde la audiencia al refrescar tokens offline; resultados/claude_code.md). El servidor no cambió: sigue
-        # rechazando cualquier otra audiencia (test_token_otra_audiencia_401, incluido aud="legado-mcp").
+        # Since activity 7, the agent client's mapper issues the canonical URI even when `resource` is missing (Keycloak 26.8
+        # loses the audience when refreshing offline tokens; resultados/claude_code.md). The server did not change: it still
+        # rejects any other audience (test_token_otra_audiencia_401, including aud="legado-mcp").
         sin_resource = pkce.obtener_token("analista", resource=None)["access_token"]
         assert con_token(s, sin_resource, LISTA)[0] == 200
         tok = pkce.obtener_token("almacenista")["access_token"]

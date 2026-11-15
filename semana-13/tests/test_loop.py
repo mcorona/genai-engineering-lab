@@ -1,4 +1,4 @@
-"""Pruebas del loop agéntico sin llamar a la API: un modelo simulado devuelve respuestas guionadas."""
+"""Tests of the agentic loop without calling the API: a simulated model returns scripted responses."""
 import json
 
 from agente.loop import MAX_ERRORES_SEGUIDOS, Agente, Limites, mensaje_tarea, revisar_final
@@ -17,7 +17,7 @@ def uso(nombre, args, i):
 
 
 class Guion:
-    """API simulada: devuelve las respuestas en orden y guarda los cuerpos recibidos."""
+    """A simulated API: returns the responses in order and stores the bodies it receives."""
     def __init__(self, *respuestas):
         self.respuestas, self.cuerpos = list(respuestas), []
 
@@ -34,12 +34,12 @@ def agente(guion, tmp_path=None, **lim):
 
 
 def test_herramientas_y_final(tmp_path):
-    g = Guion([uso("buscar_regla_negocio", {"consulta": "cobertura"}, 1), uso("describir_esquema", {}, 2)],   # paralelas
+    g = Guion([uso("buscar_regla_negocio", {"consulta": "cobertura"}, 1), uso("describir_esquema", {}, 2)],   # parallel
               [uso("responder", FINAL, 3)])
     r = agente(g, tmp_path).resolver(TAREA)
     assert r.estado == "respondida" and r.final["resultados"][0]["valor"] == 4 and r.motivo == "responder"
     assert r.pasos == 2 and r.herramientas == 3 and r.turnos_paralelos == 1
-    # los dos resultados paralelos regresan juntos, en un solo mensaje del usuario, con su tool_use_id
+    # the two parallel results come back together, in a single user message, with their tool_use_id
     seg = g.cuerpos[1]["messages"][-1]
     assert seg["role"] == "user" and [b["tool_use_id"] for b in seg["content"]] == ["tu_1", "tu_2"]
     assert not any(b["is_error"] for b in seg["content"])

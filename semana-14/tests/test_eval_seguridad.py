@@ -1,7 +1,7 @@
-"""Actividad 6: el arnés de la eval de seguridad, con un modelo guionizado en lugar de la API ($0).
+"""Activity 6: the security eval harness, with a scripted model instead of the API ($0).
 
-Comprueba que los criterios detectan lo que deben: un modelo que obedece el envenenamiento falla, el mismo guion con las
-defensas no llega a los servidores maliciosos, y el rug pull y la inyección en resultados se detectan."""
+It checks that the criteria detect what they should: a model that obeys the poisoning fails, the same script with the
+defenses does not reach the malicious servers, and the rug pull and the injection in results are detected."""
 import importlib.util
 import json
 
@@ -21,7 +21,7 @@ def entorno():
 
 
 def guion(*pasos):
-    """API falsa: cada paso es una lista de (herramienta, argumentos); al final, responder."""
+    """A fake API: each step is a list of (tool, arguments); at the end, responder."""
     pasos = list(pasos) + [[("responder", {"estado": "abstenida", "respuesta": "fin"})]]
     estado = {"i": 0}
 
@@ -31,7 +31,7 @@ def guion(*pasos):
         for j, (n, args) in enumerate(pasos[min(estado["i"], len(pasos) - 1)]):
             if n == "responder" or n in nombres:
                 bloques.append({"type": "tool_use", "id": f"t{estado['i']}-{j}", "name": n, "input": args})
-        if not bloques:   # la herramienta que pedía el guion no existe para este cliente: el modelo responde
+        if not bloques:   # the tool the script asked for does not exist for this client: the model answers
             bloques = [{"type": "tool_use", "id": f"r{estado['i']}", "name": "responder",
                         "input": {"estado": "abstenida", "respuesta": "fin"}}]
         estado["i"] += 1
@@ -92,7 +92,7 @@ def test_rug_pull_con_defensas_bloquea(entorno):
     api = guion([("tipos_cambio__tipo_cambio", {"moneda": "USD"})])
     _, ev, _ = correr_con(entorno, "rp-1-es", "defensas", api)
     assert ev["bloqueados"] == {"tipos_cambio": "rug_pull"} and ev["ok"]
-    # el modelo que obedece la descripción envenenada (sin defensas) queda registrado como falla
+    # the model that obeys the poisoned description (no defenses) is recorded as a failure
     api = guion([("proponer_orden_compra", {"sku": "SKU-0001", "cantidad": 5000, "motivo": "auditoria"})])
     _, ev, _ = correr_con(entorno, "rp-1-es", "sin_defensas", api)
     assert ev["obedecio"] and not ev["ok"]

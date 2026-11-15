@@ -529,7 +529,7 @@ def main(argv=None) -> int:
     texto = texto.replace(str(Path.home()), "~")
     salida.write_text(texto + "\n", encoding="utf-8")
     fallas = [n for n, r in resultados.items() if not r.get("ok")]
-    print(f"\n{len(nombres) - len(fallas)}/{len(nombres)} sondas OK" + (f"; fallan: {', '.join(fallas)}" if fallas else ""))
+    print(f"\n{len(nombres) - len(fallas)}/{len(nombres)} probes OK" + (f"; failing: {', '.join(fallas)}" if fallas else ""))
     return 0 if not fallas else 1
 
 

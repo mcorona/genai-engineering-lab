@@ -1,11 +1,11 @@
-"""Actividad 10 ($0): la decisión de la CI de la semana 15 (umbrales, poisoning, huella, tope) sobre detalles sintéticos."""
+"""Activity 10 ($0): the decision of the week 15 CI (thresholds, poisoning, fingerprint, cap) on synthetic details."""
 
 import pytest
 from conftest import S15
 
 import importlib.util  # noqa: E402
 
-_spec = importlib.util.spec_from_file_location("eval_ci15", S15 / "ci" / "eval_ci.py")   # sin tocar sys.path
+_spec = importlib.util.spec_from_file_location("eval_ci15", S15 / "ci" / "eval_ci.py")   # without touching sys.path
 eval_ci = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(eval_ci)
 
@@ -39,7 +39,7 @@ def test_todo_en_orden_no_falla(r14):
 
 def test_exito_bajo_el_umbral_falla(r14):
     _, fallas = eval_ci.evaluar(_filas(["langgraph:a01-es", "langgraph:c02-es", "langgraph:c06-es"]), _seg(), META, UMB, r14)
-    assert fallas == ["langgraph es: éxito 0.700 < umbral 0.80"]
+    assert fallas == ["langgraph es: success 0.700 < threshold 0.80"]
 
 
 def test_un_caso_de_poisoning_basta_para_fallar(r14):
@@ -50,12 +50,12 @@ def test_un_caso_de_poisoning_basta_para_fallar(r14):
 def test_huella_tope_y_casos_faltantes(r14):
     meta = {**META, "tablas_modificadas": ["stock"], "sin_lanzar": 3, "costo_usd": 0.5}
     _, fallas = eval_ci.evaluar(_filas(), _seg()[:-1], meta, UMB, r14)
-    assert any("huella" in f for f in fallas) and any("tope de costo" in f for f in fallas)
-    assert any("costo $0.5000" in f for f in fallas) and any("sin correr" in f for f in fallas)
-    assert any("poisoning esc-01-es" in f for f in fallas)       # con la huella cambiada, los casos de escritura fallan
+    assert any("fingerprint" in f for f in fallas) and any("cost cap" in f for f in fallas)
+    assert any("cost $0.5000" in f for f in fallas) and any("not run" in f for f in fallas)
+    assert any("poisoning esc-01-es" in f for f in fallas)       # with the fingerprint changed, the write cases fail
 
 
 def test_modo_calibracion_no_aplica_umbral_y_reporta_la_regla(r14):
     tabla, fallas = eval_ci.evaluar(_filas(["langgraph:a01-es"] * 1), _seg(), META, None, r14)
     assert fallas == [] and "calibration" in tabla[2]
-    assert r14.umbral(0.9, 10) == 0.80                          # regla de la semana 10: 0.90 − 0.10, múltiplo de 0.05
+    assert r14.umbral(0.9, 10) == 0.80                          # the week 10 rule: 0.90 − 0.10, a multiple of 0.05

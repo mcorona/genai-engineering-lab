@@ -1,5 +1,5 @@
-"""Actividad 3: transporte Streamable HTTP. Uvicorn real en 127.0.0.1 con el cliente HTTP del SDK y peticiones HTTP
-crudas (http.client) para los casos que un cliente correcto nunca manda. Sin API."""
+"""Activity 3: the Streamable HTTP transport. A real uvicorn on 127.0.0.1 with the SDK's HTTP client and raw HTTP
+requests (http.client) for the cases a correct client never sends. No API."""
 import asyncio
 import http.client
 import json
@@ -31,7 +31,7 @@ def http_srv(usuario="analista", conexion=None, limites_h=LimitesHerramientas(),
 
 
 def crudo(s, metodo="POST", cuerpo=None, headers=None, encabezados_mcp=True, chunks=None, ruta="/mcp"):
-    """Petición HTTP cruda; devuelve (estado, headers, cuerpo)."""
+    """A raw HTTP request; returns (status, headers, body)."""
     c = http.client.HTTPConnection(HOST, s.puerto, timeout=20)
     h = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
     if encabezados_mcp and isinstance(cuerpo, dict):
@@ -62,11 +62,11 @@ def con_url(url, fn):
     return asyncio.run(_c())
 
 
-# ---------- cliente HTTP del SDK ----------
+# ---------- the SDK's HTTP client ----------
 
 
 def _trazas(s, n=1, espera_s=2.0):
-    """La traza se escribe después de enviar la respuesta (incluye estado y bytes): se espera a que exista."""
+    """The trace is written after the response is sent (it includes status and bytes): wait until it exists."""
     fin = time.monotonic() + espera_s
     while len(s.trazas.ultimas) < n and time.monotonic() < fin:
         time.sleep(0.01)
@@ -97,7 +97,7 @@ def test_escucha_solo_en_loopback():
     assert "--host" not in (S14 / "servidor" / "__main__.py").read_text(encoding="utf-8")
 
 
-# ---------- Origin, Host y encabezados de método (A08, A11) ----------
+# ---------- Origin, Host and method headers (A08, A11) ----------
 
 def test_origin_hostil_403():
     with http_srv() as s:
@@ -133,13 +133,13 @@ def test_mcp_name_distinto_400():
     assert bien[0] == 200 and json.loads(bien[2])["result"]["isError"] is False
 
 
-# ---------- sin estado ----------
+# ---------- stateless ----------
 
 def test_sin_estado():
     with http_srv() as s:
         r1 = crudo(s, cuerpo=peticion("tools/list", 1))
         r2 = crudo(s, cuerpo=peticion("tools/call", 2, name="validar_sql", arguments={"sql": "SELECT 1"}))
-        # cliente de una versión con handshake: se le contesta sin crear sesión
+        # a client of a handshake version: it is answered without creating a session
         ini = crudo(s, cuerpo={"jsonrpc": "2.0", "id": 9, "method": "initialize", "params": {
             "protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "viejo", "version": "0"}}},
             encabezados_mcp=False, headers={"MCP-Protocol-Version": "2025-11-25"})
@@ -151,7 +151,7 @@ def test_sin_estado():
     assert get[0] == 405 and delete[0] == 405 and get[1]["allow"] == "POST"
 
 
-# ---------- límites (A13) ----------
+# ---------- limits (A13) ----------
 
 def test_cuerpo_excesivo_413():
     limites = LimitesHTTP(max_cuerpo_bytes=2048)
@@ -169,7 +169,7 @@ def test_cuerpo_excesivo_413():
 
 
 class Lenta(Herramientas):
-    """Herramientas reales con una demora y un contador de ejecuciones simultáneas."""
+    """Real tools with a delay and a counter of simultaneous executions."""
 
     def __init__(self, demora):
         super().__init__(Contexto.de_usuario("analista"))
@@ -233,7 +233,7 @@ def test_peticiones_en_curso_limitadas_503():
     assert sum(t["estado"] == 503 for t in trazas) == estados.count(503)
 
 
-# ---------- trazas JSONL ----------
+# ---------- JSONL traces ----------
 
 def test_trazas_jsonl(tmp_path):
     ruta = tmp_path / "trazas.jsonl"
@@ -259,11 +259,11 @@ def test_trazas_jsonl(tmp_path):
     assert lineas[-1]["resultado"] == "rechazado" and lineas[-1]["estado"] == 403
     assert all(x["sujeto"] == "vendedor" and x["protocolo"] in (PROTO, None) for x in lineas)
     assert all(isinstance(x["ms"], float) and x["ms"] >= 0 for x in lineas)
-    # nunca argumentos, resultados ni credenciales
+    # never arguments, results or credentials
     assert "VALOR-SECRETO-123" not in texto and "TOKEN-QUE-NO-SE-REGISTRA" not in texto and "prv_nm" not in texto
 
 
-# ---------- equivalencia HTTP = stdio = memoria ----------
+# ---------- equivalence HTTP = stdio = memory ----------
 
 def _stdio(usuario):
     return StdioServerParameters(command=sys.executable, args=["-m", "servidor", "--transporte", "stdio", "--usuario", usuario],
@@ -304,6 +304,6 @@ def test_equivalencia_http_stdio_sin_base(usuario, monkeypatch):
 
 
 def test_equivalencia_http_stdio_con_base(conexion):
-    # el proceso stdio hereda NLQ_LEGADO_DSN (lo fija conectar()), así usa el mismo rol copilot_nlq
+    # the stdio process inherits NLQ_LEGADO_DSN (set by conectar()), so it uses the same copilot_nlq role
     assert os.environ.get("NLQ_LEGADO_DSN")
     _equivalencia("analista", CASOS_CON_BASE, conexion)

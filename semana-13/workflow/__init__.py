@@ -1,1 +1,1 @@
-"""Semana 13: el asistente de semana 10 (workflow con ruteo fijo) sobre el golden set de tareas."""
+"""Week 13: the week 10 assistant (a workflow with fixed routing) over the task gold set."""

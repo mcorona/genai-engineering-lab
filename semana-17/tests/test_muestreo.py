@@ -55,10 +55,10 @@ def test_compose_monta_las_dos_capas_y_arrancar_sh_elige_una():
     assert "./muestreo.yaml:/etc/otelcol/muestreo.yaml:ro" in col["volumes"]
     assert "./sin_muestreo.yaml:/etc/otelcol/sin_muestreo.yaml:ro" in col["volumes"]
     assert "--muestreo" in ARRANCAR and "COLLECTOR_CAPA=muestreo" in ARRANCAR and "COLLECTOR_CAPA=sin_muestreo" in ARRANCAR
-    assert "solo se usa al arrancar o reiniciar" in ARRANCAR                        # --muestreo with --detener or --borrar is refused
+    assert "is only used when starting or restarting" in ARRANCAR                        # --muestreo with --detener or --borrar is refused
     p = subprocess.run(["bash", str(OBS / "arrancar.sh"), "--muestreo", "--detener"], capture_output=True, text=True,
                        env={**os.environ, "PATH": os.environ["PATH"]})
-    assert p.returncode == 2 and "solo se usa al arrancar o reiniciar" in p.stderr
+    assert p.returncode == 2 and "is only used when starting or restarting" in p.stderr
 
 
 # ---------- the real Collector ----------

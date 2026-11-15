@@ -1,4 +1,4 @@
-"""Sonda: qué audiencia emite Keycloak según dónde va `resource` (autorización, canje, refresh). Sin API ($0)."""
+"""A probe: which audience Keycloak issues depending on where `resource` goes (authorization, exchange, refresh). No API ($0)."""
 from pkce import RECURSO, autorizar, canjear, claims, password, refrescar
 
 def aud(t):

@@ -1,18 +1,18 @@
-"""Semana 14, actividad 5: el servidor MCP como resource server OAuth 2.1 con permisos mínimos.
+"""Week 14, activity 5: the MCP server as an OAuth 2.1 resource server with least privilege.
 
-Piezas:
-- `VerificadorJWT`: firma por JWKS del emisor (con caché y rotación por `kid`), algoritmo fijo RS256 (sin `none` ni
-  confusión HS/RS), `iss` y `aud` exactos, `exp` con margen, `sub` obligatorio y solo access tokens (`typ` Bearer).
-- `Autorizador`: lo usa la frontera HTTP antes del SDK. 401 si no hay token o no es válido, 403 `insufficient_scope`
-  si la operación pide scopes que el token no trae. Ambos con `WWW-Authenticate` que incluye `scope` y
-  `resource_metadata` (el SDK no agrega `scope`, brecha de la actividad 1). El scope se decide por el cuerpo validado.
-- `ContextoOAuth`: el Contexto de la semana 13 construido desde el token. Tablas, columnas y herramientas salen de los
-  scopes (`auth/permisos_oauth.json`); los argumentos del modelo nunca cambian el usuario ni los permisos.
-- `ConexionConRol` y `PoolConexiones`: cada consulta corre en una conexión propia del pool con `SET LOCAL ROLE` al rol
-  de PostgreSQL del perfil (`auth/roles_bd.sql`). Si el guard fallara, la base niega igual (defensa en profundidad).
-- `fabrica_oauth`: crea las herramientas de cada petición a partir del token que validó el SDK.
+Pieces:
+- `VerificadorJWT`: the signature via the issuer's JWKS (with caching and rotation by `kid`), a fixed RS256 algorithm (no `none` and
+  no HS/RS confusion), exact `iss` and `aud`, `exp` with leeway, a mandatory `sub`, and access tokens only (`typ` Bearer).
+- `Autorizador`: used by the HTTP boundary before the SDK. 401 if there is no token or it is invalid, 403 `insufficient_scope`
+  if the operation needs scopes the token does not carry. Both with a `WWW-Authenticate` that includes `scope` and
+  `resource_metadata` (the SDK does not add `scope`, a gap found in activity 1). The scope is decided from the validated body.
+- `ContextoOAuth`: the week 13 Contexto built from the token. Tables, columns and tools come from the
+  scopes (`auth/permisos_oauth.json`); the model's arguments never change the user or the permissions.
+- `ConexionConRol` and `PoolConexiones`: each query runs on its own pool connection with `SET LOCAL ROLE` to the profile's
+  PostgreSQL role (`auth/roles_bd.sql`). If the guard failed, the database would still deny it (defense in depth).
+- `fabrica_oauth`: creates each request's tools from the token the SDK validated.
 
-El token nunca sale del servidor: no se reenvía a la base ni a otro servicio, y no se registra en las trazas.
+The token never leaves the server: it is not forwarded to the database or to another service, and it is not recorded in the traces.
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ import jwt
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.auth.provider import AccessToken
 
-from .primitivas import PLANTILLAS, Herramientas  # primitivas agrega semana-13 a sys.path
+from .primitivas import PLANTILLAS, Herramientas  # primitivas adds semana-13 to sys.path
 
 from herramientas import Contexto  # noqa: E402
 from herramientas.herramientas import DICCIONARIO, TABLAS  # noqa: E402
@@ -42,7 +42,7 @@ TABLA_SCOPE = {t: s for s, ts in PERMISOS["tablas_por_scope"].items() for t in t
 _ESQUEMA = re.compile(r"^legado://esquema/([a-z0-9_]+)$")
 
 
-# ---------- permisos por scope ----------
+# ---------- permissions per scope ----------
 
 def scopes_de_tablas(tablas, columnas=()) -> set[str]:
     req = {TABLA_SCOPE[t] for t in tablas if t in TABLA_SCOPE}
@@ -52,7 +52,7 @@ def scopes_de_tablas(tablas, columnas=()) -> set[str]:
 
 
 def scopes_requeridos(metodo: str | None, nombre: str | None) -> set[str]:
-    """Scopes que pide una operación, calculados del cuerpo JSON-RPC (nunca del encabezado)."""
+    """The scopes an operation needs, computed from the JSON-RPC body (never from the header)."""
     req = {SCOPE_BASE}
     if metodo == "tools/call" and nombre in PERMISOS["herramientas"]:
         req |= set(PERMISOS["herramientas"][nombre])
@@ -73,14 +73,14 @@ def rol_bd(scopes) -> str | None:
 
 @dataclass
 class ContextoOAuth(Contexto):
-    """Contexto de la semana 13 cuyos permisos salen de los scopes del token."""
+    """A week 13 Contexto whose permissions come from the token's scopes."""
     scopes: frozenset = frozenset()
     cliente: str = ""
 
     @classmethod
     def de_token(cls, token: AccessToken, **kw) -> "ContextoOAuth":
         scopes = frozenset(token.scopes) & frozenset(SCOPES)
-        roles = [r for s, r in PERMISOS["roles_internos"].items() if s in scopes]  # solo para proponer_orden_compra
+        roles = [r for s, r in PERMISOS["roles_internos"].items() if s in scopes]  # only for proponer_orden_compra
         return cls(usuario=token.subject or token.client_id, roles=roles, scopes=scopes, cliente=token.client_id, **kw)
 
     def tablas(self) -> list[str]:
@@ -100,14 +100,14 @@ class ContextoOAuth(Contexto):
         return set(PERMISOS["herramientas"].get(nombre, [SCOPE_BASE])) <= self.scopes
 
 
-# ---------- validación del JWT ----------
+# ---------- JWT validation ----------
 
 class ErrorToken(Exception):
     pass
 
 
 class VerificadorJWT:
-    """TokenVerifier del SDK. `verificar` es síncrono (descarga el JWKS la primera vez); `verify_token` lo corre en un hilo."""
+    """The SDK's TokenVerifier. `verificar` is synchronous (it downloads the JWKS the first time); `verify_token` runs it in a thread."""
 
     def __init__(self, emisor: str, audiencia: str, jwks_uri: str, *, algoritmos=("RS256",), margen_s: int = 30,
                  cache_s: int = 300):
@@ -119,10 +119,10 @@ class VerificadorJWT:
             cabecera = jwt.get_unverified_header(token)
         except jwt.PyJWTError as e:
             raise ErrorToken(f"malformado: {e}") from None
-        if cabecera.get("alg") not in self.algoritmos:          # rechaza none, HS256 y cualquier otro antes de nada
+        if cabecera.get("alg") not in self.algoritmos:          # rejects none, HS256 and anything else before anything
             raise ErrorToken(f"algoritmo no permitido: {cabecera.get('alg')!r}")
         try:
-            clave = self.jwks.get_signing_key_from_jwt(token).key   # kid desconocido: refresca el JWKS una vez
+            clave = self.jwks.get_signing_key_from_jwt(token).key   # unknown kid: refresh the JWKS once
             c = jwt.decode(token, clave, algorithms=list(self.algoritmos), audience=self.audiencia, issuer=self.emisor,
                            leeway=self.margen_s, options={"require": ["exp", "iat", "iss", "aud", "sub"]})
         except jwt.PyJWTError as e:
@@ -145,11 +145,11 @@ class Rechazo:
     estado: int
     www_authenticate: str
     cuerpo: dict
-    motivo: str = ""          # solo para la traza del servidor; nunca se devuelve al cliente
+    motivo: str = ""          # only for the server's trace; never returned to the client
 
 
 class Autorizador:
-    """Decide 401/403 para POST /mcp antes de que el SDK procese la petición."""
+    """Decides 401/403 for POST /mcp before the SDK processes the request."""
 
     def __init__(self, verificador: VerificadorJWT, url_metadatos: str):
         self.verificador, self.url_metadatos = verificador, url_metadatos
@@ -178,7 +178,7 @@ class Autorizador:
         try:
             at = await anyio.to_thread.run_sync(self.verificador.verificar, token.strip())
         except ErrorToken as e:
-            # el motivo exacto no se devuelve al cliente (no se ayuda a fabricar tokens); queda como "invalid_token"
+            # the exact reason is not returned to the client (no help in forging tokens); it stays as "invalid_token"
             return None, Rechazo(401, self._desafio(req, "invalid_token", "The access token is invalid or expired"),
                                  {"error": "invalid_token", "error_description": "The access token is invalid or expired"},
                                  f"token_invalido: {e}"[:200])
@@ -190,10 +190,10 @@ class Autorizador:
         return at, None
 
 
-# ---------- base de datos: pool y rol por perfil ----------
+# ---------- database: a pool and a role per profile ----------
 
 class PoolConexiones:
-    """Conexiones propias por llamada (una conexión psycopg no se comparte entre transacciones concurrentes)."""
+    """Dedicated connections per call (a psycopg connection is not shared between concurrent transactions)."""
 
     def __init__(self, dsn: str, tamano: int = 4, espera_s: float = 10.0):
         self.dsn, self.tamano, self.espera_s = dsn, tamano, espera_s
@@ -244,8 +244,8 @@ class PoolConexiones:
 
 
 class ConexionConRol:
-    """Se comporta como la conexión que usa `Herramientas._correr` (transaction + execute), pero cada transacción toma una
-    conexión del pool y empieza con SET LOCAL ROLE al rol del perfil. Sin rol (sin legado:leer) no hay acceso a la base."""
+    """Behaves like the connection `Herramientas._correr` uses (transaction + execute), but each transaction takes a
+    connection from the pool and starts with SET LOCAL ROLE to the profile's role. Without a role (no legado:leer) there is no database access."""
 
     def __init__(self, pool: PoolConexiones, rol: str | None):
         self.pool, self.rol = pool, rol
@@ -272,13 +272,13 @@ class ConexionConRol:
 
 
 def fabrica_oauth(pool: PoolConexiones | None, idioma: str = "es", reglas_extra: list | None = None):
-    """Herramientas de la petición en curso, a partir del token que validó el middleware del SDK.
-    `reglas_extra` solo lo usa la eval de seguridad (documentos de reglas envenenados, actividad 6)."""
-    propuestas: dict[str, list] = defaultdict(list)   # por sujeto: las propuestas no se mezclan entre usuarios
+    """The tools of the request in flight, from the token the SDK middleware validated.
+    `reglas_extra` is only used by the security eval (poisoned rule documents, activity 6)."""
+    propuestas: dict[str, list] = defaultdict(list)   # per subject: proposals are not mixed between users
 
     def fabrica() -> Herramientas:
         token = get_access_token()
-        if token is None:   # no ocurre detrás de la frontera y del SDK; si ocurre, sin permisos
+        if token is None:   # does not happen behind the boundary and the SDK; if it does, no permissions
             token = AccessToken(token="", client_id="", scopes=[], subject="anonimo")
         rol = rol_bd(token.scopes) if SCOPE_BASE in token.scopes else None
         ctx = ContextoOAuth.de_token(token, conexion=ConexionConRol(pool, rol) if pool else None, idioma=idioma,
@@ -289,7 +289,7 @@ def fabrica_oauth(pool: PoolConexiones | None, idioma: str = "es", reglas_extra:
 
 
 def aplicar_roles_bd(admin_dsn: str) -> None:
-    """Crea o actualiza los roles por perfil (idempotente). Requiere que exista copilot_nlq (herramientas/conexion.py)."""
+    """Creates or updates the roles per profile (idempotent). Requires copilot_nlq to exist (herramientas/conexion.py)."""
     import psycopg
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
         conn.execute((Path(__file__).resolve().parents[1] / "auth" / "roles_bd.sql").read_text(encoding="utf-8"))
