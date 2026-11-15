@@ -146,11 +146,12 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # The loader's log group is created by Lambda on the first run; without this the boundary blocks it and
         # the function's errors are invisible. Scoped to the functions of the datos stack.
         _declaracion(sid="LogsDeLaLambdaDatos", actions=["logs:CreateLogGroup"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*",
-                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-ia*"]),
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*"]),
         _declaracion(sid="EscribirLogsDeLaLambdaDatos", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*",
-                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-ia*:*"]),
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*"]),
+        # The guardrail creator writes to its own group (/semana19/ia/*: the only prefix the base key lets logs encrypt).
+        _declaracion(sid="EscribirLogsDelCreadorDeGuardrail", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}ia/*:*"]),
         _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
                                                       "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
                                                       "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
@@ -181,7 +182,7 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="GruposDeLogs", actions=[
             "logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:PutRetentionPolicy", "logs:DeleteRetentionPolicy",
             "logs:AssociateKmsKey", "logs:DisassociateKmsKey", "logs:TagResource", "logs:UntagResource",
-            "logs:TagLogGroup"], resources=[grupos, f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-ia*"]),
+            "logs:TagLogGroup"], resources=[grupos]),
         _declaracion(sid="DescribirGruposDeLogs", actions=["logs:DescribeLogGroups"], resources=["*"]),
         _declaracion(sid="LeerRolFlowLogs", actions=["iam:GetRole", "iam:GetRolePolicy", "iam:ListRolePolicies",
                                                      "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
@@ -765,7 +766,7 @@ class Ia(Stack):
     def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         grupo = logs.LogGroup(
-            self, "LogsCreadorGuardrail", log_group_name="/aws/lambda/semana19-ia-creador-guardrail",
+            self, "LogsCreadorGuardrail", log_group_name=f"{PREFIJO_LOGS}ia/creador-guardrail",
             retention=logs.RetentionDays.ONE_WEEK, encryption_key=llave, removal_policy=RemovalPolicy.DESTROY)
         creador = lambda_.Function(
             self, "CreadorGuardrail", runtime=lambda_.Runtime.PYTHON_3_13, handler="handler.handler",
