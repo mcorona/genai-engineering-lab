@@ -32,5 +32,13 @@
     "in": 0.75,
     "out": 3.75,
     "fuente": "Google, https://ai.google.dev/gemini-api/docs/pricing (consultado 2026-10-22). Vigente hasta el 31 de diciembre de 2026; desde el 1 de enero de 2027 sube a 1.50 / 7.50."
+  },
+  "anthropic:claude-haiku-4-5-20251001": {
+    "in": 1.1,
+    "out": 5.5,
+    "in_prompt_mas_100k": 1.1,
+    "out_prompt_mas_100k": 5.5,
+    "umbral_prompt_tokens": 100000,
+    "fuente": "semana-19/costos/precios.json (haiku45_entrada_1m 1.1, haiku45_salida_1m 5.5; Price List API, Claude Haiku 4.5, consultado 2026-11-13, marca M). El tramo por encima de 100,000 tokens NO está verificado para Haiku 4.5: se usa el mismo precio como supuesto; las corridas del agente son muy inferiores a 100,000 tokens."
   }
 }
