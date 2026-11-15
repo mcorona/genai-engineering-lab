@@ -85,15 +85,22 @@ def test_describir_esquema_agrupa_columnas_por_tabla():
 
 def test_orden_de_compra_solo_inicia_la_maquina_y_no_escribe():
     inicios = []
-    res = H.proponer_orden_compra({"sku": "A1", "cantidad": 3, "proveedor_id": 7},
+    res = H.proponer_orden_compra({"sku": "SKU-0009", "cantidad": 3, "motivo": "stock bajo"},
                                   lambda entrada: inicios.append(entrada) or "sol-1")
     assert res == {"solicitud_id": "sol-1"}
-    assert len(inicios) == 1 and '"sku": "A1"' in inicios[0]
+    assert len(inicios) == 1 and '"sku": "SKU-0009"' in inicios[0]
 
 
-@pytest.mark.parametrize("entrada", [{"sku": "A1", "cantidad": 0, "proveedor_id": 7},
-                                     {"sku": "A1", "cantidad": "3", "proveedor_id": 7},
-                                     {"cantidad": 3, "proveedor_id": 7}])
+@pytest.mark.parametrize("entrada", [
+    {"sku": "SKU-0009", "cantidad": 0, "motivo": "x"},
+    {"sku": "SKU-0009", "cantidad": "3", "motivo": "x"},
+    {"sku": "SKU-0009", "cantidad": True, "motivo": "x"},
+    {"sku": "A1", "cantidad": 3, "motivo": "x"},
+    {"sku": "SKU-0009", "cantidad": 3, "motivo": ""},
+    {"sku": "SKU-0009", "cantidad": 3, "motivo": "x" * 201},
+    {"sku": "SKU-0009", "cantidad": 3},
+    {"sku": "SKU-0009", "cantidad": 3, "motivo": "x", "proveedor_id": 7},
+])
 def test_orden_invalida_se_rechaza_sin_iniciar(entrada):
     with pytest.raises(ToolError):
         H.proponer_orden_compra(entrada, lambda e: pytest.fail("no debe iniciar"))
