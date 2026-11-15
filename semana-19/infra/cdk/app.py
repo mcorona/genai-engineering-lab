@@ -741,13 +741,59 @@ class OmitirCheckovEnProveedorCdk:
             })
 
 
+def _definicion_guardrail() -> dict:
+    """The Guardrail definition (semana-19/guardrail/definicion.py), loaded from its file."""
+    import importlib.util
+    ruta = Path(__file__).resolve().parents[2] / "guardrail" / "definicion.py"
+    spec = importlib.util.spec_from_file_location("definicion_guardrail", ruta)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo.definicion_guardrail()
+
+
+def _pascal(valor):
+    """camelCase keys to the PascalCase used by AWS::Bedrock::Guardrail in CloudFormation (values untouched)."""
+    if isinstance(valor, dict):
+        return {k[:1].upper() + k[1:]: _pascal(v) for k, v in valor.items()}
+    if isinstance(valor, list):
+        return [_pascal(v) for v in valor]
+    return valor
+
+
+class Ia(Stack):
+    """Activity 5: the Guardrail semana19-legacybridge and one published version, encrypted with the base key.
+
+    The definition is data (semana-19/guardrail/definicion.py, tested against the CreateGuardrail model). The
+    resource is AWS::Bedrock::Guardrail, the same type as CfnGuardrail, given as properties so the definition
+    keeps one source of truth. The standard tier (content filters and topics) routes across Regions through
+    the US guardrail profile; the grounding policy stays on the classic tier.
+    """
+
+    def __init__(self, scope: Construct, id_: str, *, llave: kms.IKey, **kwargs) -> None:
+        super().__init__(scope, id_, **kwargs)
+        definicion = _definicion_guardrail()
+        propiedades = _pascal(definicion)
+        propiedades["Name"] = "semana19-legacybridge"
+        propiedades["KmsKeyArn"] = llave.key_arn
+        guardrail = cdk.CfnResource(self, "Guardrail", type="AWS::Bedrock::Guardrail", properties=propiedades)
+        version = bedrock.CfnGuardrailVersion(
+            self, "Version", guardrail_identifier=guardrail.get_att("GuardrailId").to_string(),
+            description="Versión publicada para la actividad 5 (lab)."
+        )
+        version.add_dependency(guardrail)
+        cdk.CfnOutput(self, "IdGuardrail", value=guardrail.get_att("GuardrailId").to_string())
+        cdk.CfnOutput(self, "VersionGuardrail", value=version.attr_version)
+
+
 def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
                 synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
     datos = Datos(app, "semana19-datos", red=base.red, llave=base.llave, env=cdk.Environment(region=REGION),
                   synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
-    for pila in (control, base, datos):
+    ia = Ia(app, "semana19-ia", llave=base.llave, env=cdk.Environment(region=REGION),
+            synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+    for pila in (control, base, datos, ia):
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())
         Aspects.of(pila).add(OmitirCheckovEnProveedorCdk())

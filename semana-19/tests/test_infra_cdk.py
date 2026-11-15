@@ -636,3 +636,21 @@ def test_desplegar_crea_datos_despues_de_la_base():
 def test_destruir_borra_datos_antes_que_la_red():
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     assert texto.index("cdk destroy semana19-datos") < texto.index("cdk destroy semana19-base --force")
+
+
+def test_stack_ia_guardrail_cifrado_con_la_llave_base_y_sin_roles():
+    # Activity 5: the Guardrail stack uses the base key, creates no IAM roles and publishes one version.
+    import json
+    import os
+    import subprocess
+    import tempfile
+    out = tempfile.mkdtemp(prefix="s19ia_")
+    env = dict(os.environ, CDK_OUTDIR=out)
+    subprocess.run([sys.executable, str(APP)], env=env, check=True, capture_output=True)
+    plantilla = json.loads((Path(out) / "semana19-ia.template.json").read_text(encoding="utf-8"))
+    tipos = [r["Type"] for r in plantilla["Resources"].values()]
+    assert tipos.count("AWS::Bedrock::Guardrail") == 1 and tipos.count("AWS::Bedrock::GuardrailVersion") == 1
+    assert not any(t.startswith("AWS::IAM::") for t in tipos)
+    guardrail = next(r for r in plantilla["Resources"].values() if r["Type"] == "AWS::Bedrock::Guardrail")
+    assert "KmsKeyArn" in guardrail["Properties"]
+    assert guardrail["Properties"]["CrossRegionConfig"] == {"GuardrailProfileIdentifier": "us.guardrail.v1:0"}

@@ -25,6 +25,9 @@ MENSAJE_BLOQUEADO_TEXTO = f"{MENSAJE_BLOQUEADO['es']} / {MENSAJE_BLOQUEADO['en']
 PATRON_RFC = r"\b[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}\b"
 # Connection strings (DSN) and cloud access keys.
 PATRON_DSN = r"\b(?:postgres(?:ql)?|mysql|redis|mongodb(?:\+srv)?)://[^\s'\"]+"
+# Guardrail profile for the US geography (routes to us-east-1, us-east-2, us-west-1, us-west-2), from the AWS docs
+# page "Guardrails cross-Region support" (read 2026-11-15).
+PERFIL_ENTRE_REGIONES_EE_UU = "us.guardrail.v1:0"
 PATRON_LLAVE_AWS = r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"
 
 
@@ -35,7 +38,9 @@ def definicion_guardrail(nombre: str = "legadobridge-s19") -> dict:
         "description": "Semana 19: capa de defensa en profundidad sobre la capa determinista de la semana 17.",
         "blockedInputMessaging": MENSAJE_BLOQUEADO_TEXTO,
         "blockedOutputsMessaging": MENSAJE_BLOQUEADO_TEXTO,
+        "crossRegionConfig": {"guardrailProfileIdentifier": PERFIL_ENTRE_REGIONES_EE_UU},
         "contentPolicyConfig": {
+            "tierConfig": {"tierName": "STANDARD"},  # GuardrailChecks (standard tier); needs cross-Region inference
             "filtersConfig": [
                 {"type": "SEXUAL", "inputStrength": "HIGH", "outputStrength": "HIGH",
                  "inputAction": "BLOCK", "outputAction": "BLOCK"},
@@ -52,6 +57,7 @@ def definicion_guardrail(nombre: str = "legadobridge-s19") -> dict:
             ],
         },
         "topicPolicyConfig": {
+            "tierConfig": {"tierName": "STANDARD"},
             "topicsConfig": [
                 {
                     "name": "escrituras-fuera-de-la-aprobacion",
@@ -88,6 +94,7 @@ def definicion_guardrail(nombre: str = "legadobridge-s19") -> dict:
             ],
         },
         "contextualGroundingPolicyConfig": {
+            "tierConfig": {"tierName": "CLASSIC"},  # kept on the classic tier: no cross-Region routing for grounding
             "filtersConfig": [
                 {"type": "GROUNDING", "threshold": 0.7},
                 {"type": "RELEVANCE", "threshold": 0.7},

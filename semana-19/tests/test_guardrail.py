@@ -81,3 +81,10 @@ def test_sin_cuenta_ni_correos_reales_en_la_definicion():
     texto = repr(D)
     assert not re.search(r"\b\d{12}\b", texto), "no account ids in the definition"
     assert "@" not in texto
+
+
+def test_tiers_y_perfil_entre_regiones_del_nivel_guardrailchecks():
+    assert D["contentPolicyConfig"]["tierConfig"] == {"tierName": "STANDARD"}
+    assert D["topicPolicyConfig"]["tierConfig"] == {"tierName": "STANDARD"}
+    assert D["contextualGroundingPolicyConfig"]["tierConfig"] == {"tierName": "CLASSIC"}
+    assert D["crossRegionConfig"] == {"guardrailProfileIdentifier": "us.guardrail.v1:0"}
