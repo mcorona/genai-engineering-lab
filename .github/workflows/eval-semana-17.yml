@@ -1,11 +1,11 @@
 name: eval-semana-17
 
-# Unit 17 (reliability: human-in-the-loop, guardrails, token budgets, trajectory evals and observability with
+# Week 17 (reliability: human-in-the-loop, guardrails, token budgets, trajectory evals and observability with
 # OpenTelemetry GenAI and Langfuse). Without the API ($0): every test in semana-17/tests (span schema, propagation,
 # redaction with the real Collector, budgets, guardrails, the HITL state machine, trajectory evaluators, dashboard) with the
-# CI database. An ephemeral unit 14 Keycloak with the approver roles (real tokens through PKCE). With the API (activity 10,
+# CI database. An ephemeral week 14 Keycloak with the approver roles (real tokens through PKCE). With the API (activity 10,
 # Haiku 5.5, cap per run): 10 tasks x ES/EN, 3 attacks, 1 HITL case and 1 exhausted-budget case, with the spans going
-# through the real Collector (file exporter). Thresholds calibrated with the unit 10 rule; security has no threshold.
+# through the real Collector (file exporter). Thresholds calibrated with the week 10 rule; security has no threshold.
 # Langfuse stays out of CI (its ClickHouse is heavy): the traces are reviewed in the OTLP file.
 on:
   pull_request:
@@ -78,7 +78,7 @@ jobs:
           echo "OTELCOL_BIN=/tmp/otelcol/otelcol-contrib" >> "$GITHUB_ENV"
       - name: Setup (no Docker)
         run: python semana-17/preparar/verificar_entorno.py --sin-docker
-      - name: Ephemeral unit 14 Keycloak (legacybridge realm, random passwords per job)
+      - name: Ephemeral week 14 Keycloak (legacybridge realm, random passwords per job)
         run: semana-14/auth/arrancar.sh
       - name: Tests without the API
         run: |

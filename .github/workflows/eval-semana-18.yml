@@ -1,6 +1,6 @@
 name: eval-semana-18
 
-# Unit 18 (LegacyBridge v1 and the close of Phase 4). Without the API ($0): the semana-18/tests tests with the CI database. The v1 mini
+# Week 18 (LegacyBridge v1 and the close of Phase 4). Without the API ($0): the semana-18/tests tests with the CI database. The v1 mini
 # eval with the API comes in activity 10.
 on:
   pull_request:

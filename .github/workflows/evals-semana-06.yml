@@ -1,7 +1,7 @@
 name: evals-semana-06
 
 # `regresion` is a required check, so every top-level path of the repository is listed: a PR that matched no path
-# would never receive the check and could not be merged. The prompt, unit and dependency paths are the ones the eval
+# would never receive the check and could not be merged. The prompt, week and dependency paths are the ones the eval
 # depends on; the rest only make sure the check always reports.
 on:
   pull_request:

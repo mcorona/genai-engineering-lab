@@ -1,10 +1,10 @@
 name: eval-semana-16
 
-# Unit 16. Without the API ($0): validate --strict on the marketplace and the plugin, tests of the hooks, the guard, the
+# Week 16. Without the API ($0): validate --strict on the marketplace and the plugin, tests of the hooks, the guard, the
 # read-only server, the in-house evaluator, packaging and a clean install, and the ground truth recomputed on the CI
 # database and compared with the frozen one. With the API (activity 10, Haiku 5.5, cap per run): `claude plugin eval` with
-# deterministic graders and the quality evaluator on 2 real audits (a read-only DSN; the unit 14 MCP server with a token
-# from an ephemeral Keycloak). Thresholds calibrated with the unit 10 rule; security has no threshold.
+# deterministic graders and the quality evaluator on 2 real audits (a read-only DSN; the week 14 MCP server with a token
+# from an ephemeral Keycloak). Thresholds calibrated with the week 10 rule; security has no threshold.
 on:
   pull_request:
     paths:
@@ -67,7 +67,7 @@ jobs:
         run: |
           claude plugin validate --strict .
           claude plugin validate --strict --profile directory semana-16/legacy-schema-audit
-      - name: Ephemeral unit 14 Keycloak (legacybridge realm, random passwords per job)
+      - name: Ephemeral week 14 Keycloak (legacybridge realm, random passwords per job)
         run: semana-14/auth/arrancar.sh
       - name: CI database (seed 42), legacy schema, notes and seeded risks
         run: |

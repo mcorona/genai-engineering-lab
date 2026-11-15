@@ -1,8 +1,8 @@
 name: eval-semana-15
 
-# Unit 15. Without the API: the common harness, the same agent in LangGraph and Strands (equivalence, limits, interruption),
+# Week 15. Without the API: the common harness, the same agent in LangGraph and Strands (equivalence, limits, interruption),
 # spikes, multi-agent and A2A, AgentCore (package, permissions and infrastructure, simulated) and the decision matrix.
-# With the API (activity 10): a mini eval of LangGraph and Strands against the unit 14 MCP server with OAuth from an
+# With the API (activity 10): a mini eval of LangGraph and Strands against the week 14 MCP server with OAuth from an
 # ephemeral Keycloak, plus one poisoning case per category; calibrated thresholds and a cap per run (semana-15/ci/eval_ci.py).
 on:
   pull_request:
@@ -48,7 +48,7 @@ jobs:
         run: pip install "psycopg[binary]==3.3.6" "pydantic==2.14.1" "sqlglot==30.26.0" "mcp==2.3.0" "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1" pytest
       - name: One virtual environment per framework (LangGraph, Strands, OpenAI Agents, ADK)
         run: semana-15/linea_base/preparar.sh
-      - name: Ephemeral unit 14 Keycloak (legacybridge realm, random passwords per job)
+      - name: Ephemeral week 14 Keycloak (legacybridge realm, random passwords per job)
         run: semana-14/auth/arrancar.sh
       - name: Prepare the CI database (synthetic data, seed 42) and the legacy schema
         run: |

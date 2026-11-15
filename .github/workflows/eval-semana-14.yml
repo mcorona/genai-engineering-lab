@@ -1,6 +1,6 @@
 name: eval-semana-14
 
-# Unit 14. Without the API: the SDK baseline, the threat matrix, primitives, HTTP transport, Keycloak (activity 4),
+# Week 14. Without the API: the SDK baseline, the threat matrix, primitives, HTTP transport, Keycloak (activity 4),
 # OAuth and negative auth (activity 5), the secure client and poisoning defenses (activity 6), against Postgres and an
 # ephemeral Keycloak per job. With the API (activity 8): an agent mini eval against the remote MCP server with OAuth,
 # Haiku 5.5 low, with a cost cap per run (semana-14/ci/eval_ci.py).
