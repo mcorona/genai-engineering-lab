@@ -176,9 +176,9 @@ def main():
     rnd = random.Random(11)
     for lang in ("es", "en"):
         muestra += rnd.sample([x for x in salida[lang] if x["respondible"]], 10)
-    lineas = ["# Revisión manual de referencias (muestra de 20, semilla 11)", "",
-              "Criterio: la referencia responde la pregunta, usa solo el pasaje y no agrega ni cambia datos.", "",
-              "| # | Id | Idioma | Pregunta | Pasaje o respuesta exacta | Referencia | Veredicto |", "|---|---|---|---|---|---|---|"]
+    lineas = ["# Manual review of references (sample of 20, seed 11)", "",
+              "Criterion: the reference answers the question, uses only the passage and adds or changes no data.", "",
+              "| # | Id | Language | Question | Passage or exact answer | Reference | Verdict |", "|---|---|---|---|---|---|---|"]
     for n, x in enumerate(muestra, 1):
         pas = " / ".join(g["passage"] for g in x["gold"]).replace("|", "\\|").replace("\n", " ")
         lineas.append(f"| {n} | {x['id']} | {x['lang']} | {x['question']} | {pas} | {x['referencia'].replace('|', '/')} | |")
