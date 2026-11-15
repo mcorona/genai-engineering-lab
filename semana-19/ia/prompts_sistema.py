@@ -1,7 +1,7 @@
 """Week 19, activity 5: the agent's system prompt as Prompt Management content (ES and EN).
 
 The English text is the week 13 system prompt (agente/loop.py SISTEMA) with the company as a variable. The Spanish
-text is a translation of it, to be reviewed by a native speaker before the agent uses it. Variable: nombre_empresa.
+text is a translation of it, reviewed and approved by a native speaker (activity 5). Variable: nombre_empresa.
 """
 from __future__ import annotations
 
