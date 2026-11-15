@@ -1,0 +1,75 @@
+{
+  "kb": "8KWRSMHEDW",
+  "k": 5,
+  "casos": 5,
+  "aciertos": 5,
+  "recall@5": 1.0,
+  "detalle": [
+    {
+      "pregunta": "¿Qué país se guarda para un proveedor, en qué código?",
+      "esperado": "legado_prvmst.md",
+      "top5": [
+        "legado_prvmst.md",
+        "legado_ocpcab.md",
+        "legado_almmst.md",
+        "legado_exidet.md",
+        "legado_artmst.md"
+      ],
+      "acierto": true
+    },
+    {
+      "pregunta": "¿Qué significa la existencia física exi_qty por artículo y almacén?",
+      "esperado": "legado_exidet.md",
+      "top5": [
+        "legado_exidet.md",
+        "legado_almmst.md",
+        "legado_artmst.md",
+        "legado_vtadia.md",
+        "legado_ocpcab.md"
+      ],
+      "acierto": true
+    },
+    {
+      "pregunta": "¿Qué guarda la columna alm_cdd del maestro de almacenes?",
+      "esperado": "legado_almmst.md",
+      "top5": [
+        "legado_almmst.md",
+        "legado_exidet.md",
+        "legado_artmst.md",
+        "legado_prvmst.md",
+        "legado_ocpcab.md"
+      ],
+      "acierto": true
+    },
+    {
+      "pregunta": "¿Qué representa vta_und en las ventas diarias?",
+      "esperado": "legado_vtadia.md",
+      "top5": [
+        "legado_vtadia.md",
+        "legado_artmst.md",
+        "legado_exidet.md",
+        "legado_ocpcab.md",
+        "legado_prvmst.md"
+      ],
+      "acierto": true
+    },
+    {
+      "pregunta": "¿Qué es la columna ocp_qty en las órdenes de compra?",
+      "esperado": "legado_ocpcab.md",
+      "top5": [
+        "legado_ocpcab.md",
+        "legado_artmst.md",
+        "legado_exidet.md",
+        "legado_prvmst.md",
+        "legado_vtadia.md"
+      ],
+      "acierto": true
+    }
+  ],
+  "recall@1": 1.0,
+  "nota": "6 documents in the KB, so top-5 is easy: recall@1 is reported as the stricter check. Measured on the KB of the 2026-11-15 deployment (8KWRSMHEDW).",
+  "tenant_leakage": {
+    "estado": "N",
+    "motivo": "El lab no usa tenants: los documentos son docs/legado_<vista>.md sin metadatos de tenant (la prueba de la semana 12 aplica a sus tenants)."
+  }
+}

@@ -616,13 +616,16 @@ def test_base_de_datos_cifrada_privada_sin_acceso_publico_con_iam(perfil):
 
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_postgres_solo_desde_el_cargador(perfil):
-    # Only the loader security group may reach 5432; no CIDR rule on the database.
+    # Ingress is only from the loader security group: 5432 to the database, 443 to the Secrets Manager endpoint.
     pl = sintetizar(perfil)["plantillas"][DATOS]
-    ingresos = recursos(pl, "AWS::EC2::SecurityGroupIngress")
-    assert len(ingresos) == 1
-    r = next(iter(ingresos.values()))["Properties"]
-    assert r["FromPort"] == 5432 and r["ToPort"] == 5432
-    assert "CidrIp" not in r and "SourceSecurityGroupId" in r
+    ingresos = [r["Properties"] for r in recursos(pl, "AWS::EC2::SecurityGroupIngress").values()]
+    assert ingresos, "sin reglas de entrada"
+    for r in ingresos:
+        assert "CidrIp" not in r and "SourceSecurityGroupId" in r
+    bd = [r for r in ingresos if r["FromPort"] == 5432]
+    assert len(bd) == 1
+    assert "KmsKeyId" not in json.dumps(bd)
+
 
 
 def test_desplegar_crea_datos_despues_de_la_base():

@@ -142,20 +142,22 @@ ARN_DESPLIEGUE="$(aws cloudformation describe-stacks --stack-name semana19-contr
   --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='ArnDespliegue'].OutputValue" --output text)"
 ARN_EJECUCION="$(aws cloudformation describe-stacks --stack-name semana19-control --region "$REGION" \
   --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='ArnEjecucionCfn'].OutputValue" --output text)"
+ARN_EJECUCION_DATOS="$(aws cloudformation describe-stacks --stack-name semana19-control --region "$REGION" \
+  --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='ArnEjecucionCfnDatos'].OutputValue" --output text)"
 
-if ! existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then
-  inicio=$(date +%s)
-  echo "== Paso 2: bootstrap s19 (confía solo en $ARN_DESPLIEGUE)"
-  cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 \
-    --toolkit-stack-name semana19-cdktoolkit \
-    --cloudformation-execution-policies "$ARN_EJECUCION" \
-    --trust "$ARN_DESPLIEGUE"
-  registrar "bootstrap" $(( $(date +%s) - inicio ))
-  echo "== Paso 2b: congelación también de los roles cdk-s19-* (BootstrapCreado=true)"
-  desplegar_control "true"
+# The bootstrap is applied on every run: it is idempotent and keeps the execution role's policy list current
+# (the two policies: semana19-cfn-exec for base and control, semana19-cfn-exec-datos for datos).
+inicio=$(date +%s)
+if existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then
+  echo "== Paso 2: bootstrap s19 (actualiza la lista de políticas del rol de ejecución)"
 else
-  echo "== Paso 2: bootstrap s19 ya existe; no se toca"
+  echo "== Paso 2: bootstrap s19 (crea; confía solo en $ARN_DESPLIEGUE)"
 fi
+cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 \
+  --toolkit-stack-name semana19-cdktoolkit \
+  --cloudformation-execution-policies "$ARN_EJECUCION,$ARN_EJECUCION_DATOS" \
+  --trust "$ARN_DESPLIEGUE"
+registrar "bootstrap" $(( $(date +%s) - inicio ))
 
 inicio=$(date +%s)
 echo "== Paso 3: semana19-base (CREATE_COMPLETE medido)"
@@ -168,5 +170,33 @@ echo "== Paso 4: semana19-datos (base PostgreSQL, actividad 4)"
 cdk deploy semana19-datos --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION" \
   --toolkit-stack-name semana19-cdktoolkit --require-approval never
 registrar "datos" $(( $(date +%s) - inicio ))
+
+# Step 5 (--si only): the loader puts the seed and the dictionary documents in place, then the knowledge base
+# ingestion job runs on them. The ingestion job is not a CloudFormation resource, so it is started here by API.
+inicio=$(date +%s)
+echo "== Paso 5: cargar la base y lanzar la ingesta de la KB (fuera de CloudFormation)"
+SALIDAS_DATOS="$(aws cloudformation describe-stacks --stack-name semana19-datos --region "$REGION" \
+  --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs" --output json)"
+EVENTO_CARGA="$(printf '%s' "$SALIDAS_DATOS" | "$PYTHON_CDK" -c 'import json,sys
+o={x["OutputKey"]:x["OutputValue"] for x in json.load(sys.stdin)}
+print(json.dumps({"secret_arn":o["ArnSecretoBd"],"db_host":o["HostBd"],"docs_bucket":o["BucketDocsKb"]}))')"
+NOMBRE_CARGADOR="$(printf '%s' "$SALIDAS_DATOS" | "$PYTHON_CDK" -c 'import json,sys
+print({x["OutputKey"]:x["OutputValue"] for x in json.load(sys.stdin)}["NombreCargador"])')"
+KB_ID="$(printf '%s' "$SALIDAS_DATOS" | "$PYTHON_CDK" -c 'import json,sys
+print({x["OutputKey"]:x["OutputValue"] for x in json.load(sys.stdin)}["KbId"])')"
+FUENTE_ID="$(printf '%s' "$SALIDAS_DATOS" | "$PYTHON_CDK" -c 'import json,sys
+print({x["OutputKey"]:x["OutputValue"] for x in json.load(sys.stdin)}["DataSourceId"])')"
+SALIDA_CARGA="$(mktemp "${TMPDIR:-/tmp}/cargador.XXXXXX")"
+ERROR_FUNCION="$(aws lambda invoke --function-name "$NOMBRE_CARGADOR" --region "$REGION" --profile "$PERFIL_ADMIN" \
+  --cli-binary-format raw-in-base64-out --payload "$EVENTO_CARGA" --query FunctionError --output text "$SALIDA_CARGA")"
+if [[ "$ERROR_FUNCION" != "None" ]]; then
+  echo "El cargador falló; no se lanza la ingesta. Salida:" >&2; cat "$SALIDA_CARGA" >&2; exit 1
+fi
+cat "$SALIDA_CARGA"; echo
+rm -f "$SALIDA_CARGA"
+TRABAJO_INGESTA="$(aws bedrock-agent start-ingestion-job --knowledge-base-id "$KB_ID" --data-source-id "$FUENTE_ID" \
+  --region "$REGION" --profile "$PERFIL_ADMIN" --query "ingestionJob.ingestionJobId" --output text)"
+echo "Ingesta lanzada: $TRABAJO_INGESTA (estado: consultar con aws bedrock-agent get-ingestion-job)"
+registrar "cargar-e-ingerir" $(( $(date +%s) - inicio ))
 
 echo "== Listo. Verifica con el inventario (solo lectura) antes de la siguiente sesión."

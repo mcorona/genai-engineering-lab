@@ -356,7 +356,6 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - **Tests:**
   - the loader is idempotent;
   - `copilot_ro` cannot write (an `INSERT` fails);
-  - the agent role cannot connect as the writer;
   - a `Retrieve` for 5 column-meaning questions returns the right document (recall@5 measured);
   - no tenant leakage on the week 12 style filter, if tenants are used.
 - **AIP-C01:** D1 (Knowledge Base sobre S3 Vectors, recuperación) y D3 (RDS con autenticación IAM, rol de solo lectura)
@@ -417,6 +416,8 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 
   Activity 8 uses them through the OAuth flow the pool supports. Self-sign-up is off.
 - **Tests:**
+  - (moved from activity 4) the agent role cannot connect as the writer: an IAM simulation of the agent role's
+    `rds-db:connect` against the `order_writer` user must be denied;
   - handlers with stubbed Bedrock and moto;
   - an `analista` token cannot approve;
   - an expired approval does not write;
@@ -563,3 +564,22 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - Pendiente sin cerrar: RDS Multi-AZ (N, prod queda parcial) y Step Functions (D, sin código de servicio en el Price List).
 - 2026-11-13: **Manuel autoriza la estimación de la actividad 3**: stack base en lab = 0.02273973 USD por hora (KMS 2 llaves + 2 endpoints de interfaz en 1 AZ + presupuesto de 0.00 USD). Sesión de N horas = 0.02273973 × N USD. Cierre de la actividad 2.
 - 2026-11-13: **actividad 3 (fundación): código y pruebas sin AWS.** Dos stacks por perfil: `semana19-control` (presupuesto $5, acción al 100 %, anomalías, rol de despliegue, límite, congelación, política de ejecución de CDK) y `semana19-base` (llave KMS, VPC sin internet ni NAT, endpoints del ADR 0005 con 1 AZ en lab y 3 en prod, flow logs). Bootstrap `semana19-cdktoolkit` con qualifier `s19`. Pruebas: 54 de infraestructura + 11 de scripts; cdk-nag sin incumplimientos; checkov sin fallos. **Sin despliegue real:** pendiente tu OK del diff, tu cuenta de correo en `ALERTA_EMAIL`, activar la etiqueta de costo `proyecto` y el perfil que asume `semana19-despliegue`. Brecha documentada: la congelación no alcanza a los roles `cdk-s19-*` (ver `resultados/base.md`). Cost Anomaly Detection: precio N (no está en el Price List ni confirmado en la página oficial). Flow logs: 0.50 USD/GB (M), volumen N.
+- 2026-11-15: **Activity 1 (baseline).** Read-only inventory runs with the read-only role once `semana19-lectura`
+  gets its source profile from `manuel-admin` (the operator role lacks `sts:AssumeRole` on it; the role's trust
+  already names the account). Result: no errors; the lab items present are the ones kept on purpose (base,
+  bootstrap, control) plus the datos stack still deleting at that moment.
+- 2026-11-15: **Activity 2 (architecture).** Documented deviation: the knowledge base ingestion job is not a
+  CloudFormation resource, so `desplegar.sh` step 5 loads the database and starts the ingestion by API after
+  the documents are uploaded.
+- 2026-11-15: **Activity 3 (foundation).** Interface endpoints accept HTTPS only from Lambda security groups:
+  the endpoints in the base (Logs, Step Functions) accept 443 from the tools Lambda group; the Secrets Manager
+  endpoint in datos accepts 443 from the loader group. Cost Explorer for 2026-11-13: -0.0000000023 USD (estimated
+  by the API, account total). Key rotation enabled; flow log group encrypted with the key, 1-day retention.
+- 2026-11-15: **Activity 4 (data).** Permissions check: `copilot_ro` reads `legado.prvmst` (12 rows) and its INSERT
+  into `legado.artnot` is denied (SQLSTATE 42501), inside a rolled-back transaction. Idempotency: second loader run
+  reports no schema creation and the same row counts. Recall@5 and recall@1 on the 2026-11-15 knowledge base: 5/5.
+  Tenant leakage: not applicable (the lab has no tenants). The agent-role connection test moved to activity 6.
+  RDS: single AZ, encrypted with the base key, no public access, IAM authentication, one-day backups, deletion
+  protection off (lab only).
+- 2026-11-15: **CI.** The live loader test is marked `vivo` and deselected in CI; the CI still fails on any
+  skipped test.

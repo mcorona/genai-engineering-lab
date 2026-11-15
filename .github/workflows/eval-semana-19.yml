@@ -42,7 +42,7 @@ jobs:
       - name: Pruebas sin AWS
         run: |
           set -o pipefail
-          python -m pytest -q semana-19/tests -p no:cacheprovider -rs --ignore=semana-19/tests/test_infra_cdk.py | tee "$RUNNER_TEMP/pytest.txt"
+          python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --ignore=semana-19/tests/test_infra_cdk.py | tee "$RUNNER_TEMP/pytest.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
 
   spike-iac:
