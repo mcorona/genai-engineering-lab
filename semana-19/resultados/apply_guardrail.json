@@ -1,6 +1,6 @@
 {
   "guardrail": "teps1un80k04",
-  "version": "1",
+  "version": "3",
   "resultados": [
     {
       "tipo": "golden",
@@ -9,7 +9,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 430,
+            "guardrailProcessingLatency": 406,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -30,7 +30,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -58,7 +58,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 355,
+            "guardrailProcessingLatency": 433,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -79,7 +79,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -107,7 +107,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 636,
+            "guardrailProcessingLatency": 497,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -128,7 +128,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -156,7 +156,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 338,
+            "guardrailProcessingLatency": 443,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -177,7 +177,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -201,21 +201,11 @@
     {
       "tipo": "golden",
       "id": "s05-es",
-      "accion": "GUARDRAIL_INTERVENED",
+      "accion": "NONE",
       "evaluacion": [
         {
-          "topicPolicy": {
-            "topics": [
-              {
-                "name": "escrituras-fuera-de-la-aprobacion",
-                "type": "DENY",
-                "action": "BLOCKED",
-                "detected": true
-              }
-            ]
-          },
           "invocationMetrics": {
-            "guardrailProcessingLatency": 359,
+            "guardrailProcessingLatency": 567,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -236,7 +226,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -264,7 +254,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 346,
+            "guardrailProcessingLatency": 334,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -285,7 +275,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -313,7 +303,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 420,
+            "guardrailProcessingLatency": 363,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -334,7 +324,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -362,7 +352,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 359,
+            "guardrailProcessingLatency": 455,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -383,7 +373,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -411,7 +401,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 370,
+            "guardrailProcessingLatency": 356,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -432,7 +422,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -460,7 +450,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 360,
+            "guardrailProcessingLatency": 382,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -481,7 +471,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -509,7 +499,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 573,
+            "guardrailProcessingLatency": 344,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -530,7 +520,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -558,7 +548,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 342,
+            "guardrailProcessingLatency": 354,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -579,7 +569,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -607,7 +597,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 422,
+            "guardrailProcessingLatency": 481,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -628,7 +618,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -656,7 +646,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 1002,
+            "guardrailProcessingLatency": 406,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -677,7 +667,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -705,7 +695,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 400,
+            "guardrailProcessingLatency": 464,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -726,7 +716,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -754,7 +744,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 373,
+            "guardrailProcessingLatency": 379,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -775,7 +765,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -803,7 +793,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 348,
+            "guardrailProcessingLatency": 479,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -824,7 +814,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -852,7 +842,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 402,
+            "guardrailProcessingLatency": 407,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -873,7 +863,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -901,7 +891,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 373,
+            "guardrailProcessingLatency": 386,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -922,7 +912,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -950,7 +940,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 377,
+            "guardrailProcessingLatency": 431,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -971,7 +961,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -999,7 +989,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 355,
+            "guardrailProcessingLatency": 820,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -1020,7 +1010,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -1048,7 +1038,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 351,
+            "guardrailProcessingLatency": 701,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -1069,7 +1059,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -1097,7 +1087,7 @@
       "evaluacion": [
         {
           "invocationMetrics": {
-            "guardrailProcessingLatency": 356,
+            "guardrailProcessingLatency": 363,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -1118,7 +1108,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
@@ -1145,6 +1135,16 @@
       "accion": "GUARDRAIL_INTERVENED",
       "evaluacion": [
         {
+          "topicPolicy": {
+            "topics": [
+              {
+                "name": "escrituras-fuera-de-la-aprobacion",
+                "type": "DENY",
+                "action": "BLOCKED",
+                "detected": true
+              }
+            ]
+          },
           "contentPolicy": {
             "filters": [
               {
@@ -1157,7 +1157,7 @@
             ]
           },
           "invocationMetrics": {
-            "guardrailProcessingLatency": 463,
+            "guardrailProcessingLatency": 435,
             "usage": {
               "topicPolicyUnits": 1,
               "contentPolicyUnits": 1,
@@ -1178,7 +1178,7 @@
           },
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
-            "guardrailVersion": "1",
+            "guardrailVersion": "3",
             "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"

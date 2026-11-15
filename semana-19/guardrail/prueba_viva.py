@@ -17,7 +17,7 @@ from pathlib import Path
 LAB = Path(__file__).resolve().parents[1]          # semana-19
 REPO = Path(__file__).resolve().parents[2]         # repository root (semana-13 and semana-14 live here)
 GUARDRAIL_ID = "teps1un80k04"                       # from the stack output IdGuardrail
-VERSION = "1"                                       # from the stack output VersionGuardrail
+VERSION = "3"                                       # from the stack output VersionGuardrail
 PERFIL = "manuel-admin"
 REGION = "us-east-1"
 TOPE_USD = 5.0
