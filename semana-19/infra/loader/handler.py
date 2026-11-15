@@ -157,11 +157,47 @@ def subir_documentos(bucket: str) -> int:
     return len(docs)
 
 
+def _codigo_sql(error: Exception) -> str:
+    """SQLSTATE of a server error (pg8000 keeps the fields in args[0]); '?' when unknown."""
+    try:
+        return str(error.args[0].get("C", "?"))
+    except (AttributeError, IndexError, TypeError):
+        return "?"
+
+
+def _pruebas_permisos(con: pg.Connection) -> dict:
+    """Live check of copilot_ro's privileges (activity 4). The master user switches to copilot_ro inside a
+    transaction that is always rolled back. Limit: SET ROLE does not apply the ALTER ROLE defaults, so the denial
+    below comes from privileges, not from default_transaction_read_only (the login path is not exercised here)."""
+    resultado: dict = {"modo": "pruebas_permisos"}
+    con.run("GRANT copilot_ro TO CURRENT_USER")  # SET ROLE needs membership; revoked below
+    try:
+        con.run("BEGIN")
+        try:
+            con.run("SET LOCAL ROLE copilot_ro")
+            resultado["select_legado_prvmst"] = con.run("SELECT count(*) FROM legado.prvmst")[0][0]
+            try:
+                con.run("INSERT INTO legado.artnot (not_id, not_art, not_txt, not_fch) "
+                        "VALUES (999999, 'X', 'x', '2026-01-01')")
+                resultado["insert_legado_artnot"] = "PERMITIDO"
+            except Exception as error:  # noqa: BLE001 - any refusal counts as a denial
+                resultado["insert_legado_artnot"] = "DENEGADO"
+                resultado["sqlstate"] = _codigo_sql(error)
+        finally:
+            con.run("ROLLBACK")
+    finally:
+        con.run("REVOKE copilot_ro FROM CURRENT_USER")
+    _paso("pruebas de permisos terminadas")
+    return resultado
+
+
 def handler(event, context):
     """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config."""
     secreto = _secreto(event["secret_arn"])
     con = _conectar(event["db_host"], secreto["username"], secreto["password"])
     try:
+        if event.get("modo") == "pruebas_permisos":
+            return _pruebas_permisos(con)
         resumen = {"esquema_creado": False}
         _paso("conectado; revisando esquema")
         if not _existe_esquema_copilot(con):

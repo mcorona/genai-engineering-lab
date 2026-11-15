@@ -145,3 +145,35 @@ def test_scramp_vendorizado_tiene_make_channel_binding():
     import scramp
     assert hasattr(scramp, "make_channel_binding")
     assert scramp.__file__.startswith(str(CARGADOR / "vendor"))
+
+
+def test_pruebas_permisos_marca_denegado_y_siempre_hace_rollback_y_revoca():
+    llamadas = []
+
+    class Error(Exception):
+        args = ({"C": "42501", "M": "permission denied"},)
+
+    class Fake:
+        def run(self, sql, **kw):
+            llamadas.append(sql)
+            if sql.startswith("INSERT"):
+                raise Error()
+            if sql.startswith("SELECT count"):
+                return [[12]]
+            return []
+
+    resultado = H._pruebas_permisos(Fake())
+    assert resultado["insert_legado_artnot"] == "DENEGADO"
+    assert resultado["sqlstate"] == "42501"
+    assert resultado["select_legado_prvmst"] == 12
+    assert llamadas[0] == "GRANT copilot_ro TO CURRENT_USER"
+    assert "ROLLBACK" in llamadas
+    assert llamadas[-1] == "REVOKE copilot_ro FROM CURRENT_USER"
+
+
+def test_pruebas_permisos_marca_permitido_si_el_insert_funciona():
+    class Fake:
+        def run(self, sql, **kw):
+            return [[12]] if sql.startswith("SELECT count") else []
+
+    assert H._pruebas_permisos(Fake())["insert_legado_artnot"] == "PERMITIDO"
