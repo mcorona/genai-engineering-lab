@@ -51,6 +51,7 @@ inventario() {
 
 if [[ "$MODO" == "simulacion" ]]; then
   echo "== Simulación. No se llamó a AWS."
+  echo "0b) cdk destroy semana19-ia              (Guardrail y prompts; antes que la red porque importa la llave)"
   echo "1) cdk destroy semana19-base            (perfil de despliegue; borrar sigue permitido con la congelación)"
   echo "2) vaciar el bucket y el ECR del bootstrap  (vaciar_bootstrap.py --si, perfil admin)"
   echo "3) aws cloudformation delete-stack semana19-cdktoolkit  (perfil admin; programa el borrado de la llave del bootstrap)"
@@ -85,6 +86,14 @@ else
 fi
 ESTADO_BASE="$(aws cloudformation describe-stacks --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
   --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo NO_EXISTE)"
+# Paso 0b: the guardrail stack (activity 5) imports the base key, so it goes before the base.
+if existe_stack semana19-ia; then
+  echo "== Paso 0b: cdk destroy semana19-ia (Guardrail y prompts, actividad 5) antes que la red"
+  cdk destroy semana19-ia --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
+else
+  echo "== Paso 0b: semana19-ia no existe"
+fi
+
 if [[ "$ESTADO_BASE" == "DELETE_FAILED" ]]; then
   # Known case (2026-11-13): the custom resource that restricts the default SG cannot be deleted, because its Lambda
   # role has no Authorize* rights under the permissions boundary. It is an AWS-less CloudFormation resource: retaining

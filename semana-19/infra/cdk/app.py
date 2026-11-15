@@ -116,6 +116,17 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=["*"]),
         _declaracion(sid="CdkAssumeRoles", actions=["sts:AssumeRole"],
                      resources=[arn_iam(f"role/{PREFIJO_ROLES_CDK}*")]),
+        # Key use by the guardrail creator, only when the call comes through Bedrock in this Region (kms:ViaService).
+        _declaracion(sid="KmsParaBedrockDelLimite", actions=[
+            "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey", "kms:CreateGrant"],
+            resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+            conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
+        # Ceiling for the guardrail creator's role (stack semana19-ia): Guardrail actions only, in this account and Region.
+        _declaracion(sid="GuardrailDelLimite", actions=[
+            "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:GetGuardrail",
+            "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
+                       f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/us.guardrail.v1:0"]),
         _declaracion(sid="CloudFormationLeer", actions=["cloudformation:Describe*", "cloudformation:Get*",
                                                         "cloudformation:List*"], resources=["*"]),
         _declaracion(sid="AdjuntarPoliticasAlRolDeDespliegue", actions=["iam:AttachRolePolicy", "iam:DetachRolePolicy"],
@@ -149,6 +160,9 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*"]),
         _declaracion(sid="EscribirLogsDeLaLambdaDatos", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
                      resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*"]),
+        # The guardrail creator writes to its own group (/semana19/ia/*: the only prefix the base key lets logs encrypt).
+        _declaracion(sid="EscribirLogsDelCreadorDeGuardrail", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}ia/*:*"]),
         _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
                                                       "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
                                                       "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
@@ -192,12 +206,32 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolDelCustomResourceDelProyecto", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-base-CustomVpcRestrictDefaultSGCustomResou*")],
                      conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
+        # Prompt Management for the agent's system prompt (stack semana19-ia): create, version and read prompts of this account.
+        _declaracion(sid="PromptsDelAgentePorCfn", actions=[
+            "bedrock:CreatePrompt", "bedrock:CreatePromptVersion", "bedrock:GetPrompt", "bedrock:UpdatePrompt",
+            "bedrock:DeletePrompt", "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:prompt/*"]),
+        _declaracion(sid="LlaveDeLosPromptsPorCfn", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
+                                                             "kms:DescribeKey", "kms:CreateGrant"],
+                     resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+                     conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
+        # The guardrail creator's function runs with its role (stack semana19-ia): CloudFormation passes it to Lambda.
+        _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-ia-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
         _declaracion(sid="PoliticasYAdjuntosDeRolesDelBase", actions=[
             "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
             "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
             resources=[arn_iam("role/semana19-base-*")]),
         _declaracion(sid="BorrarRolesDelBase", actions=["iam:DeleteRole"],
                      resources=[arn_iam("role/semana19-base-*")]),
+        # The guardrail creator's role (stack semana19-ia): its inline policies and deletion, same shape as the base.
+        _declaracion(sid="PoliticasYAdjuntosDelRolDeIa", actions=[
+            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
+            resources=[arn_iam("role/semana19-ia-*")]),
+        _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
+                     resources=[arn_iam("role/semana19-ia-*")]),
         _declaracion(sid="LeerActivosDelBootstrap", actions=["s3:GetObject", "s3:GetObjectVersion", "s3:GetBucketLocation",
                                                              "s3:ListBucket"],
                      resources=[f"arn:{Aws.PARTITION}:s3:::cdk-s19-assets-{Aws.ACCOUNT_ID}-{REGION}",
@@ -741,13 +775,102 @@ class OmitirCheckovEnProveedorCdk:
             })
 
 
+def _definicion_guardrail() -> dict:
+    """The Guardrail definition (semana-19/guardrail/definicion.py), loaded from its file."""
+    import importlib.util
+    ruta = Path(__file__).resolve().parents[2] / "guardrail" / "definicion.py"
+    spec = importlib.util.spec_from_file_location("definicion_guardrail", ruta)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo.definicion_guardrail("semana19-legacybridge")
+
+
+def _cargar_hoja(nombre: str):
+    """A module under semana-19/ia (config and prompt texts), loaded by path like the definition of the guardrail."""
+    import importlib.util
+    ruta = Path(__file__).resolve().parents[2] / "ia" / nombre
+    spec = importlib.util.spec_from_file_location(f"ia_{ruta.stem}", ruta)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo
+
+
+class Ia(Stack):
+    """Activity 5: the Guardrail semana19-legacybridge and one published version, encrypted with the base key.
+
+    CloudFormation's AWS::Bedrock::Guardrail has no tierConfig, so a custom resource (semana-19/guardrail/handler.py)
+    creates the Guardrail with the definition of semana-19/guardrail/definicion.py: content filters and topics on the
+    STANDARD tier (GuardrailChecks, cross-Region through the US guardrail profile), grounding on CLASSIC. The function
+    has its own role (only Guardrail actions and the base key), outside the VPC, with its log group encrypted.
+    """
+
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        grupo = logs.LogGroup(
+            self, "LogsCreadorGuardrail", log_group_name=f"{PREFIJO_LOGS}ia/creador-guardrail",
+            retention=logs.RetentionDays.ONE_WEEK, encryption_key=llave, removal_policy=RemovalPolicy.DESTROY)
+        creador = lambda_.Function(
+            self, "CreadorGuardrail", runtime=lambda_.Runtime.PYTHON_3_13, handler="handler.handler",
+            code=lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "guardrail"), exclude=[
+                "comparar_determinista.py", "prueba_viva.py", "tests", "__pycache__", "resultados"]),
+            timeout=Duration.minutes(2), memory_size=256, reserved_concurrent_executions=1, log_group=grupo,
+            description="Creates the semana19-legacybridge guardrail with its tier (custom resource, activity 5).")
+        saltar_checkov(creador, {
+            "CKV_AWS_117": "Custom resource del proyecto: la API de control de Bedrock es pública; fuera de la VPC por diseño.",
+            "CKV_AWS_116": "Custom resource: CloudFormation reintenta y reporta el fallo en la respuesta; no hay cola que vigilar.",
+        })
+        creador.add_to_role_policy(_declaracion(
+            sid="GuardrailEnBedrock", actions=[
+                "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail",
+                "bedrock:GetGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*"]))
+        # CreateGuardrail with a cross-Region config is also authorized against the guardrail profile (account-scoped ARN).
+        perfil = _definicion_guardrail()["crossRegionConfig"]["guardrailProfileIdentifier"]
+        creador.add_to_role_policy(_declaracion(
+            sid="PerfilEntreRegionesDelGuardrail", actions=["bedrock:CreateGuardrail", "bedrock:UpdateGuardrail"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/{perfil}"]))
+        NagSuppressions.add_resource_suppressions(creador, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; el custom resource corre una vez por despliegue.")])
+        NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.")], apply_to_children=True)
+        NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
+            id="AwsSolutions-IAM5", reason="Guardrail: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.")], apply_to_children=True)
+        creador.add_to_role_policy(_declaracion(
+            sid="LlaveDelGuardrail", actions=["kms:Decrypt", "kms:DescribeKey", "kms:GenerateDataKey", "kms:CreateGrant"],
+            resources=[llave.key_arn]))
+        recurso = cdk.CustomResource(
+            self, "Guardrail", service_token=creador.function_arn,
+            properties={**_definicion_guardrail(), "kmsKeyId": llave.key_arn})
+        # Prompt Management: the agent's system prompt (ES and EN) with the model in one config value, encrypted with the
+        # base key. Each change is a new version; the agent reads a pinned version (activity 6).
+        modelo = _cargar_hoja("config.py").MODELO_ID
+        textos = _cargar_hoja("prompts_sistema.py").PROMPTS
+        for idioma, texto in textos.items():
+            prompt = bedrock.CfnPrompt(
+                self, f"Prompt{idioma.upper()}", name=f"semana19-sistema-{idioma}",
+                description="System prompt of the LegacyBridge agent (activity 5).",
+                customer_encryption_key_arn=llave.key_arn, default_variant="principal",
+                variants=[bedrock.CfnPrompt.PromptVariantProperty(
+                    name="principal", template_type="TEXT", model_id=modelo,
+                    template_configuration=bedrock.CfnPrompt.PromptTemplateConfigurationProperty(
+                        text=bedrock.CfnPrompt.TextPromptTemplateConfigurationProperty(
+                            text=texto, input_variables=[bedrock.CfnPrompt.PromptInputVariableProperty(name="nombre_empresa")])))])
+            version = bedrock.CfnPromptVersion(self, f"VersionPrompt{idioma.upper()}", prompt_arn=prompt.attr_arn,
+                                               description=f"Version pinned by the agent: system prompt {idioma}.")
+            cdk.CfnOutput(self, f"ArnVersionPrompt{idioma.upper()}", value=version.attr_arn)
+        cdk.CfnOutput(self, "IdGuardrail", value=recurso.get_att_string("GuardrailId"))
+        cdk.CfnOutput(self, "VersionGuardrail", value=recurso.get_att_string("Version"))
+
+
 def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
                 synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
     datos = Datos(app, "semana19-datos", red=base.red, llave=base.llave, env=cdk.Environment(region=REGION),
                   synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
-    for pila in (control, base, datos):
+    ia = Ia(app, "semana19-ia", llave=base.llave, env=cdk.Environment(region=REGION),
+            synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+    for pila in (control, base, datos, ia):
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())
         Aspects.of(pila).add(OmitirCheckovEnProveedorCdk())
