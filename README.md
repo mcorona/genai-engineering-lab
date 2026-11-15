@@ -86,7 +86,7 @@ Each folder `semana-NN` is one unit of the lab's study program; *semana* is Span
 | Prompts and evals | [5](semana-05/README.md) · [6](semana-06/README.md) · [7](semana-07/README.md) | A versioned prompt library; regression evals as a required PR check; bilingual natural-language querying (NLQ) measured by execution |
 | RAG and data | [8](semana-08/README.md) · [9](semana-09/README.md) · [10](semana-10/README.md) · [11](semana-11/README.md) · [12](semana-12/README.md) | Chunking, embeddings and vector databases; advanced and multi-tenant RAG; a legacy schema, PDFs, OCR and images; RAG evaluation; managed RAG on AWS and Google Cloud |
 | Agents and MCP | [13](semana-13/README.md) · [14](semana-14/README.md) · [15](semana-15/README.md) · [16](semana-16/README.md) · [17](semana-17/README.md) · [18](semana-18/README.md) | Agentic patterns and the Claude Agent SDK; a remote MCP server with OAuth, least privilege and tool-poisoning tests; the same agent in LangGraph, Strands, OpenAI Agents SDK and Google ADK, multi-agent over A2A, Bedrock AgentCore and a client decision matrix; a Claude Code plugin for clients with its own eval; production reliability (tracing, budgets, guardrails, human approval, trajectory eval, a trace dashboard); LegacyBridge v1 |
-| LLMOps and multicloud production | [19](semana-19/README.md) | The AWS reference architecture for LegacyBridge, deployed with infrastructure as code (in progress) |
+| LLMOps and multicloud production | [19](semana-19/Fas5Sema19.md) | The AWS reference architecture for LegacyBridge, deployed with infrastructure as code (in progress) |
 
 ### Folder and file names
 
