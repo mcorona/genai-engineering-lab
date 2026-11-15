@@ -1,8 +1,8 @@
 name: infra-semana-12
 
-# Sin credenciales de nube: valida la sintaxis de los scripts de infra, que no haya llaves en el repo, que el paquete
-# de ingesta siga congelado y que los resultados versionados de las corridas contra las nubes estén completos y sean
-# consistentes (las corridas mismas solo se repiten a mano con eval-nube-semana-12).
+# No cloud credentials: checks the syntax of the infra scripts, that there are no keys in the repository, that the
+# ingestion package is still frozen, and that the versioned results of the cloud runs are complete and consistent
+# (the runs themselves are repeated only by hand, with eval-nube-semana-12).
 on:
   pull_request:
     paths:
@@ -16,25 +16,25 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
-      - name: Sintaxis de los scripts de infra
+      - name: Infra script syntax
         run: |
           for f in semana-12/infra/*.sh; do bash -n "$f" && echo "ok $f"; done
-      - name: Python de infra compila
+      - name: Infra Python compiles
         run: python3 -m py_compile semana-12/infra/*.py
-      - name: Sin credenciales en el repo
+      - name: No credentials in the repository
         run: bash semana-12/infra/revisar_secretos.sh
-      - name: Paquete de ingesta congelado (se reconstruye idéntico y el golden no cambió)
+      - name: Frozen ingestion package (rebuilt identical, gold set unchanged)
         run: |
           python3 semana-12/ingesta/construir_paquete.py > /dev/null
           git status --porcelain semana-12/ingesta/paquete
           git diff --exit-code --stat -- semana-12/ingesta/paquete
           test -z "$(git status --porcelain semana-12/ingesta/paquete)"
-      - name: Resultados versionados completos y consistentes
+      - name: Versioned results complete and consistent
         run: python3 semana-12/evaluacion/validar_resultados.py
-      - name: Tabla de comparación al día con los resúmenes
+      - name: Comparison table up to date with the summaries
         run: |
           python3 semana-12/evaluacion/comparar.py > /dev/null
           git diff --exit-code --stat -- semana-12/resultados/comparacion.json semana-12/resultados/comparacion_tabla.md

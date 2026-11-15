@@ -1,5 +1,8 @@
 name: evals-semana-06
 
+# `regresion` is a required check, so every top-level path of the repository is listed: a PR that matched no path
+# would never receive the check and could not be merged. The prompt, week and dependency paths are the ones the eval
+# depends on; the rest only make sure the check always reports.
 on:
   pull_request:
     paths:
@@ -25,16 +28,33 @@ on:
       - "**/prompts/**"
       - ".github/workflows/evals-semana-06.yml"
       - ".github/workflows/nlq-semana-07.yml"
+      - "semana-01/**"
+      - "semana-02/**"
+      - "semana-03/**"
+      - "semana-04/**"
+      - "semana-05/**"
+      - "docs/**"
+      - ".github/**"
+      - ".claude-plugin/**"
+      - "LICENSE"
+      - "SECURITY.md"
+      - ".gitignore"
+      - ".mcp.json"
+      - ".python-version"
+
+permissions:
+  contents: read
 
 jobs:
   regresion:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
-      - name: Correr evals de regresión
+      - name: Run the regression evals
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python semana-06/evaluar.py
