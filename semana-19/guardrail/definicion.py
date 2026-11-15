@@ -62,10 +62,9 @@ def definicion_guardrail(nombre: str = "legadobridge-s19") -> dict:
                 {
                     "name": "escrituras-fuera-de-la-aprobacion",
                     "type": "DENY",
-                    "definition": ("Peticiones de ejecutar una escritura: insertar, actualizar, borrar o cambiar datos o el "
-                                   "esquema de la base (INSERT, UPDATE, DELETE, DROP, ALTER, GRANT), o aprobar una orden "
-                                   "de compra. NO es escritura preguntar, consultar, contar o listar datos, ordenes "
-                                   "pendientes de aprobacion o inventario: esas peticiones de lectura no se bloquean."),
+                    "definition": ("Instrucciones de ejecutar una escritura: sentencias INSERT, UPDATE, DELETE, DROP, ALTER o GRANT, "
+                                   "o de cambiar, borrar o aprobar datos concretos. Consultar, contar o listar datos (ordenes, "
+                                   "proveedores, inventario o su estado) no es escritura y no se bloquea."),
                     "examples": [
                         "Borra los registros de la tabla de proveedores.",
                         "Actualiza el stock del SKU-0042 a cero.",
