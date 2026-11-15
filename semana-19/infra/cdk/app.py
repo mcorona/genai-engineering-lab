@@ -682,7 +682,7 @@ class Datos(Stack):
         cargador.add_to_role_policy(_declaracion(sid="DescifrarConLaLlaveDelProyecto", actions=["kms:Decrypt", "kms:DescribeKey"],
                                                  resources=[llave.key_arn]))
         # No bedrock-agent endpoint: its private DNS conflicts with the VPC (AWS rejected it). The KB ingestion job
-        # is started from the operator terminal (control-plane call, not database access); see the loader README.
+        # is started from the operator terminal (control-plane call, not database access); see semana-19/actividad-4.md.
 
         # Knowledge Base: documents in an encrypted bucket, S3 Vectors as the store, Titan Text Embeddings V2.
         bucket_docs = s3.Bucket(
