@@ -1,50 +1,50 @@
-# Actividad 5: imágenes
+# Activity 5: images
 
-Corrida del 2026-10-26. Script: `experimentos/imagenes.py`. Modelo: **claude-haiku-5-5, esfuerzo `low`**.
+Run of 2026-10-26. Script: `experimentos/imagenes.py`. Model: **claude-haiku-5-5, effort `low`**.
 
-## Imágenes
+## Images
 
-Generadas con Pillow desde las fuentes congeladas en la actividad 1 y revisadas a simple vista antes de correr (`imagenes/`):
+Generated with Pillow from the sources frozen in activity 1 and checked by eye before the run (`imagenes/`):
 
-- **`grafica_nivel_servicio.png`**: barras del nivel de servicio por CEDIS en septiembre de 2026, con el valor sobre cada barra y el nombre del CEDIS debajo (Centro 97.8 %, Occidente 95.1 %, Norte 98.6 %).
-- **`plano_cedis_occidente.png`**: andenes 1 a 4 de recepción y 5 a 8 de embarque, la zona de SKUs críticos bajo el andén 2 y la zona de cuarentena dentro del pasillo 12.
+- **`grafica_nivel_servicio.png`**: bars of the service level per distribution center in September 2026, with the value above each bar and the center's name below it (Centro 97.8 %, Occidente 95.1 %, Norte 98.6 %).
+- **`plano_cedis_occidente.png`**: receiving docks 1 to 4 and shipping docks 5 to 8, the critical-SKU zone below dock 2, and the quarantine zone inside aisle 12.
 
-En las dos, la respuesta exige **asociar** elementos por su posición: un valor con su barra o una zona con su andén o pasillo. Durante la revisión se corrigieron dos ambigüedades del dibujo antes de correr: el rótulo de la cuarentena invadía el pasillo 13, y la zona de SKUs críticos abarcaba los andenes 2 y 3.
+In both, the answer requires **associating** elements by their position: a value with its bar, or a zone with its dock or aisle. During the review, two ambiguities in the drawings were fixed before the run: the quarantine label spilled into aisle 13, and the critical-SKU zone spanned docks 2 and 3.
 
-## Usos de la imagen
+## Uses of the image
 
-- **sin imagen:** solo el corpus de texto (línea base).
-- **Tesseract (spa):** OCR de la imagen.
-- **Claude, descripción:** Haiku describe la imagen y extrae sus datos, una línea por dato; ese texto se indexa con el pipeline.
-- **Claude, respuesta directa:** Haiku responde la pregunta mirando la imagen, sin RAG.
+- **no image:** only the text corpus (the baseline).
+- **Tesseract (spa):** OCR of the image.
+- **Claude, description:** Haiku describes the image and extracts its data, one line per fact; that text is indexed with the pipeline.
+- **Claude, direct answer:** Haiku answers the question by looking at the image, without RAG.
 
-## Resultados
+## Results
 
-| Uso de la imagen | Hechos extraídos (etiqueta y valor en la misma línea) | ES recall@5 | EN recall@5 | ES respuesta directa | EN respuesta directa |
+| Use of the image | Facts extracted (label and value on the same line) | ES recall@5 | EN recall@5 | ES direct answer | EN direct answer |
 |---|---|---|---|---|---|
-| sin imagen | 0/7 | 0/5 | 0/5 | - | - |
+| no image | 0/7 | 0/5 | 0/5 | - | - |
 | Tesseract (spa) | **0/7** | 4/5 | 4/5 | - | - |
-| Claude Haiku 5.5 (low), descripción | **7/7** | **5/5** | **5/5** | - | - |
-| Claude Haiku 5.5 (low), respuesta directa | - | - | - | **5/5** | **5/5** |
+| Claude Haiku 5.5 (low), description | **7/7** | **5/5** | **5/5** | - | - |
+| Claude Haiku 5.5 (low), direct answer | - | - | - | **5/5** | **5/5** |
 
-**Costo de Claude:** $0.00295 en 12 llamadas (2 descripciones y 10 respuestas directas), con 18,944 tokens de entrada y 2,099 de salida. Latencia media de 1.8 s.
+**Claude cost:** $0.00295 for 12 calls (2 descriptions and 10 direct answers), with 18,944 input tokens and 2,099 output tokens. Mean latency of 1.8 s.
 
-Detalle: `imagenes_detalle.csv`. Extracciones: `imagenes_extracciones/`.
+Detail: `imagenes_detalle.csv`. Extractions: `imagenes_extracciones/`.
 
-## Lectura
+## Reading
 
-- **Tesseract lee los rótulos, pero no las relaciones.** En la gráfica, mezcla los valores con las marcas del eje ("08% 7 97.8%"), pone los tres nombres de CEDIS en una línea aparte y **no leyó "98.6%"**. En el plano, lista los rótulos por filas ("Andén 1 … Andén 8", "Zona de SKUs" / "críticos", "Pasillo 10 … Pasillo 14"), sin decir qué zona está junto a qué andén o en qué pasillo. Asoció 0 de 7 hechos.
-- **El recall@5 de 4/5 sobrestima a Tesseract.** La métrica cuenta como acierto un chunk que contiene la cifra o el rótulo de la respuesta, aunque esté desconectado de su etiqueta. La única falla es la pregunta del CEDIS Norte, porque "98.6%" no se leyó. Por eso esta actividad mide también los hechos asociados.
-- **Haiku extrae los 7 hechos con su relación** ("CEDIS Occidente: 95.1%", "Zona de SKUs críticos: … debajo del Andén 2", "Zona de cuarentena: … del Pasillo 12"), y su descripción recupera las 10 preguntas.
-- **La respuesta directa también acierta 10 de 10.** En inglés copió los rótulos tal como aparecen en la imagen ("Pasillo 12", "Andén 2"), como pide el prompt.
+- **Tesseract reads the labels but not the relations.** In the chart, it mixes the values with the axis ticks ("08% 7 97.8%"), puts the three center names on a separate line and **did not read "98.6%"**. In the floor plan, it lists the labels by rows ("Andén 1 … Andén 8", "Zona de SKUs" / "críticos", "Pasillo 10 … Pasillo 14") without saying which zone is next to which dock or in which aisle. It associated 0 of 7 facts.
+- **The 4/5 recall@5 overstates Tesseract.** The metric counts as a hit a chunk that contains the answer's figure or label, even when it is disconnected from its label. The only miss is the Norte center question, because "98.6%" was not read. That is why this activity also measures associated facts.
+- **Haiku extracts all 7 facts with their relation** ("CEDIS Occidente: 95.1%", "Zona de SKUs críticos: … debajo del Andén 2", "Zona de cuarentena: … del Pasillo 12"), and its description retrieves all 10 questions.
+- **The direct answer is also right on 10 of 10.** In English it copied the labels as they appear in the image ("Pasillo 12", "Andén 2"), as the prompt asks.
 
-## Decisión
+## Decision
 
-**Imágenes con datos (gráficas, planos, diagramas): Haiku 5.5 `low` describe y extrae los datos al indexar**, a entre $0.0003 y $0.0006 por imagen (media de $0.00047 en esta corrida). La descripción entra al mismo índice que el resto del corpus, así que el asistente puede recuperarla y citarla. Tesseract no sirve para imágenes cuyo significado depende de la posición. La respuesta directa sobre la imagen es igual de exacta, pero exige saber de antemano qué imagen mirar; en el asistente, la imagen se encuentra por su descripción indexada.
+**Images with data (charts, floor plans, diagrams): Haiku 5.5 `low` describes them and extracts the data at indexing time**, at between $0.0003 and $0.0006 per image (a mean of $0.00047 in this run). The description goes into the same index as the rest of the corpus, so the assistant can retrieve and cite it. Tesseract does not work for images whose meaning depends on position. The direct answer over the image is just as accurate, but it requires knowing in advance which image to look at; in the assistant, the image is found through its indexed description.
 
-## Limitaciones
+## Limitations
 
-- Dos imágenes sintéticas, limpias y con rótulos legibles. No hay fotos, escaneos de diagramas ni gráficas sin valores rotulados (donde habría que estimar el valor por la altura de la barra).
-- 5 preguntas por idioma y 7 hechos.
-- La métrica de hechos busca la etiqueta y el valor en una misma línea: es una aproximación a "asociación correcta", no una verificación semántica.
-- Una corrida, con un solo modelo y esfuerzo.
+- Two synthetic, clean images with legible labels. There are no photos, scanned diagrams or charts without value labels (where the value would have to be estimated from the bar height).
+- 5 questions per language and 7 facts.
+- The facts metric looks for the label and the value on the same line: it approximates "correct association"; it is not a semantic check.
+- One run, with a single model and effort level.

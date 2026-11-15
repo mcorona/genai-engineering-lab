@@ -1,22 +1,22 @@
-# Actividad 2: text-to-SQL sobre esquema legado
+# Activity 2: text-to-SQL over a legacy schema
 
-Corrida del 2026-10-26. Script: `experimentos/sql_legado.py`. Modelo: **claude-sonnet-5-5, esfuerzo `medium`** ($2 / $10 por millón de tokens, página oficial de precios de Anthropic consultada el 2026-10-26).
-Set: el difícil de semana 7 (`semana-07/datasets/nlq_hard_validado.jsonl`), 43 preguntas por idioma. Exactitud por ejecución con el mismo comparador de semana 7 (`semana-07/run_eval.py`) y el rol de solo lectura `copilot_ro`.
+Run of 2026-10-26. Script: `experimentos/sql_legado.py`. Model: **claude-sonnet-5-5, effort `medium`** ($2 / $10 per million tokens, Anthropic's official pricing page consulted on 2026-10-26).
+Set: the week 7 hard set (`semana-07/datasets/nlq_hard_validado.jsonl`), 43 questions per language. Execution accuracy with the same comparator as week 7 (`semana-07/run_eval.py`) and the `copilot_ro` read-only role.
 
-## Esquema legado
+## The legacy schema
 
-`legado/legado.sql` crea el esquema `legado` con vistas de nombres crípticos sobre las tablas de inventory-copilot. Los datos y los valores son los mismos; solo cambian los nombres (`products` → `artmst`, `stock.on_hand` → `exidet.exi_qty`, `sales_daily` → `vtadia`, etc.). Así, el SQL de referencia de semana 7, sobre las tablas originales, sigue siendo el resultado esperado. En las variantes legado, el SQL generado corre con `search_path = legado`, de modo que el modelo solo puede usar las vistas crípticas. Diccionario de datos: `legado/diccionario.json` (6 tablas, 26 columnas, en español, con valores de ejemplo).
+`legado/legado.sql` creates the `legado` schema with cryptically named views over the inventory-copilot tables. The data and values are the same; only the names change (`products` → `artmst`, `stock.on_hand` → `exidet.exi_qty`, `sales_daily` → `vtadia`, and so on). That way, the week 7 reference SQL, over the original tables, is still the expected result. In the legacy variants, the generated SQL runs with `search_path = legado`, so the model can only use the cryptic views. Data dictionary: `legado/diccionario.json` (6 tables, 26 columns, in Spanish, with example values).
 
-## Variantes
+## Variants
 
-- **copilot:** esquema original (`semana-07/schema.sql`), control con el mismo modelo.
-- **legado:** DDL legado sin diccionario.
-- **legado_dic:** DDL legado más el diccionario completo.
-- **legado_rec:** DDL y diccionario solo de las 3 tablas más afines a la pregunta (bge-m3); k = 3 fijado antes de correr.
+- **copilot:** the original schema (`semana-07/schema.sql`), a control with the same model.
+- **legado:** the legacy DDL without a dictionary.
+- **legado_dic:** the legacy DDL plus the full dictionary.
+- **legado_rec:** the DDL and dictionary of only the 3 tables most similar to the question (bge-m3); k = 3 fixed before the run.
 
-## Resultados
+## Results
 
-| Variante | Idioma | Exactitud | Correctas | Resultado distinto | No es SELECT | Recuperación completa de tablas | Costo por pregunta (USD) | Latencia p50 (s) | Tokens de salida (media) |
+| Variant | Language | Accuracy | Correct | Different result | Not a SELECT | Complete table retrieval | Cost per question (USD) | p50 latency (s) | Output tokens (mean) |
 |---|---|---|---|---|---|---|---|---|---|
 | copilot | ES | 0.953 | 41/43 | 2 | 0 | - | 0.00298 | 1.7 | 120 |
 | copilot | EN | 0.977 | 42/43 | 1 | 0 | - | 0.00298 | 1.8 | 122 |
@@ -27,19 +27,19 @@ Set: el difícil de semana 7 (`semana-07/datasets/nlq_hard_validado.jsonl`), 43 
 | legado_rec | ES | 0.744 | 32/43 | 9 | 2 | 33/43 | 0.00348 | 1.7 | 176 |
 | legado_rec | EN | 0.721 | 31/43 | 10 | 2 | 31/43 | 0.00347 | 1.7 | 180 |
 
-Sin errores de SQL ni salidas truncadas. Detalle por pregunta: `sql_legado_detalle_claude-sonnet-5-5_medium.csv`.
+No SQL errors and no truncated outputs. Detail per question: `sql_legado_detalle_claude-sonnet-5-5_medium.csv`.
 
-**Costo:** $1.1475 en 344 llamadas. Además: piloto de 24 llamadas, $0.0914 (`sql_legado_detalle_claude-sonnet-5-5_medium_prueba.csv`), y un primer intento que se detuvo cuando se agotó el saldo de la cuenta de la API, con unas 43 llamadas cobradas (~$0.16, estimado; no se guardaron sus resultados).
+**Cost:** $1.1475 for 344 calls. In addition: a 24-call pilot, $0.0914 (`sql_legado_detalle_claude-sonnet-5-5_medium_prueba.csv`), and a first attempt that stopped when the API account's balance ran out, with about 43 calls billed (~$0.16, estimated; its results were not saved).
 
-## Comparación con semana 7
+## Comparison with week 7
 
-En el mismo set y con el esquema original, semana 7 midió claude-haiku-5-5: ES 41/43 (0.953) y EN 43/43 (1.000), con un costo de $0.0040 a $0.0057 por idioma (unos $0.0001 por pregunta). Sonnet 5.5 en la variante `copilot` sacó ES 0.953 y EN 0.977, a $0.0030 por pregunta: **la misma exactitud dentro del ruido, a entre 22 y 32 veces el costo por pregunta**. Por eso se corrió también Haiku 5.5 en las cuatro variantes (sección siguiente).
+On the same set and with the original schema, week 7 measured claude-haiku-5-5: ES 41/43 (0.953) and EN 43/43 (1.000), at a cost of $0.0040 to $0.0057 per language (about $0.0001 per question). Sonnet 5.5 in the `copilot` variant scored ES 0.953 and EN 0.977, at $0.0030 per question: **the same accuracy within noise, at 22 to 32 times the cost per question**. That is why Haiku 5.5 was also run on all four variants (next section).
 
-## Haiku 5.5 (corrida adicional)
+## Haiku 5.5 (an additional run)
 
-Mismas cuatro variantes con **claude-haiku-5-5, esfuerzo `medium`** ($0.10 / $0.50 por millón, prompts de hasta 100K tokens). Costo: **$0.0923** en 344 llamadas. Detalle: `sql_legado_detalle_claude-haiku-5-5_medium.csv`.
+The same four variants with **claude-haiku-5-5, effort `medium`** ($0.10 / $0.50 per million, prompts up to 100K tokens). Cost: **$0.0923** for 344 calls. Detail: `sql_legado_detalle_claude-haiku-5-5_medium.csv`.
 
-| Variante | Idioma | Haiku: exactitud | Sonnet: exactitud | Haiku: costo por pregunta (USD) | Sonnet: costo por pregunta (USD) | Haiku: latencia p50 (s) |
+| Variant | Language | Haiku: accuracy | Sonnet: accuracy | Haiku: cost per question (USD) | Sonnet: cost per question (USD) | Haiku: p50 latency (s) |
 |---|---|---|---|---|---|---|
 | copilot | ES | 0.977 (42/43) | 0.953 | 0.00021 | 0.00298 | 1.7 |
 | copilot | EN | 1.000 (43/43) | 0.977 | 0.00018 | 0.00298 | 1.6 |
@@ -50,26 +50,26 @@ Mismas cuatro variantes con **claude-haiku-5-5, esfuerzo `medium`** ($0.10 / $0.
 | legado_rec | ES | 0.767 (33/43) | 0.744 | 0.00029 | 0.00348 | 2.1 |
 | legado_rec | EN | 0.721 (31/43) | 0.721 | 0.00029 | 0.00347 | 2.1 |
 
-- **Sin diccionario, Haiku falla por los valores, no por los nombres.** Entiende la estructura legado, pero escribe `'ALEMANIA'` o `'China'` donde la base guarda códigos ISO (`'DE'`, `'CN'`), y busca la ciudad en `alm_dsc` ("CEDIS Norte") en lugar de `alm_cdd`. Son 7 fallos de 86 en `legado`.
-- **El diccionario corrige exactamente eso:** trae el formato de los valores (códigos de país, ciudades) y qué columna guarda cada dato. Con él, Haiku iguala o supera a Sonnet en las cuatro celdas comparables.
-- **La recuperación del diccionario falla igual que con Sonnet y por la misma causa:** 63 de 64 correctas con las tablas completas, 1 de 22 sin ellas. Las 14 salidas que no son SELECT son todas de `legado_rec`: negativas ante tablas faltantes.
+- **Without the dictionary, Haiku fails on the values, not the names.** It understands the legacy structure, but writes `'ALEMANIA'` or `'China'` where the database stores ISO codes (`'DE'`, `'CN'`), and looks for the city in `alm_dsc` ("CEDIS Norte") instead of `alm_cdd`. That is 7 failures out of 86 in `legado`.
+- **The dictionary fixes exactly that:** it brings the format of the values (country codes, cities) and which column holds each piece of data. With it, Haiku matches or beats Sonnet in all four comparable cells.
+- **Dictionary retrieval fails the same way as with Sonnet, for the same reason:** 63 of 64 correct with all the tables, 1 of 22 without them. The 14 outputs that are not a SELECT all come from `legado_rec`: refusals when tables are missing.
 
-## Lectura
+## Reading
 
-- **Los nombres crípticos no afectaron a Sonnet:** `legado` saca lo mismo que `copilot` (una pregunta de diferencia, en direcciones opuestas por idioma). En un esquema de 6 tablas, con nombres como `artmst` o `exi_qty` y llaves que se pueden inferir, el DDL basta.
-- **El diccionario completo no mejoró la exactitud** y subió el costo por pregunta frente a `legado` (62 % en ES y 73 % en EN), por el prompt más largo.
-- **El diccionario recuperado bajó la exactitud a 0.72–0.74, y la causa es la recuperación, no el SQL:** con todas las tablas necesarias recuperadas, 63 de 64 correctas; con alguna faltante, 0 de 22. La tabla que más faltó fue `artmst`, el maestro de artículos (17 de 22), y luego `almmst` (5). La búsqueda por similitud prioriza las tablas que la pregunta menciona (ventas, existencias) y deja fuera el maestro que se necesita para el JOIN.
-- **Cuando faltó una tabla, Sonnet no inventó nombres:** las 4 salidas que no fueron SELECT son negativas explícitas ("artmst no está disponible"). Es el comportamiento correcto ante un esquema incompleto.
+- **The cryptic names did not affect Sonnet:** `legado` scores the same as `copilot` (one question apart, in opposite directions per language). In a 6-table schema, with names such as `artmst` or `exi_qty` and keys that can be inferred, the DDL is enough.
+- **The full dictionary did not improve accuracy** and raised the cost per question compared with `legado` (62 % in ES and 73 % in EN), because of the longer prompt.
+- **The retrieved dictionary lowered accuracy to 0.72–0.74, and the cause is retrieval, not the SQL:** with every needed table retrieved, 63 of 64 correct; with any table missing, 0 of 22. The table missing most often was `artmst`, the item master (17 of 22), followed by `almmst` (5). Similarity search favors the tables that the question mentions (sales, stock) and leaves out the master table needed for the JOIN.
+- **When a table was missing, Sonnet did not invent names:** the 4 outputs that were not a SELECT are explicit refusals ("artmst is not available"). That is the correct behavior with an incomplete schema.
 
-## Decisión
+## Decision
 
-**Haiku 5.5 con el DDL legado y el diccionario completo** para el text-to-SQL del asistente: 0.977 ES y 1.000 EN, a $0.00033 por pregunta, unas 13 veces menos que Sonnet con el diccionario ($0.0043) y con igual o mejor exactitud. El diccionario es necesario con Haiku (aporta el formato de los valores), aunque Sonnet no lo necesitó.
+**Haiku 5.5 with the legacy DDL and the full dictionary** for the assistant's text-to-SQL: 0.977 ES and 1.000 EN, at $0.00033 per question, about 13 times less than Sonnet with the dictionary ($0.0043), with equal or better accuracy. The dictionary is necessary with Haiku (it supplies the format of the values), although Sonnet did not need it.
 
-La recuperación del diccionario solo se justifica en esquemas grandes, y tendría que ampliar las tablas recuperadas con sus tablas relacionadas por llave foránea (por ejemplo, agregar siempre el maestro `artmst` cuando se recupera `exidet` o `vtadia`). Esa variante no se probó.
+Dictionary retrieval is justified only for large schemas, and it would have to extend the retrieved tables with their foreign-key-related tables (for example, always adding the `artmst` master when `exidet` or `vtadia` is retrieved). That variant was not tested.
 
-## Limitaciones
+## Limitations
 
-- Una corrida por variante; 43 preguntas por idioma, así que una pregunta mueve la exactitud 0.023.
-- Esquema pequeño (6 tablas) y con nombres crípticos pero adivinables. Un esquema legado real, con cientos de tablas y abreviaturas sin patrón, haría más necesario el diccionario.
-- Dos modelos (Sonnet 5.5 y Haiku 5.5), ambos con esfuerzo `medium`; una corrida de cada uno.
-- k = 3 fijo en la recuperación; no se probaron otros valores ni recuperación por columnas.
+- One run per variant; 43 questions per language, so one question moves accuracy by 0.023.
+- A small schema (6 tables) with cryptic but guessable names. A real legacy schema, with hundreds of tables and patternless abbreviations, would make the dictionary more necessary.
+- Two models (Sonnet 5.5 and Haiku 5.5), both with effort `medium`; one run of each.
+- k = 3 fixed for retrieval; other values and column-level retrieval were not tested.

@@ -1,25 +1,25 @@
-# Actividades 1 y 2 (semana 8): estrategias de chunking
+# Activities 1 and 2 (week 8): chunking strategies
 
-Corrida del 2026-10-26. Scripts: `experimentos/chunking_pasajes.py` (chunks y pasajes íntegros) y `experimentos/recall_chunking.py` (recall con bge-m3 en LM Studio).
-Corpus de 24 documentos; golden set de semana 8 con 50 preguntas por idioma y 50 pasajes de referencia únicos. Sin modelos generativos.
-Un pasaje cuenta como recuperado si alguno de los top k chunks lo contiene íntegro.
+Run of 2026-10-26. Scripts: `experimentos/chunking_pasajes.py` (chunks and intact passages) and `experimentos/recall_chunking.py` (recall with bge-m3 in LM Studio).
+A corpus of 24 documents; the week 8 gold set with 50 questions per language and 50 unique reference passages. No generative models.
+A passage counts as retrieved if any of the top-k chunks contains it intact.
 
-## Resultados
+## Results
 
-| Estrategia | Chunks | Caracteres promedio | Pasajes íntegros | ES recall@5 | ES recall@10 | EN recall@5 | EN recall@10 |
+| Strategy | Chunks | Average characters | Intact passages | ES recall@5 | ES recall@10 | EN recall@5 | EN recall@10 |
 |---|---|---|---|---|---|---|---|
-| Ventana fija 400, solape 80 | 57 | 348 | 50/50 | **1.000** | **1.000** | **1.000** | **1.000** |
-| Recursiva por párrafo, máx. 300 | 84 | 203 | 48/50 | 0.950 | 0.950 | 0.940 | 0.950 |
-| Por sección (chunker de inventory-copilot) | 69 | 242 | 50/50 | 0.970 | **1.000** | 0.960 | **1.000** |
+| Fixed window 400, overlap 80 | 57 | 348 | 50/50 | **1.000** | **1.000** | **1.000** | **1.000** |
+| Recursive by paragraph, max. 300 | 84 | 203 | 48/50 | 0.950 | 0.950 | 0.940 | 0.950 |
+| By section (inventory-copilot's chunker) | 69 | 242 | 50/50 | 0.970 | **1.000** | 0.960 | **1.000** |
 
-La estrategia recursiva parte dos pasajes de referencia (`recepcion_almacen.md`: rechazo parcial con diferencia mayor a 2 %; `skus_criticos.md`: SKU crítico con menos de 7 días de cobertura), así que no puede recuperarlos completos con ningún k.
+The recursive strategy splits two reference passages (`recepcion_almacen.md`: a partial rejection when the difference exceeds 2 %; `skus_criticos.md`: a critical SKU with less than 7 days of coverage), so it cannot retrieve them whole at any k.
 
-## Decisión
+## Decision
 
-Ventana fija 400/80 como estrategia por defecto: es la mejor o empata en todas las celdas, no parte ningún pasaje y es la más simple. Su debilidad conocida es que ignora los límites de sección, lo que puede volver menos precisas las citas.
+The fixed 400/80 window is the default strategy: it is the best or ties in every cell, splits no passage and is the simplest. Its known weakness is that it ignores section boundaries, which can make citations less precise.
 
-## Limitaciones
+## Limitations
 
-- Las diferencias son de una a tres preguntas de 50: es una tendencia consistente, no un resultado fuerte.
-- Un solo modelo de embeddings (bge-m3) y un solo tamaño por estrategia.
-- Corrida determinista (embeddings locales y búsqueda exacta por similitud).
+- The differences are one to three questions out of 50: a consistent trend, not a strong result.
+- A single embedding model (bge-m3) and a single size per strategy.
+- A deterministic run (local embeddings and exact similarity search).

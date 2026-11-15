@@ -1,44 +1,44 @@
-# Actividad 3: HyDE con claude-haiku-5-5
+# Activity 3: HyDE with claude-haiku-5-5
 
-Vectorial de semana 8 (bge-m3, índice `semana8`, fijo 400/80). Script: `experimentos/hyde.py`.
-Haiku escribe un pasaje hipotético; ese pasaje se embebe y busca en lugar de la pregunta original.
-Base: pregunta autónoma. Seguimiento: el pasaje se genera con la pregunta previa como contexto.
-Permisos fuera de esta métrica (se evalúan en la actividad 5).
+The week 8 vector search (bge-m3, `semana8` index, fixed 400/80). Script: `experimentos/hyde.py`.
+Haiku writes a hypothetical passage; that passage is embedded and searched instead of the original question.
+Base: a self-contained question. Follow-up: the passage is generated with the previous question as context.
+Permissions are outside this metric (they are evaluated in activity 5).
 
-## Corrida válida (max_tokens 1500)
+## Valid run (max_tokens 1500)
 
-Chequeo de respaldo: 0 de 130 pasajes iguales a la pregunta. Detalle: `hyde_detalle.csv`.
+Fallback check: 0 of 130 passages equal to the question. Detail: `hyde_detalle.csv`.
 
-| Tipo | Idioma | Variante | recall@5 | nDCG@10 | MRR | Costo por consulta (USD) | Latencia HyDE p50 / p95 (ms) |
+| Type | Language | Variant | recall@5 | nDCG@10 | MRR | Cost per query (USD) | HyDE latency p50 / p95 (ms) |
 |---|---|---|---|---|---|---|---|
 | base | es | original | 1.000 | 0.904 | 0.874 | - | - |
 | base | es | HyDE | 0.960 | 0.886 | 0.856 | 0.000098 | 1375 / 3129 |
-| seguimiento | es | original | 0.933 | 0.809 | 0.747 | - | - |
-| seguimiento | es | HyDE | 0.933 | 0.750 | 0.668 | 0.000097 | 1405 / 2688 |
+| follow-up | es | original | 0.933 | 0.809 | 0.747 | - | - |
+| follow-up | es | HyDE | 0.933 | 0.750 | 0.668 | 0.000097 | 1405 / 2688 |
 | base | en | original | 1.000 | 0.885 | 0.845 | - | - |
 | base | en | HyDE | 0.880 | 0.816 | 0.772 | 0.000137 | 1914 / 3184 |
-| seguimiento | en | original | 0.867 | 0.802 | 0.739 | - | - |
-| seguimiento | en | HyDE | 0.933 | 0.774 | 0.702 | 0.000159 | 2165 / 3091 |
+| follow-up | en | original | 0.867 | 0.802 | 0.739 | - | - |
+| follow-up | en | HyDE | 0.933 | 0.774 | 0.702 | 0.000159 | 2165 / 3091 |
 
-## Primera corrida (max_tokens 250, descartada como medición)
+## First run (max_tokens 250, discarded as a measurement)
 
-Cinco de 130 respuestas tenían solo el bloque de razonamiento y sin texto; el script usó la pregunta original como pasaje. Además, la mayoría de las salidas quedaron cerca del límite y probablemente se truncaron. Se corrigió el límite a 1500 y se volvió a correr. El CSV de esa corrida se conserva como `hyde_detalle_corrida1.csv` en la carpeta local, no en el repo.
+Five of 130 responses had only the reasoning block and no text; the script used the original question as the passage. In addition, most outputs ended close to the limit and were probably truncated. The limit was raised to 1500 and the run repeated. The CSV of that run is kept as `hyde_detalle_corrida1.csv` in the local folder, not in the repository.
 
-## Lectura
+## Reading
 
-- **No mejora ninguna métrica de ranking.** nDCG@10 y MRR bajan en las cuatro celdas, salvo base ES, donde nDCG sube 0.018 con una pregunta menos recuperada.
-- **Recall:** base cae en ES (una pregunta menos) y en EN (seis preguntas menos). Seguimiento EN sube una pregunta; seguimiento ES no cambia.
-- **Costo:** $0.000097 a $0.000159 por consulta, unas dos veces el costo de la reescritura por la salida de texto más larga.
-- **Latencia:** p50 entre 1.4 y 2.2 s, con p95 de hasta 3.6 s. Es la técnica más lenta de las probadas hasta ahora, y no aporta ganancia.
+- **It improves no ranking metric.** nDCG@10 and MRR drop in all four cells.
+- **Recall:** base drops in ES (one question fewer) and in EN (six questions fewer). EN follow-ups gain one question; ES follow-ups do not change.
+- **Cost:** $0.000097 to $0.000159 per query, up to about twice the cost of query rewriting, because of the longer text output.
+- **Latency:** p50 between 1.4 and 2.2 s, with p95 of up to 3.2 s. It is the slowest technique tested so far, and it brings no gain.
 
-Los tipos de bloque confirman lo que se vio en la reescritura: Haiku devuelve bloques `thinking` además de `text`, y esos tokens se cobran como salida.
+The block types confirm what was seen with query rewriting: Haiku returns `thinking` blocks in addition to `text`, and those tokens are billed as output.
 
-## Conclusión
+## Conclusion
 
-HyDE no mejora el recall ni el ranking en este golden set. Se documenta como técnica que no aporta. No se adopta por defecto, ni para base ni para seguimiento. La diferencia en recall de EN base (seis preguntas) es la señal más clara en contra.
+HyDE improves neither recall nor ranking on this gold set. It is documented as a technique that does not help. It is not adopted by default, either for base questions or for follow-ups. The recall difference on EN base questions (six questions) is the clearest signal against it.
 
-## Limitaciones
+## Limitations
 
-- Una corrida válida. La variabilidad de Haiku observada en la reescritura sugiere que las diferencias de una o dos preguntas pueden ser ruido.
-- Un solo modelo de generación (Haiku) y un solo tamaño de pasaje hipotético.
-- Los casos de permiso no entran en esta métrica.
+- One valid run. The variability of Haiku observed with query rewriting suggests that differences of one or two questions can be noise.
+- A single generation model (Haiku) and a single hypothetical-passage length.
+- The permission cases are not part of this metric.

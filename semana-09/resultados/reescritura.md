@@ -1,59 +1,59 @@
-# Actividad 2: query rewriting con claude-haiku-5-5
+# Activity 2: query rewriting with claude-haiku-5-5
 
-Vectorial de semana 8 (bge-m3, índice `semana8`, fijo 400/80). Script: `experimentos/reescritura.py`.
-Dos corridas del mismo código el 2026-10-22. Detalle por consulta de la segunda: `reescritura_detalle.csv`.
+The week 8 vector search (bge-m3, `semana8` index, fixed 400/80). Script: `experimentos/reescritura.py`.
+Two runs of the same code on 2026-10-22. Detail per query of the second: `reescritura_detalle.csv`.
 
-## Segunda corrida
+## Second run
 
-| Tipo | Idioma | Variante | recall@5 | nDCG@10 | MRR | Reescritura sin cambio | Costo por consulta (USD) | Latencia reescritura p50 / p95 (ms) |
+| Type | Language | Variant | recall@5 | nDCG@10 | MRR | Rewrite unchanged | Cost per query (USD) | Rewrite latency p50 / p95 (ms) |
 |---|---|---|---|---|---|---|---|---|
-| seguimiento | es | original | 0.933 | 0.809 | 0.747 | - | - | - |
-| seguimiento | es | reescrita | 0.800 | 0.711 | 0.618 | 0/15 | 0.000040 | 872 / 3316 |
+| follow-up | es | original | 0.933 | 0.809 | 0.747 | - | - | - |
+| follow-up | es | rewritten | 0.800 | 0.711 | 0.618 | 0/15 | 0.000040 | 872 / 3316 |
 | base (control) | es | original | 1.000 | 0.904 | 0.874 | - | - | - |
-| base (control) | es | reescrita | 1.000 | 0.898 | 0.861 | 49/50 | 0.000085 | 1279 / 2327 |
-| seguimiento | en | original | 0.867 | 0.802 | 0.739 | - | - | - |
-| seguimiento | en | reescrita | 0.933 | 0.793 | 0.727 | 0/15 | 0.000081 | 1218 / 2134 |
+| base (control) | es | rewritten | 1.000 | 0.898 | 0.861 | 49/50 | 0.000085 | 1279 / 2327 |
+| follow-up | en | original | 0.867 | 0.802 | 0.739 | - | - | - |
+| follow-up | en | rewritten | 0.933 | 0.793 | 0.727 | 0/15 | 0.000081 | 1218 / 2134 |
 | base (control) | en | original | 1.000 | 0.885 | 0.845 | - | - | - |
-| base (control) | en | reescrita | 1.000 | 0.885 | 0.845 | 50/50 | 0.000098 | 1509 / 2696 |
+| base (control) | en | rewritten | 1.000 | 0.885 | 0.845 | 50/50 | 0.000098 | 1509 / 2696 |
 
-## Primera corrida (PR #19, en `main`)
+## First run (PR #19, on `main`)
 
-| Tipo | Idioma | Variante | recall@5 | Reescritura sin cambio |
+| Type | Language | Variant | recall@5 | Rewrite unchanged |
 |---|---|---|---|---|
-| seguimiento | es | original → reescrita | 0.933 → 0.800 | 0/15 |
-| seguimiento | en | original → reescrita | 0.867 → 1.000 | 0/15 |
-| base (control) | es | original → reescrita | 1.000 → 0.980 | 49/50 |
-| base (control) | en | original → reescrita | 1.000 → 1.000 | 49/50 |
+| follow-up | es | original → rewritten | 0.933 → 0.800 | 0/15 |
+| follow-up | en | original → rewritten | 0.867 → 1.000 | 0/15 |
+| base (control) | es | original → rewritten | 1.000 → 0.980 | 49/50 |
+| base (control) | en | original → rewritten | 1.000 → 1.000 | 49/50 |
 
-## Casos que cambian de acierto en la segunda corrida
+## Cases whose hit changes in the second run
 
-- ES `seg-02`: acierta el original (1) y falla la reescritura (0). Original: "¿Y cada cuánto se cuentan los SKUs de clase A para llegar a esa meta?". Reescrita: "¿Cada cuánto se cuentan los SKUs de clase A para llegar a la meta de exactitud de inventario de cada CEDIS?".
-- ES `seg-14`: acierta el original (1) y falla la reescritura (0). Original: "¿Y qué hago si me da una respuesta incorrecta?". Reescrita: "¿Qué hago si el copiloto me da una respuesta incorrecta?".
-- EN `seg-02`: falla el original (0) y acierta la reescritura (1).
-- EN `seg-10`: falla el original (0) y acierta la reescritura (1).
-- EN `seg-14`: acierta el original (1) y falla la reescritura (0).
+- ES `seg-02`: the original hits (1) and the rewrite misses (0). Original: "¿Y cada cuánto se cuentan los SKUs de clase A para llegar a esa meta?" ("And how often are class A SKUs counted to reach that goal?"). Rewritten: "¿Cada cuánto se cuentan los SKUs de clase A para llegar a la meta de exactitud de inventario de cada CEDIS?" ("How often are class A SKUs counted to reach each distribution center's inventory accuracy goal?").
+- ES `seg-14`: the original hits (1) and the rewrite misses (0). Original: "¿Y qué hago si me da una respuesta incorrecta?" ("And what do I do if it gives me a wrong answer?"). Rewritten: "¿Qué hago si el copiloto me da una respuesta incorrecta?" ("What do I do if the copilot gives me a wrong answer?").
+- EN `seg-02`: the original misses (0) and the rewrite hits (1).
+- EN `seg-10`: the original misses (0) and the rewrite hits (1).
+- EN `seg-14`: the original hits (1) and the rewrite misses (0).
 
-Las reescrituras de los casos que empeoran son fieles a la pregunta original. El cambio de acierto viene de la reformulación en el ranking vectorial, no de una reescritura incorrecta.
+The rewrites of the cases that get worse are faithful to the original question. The change in the hit comes from how the rephrasing ranks in the vector search, not from a wrong rewrite.
 
-## Variabilidad entre corridas
+## Variability between runs
 
-Con el mismo código, entre la primera y la segunda corrida cambiaron resultados: EN seguimiento pasó de 1.000 a 0.933 y ES base de 0.980 a 1.000. Las reescrituras de Haiku no son deterministas, así que una diferencia de una o dos preguntas por idioma es ruido, no señal.
+With the same code, results changed between the first and second runs: EN follow-ups went from 1.000 to 0.933 and ES base from 0.980 to 1.000. Haiku's rewrites are not deterministic, so a difference of one or two questions per language is noise, not signal.
 
-## Costo
+## Cost
 
-El costo es el facturado: tokens de entrada × $0.10/M + tokens de salida × $0.50/M (precio de `semana-07/prices.json`, fuente del autor, 2026-10-21).
+The cost is the billed one: input tokens × $0.10/M + output tokens × $0.50/M (the price in `semana-07/prices.json`, author's source, 2026-10-21).
 
-Diferencia observada en la segunda corrida: seguimiento ES tiene 227 tokens de entrada y 35 de salida; base ES tiene 188 de entrada y 133 de salida. El seguimiento lleva más entrada, como se espera, pero en base casi nada cambia y aun así la salida es mayor. Hipótesis: la API cobra tokens de razonamiento que no aparecen en el texto devuelto. No está confirmada. Para confirmarla hay que revisar los tipos de bloque de la respuesta de la API en una llamada.
+A difference observed in the second run: ES follow-ups have 227 input tokens and 35 output tokens; ES base has 188 input and 133 output. Follow-ups carry more input, as expected, but on base questions almost nothing changes and yet the output is larger. Hypothesis: the API bills reasoning tokens that do not appear in the returned text. It is not confirmed; confirming it requires checking the block types of the API response in a call. (The HyDE activity later confirmed that Haiku returns `thinking` blocks, billed as output; see `hyde.md`.)
 
-## Conclusión
+## Conclusion
 
-- Sin efecto demostrable en esta muestra. EN seguimiento mejora en una corrida y empeora en la otra, con diferencias de una o dos preguntas.
-- ES seguimiento baja de 0.933 a 0.800 en ambas corridas, pero los casos que cambian son reescrituras fieles; no es un error de reescritura.
-- No se adopta la reescritura como paso por defecto.
-- Para decidir de verdad: tres corridas por idioma y promediar, con el mismo golden set congelado.
+- No demonstrable effect in this sample. EN follow-ups improve in one run and get worse in the other, with differences of one or two questions.
+- ES follow-ups drop from 0.933 to 0.800 in both runs, but the cases that change are faithful rewrites; this is not a rewriting error.
+- Query rewriting is not adopted as a default step.
+- To decide properly: three runs per language, averaged, with the same frozen gold set.
 
-## Limitaciones
+## Limitations
 
-- 15 preguntas de seguimiento por idioma: una pregunta mueve el recall 0.067.
-- Una corrida de cada versión; la variabilidad observada es del mismo orden que el efecto.
-- La línea base de seguimiento ya tiene recall alto, así que hay poco margen para mejorar.
+- 15 follow-up questions per language: one question moves recall by 0.067.
+- One run of each version; the observed variability is of the same order as the effect.
+- The follow-up baseline already has a high recall, so there is little room to improve.

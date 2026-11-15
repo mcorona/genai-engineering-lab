@@ -1,44 +1,45 @@
-# Actividad 9: eval de recuperación y permisos en CI
+# Activity 9: retrieval and permissions eval in CI
 
-Workflow: `.github/workflows/recuperacion-semana-09.yml`, en cada PR que toque `semana-09/**`. Script: `ci/permisos_ci.py`.
-Base: pgvector de servicio (`pgvector/pgvector:pg16`, pgvector 0.8.7 con `hnsw.iterative_scan = strict_order`), con los tenants alfa (57 chunks) y beta (33 chunks), `tenant_id` y `roles`, y el filtro dentro de la consulta.
-Embeddings: `text-embedding-3-small` (OpenAI, secreto `OPENAI_API_KEY`), porque bge-m3 corre en LM Studio y no está en GitHub Actions. Costo aproximado: $0.0003 por corrida. Sin modelos de Anthropic.
+Workflow: `.github/workflows/recuperacion-semana-09.yml`, on every PR that touches `semana-09/**`. Script: `ci/permisos_ci.py`.
+Database: a pgvector service (`pgvector/pgvector:pg16`, pgvector 0.8.7 with `hnsw.iterative_scan = strict_order`), with the alfa (57 chunks) and beta (33 chunks) tenants, `tenant_id` and `roles`, and the filter inside the query.
+Embeddings: `text-embedding-3-small` (OpenAI, the `OPENAI_API_KEY` secret), because bge-m3 runs in LM Studio, which is not available in GitHub Actions. Approximate cost: $0.0003 per run. No Anthropic models.
 
-## Qué hace fallar el check
+## What makes the check fail
 
-1. recall@5 de las 50 preguntas base (usuario de alfa con todos los roles) bajo el umbral en ES o EN.
-2. Cualquier fuga por rol: chunks no autorizados en el top 10 (50 preguntas × 6 roles) o pasajes prohibidos devueltos (5 casos por idioma).
-3. Cualquier fuga entre tenants: chunks del otro tenant (50 preguntas × 2 tenants) o la cifra del otro tenant en los 20 casos casi idénticos.
+1. recall@5 of the 50 base questions (an alfa user with every role) below the threshold in ES or EN.
+2. Any leak by role: unauthorized chunks in the top 10 (50 questions × 6 roles) or forbidden passages returned (5 cases per language).
+3. Any leak across tenants: chunks from the other tenant (50 questions × 2 tenants) or the other tenant's figure in the 20 near-identical cases.
 
-La fuga no tiene umbral: debe ser 0.
+Leaks have no threshold: they must be 0.
 
-## Calibración con la primera corrida
+## Calibration with the first run
 
-Run de GitHub Actions `40390705860` (PR #29, 2026-10-26).
+GitHub Actions run `40390705860` (PR #29, 2026-10-26).
 
-| Idioma | recall@5 | Umbral | Margen | Fuga por rol | Prohibidos devueltos | Fuga entre tenants | Cifra del otro tenant | Cifra propia en top 5 |
+| Language | recall@5 | Threshold | Margin | Leak by role | Forbidden returned | Leak across tenants | Other tenant's figure | Own figure in top 5 |
 |---|---|---|---|---|---|---|---|---|
 | ES | 0.990 | 0.90 | 0.090 | 0 | 0/5 | 0 | 0/20 | 20/20 |
 | EN | 0.950 | 0.90 | 0.050 | 0 | 0/5 | 0 | 0/20 | 20/20 |
 
-El recall coincide con el CI de semana 8 (`semana-08/resultados/ci_recuperacion.md`: ES 0.990, EN 0.950), con el mismo modelo y el mismo corpus de alfa: agregar el tenant beta con el filtro activo no cambió el recall de alfa.
+The recall matches the week 8 CI (`semana-08/resultados/ci_recuperacion.md`: ES 0.990, EN 0.950), with the same model and the same alfa corpus: adding the beta tenant with the filter active did not change alfa's recall.
 
-**Decisión:** se mantiene `UMBRAL = 0.90`. Con 50 preguntas, cada una vale 0.02 de recall: en EN el umbral deja margen de dos preguntas antes de fallar. Subirlo a 0.95 haría fallar el check en EN con cualquier variación mínima.
+**Decision:** `UMBRAL = 0.90` is kept. With 50 questions, each is worth 0.02 of recall: in EN the threshold leaves a margin of two questions before failing. Raising it to 0.95 would make the check fail in EN with any minimal variation.
 
-## Incidentes
+## Incidents
 
-- **Primera corrida (run `40390060225`):** falló por un HTTP 500 de la API de embeddings de OpenAI al embeber las preguntas; no fue fuga ni recall. Se agregaron reintentos con espera creciente solo para errores transitorios (429 y 5xx), hasta 4 intentos. En la corrida de calibración no hizo falta reintentar.
+- **First run (run `40390060225`):** it failed with an HTTP 500 from OpenAI's embeddings API while embedding the questions; it was neither a leak nor a recall problem. Retries with increasing backoff were added, only for transient errors (429 and 5xx), up to 4 attempts. The calibration run needed no retry.
 
-## Pendientes de mantenimiento
+## Maintenance items
 
-GitHub anotó dos avisos en el run, sin efecto hoy en el resultado:
-- `actions/checkout@v4` y `actions/setup-python@v5` usan Node.js 20, que está obsoleto en los runners.
-- `ubuntu-latest` migra a Ubuntu 26 desde el 19 de octubre de 2026.
+GitHub reported two warnings in the run, with no effect on the result at the time:
 
-Afectan también a los workflows de semanas 6 a 8; conviene actualizarlos juntos.
+- `actions/checkout@v4` and `actions/setup-python@v5` used Node.js 20, which is deprecated on the runners.
+- `ubuntu-latest` moves to Ubuntu 26 from October 19, 2026.
 
-## Límites
+They also affected the workflows of weeks 6 to 8. Both are resolved: the workflows now use `actions/checkout` v5 and `actions/setup-python` v6, pinned by SHA, on `ubuntu-24.04`.
 
-- En CI solo corre pgvector. Qdrant y OpenSearch se verificaron con fuga 0 localmente (actividades 5 y 6).
-- El CI usa `text-embedding-3-small`, no el bge-m3 de las mediciones locales.
-- Una corrida de calibración.
+## Limits
+
+- Only pgvector runs in CI. Qdrant and OpenSearch were verified with 0 leaks locally (activities 5 and 6).
+- CI uses `text-embedding-3-small`, not the bge-m3 model of the local measurements.
+- A single calibration run.
