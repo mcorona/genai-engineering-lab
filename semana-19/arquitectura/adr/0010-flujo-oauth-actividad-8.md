@@ -18,4 +18,4 @@ verified** in the documentation yet; they are verified before activity 8.
 ## Consequences
 
 - An app client without secret, with the authorization code grant and PKCE, and the scopes of ADR 0009.
-- If (a) makes activity 8 impractical headless, the fallback is (b), recorded as an exception with its reason.
+- **Accepted by Manuel:** the activity 8 script may depend on a browser sign-in. The fallback (b) is not needed.
