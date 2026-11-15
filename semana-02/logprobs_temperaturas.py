@@ -1,8 +1,8 @@
-"""Distribución del siguiente token según temperature (T), con entropía.
+"""Next-token distribution by temperature (T), with entropy.
 
-Usa mlx-lm sobre el mismo modelo que LM Studio. Para cada T divide los logits
-entre T antes del softmax; con T = 0 toma el token más probable (argmax).
-Entropía en bits: 0 = el modelo está seguro; más alta = más dispersión.
+Uses mlx-lm on the same model as LM Studio. For each T it divides the logits
+by T before the softmax; with T = 0 it takes the most likely token (argmax).
+Entropy in bits: 0 = the model is certain; higher = more spread.
 """
 import csv
 import math
@@ -14,7 +14,7 @@ from mlx_lm import load
 RUTA = os.path.expanduser("~/.lmstudio/models/lmstudio-community/Qwen3.8-27B-MLX-4bit")
 PROMPT = "Di hola"
 TEMPERATURAS = [0.0, 0.7, 1.0]
-TOP_P_NUCLEO = 0.9   # cuántos tokens entran al núcleo con este top_p
+TOP_P_NUCLEO = 0.9   # how many tokens enter the nucleus with this top_p
 MOSTRAR = 10
 DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -56,8 +56,8 @@ filas = []
 for T in TEMPERATURAS:
     p = distribucion(logits, T)
     orden = sorted(range(len(p)), key=lambda i: -p[i])
-    print(f"\nT = {T}  entropía = {entropia_bits(p):.3f} bits  "
-          f"núcleo top_p={TOP_P_NUCLEO}: {tamano_nucleo(p, TOP_P_NUCLEO)} token(s)")
+    print(f"\nT = {T}  entropy = {entropia_bits(p):.3f} bits  "
+          f"nucleus top_p={TOP_P_NUCLEO}: {tamano_nucleo(p, TOP_P_NUCLEO)} token(s)")
     for i in orden[:MOSTRAR]:
         if p[i] > 0:
             print(f"  {tok.decode([i])!r:>12}  p = {p[i]:.4f}")
@@ -69,4 +69,4 @@ with open(os.path.join(DIR, "logprobs_distribucion.csv"), "w", newline="", encod
     w = csv.writer(f)
     w.writerow(["temperatura", "token_id", "token", "probabilidad"])
     w.writerows(filas)
-print(f"\nCSV guardado en {DIR}/logprobs_distribucion.csv")
+print(f"\nCSV saved to {DIR}/logprobs_distribucion.csv")

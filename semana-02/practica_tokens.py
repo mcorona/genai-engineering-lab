@@ -1,9 +1,9 @@
-"""Práctica semana 2: cuántos tokens cuesta el mismo texto en español y en inglés.
+"""Unit 2 practice: how many tokens the same text costs in Spanish and in English.
 
-Tres conteos:
-- Qwen: tokenizador oficial de Qwen2.5 (conteo exacto con ese tokenizador).
-- Claude: conteo oficial de la API si hay ANTHROPIC_API_KEY; si no, estimación con tiktoken (declarada).
-- Tokenizador abierto: tiktoken o200k_base (conteo exacto con ese tokenizador).
+Three counts:
+- Qwen: the official Qwen2.5 tokenizer (an exact count with that tokenizer).
+- Claude: the API's official count if ANTHROPIC_API_KEY is set; otherwise a tiktoken estimate (declared as such).
+- Open tokenizer: tiktoken o200k_base (an exact count with that tokenizer).
 """
 import os
 from pathlib import Path
@@ -14,20 +14,20 @@ from transformers import AutoTokenizer
 ES = Path("texto_es.txt").read_text(encoding="utf-8")
 EN = Path("texto_en.txt").read_text(encoding="utf-8")
 
-# Precio por millón de tokens de entrada (USD). Llénalo con la tabla vigente del proveedor.
-PRECIO_POR_MTOK = {"Claude": 2.0, "Qwen": None, "tiktoken": None}  # USD por millón de tokens de entrada (claude-sonnet-5-5)
+# Price per million input tokens (USD). Fill it in from the provider's current price table.
+PRECIO_POR_MTOK = {"Claude": 2.0, "Qwen": None, "tiktoken": None}  # USD per million input tokens (claude-sonnet-5-5)
 
-resultados = {}  # nombre -> (tokens_es, tokens_en, etiqueta de método)
+resultados = {}  # name -> (tokens_es, tokens_en, method label)
 
-# 1. Tokenizador abierto (exacto)
+# 1. Open tokenizer (exact)
 enc = tiktoken.get_encoding("o200k_base")
 resultados["tiktoken"] = (len(enc.encode(ES)), len(enc.encode(EN)), "exacto (o200k_base)")
 
-# 2. Qwen (exacto con su tokenizador)
+# 2. Qwen (exact with its own tokenizer)
 qtok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-7B-Instruct")
 resultados["Qwen"] = (len(qtok.encode(ES)), len(qtok.encode(EN)), "exacto (Qwen2.5)")
 
-# 3. Claude: oficial si hay clave; si no, estimación declarada
+# 3. Claude: official if there is a key; otherwise a declared estimate
 if os.getenv("ANTHROPIC_API_KEY"):
     import anthropic
 
@@ -40,9 +40,9 @@ if os.getenv("ANTHROPIC_API_KEY"):
         )
         return r.input_tokens
 
-    # Overhead fijo del formato del mensaje: la letra "a" pesa 1 token.
+    # Fixed overhead of the message format: the letter "a" weighs 1 token.
     overhead = contar("a") - 1
-    print(f"overhead de formato de Claude: {overhead} tokens (se restan de cada conteo)")
+    print(f"Claude format overhead: {overhead} tokens (subtracted from each count)")
     resultados["Claude"] = (
         contar(ES) - overhead,
         contar(EN) - overhead,
@@ -55,11 +55,11 @@ else:
         "ESTIMACIÓN: proxy con o200k_base, no oficial",
     )
 
-print(f"{'tokenizador':<12} | {'ES':>6} | {'EN':>6} | {'ES/EN':>6} | {'extra ES':>8} | método")
+print(f"{'tokenizer':<12} | {'ES':>6} | {'EN':>6} | {'ES/EN':>6} | {'ES extra':>8} | method")
 for nombre, (es, en, metodo) in resultados.items():
     print(f"{nombre:<12} | {es:>6} | {en:>6} | {es / en:>6.2f} | {(es - en) / en:>7.0%} | {metodo}")
 
-print("\nCosto por texto (solo si llenas PRECIO_POR_MTOK):")
+print("\nCost per text (only if PRECIO_POR_MTOK is filled in):")
 for nombre, (es, en, _) in resultados.items():
     precio = PRECIO_POR_MTOK.get(nombre)
     if precio:

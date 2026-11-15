@@ -1,9 +1,9 @@
-"""Intervalos de Wilson (95 %) y prueba exacta de McNemar pareada para las corridas de semana 3.
+"""Wilson intervals (95 %) and the exact paired McNemar test for the unit 3 runs.
 
-Uso:
+Usage:
     uv run python semana-03/estadistica.py base7b lora7b base
     uv run python semana-03/estadistica.py base7b lora7b --comparar base7b lora7b
-    --metrica ejecuta   para comparar ejecución en vez de coincidencia de resultado
+    --metrica ejecuta   to compare execution instead of result match
 """
 import argparse
 import json
@@ -29,7 +29,7 @@ def wilson(k, n, z=1.96):
 
 
 def mcnemar_exacta(solo_a, solo_b):
-    """p de dos colas: pares discordantes contra una binomial(n, 1/2)."""
+    """Two-sided p: discordant pairs against a binomial(n, 1/2)."""
     n = solo_a + solo_b
     if n == 0:
         return 1.0
@@ -48,7 +48,7 @@ def main():
     nombres = list(dict.fromkeys(args.corridas + (args.comparar or [])))
     datos = {n: cargar(n) for n in nombres}
 
-    print(f"{'corrida':30s} {'n':>3s} {'aciertos':>8s} {'tasa':>7s}   IC 95 % (Wilson)")
+    print(f"{'run':30s} {'n':>3s} {'correct':>8s} {'rate':>7s}   95 % CI (Wilson)")
     for n in args.corridas:
         filas = datos[n]
         k = sum(bool(f[args.metrica]) for f in filas)
@@ -64,9 +64,9 @@ def main():
         solo_a = sum(ma[q] and not mb[q] for q in comunes)
         solo_b = sum(mb[q] and not ma[q] for q in comunes)
         p = mcnemar_exacta(solo_a, solo_b)
-        print(f"\n{a} vs {b} ({args.metrica}, {len(comunes)} pares comunes)")
-        print(f"  solo {a} acierta: {solo_a}   solo {b} acierta: {solo_b}   McNemar p = {p:.3f}")
-        print("  diferencia significativa al 5 %" if p < 0.05 else "  diferencia no significativa al 5 %")
+        print(f"\n{a} vs {b} ({args.metrica}, {len(comunes)} common pairs)")
+        print(f"  only {a} right: {solo_a}   only {b} right: {solo_b}   McNemar p = {p:.3f}")
+        print("  significant difference at 5 %" if p < 0.05 else "  difference not significant at 5 %")
 
 
 if __name__ == "__main__":

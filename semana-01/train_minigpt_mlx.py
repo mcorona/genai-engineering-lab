@@ -3,7 +3,7 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 from minigpt_mlx import MiniGPT
 
-# Datos: tokenización a nivel de carácter
+# Data: character-level tokenization
 text = open("input.txt").read()
 chars = sorted(set(text))
 stoi = {c: i for i, c in enumerate(chars)}
@@ -50,7 +50,7 @@ for step in range(STEPS + 1):
     mx.eval(model.parameters(), opt.state)
     if step % 100 == 0:
         v = eval_loss(model, val)
-        print(f"paso {step:5d}  train {loss.item():.4f}  val {v:.4f}")
+        print(f"step {step:5d}  train {loss.item():.4f}  val {v:.4f}")
         log.write(f"{step},{loss.item():.4f},{v:.4f}\n")
 log.close()
 
@@ -64,5 +64,5 @@ def generate(n=300, temp=0.8):
     return "".join(itos[i] for i in idx[0].tolist())
 
 
-print("\n--- muestra ---")
+print("\n--- sample ---")
 print(generate())

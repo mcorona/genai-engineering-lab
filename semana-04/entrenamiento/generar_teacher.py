@@ -1,13 +1,13 @@
-"""Genera las respuestas del maestro (Qwen3.8-27B con las reglas en el prompt) para los pares de entrenamiento.
+"""Generates the teacher's answers (Qwen3.8-27B with the rules in the prompt) for the training pairs.
 
-Por cada par de entrenamiento se pide SQL al maestro, se ejecuta y se compara con la referencia.
-Salida: data/teacher.jsonl, un renglón por pregunta con ejecuta, coincide y error.
+For each training pair, the teacher is asked for SQL, which is executed and compared with the reference.
+Output: data/teacher.jsonl, one line per question with ejecuta, coincide and error.
 
-Usa solo semana-03/data/lora/train.jsonl. Nunca toca pares_eval.jsonl: la evaluación sigue limpia.
+Uses only semana-03/data/lora/train.jsonl. It never touches pares_eval.jsonl: the evaluation stays clean.
 
-Uso (LM Studio con el 27B cargado; LB_READER_DSN en el entorno):
+Usage (LM Studio with the 27B model loaded; LB_READER_DSN in the environment):
     uv run python semana-04/entrenamiento/generar_teacher.py
-    --limite 3   para una prueba rápida
+    --limite 3   for a quick test
 """
 import argparse
 import json
@@ -31,7 +31,7 @@ def main():
     ap.add_argument("--limite", type=int, default=0)
     ap.add_argument("--max-tokens", type=int, default=8192)
     ap.add_argument("--reintentar", action="store_true",
-                    help="solo las preguntas sin SQL en teacher.jsonl; salida en teacher_reintento.jsonl")
+                    help="only the questions without SQL in teacher.jsonl; output in teacher_reintento.jsonl")
     args = ap.parse_args()
 
     reglas = (SEM3 / "reglas_legado.md").read_text(encoding="utf-8")
@@ -69,8 +69,8 @@ def main():
                         error=error, finish=terminacion)
             fh.write(json.dumps(fila, ensure_ascii=False) + "\n")
             fh.flush()
-            print(f"[{i}/{len(pares)}] ejecuta={ejecuta} coincide={coincide} {pregunta[:60]}", flush=True)
-    print(f"maestro acierta {aciertos}/{len(pares)} en entrenamiento")
+            print(f"[{i}/{len(pares)}] executes={ejecuta} matches={coincide} {pregunta[:60]}", flush=True)
+    print(f"teacher right on {aciertos}/{len(pares)} training pairs")
 
 
 if __name__ == "__main__":

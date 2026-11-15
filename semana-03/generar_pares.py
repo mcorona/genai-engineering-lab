@@ -1,15 +1,15 @@
-"""Semana 3: genera y valida pares pregunta -> SQL sobre el esquema legado de LegacyBridge.
+"""Unit 3: generates and validates question -> SQL pairs over the LegacyBridge legacy schema.
 
-1. Plantillas por regla de negocio (docs/legacy-defects.md): cada una con varias formas de
-   preguntar en español y valores reales muestreados de la base.
-2. Cada SQL se ejecuta con el rol lb_reader (solo lectura, con timeout). Se descarta si da
-   error o no devuelve filas.
-3. Se descartan preguntas y SQL que coincidan con el conjunto de evaluación de LegacyBridge.
-4. El resto se divide 80/20 por plantilla (semilla fija) en entrenamiento y evaluación.
+1. Templates per business rule (docs/legacy-defects.md): each with several ways of
+   asking in Spanish and real values sampled from the database.
+2. Each SQL statement runs with the lb_reader role (read-only, with a timeout). It is discarded
+   if it fails or returns no rows.
+3. Questions and SQL that match the LegacyBridge evaluation set are discarded.
+4. The rest is split 80/20 by template (fixed seed) into training and evaluation.
 
-Uso (desde la raíz del repo; necesita LB_READER_DSN en el entorno):
+Usage (from the repository root; needs LB_READER_DSN in the environment):
     uv run python semana-03/generar_pares.py
-Opcional: LEGACYBRIDGE_DIR apunta a la carpeta de legacybridge-v2 (por defecto ~/legacybridge-v2).
+Optional: LEGACYBRIDGE_DIR points to the legacybridge-v2 folder (default ~/legacybridge-v2).
 """
 import json
 import os
@@ -28,7 +28,7 @@ DATOS.mkdir(exist_ok=True)
 DSN = os.environ["LB_READER_DSN"]
 GOLDEN = Path(os.environ.get("LEGACYBRIDGE_DIR", Path.home() / "legacybridge-v2")) / "evals" / "golden_set.yaml"
 SEMILLA = 42
-POR_PLANTILLA = 6  # valores de cada plantilla
+POR_PLANTILLA = 6  # values of each template
 
 ESQUEMA = """Base PostgreSQL legacy de facturación e inventario (sintética, con defectos documentados).
 clientes(clave CHAR(10), nombre, rfc, estado CHAR(3), telefono, email, status A|I|B, falta CHAR(8) YYYYMMDD)
@@ -42,7 +42,7 @@ invprv(clave CHAR(6), nombre, rfc, activo)
 invmov(fol INT, fecha CHAR(8), alm, art CHAR(12), tipo E|S|T|A|I|O, cant NUMERIC, uni CHAR(3) CJA|PZA, prov, ref VARCHAR(20), cancel CHAR(1) C, obs)
 Responde solo con una consulta SQL de PostgreSQL de solo lectura, sin explicación."""
 
-# Facturas vigentes: última captura por (serie, folio) (FAC-09). El filtro de estatus se aplica después.
+# Current invoices: the latest capture per (series, folio) (FAC-09). The status filter is applied afterwards.
 VIG = """WITH vigentes AS (
   SELECT DISTINCT ON (serie, LPAD(TRIM(numfac), 10, '0'))
          serie, LPAD(TRIM(numfac), 10, '0') AS folio, cliente, rfc, fecha, total, ref1, status
@@ -56,7 +56,7 @@ def monto(col):
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
          "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
-# Cada plantilla: SQL con llaves para los valores, preguntas en español y los valores posibles.
+# Each template: SQL with placeholders for the values, questions in Spanish and the possible values.
 PLANTILLAS = [
     dict(id="cliente_datos", vig=False,
          sql="SELECT nombre, estado FROM clientes WHERE clave = '{clave}' AND status <> 'B'",
@@ -237,7 +237,7 @@ def validar(conn, sql):
 
 def cargar_golden():
     if not GOLDEN.exists():
-        print(f"AVISO: no encuentro {GOLDEN}; no se excluyen preguntas del conjunto de evaluación")
+        print(f"WARNING: {GOLDEN} not found; no questions are excluded from the evaluation set")
         return set(), set()
     casos = yaml.safe_load(GOLDEN.read_text(encoding="utf-8")) or []
     preguntas = {normalizar(c["question"]) for c in casos if c.get("question")}
@@ -250,7 +250,7 @@ def main():
     with psycopg.connect(DSN) as conn:
         S = muestras(conn)
         candidatos = construir_candidatos(S)
-        print(f"candidatos generados: {len(candidatos)}")
+        print(f"candidates generated: {len(candidatos)}")
 
         vistos, aceptados, rechazados = set(), [], []
         motivos = Counter()
@@ -271,7 +271,7 @@ def main():
                 continue
             aceptados.append(dict(c, filas=filas))
 
-    # División 80/20 por plantilla, con semilla fija
+    # 80/20 split by template, with a fixed seed
     rng = random.Random(SEMILLA)
     grupos = defaultdict(list)
     for a in aceptados:
