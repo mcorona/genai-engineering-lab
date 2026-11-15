@@ -11,6 +11,8 @@ EXCEPCIONES = {
     "PasarRolDelCreadorDeGuardrail": "iam:PassRole sobre role/semana19-ia-* solo hacia lambda.amazonaws.com: CloudFormation asigna el rol a la función que crea el guardrail.",
     "GuardrailDelLimite": "Acciones de Guardrail del límite sobre guardrail/* de esta cuenta y Región: el techo del rol del creador de guardrail; sin el límite, sus acciones se niegan aunque el rol las tenga.",
     "KmsParaBedrockDelLimite": "Uso de llaves KMS de la cuenta (key/*) solo cuando la llamada llega por Bedrock en us-east-1 (kms:ViaService): el creador de guardrail cifra con la llave base.",
+    "PromptsDelAgentePorCfn": "Acciones de Prompt Management sobre prompt/* de esta cuenta: CloudFormation crea, versiona y lee los prompts del agente (ARN no existe antes de crearlos).",
+    "LlaveDeLosPromptsPorCfn": "Uso de llaves KMS de la cuenta solo por Bedrock en us-east-1 (kms:ViaService): los prompts se cifran con la llave base.",
     "EscribirLogsDelCreadorDeGuardrail": "CreateLogStream y PutLogEvents sobre /semana19/ia/* (la función que crea el guardrail; su grupo está cifrado con la llave base).",
     "EscribirSecretoDeLaBdPorCfn": "PutSecretValue y UpdateSecretVersionStage sobre los secretos semana19datos* (la contraseña de la base): CloudFormation escribe ahí los datos de conexión al asociar el secreto.",
     "DocsDatosLeer": "Lectura de objetos del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3.",

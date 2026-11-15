@@ -206,6 +206,15 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolDelCustomResourceDelProyecto", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-base-CustomVpcRestrictDefaultSGCustomResou*")],
                      conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
+        # Prompt Management for the agent's system prompt (stack semana19-ia): create, version and read prompts of this account.
+        _declaracion(sid="PromptsDelAgentePorCfn", actions=[
+            "bedrock:CreatePrompt", "bedrock:CreatePromptVersion", "bedrock:GetPrompt", "bedrock:UpdatePrompt",
+            "bedrock:DeletePrompt", "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:prompt/*"]),
+        _declaracion(sid="LlaveDeLosPromptsPorCfn", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
+                                                             "kms:DescribeKey", "kms:CreateGrant"],
+                     resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+                     conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
         # The guardrail creator's function runs with its role (stack semana19-ia): CloudFormation passes it to Lambda.
         _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-ia-*")],
@@ -776,6 +785,16 @@ def _definicion_guardrail() -> dict:
     return modulo.definicion_guardrail("semana19-legacybridge")
 
 
+def _cargar_hoja(nombre: str):
+    """A module under semana-19/ia (config and prompt texts), loaded by path like the definition of the guardrail."""
+    import importlib.util
+    ruta = Path(__file__).resolve().parents[2] / "ia" / nombre
+    spec = importlib.util.spec_from_file_location(f"ia_{ruta.stem}", ruta)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo
+
+
 class Ia(Stack):
     """Activity 5: the Guardrail semana19-legacybridge and one published version, encrypted with the base key.
 
@@ -792,7 +811,8 @@ class Ia(Stack):
             retention=logs.RetentionDays.ONE_WEEK, encryption_key=llave, removal_policy=RemovalPolicy.DESTROY)
         creador = lambda_.Function(
             self, "CreadorGuardrail", runtime=lambda_.Runtime.PYTHON_3_13, handler="handler.handler",
-            code=lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "guardrail")),
+            code=lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "guardrail"), exclude=[
+                "comparar_determinista.py", "prueba_viva.py", "tests", "__pycache__", "resultados"]),
             timeout=Duration.minutes(2), memory_size=256, reserved_concurrent_executions=1, log_group=grupo,
             description="Creates the semana19-legacybridge guardrail with its tier (custom resource, activity 5).")
         saltar_checkov(creador, {
@@ -821,6 +841,23 @@ class Ia(Stack):
         recurso = cdk.CustomResource(
             self, "Guardrail", service_token=creador.function_arn,
             properties={**_definicion_guardrail(), "kmsKeyId": llave.key_arn})
+        # Prompt Management: the agent's system prompt (ES and EN) with the model in one config value, encrypted with the
+        # base key. Each change is a new version; the agent reads a pinned version (activity 6).
+        modelo = _cargar_hoja("config.py").MODELO_ID
+        textos = _cargar_hoja("prompts_sistema.py").PROMPTS
+        for idioma, texto in textos.items():
+            prompt = bedrock.CfnPrompt(
+                self, f"Prompt{idioma.upper()}", name=f"semana19-sistema-{idioma}",
+                description="System prompt of the LegacyBridge agent (activity 5).",
+                customer_encryption_key_arn=llave.key_arn, default_variant="principal",
+                variants=[bedrock.CfnPrompt.PromptVariantProperty(
+                    name="principal", template_type="TEXT", model_id=modelo,
+                    template_configuration=bedrock.CfnPrompt.PromptTemplateConfigurationProperty(
+                        text=bedrock.CfnPrompt.TextPromptTemplateConfigurationProperty(
+                            text=texto, input_variables=[bedrock.CfnPrompt.PromptInputVariableProperty(name="nombre_empresa")])))])
+            version = bedrock.CfnPromptVersion(self, f"VersionPrompt{idioma.upper()}", prompt_arn=prompt.attr_arn,
+                                               description=f"Version pinned by the agent: system prompt {idioma}.")
+            cdk.CfnOutput(self, f"ArnVersionPrompt{idioma.upper()}", value=version.attr_arn)
         cdk.CfnOutput(self, "IdGuardrail", value=recurso.get_att_string("GuardrailId"))
         cdk.CfnOutput(self, "VersionGuardrail", value=recurso.get_att_string("Version"))
 
