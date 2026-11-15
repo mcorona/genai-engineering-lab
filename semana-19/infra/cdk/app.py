@@ -781,6 +781,12 @@ class Ia(Stack):
                 "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail",
                 "bedrock:GetGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
             resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*"]))
+        NagSuppressions.add_resource_suppressions(creador, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; el custom resource corre una vez por despliegue.")])
+        NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.")], apply_to_children=True)
+        NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
+            id="AwsSolutions-IAM5", reason="Guardrail: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.")], apply_to_children=True)
         creador.add_to_role_policy(_declaracion(
             sid="LlaveDelGuardrail", actions=["kms:Decrypt", "kms:DescribeKey", "kms:GenerateDataKey", "kms:CreateGrant"],
             resources=[llave.key_arn]))
