@@ -626,6 +626,9 @@ class Base(Stack):
                 vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
                 security_groups=[sg_herramientas], log_group=grupo_sonda)
             cdk.CfnOutput(self, "NombreSondaDns", value=sonda_dns.function_name)
+            NagSuppressions.add_resource_suppressions(sonda_dns, [
+                NagPackSuppression(id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; la sonda corre una vez por verificación."),
+                NagPackSuppression(id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: la sonda necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.")])
 
         suprimir_iam5(rol_flow, ["EscribirSoloEnSuGrupo", "DescribirGruposParaFlowLogs", "-"])
         Tags.of(self).add("proyecto", "semana19")
