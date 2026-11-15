@@ -279,7 +279,8 @@ def permitidos(con_control: bool, con_base: bool = False) -> dict:
             "stacks_cloudformation": {"semana19-control"},
             "presupuestos": {"semana19"},
             "acciones_presupuesto": {"semana19"},
-            "politicas_iam_locales": {"semana19-limite", "semana19-congelar", "semana19-cfn-exec"},
+            "politicas_iam_locales": {"semana19-limite", "semana19-congelar", "semana19-cfn-exec",
+                                   "semana19-cfn-exec-datos"},  # owned by semana19-control (its ArnEjecucionCfnDatos output)
             "roles_iam": {"semana19-lectura", "semana19-despliegue", "semana19-accion-presupuesto", "semana19-flow-logs"},
             # With the control kept, the tag search also finds the control's own resources: reported, not judged.
             "etiquetados_tagging_api": None,
