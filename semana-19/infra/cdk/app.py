@@ -120,7 +120,8 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="GuardrailDelLimite", actions=[
             "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:GetGuardrail",
             "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
-            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*"]),
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
+                       f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/us.guardrail.v1:0"]),
         _declaracion(sid="CloudFormationLeer", actions=["cloudformation:Describe*", "cloudformation:Get*",
                                                         "cloudformation:List*"], resources=["*"]),
         _declaracion(sid="AdjuntarPoliticasAlRolDeDespliegue", actions=["iam:AttachRolePolicy", "iam:DetachRolePolicy"],
@@ -798,6 +799,11 @@ class Ia(Stack):
                 "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail",
                 "bedrock:GetGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
             resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*"]))
+        # CreateGuardrail with a cross-Region config is also authorized against the guardrail profile (account-scoped ARN).
+        perfil = _definicion_guardrail()["crossRegionConfig"]["guardrailProfileIdentifier"]
+        creador.add_to_role_policy(_declaracion(
+            sid="PerfilEntreRegionesDelGuardrail", actions=["bedrock:CreateGuardrail", "bedrock:UpdateGuardrail"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/{perfil}"]))
         NagSuppressions.add_resource_suppressions(creador, [NagPackSuppression(
             id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; el custom resource corre una vez por despliegue.")])
         NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(

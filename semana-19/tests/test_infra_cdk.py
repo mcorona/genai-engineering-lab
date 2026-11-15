@@ -661,3 +661,17 @@ def test_stack_ia_guardrail_por_custom_resource_sin_roles_extra_ni_recurso_de_gu
     assert props["crossRegionConfig"] == {"guardrailProfileIdentifier": "us.guardrail.v1:0"}
     assert props["contentPolicyConfig"]["tierConfig"] == {"tierName": "STANDARD"}
     assert props["contextualGroundingPolicyConfig"]["tierConfig"] == {"tierName": "CLASSIC"}
+
+
+def test_perfil_entre_regiones_autorizado_en_la_politica_del_creador_y_en_el_limite():
+    # CreateGuardrail with a cross-Region config is authorized against the account-scoped guardrail profile.
+    import json as _json
+    import os as _os
+    import subprocess as _sp
+    import tempfile as _tf
+    out = _tf.mkdtemp(prefix="s19perfil_")
+    _sp.run([sys.executable, str(APP)], env=dict(_os.environ, CDK_OUTDIR=out), check=True, capture_output=True)
+    ia = _json.loads((Path(out) / "semana19-ia.template.json").read_text(encoding="utf-8"))
+    assert "guardrail-profile/us.guardrail.v1:0" in _json.dumps(ia)
+    ctl = _json.loads((Path(out) / "semana19-control.template.json").read_text(encoding="utf-8"))
+    assert "guardrail-profile/us.guardrail.v1:0" in _json.dumps(ctl)
