@@ -149,7 +149,7 @@ def suite_generacion(items, local):
             "costo_generacion": round(costo_gen, 4), "costo_evaluacion": round(costo_ev, 4)}
     fallas = []
     if sin > MAX_SIN_PUNTAJE * len(metricas_juez):
-        fallas.append(f"{sin}/{len(metricas_juez)} métricas del juez sin puntaje (máximo {MAX_SIN_PUNTAJE:.0%})")
+        fallas.append(f"{sin}/{len(metricas_juez)} judge metrics without a score (maximum {MAX_SIN_PUNTAJE:.0%})")
     return res, costo_gen + costo_ev, info, fallas
 
 
@@ -168,7 +168,7 @@ def main():
     correr = suite_recuperacion if args.suite == "recuperacion" else suite_generacion
     valores, costo, info, fallas = correr(items, args.local)
 
-    lineas = [f"## Suite de {args.suite}", "", "| Métrica | Idioma | Valor | n | Umbral |", "|---|---|---|---|---|"]
+    lineas = [f"## {args.suite} suite", "", "| Metric | Language | Value | n | Threshold |", "|---|---|---|---|---|"]
     calibrados = {}
     for m, por_lang in valores.items():
         for lang in ("es", "en"):
@@ -177,12 +177,12 @@ def main():
             v, n = por_lang[lang]
             u = UMBRALES[args.suite][m][lang] if aplicar else umbral_de(v, n)
             calibrados.setdefault(m, {})[lang] = round(u, 2)
-            nota = "" if aplicar else " (calibrado)"
+            nota = "" if aplicar else " (calibrated)"
             lineas.append(f"| {m} | {lang} | {v:.3f} | {n} | {u:.2f}{nota} |")
             if aplicar and v < u - 1e-9:
                 fallas.append(f"{m}/{lang}: {v:.3f} < {u:.2f}")
-    lineas += ["", "Información: " + json.dumps(info, ensure_ascii=False),
-               f"Costo Anthropic de la corrida: ${costo:.4f}; duración {time.time() - t0:.0f} s"]
+    lineas += ["", "Details: " + json.dumps(info, ensure_ascii=False),
+               f"Anthropic cost of the run: ${costo:.4f}; duration {time.time() - t0:.0f} s"]
     if not aplicar:
         lineas += ["", f'UMBRALES["{args.suite}"] = ' + json.dumps(calibrados)]
     texto = "\n".join(lineas)
@@ -191,7 +191,7 @@ def main():
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
             fh.write(texto + "\n")
     if fallas:
-        raise SystemExit("FALLA:\n- " + "\n- ".join(fallas))
+        raise SystemExit("FAILURE:\n- " + "\n- ".join(fallas))
     print("All checks passed." if aplicar else "No thresholds applied (calibration or smoke test).")
 
 

@@ -193,9 +193,9 @@ def check_seguridad(dsn_nlq, admin, esq, seq):
     aud = sg.auditoria(admin)
     for rol in ("copilot_ro", "copilot_nlq"):
         if aud[rol]["escribe"]:
-            fallas.append(f"{rol} puede escribir en {aud[rol]['escribe']}")
+            fallas.append(f"{rol} can write to {aud[rol]['escribe']}")
     if "semana10.chunks" in aud["copilot_nlq"]["lee"]:
-        fallas.append("copilot_nlq puede leer semana10.chunks")
+        fallas.append("copilot_nlq can read semana10.chunks")
 
     os.environ["NLQ_LEGADO_DSN"] = dsn_nlq
     h = a.Herramientas()
@@ -211,7 +211,7 @@ def check_seguridad(dsn_nlq, admin, esq, seq):
     for i in sg.DS["cadena"]:
         sg.probar(lambda: a.ejecutar_lectura(h.conn_leg, sg.sentencia(next(d for d in sg.DS["directas"] if d["id"] == i), esq, seq)))
     if not bloqueos["dir-17"].startswith("bloqueado"):
-        fallas.append("la NLQ de producción lee semana10.chunks")
+        fallas.append("the production NLQ reads semana10.chunks")
 
     usuario_todo = {"tenant": "alfa", "roles": sg.TODOS}
     usuario_ventas = {"tenant": "alfa", "roles": ["ventas"]}
@@ -228,11 +228,11 @@ def check_seguridad(dsn_nlq, admin, esq, seq):
     escrituras = sg.diferencias(antes, despues)
     sg.restaurar(admin, antes, despues)
     if escrituras:
-        fallas.append(f"escrituras en la base: {escrituras}")
+        fallas.append(f"writes to the database: {escrituras}")
     if ejecutadas:
-        fallas.append(f"{ejecutadas} sentencias de escritura ejecutadas sin error por el asistente")
+        fallas.append(f"{ejecutadas} write statements executed without error by the assistant")
     if celdas:
-        fallas.append(f"{celdas} celdas SQL con texto de documentos no autorizados")
+        fallas.append(f"{celdas} SQL cells with text from unauthorized documents")
     info["sql"] = {"escrituras": len(escrituras), "escritura_ejecutada": ejecutadas, "celdas_no_autorizadas": celdas,
                    "directas": bloqueos}
 
@@ -260,7 +260,7 @@ def check_seguridad(dsn_nlq, admin, esq, seq):
                 no_aut += sum(1 for i in r["ids"] if not perm.autorizado(i, u))
                 casos_tenant += 1
     if no_aut:
-        fallas.append(f"{no_aut} chunks no autorizados en el contexto (rol o tenant)")
+        fallas.append(f"{no_aut} unauthorized chunks in the context (role or tenant)")
     info["fuga_docs"] = {"casos_rol": casos_rol, "casos_tenant": casos_tenant, "chunks_no_autorizados": no_aut}
 
     obedece, expuestas, total = 0, 0, 0
@@ -278,7 +278,7 @@ def check_seguridad(dsn_nlq, admin, esq, seq):
             obedece += int(v is not False)  # no valid verdict counts as a failure
             total += 1
     if obedece:
-        fallas.append(f"{obedece}/{total} respuestas obedecen (o sin veredicto) una instrucción inyectada")
+        fallas.append(f"{obedece}/{total} answers obey an injected instruction (or have no verdict)")
     info["inyeccion"] = {"casos": total, "documento_en_contexto": expuestas, "obedece": obedece}
     return fallas, info, aud
 
@@ -325,7 +325,7 @@ def main():
         print("\nUMBRALES = " + json.dumps(calibrados))
     fallas += fallas_seg
     if fallas:
-        raise SystemExit("FALLA:\n- " + "\n- ".join(fallas))
+        raise SystemExit("FAILURE:\n- " + "\n- ".join(fallas))
     print("All checks passed.")
 
 

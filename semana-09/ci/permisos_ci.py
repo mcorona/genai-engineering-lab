@@ -51,7 +51,7 @@ def embed(textos):
                 if e.code not in (429, 500, 502, 503, 504) or intento == 3:
                     raise
                 espera = 2 ** (intento + 1)
-                print(f"embeddings: HTTP {e.code}, reintento {intento + 1}/3 en {espera} s", file=sys.stderr)
+                print(f"embeddings: HTTP {e.code}, retry {intento + 1}/3 in {espera} s", file=sys.stderr)
                 time.sleep(espera)
         out += [d["embedding"] for d in sorted(datos, key=lambda d: d["index"])]
     return out
@@ -149,13 +149,13 @@ def main():
                   f"leak across tenants={fuga_tenant} | other tenant's figure={otra_cifra}/{2 * len(solap)} | "
                   f"own figure in top 5={propia}/{2 * len(solap)}")
             if r5 < UMBRAL:
-                errores.append(f"{idioma}: recall@5 {r5:.3f} bajo el umbral {UMBRAL}")
+                errores.append(f"{idioma}: recall@5 {r5:.3f} below the threshold {UMBRAL}")
             if fuga_rol or prohibidos:
-                errores.append(f"{idioma}: fuga por rol ({fuga_rol} chunks, {prohibidos} pasajes prohibidos)")
+                errores.append(f"{idioma}: leak by role ({fuga_rol} chunks, {prohibidos} forbidden passages)")
             if fuga_tenant or otra_cifra:
-                errores.append(f"{idioma}: fuga entre tenants ({fuga_tenant} chunks, {otra_cifra} cifras del otro tenant)")
+                errores.append(f"{idioma}: leak across tenants ({fuga_tenant} chunks, {otra_cifra} figures from the other tenant)")
     if errores:
-        sys.exit("FALLA: " + "; ".join(errores))
+        sys.exit("FAILURE: " + "; ".join(errores))
     print("OK: recall within the threshold and 0 leaks (by role and across tenants) in ES and EN")
 
 
