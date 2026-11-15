@@ -236,7 +236,9 @@ def guard_y_bitacora(d: Path) -> dict:
     """What the hooks left: guard blocks in the events vs lines in bloqueos.jsonl, the role check, and the query log."""
     texto = (d / "eventos.jsonl").read_text(encoding="utf-8") if (d / "eventos.jsonl").exists() else ""
     eventos = [json.loads(x) for x in texto.splitlines() if x.strip()]
-    bloqueados = sum(1 for e in eventos for b in (e.get("message") or {}).get("content") or []
+    # A stream event's "message" is not always an object (some event types carry a string): only objects have content
+    bloqueados = sum(1 for e in eventos if isinstance(e, dict) and isinstance(e.get("message"), dict)
+                     for b in e["message"].get("content") or []
                      if isinstance(b, dict) and b.get("type") == "tool_result" and b.get("is_error")
                      and "legacy-schema-audit:" in json.dumps(b.get("content"), ensure_ascii=False))
     log = d / "auditoria" / "bloqueos.jsonl"

@@ -72,7 +72,7 @@ def puntuar_mapeo(salida: dict | None) -> dict:
 def usos_y_bloqueos(eventos: list[dict]) -> tuple[list[dict], set[str]]:
     usos, bloqueados = [], set()
     for e in eventos:
-        for b in (e.get("message") or {}).get("content") or []:
+        for b in (e.get("message") if isinstance(e.get("message"), dict) else {}).get("content") or []:
             if not isinstance(b, dict):
                 continue
             if b.get("type") == "tool_use":

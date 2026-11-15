@@ -520,7 +520,7 @@ def main(argv=None) -> int:
     for n in nombres:
         t = time.time()
         resultados[n] = correr_sonda(n, ["--frameworks"] if n == "frameworks" and a.frameworks else None)
-        print(f"  {'OK' if resultados[n].get('ok') else 'FALLA'}  {n}  ({round(time.time() - t)} s)", flush=True)
+        print(f"  {'OK  ' if resultados[n].get('ok') else 'FAIL'}  {n}  ({round(time.time() - t)} s)", flush=True)
     donde = "mac" if platform.system() == "Darwin" else ("ci" if os.environ.get("GITHUB_ACTIONS") else "contenedor")
     salida = a.salida or S17 / "resultados" / f"linea_base_{donde}.json"
     salida.parent.mkdir(parents=True, exist_ok=True)
