@@ -45,17 +45,17 @@ RESULTADOS = RAIZ / "resultados"
 FLOAT_DIGITS = 2
 MAX_EXTRA_COLS = 8
 TIMEOUT_SQL = "5s"
-MAX_TOKENS_SQL = 4096  # margen para tokens de razonamiento (Gemini cuenta razonamiento en la salida)
+MAX_TOKENS_SQL = 4096  # headroom for reasoning tokens (Gemini counts reasoning as output)
 
 _spec = importlib.util.spec_from_file_location("run_prompts", ROOT / "semana-05" / "run_prompts.py")
 rp = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rp)
 
 
-# --- Comparación de resultados (adaptada de inventory-copilot/evals/run_sql_eval.py) ---
+# --- Result comparison (adapted from inventory-copilot/evals/run_sql_eval.py) ---
 
 def normalize_value(v):
-    # SUM sin COALESCE devuelve NULL cuando no hay filas: se trata como 0 en ambos lados.
+    # SUM without COALESCE returns NULL when there are no rows: it is treated as 0 on both sides.
     if v is None:
         return 0
     if isinstance(v, bool):
@@ -125,12 +125,12 @@ def conectar(dsn):
     return conn
 
 
-# --- Modelos ---
+# --- Models ---
 
 def llamar_modelo(spec, pregunta, intentos=3, sistema=None, ejemplos=()):
-    """Llama al modelo con reintentos ante fallos de red o de servidor.
+    """Calls the model, retrying on network or server failures.
 
-    Si todos los intentos fallan, devuelve un registro con error en vez de detener la corrida.
+    If every attempt fails, it returns a record with the error instead of stopping the run.
     """
     proveedor, modelo = spec.split(":", 1)
     plantilla = {"nombre": "nlq_inventario", "version": "1.0.0", "sistema": sistema or sistema_sql(),
@@ -149,7 +149,7 @@ def llamar_modelo(spec, pregunta, intentos=3, sistema=None, ejemplos=()):
                     "error": None}
         except (SystemExit, OSError, http.client.HTTPException) as error:
             ultimo_error = str(error)[:200] or type(error).__name__
-            # Errores 4xx distintos de 429 (saldo, cuota, clave, modelo) no se reintentan.
+            # 4xx errors other than 429 (balance, quota, key, model) are not retried.
             if ultimo_error.startswith("Error HTTP 4") and not ultimo_error.startswith("Error HTTP 429"):
                 break
             time.sleep(2 ** intento)
@@ -196,7 +196,7 @@ def citas_resumen(filas, activo):
             "citas_exhaustividad": round(sum(x[2] for x in m) / n, 3)}
 
 
-# --- Flujo ---
+# --- Flow ---
 
 def cargar(path):
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
@@ -218,7 +218,7 @@ def validar(conn):
             continue
         buenas.append(linea)
     VALIDADO.write_text("".join(json.dumps(l, ensure_ascii=False) + "\n" for l in buenas), encoding="utf-8")
-    print(f"Válidas: {len(buenas)} de {len(lineas)}. Descartadas: {len(descartadas)}")
+    print(f"Valid: {len(buenas)} of {len(lineas)}. Discarded: {len(descartadas)}")
     for id_, motivo in descartadas:
         print(f"  {id_}: {motivo}")
 
@@ -229,22 +229,22 @@ def main():
     parser.add_argument("--modelos", nargs="+", default=[])
     parser.add_argument("--limite", type=int, default=None)
     parser.add_argument("--workers", type=int, default=6)
-    parser.add_argument("--set", choices=sorted(SETS), default="facil", help="facil (100 casos), dificil (50 x 2 idiomas), seguimiento (turno previo) o cadenas (3 turnos)")
-    parser.add_argument("--esquema", choices=sorted(SCHEMAS), default="corto", help="corto (schema.sql) o completo (schema_completo.sql)")
-    parser.add_argument("--sin-historial", action="store_true", help="control: omite el turno previo de las preguntas de seguimiento")
-    parser.add_argument("--citas", action="store_true", help="pide al modelo listar sus tablas y mide precision y exhaustividad")
+    parser.add_argument("--set", choices=sorted(SETS), default="facil", help="facil (100 cases), dificil (50 x 2 languages), seguimiento (previous turn) or cadenas (3 turns)")
+    parser.add_argument("--esquema", choices=sorted(SCHEMAS), default="corto", help="corto (schema.sql) or completo (schema_completo.sql)")
+    parser.add_argument("--sin-historial", action="store_true", help="control: omit the previous turn of the follow-up questions")
+    parser.add_argument("--citas", action="store_true", help="ask the model to list its tables and measure precision and recall")
     args = parser.parse_args()
 
     global DATASET, VALIDADO
     DATASET, VALIDADO = SETS[args.set]
     print(f"Set: {args.set} ({DATASET.name})")
     sistema = sistema_sql(SCHEMAS[args.esquema], args.citas)
-    print(f"Esquema: {args.esquema}  citas: {args.citas}")
+    print(f"Schema: {args.esquema}  citations: {args.citas}")
 
     rp.cargar_env_local()
     dsn = os.environ.get("NLQ_DSN", "")
     if not dsn:
-        sys.exit("Falta NLQ_DSN (rol de solo lectura copilot_ro).")
+        sys.exit("NLQ_DSN is missing (the copilot_ro read-only role).")
     conn = conectar(dsn)
 
     if args.validar:
@@ -252,9 +252,9 @@ def main():
         return
 
     if not VALIDADO.exists():
-        sys.exit("Primero corre --validar para generar datasets/nlq_validado.jsonl.")
+        sys.exit("Run --validar first to generate datasets/nlq_validado.jsonl.")
     if not args.modelos:
-        sys.exit("Indica --modelos, por ejemplo anthropic:claude-haiku-5-5 openai:gpt-5.6-luna")
+        sys.exit("Pass --modelos, for example anthropic:claude-haiku-5-5 openai:gpt-5.6-luna")
 
     items = cargar(VALIDADO)
     if args.limite:
@@ -288,7 +288,7 @@ def main():
                             "tokens_in": resp["tokens_in"], "tokens_out": resp["tokens_out"],
                             "latencia_s": resp["latencia_s"],
                             "tablas_citadas": citadas, "tablas_referencia": tablas_del_sql(it["sql"])})
-        print(f"Listo: {spec}")
+        print(f"Done: {spec}")
 
     marca = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     RESULTADOS.mkdir(exist_ok=True)
@@ -313,8 +313,8 @@ def main():
                         **citas_resumen(filas, args.citas)})
     (RESULTADOS / f"resumen_{marca}.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
     for fila in resumen:
-        print(f"{fila['modelo']:<32} {fila['idioma']}  exactitud {fila['exactitud']:.3f}  "
-              f"correctas {fila['correctas']}/{fila['n']}  errores {fila['errores']}")
+        print(f"{fila['modelo']:<32} {fila['idioma']}  accuracy {fila['exactitud']:.3f}  "
+              f"correct {fila['correctas']}/{fila['n']}  errors {fila['errores']}")
 
 
 if __name__ == "__main__":

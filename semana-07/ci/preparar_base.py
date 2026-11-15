@@ -1,4 +1,4 @@
-"""Prepara la base de CI: esquema completo, rol de solo lectura y datos sintéticos (semilla 42)."""
+"""Prepares the CI database: the full schema, a read-only role and synthetic data (seed 42)."""
 import importlib.util
 import os
 from pathlib import Path
@@ -11,7 +11,7 @@ admin = os.environ["PG_ADMIN_DSN"]
 with psycopg.connect(admin, autocommit=True) as conn:
     conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
     conn.execute((RAIZ.parent / "schema_completo.sql").read_text(encoding="utf-8"))
-    # Mismo alcance que el rol copilot_ro de producción: solo tablas de negocio, sin audit_log.
+    # The same scope as the production copilot_ro role: business tables only, no audit_log.
     conn.execute("CREATE ROLE copilot_ro LOGIN PASSWORD 'ci-ro'")
     conn.execute("GRANT CONNECT ON DATABASE inventory TO copilot_ro")
     conn.execute("GRANT USAGE ON SCHEMA public TO copilot_ro")
@@ -21,4 +21,4 @@ spec = importlib.util.spec_from_file_location("gen", RAIZ / "generar_datos.py")
 gen = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gen)
 gen.load(admin, gen.build_dataset(gen.SEED))
-print(f"base lista (seed={gen.SEED})")
+print(f"database ready (seed={gen.SEED})")

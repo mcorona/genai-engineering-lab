@@ -1,13 +1,13 @@
-"""Construye los datasets de destilación (SFT) y DPO a partir de data/teacher.jsonl.
+"""Builds the distillation (SFT) and DPO datasets from data/teacher.jsonl.
 
-destilacion/train.jsonl: pregunta -> SQL del maestro, solo donde el maestro acertó.
-  El sistema es el esquema SIN reglas: el alumno aprende a aplicar las reglas sin tenerlas en el prompt
-  (destilación de contexto).
+destilacion/train.jsonl: question -> the teacher's SQL, only where the teacher was right.
+  The system prompt is the schema WITHOUT rules: the student learns to apply the rules without
+  having them in the prompt (context distillation).
 
-dpo/train.jsonl: prompt -> chosen (SQL de referencia, validado) y rejected (SQL del maestro),
-  solo donde el maestro falló y su SQL es distinto de la referencia.
+dpo/train.jsonl: prompt -> chosen (the validated reference SQL) and rejected (the teacher's SQL),
+  only where the teacher was wrong and its SQL differs from the reference.
 
-Uso:
+Usage:
     uv run python semana-04/entrenamiento/construir_datasets.py
 """
 import json
@@ -41,9 +41,9 @@ def main():
         with open(carpeta / "train.jsonl", "w", encoding="utf-8") as fh:
             for d in datos:
                 fh.write(json.dumps(d, ensure_ascii=False) + "\n")
-    print(f"preguntas: {len(filas)}")
-    print(f"destilación (maestro acierta): {len(destilacion)}")
-    print(f"DPO (maestro falla, par válido): {len(dpo)}")
+    print(f"questions: {len(filas)}")
+    print(f"distillation (teacher right): {len(destilacion)}")
+    print(f"DPO (teacher wrong, valid pair): {len(dpo)}")
 
 
 if __name__ == "__main__":

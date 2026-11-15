@@ -20,8 +20,8 @@ Y = mx.array(ys)
 class Bigram(nn.Module):
     def __init__(self, vocab):
         super().__init__()
-        # Cada fila es la distribución de logits del siguiente carácter
-        # dado el carácter actual
+        # Each row is the logit distribution of the next character
+        # given the current character
         self.tok = nn.Embedding(vocab, vocab)
 
     def __call__(self, idx):
@@ -44,9 +44,9 @@ for step in range(200):
     optimizer.update(model, grads)
     mx.eval(model.parameters(), optimizer.state)
     if step % 50 == 0 or step == 199:
-        print(f"paso {step:3d}  pérdida {loss.item():.4f}")
+        print(f"step {step:3d}  loss {loss.item():.4f}")
 
-# Muestreo de nombres
+# Sample names
 mx.random.seed(2147483647)
 for _ in range(10):
     out, ix = [], 0

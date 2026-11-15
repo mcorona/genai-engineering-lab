@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Evals de regresión para las plantillas de semana-05.
+"""Regression evals for the semana-05 templates.
 
-Checks deterministas por caso y un juez LLM para la fidelidad de los resúmenes.
-Compara contra baseline/resultados_base.json y termina con código 1 si hay regresión.
+Deterministic checks per case and an LLM judge for the faithfulness of the summaries.
+Compares against baseline/resultados_base.json and exits with code 1 on a regression.
 """
 import argparse
 import importlib.util
@@ -31,7 +31,7 @@ _spec.loader.exec_module(rp)
 
 def generar(caso, clave):
     plantilla = rp.cargar_plantilla(caso["plantilla"])
-    cuerpo = rp.construir("anthropic", plantilla, caso["variables"], MODELO, 4096)  # margen para razonamiento
+    cuerpo = rp.construir("anthropic", plantilla, caso["variables"], MODELO, 4096)  # headroom for reasoning
     crudo = rp.llamar("anthropic", cuerpo, clave, MODELO)
     return rp.interpretar("anthropic", crudo, MODELO), plantilla
 
@@ -63,7 +63,7 @@ def evaluar_caso(caso, salida, plantilla):
 
 def juzgar(documento, resumen, clave):
     prompt = RUBRICA.read_text(encoding="utf-8").replace("{documento}", documento).replace("{resumen}", resumen)
-    # max_tokens: margen para razonamiento; con 300 el JSON del juez se cortaba.
+    # max_tokens: headroom for reasoning; with 300 the judge's JSON was cut off.
     cuerpo = {"model": MODELO, "max_tokens": 1024, "messages": [{"role": "user", "content": prompt}]}
     crudo = rp.llamar("anthropic", cuerpo, clave, MODELO)
     texto = rp.interpretar("anthropic", crudo, MODELO)["texto"]
@@ -76,15 +76,15 @@ def juzgar(documento, resumen, clave):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--limite", type=int, help="Corre solo los primeros N casos.")
+    parser.add_argument("--limite", type=int, help="Run only the first N cases.")
     parser.add_argument("--actualizar-base", action="store_true",
-                        help="Guarda esta corrida como nueva línea base.")
+                        help="Save this run as the new baseline.")
     args = parser.parse_args()
 
     rp.cargar_env_local()
     clave = os.environ.get("ANTHROPIC_API_KEY", "")
     if not clave:
-        sys.exit("Falta ANTHROPIC_API_KEY (entorno o semana-05/.env).")
+        sys.exit("ANTHROPIC_API_KEY is missing (environment or semana-05/.env).")
 
     casos = [json.loads(linea) for linea in GOLDEN.read_text(encoding="utf-8").splitlines() if linea.strip()]
     if args.limite:
@@ -112,11 +112,11 @@ def main():
         print(f"{'OK   ' if ok_caso else 'FALLA'} {caso['id']} ({aprobados}/{REPETICIONES})")
         if not ok_caso and fallida is not None:
             salida_f, detalle_f = fallida
-            print(f"  salida: {salida_f['texto'][:600]!r}")
+            print(f"  output: {salida_f['texto'][:600]!r}")
             if "juez" in detalle_f:
-                print(f"  juez fidelidad={detalle_f['juez']['fidelidad']}: {detalle_f['juez']['motivo']}")
+                print(f"  judge faithfulness={detalle_f['juez']['fidelidad']}: {detalle_f['juez']['motivo']}")
             else:
-                print("  falló una prueba determinista (revisar resumen_estructura contra la salida)")
+                print("  a deterministic check failed (compare resumen_estructura with the output)")
 
     tasa = round(sum(r["ok"] for r in resultados) / len(resultados), 3)
     marca = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -124,24 +124,24 @@ def main():
                "tasa": tasa, "resultados": resultados}
     RESULTADOS.mkdir(exist_ok=True)
     (RESULTADOS / f"eval_{marca}.json").write_text(json.dumps(reporte, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Tasa de aprobación: {tasa} ({sum(r['ok'] for r in resultados)}/{len(resultados)})")
+    print(f"Pass rate: {tasa} ({sum(r['ok'] for r in resultados)}/{len(resultados)})")
 
     if args.actualizar_base:
         BASE.parent.mkdir(exist_ok=True)
         BASE.write_text(json.dumps(reporte, ensure_ascii=False, indent=2), encoding="utf-8")
-        print("Línea base actualizada.")
+        print("Baseline updated.")
         return
     if not BASE.exists():
-        print("Sin línea base: no hay comparación de regresión.")
+        print("No baseline: there is no regression comparison.")
         return
 
     base = json.loads(BASE.read_text(encoding="utf-8"))
     ok_base = {r["id"] for r in base["resultados"] if r["ok"]}
     regresiones = [r["id"] for r in resultados if r["id"] in ok_base and not r["ok"]]
     caida = round(base["tasa"] - tasa, 3)
-    print(f"Línea base: {base['tasa']}. Caída: {caida}. Regresiones: {regresiones or 'ninguna'}")
+    print(f"Baseline: {base['tasa']}. Drop: {caida}. Regressions: {regresiones or 'none'}")
     if regresiones or caida > TOLERANCIA:
-        print("REGRESIÓN: el cambio empeora casos que antes pasaban.")
+        print("REGRESSION: the change breaks cases that used to pass.")
         sys.exit(1)
 
 

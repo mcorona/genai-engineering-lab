@@ -19,16 +19,16 @@ g = torch.Generator().manual_seed(2147483647)
 W = torch.randn((27, 27), generator=g, requires_grad=True)
 
 for step in range(200):
-    probs = F.softmax(W[xs], dim=1)                 # logits -> probabilidades
+    probs = F.softmax(W[xs], dim=1)                 # logits -> probabilities
     loss = -probs[torch.arange(n), ys].log().mean() + 0.01 * (W ** 2).mean()
     W.grad = None
     loss.backward()
     with torch.no_grad():
         W -= 50 * W.grad
     if step % 50 == 0 or step == 199:
-        print(f"paso {step:3d}  pérdida {loss.item():.4f}")
+        print(f"step {step:3d}  loss {loss.item():.4f}")
 
-# Muestreo de nombres nuevos
+# Sample new names
 with torch.no_grad():
     for _ in range(10):
         out, ix = [], 0

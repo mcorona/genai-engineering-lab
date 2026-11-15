@@ -1,68 +1,68 @@
-# Semana 2 · Tokens y variabilidad de la respuesta
+# Week 2: tokens and response variability
 
-Práctica de la Fase 1: cuántos tokens cuesta el mismo texto en español y en inglés, y cuánto varía la respuesta de un modelo según `temperature` y `top_p`.
+A Phase 1 practice: how many tokens the same text costs in Spanish and in English, and how much a model's response varies with `temperature` and `top_p`.
 
-## Archivos
+## Files
 
-- `entregable_semana2.ipynb`: entregable. Tabla de tokens por idioma y gráfica de variabilidad con las corridas guardadas.
-- `texto_es.txt` y `texto_en.txt`: el mismo contenido (política de reorden de inventario) en español (231 palabras) e inglés (214 palabras).
-- `practica_tokens.py`: cuenta tokens y calcula el costo por texto.
-- `variabilidad.py`: genera N respuestas por condición en LM Studio y calcula la variabilidad (N por defecto = 20).
-- `corridas/run1`, `run2`, `run3`: resultados de cada corrida de `variabilidad.py`.
-- `resultados-n5/`: resultados preliminares con N = 5, antes de subir a 20.
-- `logprobs_mlx.py` y `logprobs_temperaturas.py`: distribución de probabilidad del siguiente token, calculada con `mlx-lm`.
-- `entropia_por_token.py` y `entropia_multisemilla.py`: entropía del siguiente token a lo largo de una respuesta.
+- `entregable_semana2.ipynb`: the deliverable. The table of tokens per language and the variability chart from the saved runs.
+- `texto_es.txt` and `texto_en.txt`: the same content (an inventory reorder policy) in Spanish (231 words) and English (214 words).
+- `practica_tokens.py`: counts tokens and computes the cost per text.
+- `variabilidad.py`: generates N responses per condition in LM Studio and computes their variability (N defaults to 20).
+- `corridas/run1`, `run2`, `run3`: the results of each `variabilidad.py` run.
+- `resultados-n5/`: preliminary results with N = 5, before moving to 20.
+- `logprobs_mlx.py` and `logprobs_temperaturas.py`: the next-token probability distribution, computed with `mlx-lm`.
+- `entropia_por_token.py` and `entropia_multisemilla.py`: the next-token entropy along a response.
 
 ---
 
-## Parte 1 · Tokens por idioma
+## Part 1: tokens per language
 
-### Método
+### Method
 
-| Tokenizador | Tipo de conteo | Notas |
+| Tokenizer | Kind of count | Notes |
 |---|---|---|
-| tiktoken `o200k_base` | Exacto con ese tokenizador | Proxy abierto, no es el de Claude |
-| Qwen2.5 (`Qwen/Qwen2.5-7B-Instruct`) | Exacto con su tokenizador | Qwen3 puede diferir; se declara como proxy de la familia |
-| Claude `claude-sonnet-5-5` | Oficial, API `count_tokens` | Se restan 8 tokens de formato del mensaje (medidos con la letra "a") |
+| tiktoken `o200k_base` | Exact for that tokenizer | An open proxy, not Claude's tokenizer |
+| Qwen2.5 (`Qwen/Qwen2.5-7B-Instruct`) | Exact for its tokenizer | Qwen3 may differ; reported as a proxy for the family |
+| Claude `claude-sonnet-5-5` | Official, `count_tokens` API | The 8 message-formatting tokens are subtracted (measured with the letter "a") |
 
-El costo usa la tarifa de entrada de `claude-sonnet-5-5`: **USD 2 por millón de tokens**, confirmada.
+The cost uses the `claude-sonnet-5-5` input rate: **USD 2 per million tokens**, confirmed.
 
-### Resultados
+### Results
 
-| Tokenizador | ES | EN | ES/EN | Extra en ES | Costo ES | Costo EN |
+| Tokenizer | ES | EN | ES/EN | ES overhead | ES cost | EN cost |
 |---|---|---|---|---|---|---|
 | tiktoken (proxy) | 280 | 246 | 1.14 | 14% | — | — |
 | Qwen2.5 | 321 | 246 | 1.30 | 30% | — | — |
-| **Claude (oficial)** | **503** | **371** | **1.36** | **36%** | **$0.001006** | **$0.000742** |
+| **Claude (official)** | **503** | **371** | **1.36** | **36%** | **$0.001006** | **$0.000742** |
 
-### Conclusiones
+### Conclusions
 
-- En Claude, el mismo contenido en español cuesta 36% más tokens que en inglés.
-- El proxy abierto (tiktoken) subestima ese sobrecosto: 14% frente a 36%. Un presupuesto hecho con un tokenizador abierto queda unos 20 puntos por debajo del costo real en español.
-- Qwen también es menos eficiente en español que tiktoken (30%).
-- El costo por texto es pequeño, pero escala con el volumen. Para propuestas, usa el conteo oficial de Claude y declara que los otros son estimaciones.
+- With Claude, the same content costs 36% more tokens in Spanish than in English.
+- The open proxy (tiktoken) underestimates that overhead: 14% vs. 36%. A budget built with an open tokenizer comes out about 20 points below the real cost in Spanish.
+- Qwen is also less efficient in Spanish than tiktoken (30%).
+- The cost per text is small, but it scales with volume. For proposals, use Claude's official count and state that the others are estimates.
 
-### Limitaciones
+### Limitations
 
-- Las traducciones tienen longitud distinta (231 frente a 214 palabras), así que parte del sobrecosto refleja la longitud del texto y no solo el tokenizador. Para aislarlo, habría que medir por caracteres o por contenido equivalente.
-- Es un solo texto de muestra. Conviene repetir con otros tipos de documento (técnico, legal, conversacional).
-- El conteo oficial incluye 8 tokens de formato fijos, que se restan en la tabla.
+- The translations differ in length (231 vs. 214 words), so part of the overhead reflects the length of the text and not only the tokenizer. Isolating it would require measuring per character or on equivalent content.
+- It is a single sample text. The measurement should be repeated with other kinds of documents (technical, legal, conversational).
+- The official count includes 8 fixed formatting tokens, which are subtracted in the table.
 
 ---
 
-## Parte 2 · Variabilidad de la respuesta
+## Part 2: response variability
 
-### Método
+### Method
 
-- Modelo: `qwen3.8-27b-mlx@4bit` en LM Studio (local).
-- Prompt: "Explica en tres frases qué es el punto de reorden de un SKU y cuándo conviene revisarlo."
-- Por condición se piden 20 respuestas. La variabilidad de cada respuesta es 1 − su similitud Jaccard promedio contra las demás (sobre palabras en minúscula). 0 significa que todas son idénticas.
-- Barrido de `temperature` con `top_p` = 1.0, y de `top_p` con `temperature` = 1.0.
-- Se hicieron **3 corridas** (60 respuestas por condición). El intervalo de confianza es 95 % aproximado (normal) sobre las 60 cifras.
+- Model: `qwen3.8-27b-mlx@4bit` in LM Studio (local).
+- Prompt (in Spanish): "Explica en tres frases qué es el punto de reorden de un SKU y cuándo conviene revisarlo." ("Explain in three sentences what a SKU's reorder point is and when it should be reviewed.")
+- 20 responses are requested per condition. The variability of each response is 1 minus its average Jaccard similarity to the others (over lowercase words); 0 means that all responses are identical.
+- A `temperature` sweep with `top_p` = 1.0, and a `top_p` sweep with `temperature` = 1.0.
+- **3 runs** were made (60 responses per condition). The confidence interval is an approximate 95% interval (normal) over the 60 values.
 
-### Resultados
+### Results
 
-| Condición | Corrida 1 | Corrida 2 | Corrida 3 | Promedio | IC 95 % |
+| Condition | Run 1 | Run 2 | Run 3 | Mean | 95% CI |
 |---|---|---|---|---|---|
 | temperature 0.0 | 0.150 | 0.000 | 0.000 | 0.050 | [0.024, 0.076] |
 | temperature 0.7 | 0.665 | 0.603 | 0.600 | 0.623 | [0.608, 0.637] |
@@ -71,69 +71,69 @@ El costo usa la tarifa de entrada de `claude-sonnet-5-5`: **USD 2 por millón de
 | top_p 0.9 | 0.657 | 0.647 | 0.677 | 0.661 | [0.643, 0.678] |
 | top_p 1.0 | 0.657 | 0.693 | 0.657 | 0.669 | [0.654, 0.684] |
 
-### Conclusiones
+### Conclusions
 
-- **Temperature:** de 0.7 a 1.0 la variabilidad sube de forma clara; los intervalos no se traslapan.
-- **Top_p:** con 0.5 la variabilidad es claramente menor. Entre 0.9 y 1.0 los intervalos se traslapan, así que este experimento no permite afirmar que sean distintos.
-- **Temperature 0.0** no siempre da cero: en la corrida 1 dio 0.150. La causa no está identificada; podría ser no determinismo del runtime en esa ejecución.
+- **Temperature:** from 0.7 to 1.0 the variability clearly increases; the intervals do not overlap.
+- **Top_p:** at 0.5 the variability is clearly lower. Between 0.9 and 1.0 the intervals overlap, so this experiment cannot show that they differ.
+- **Temperature 0.0** does not always give zero: run 1 gave 0.150. The cause is not identified; it could be runtime non-determinism in that execution.
 
-### Limitaciones
+### Limitations
 
-- Jaccard mide variación de palabras, no de significado. Dos respuestas con el mismo contenido y distinta redacción puntúan como diferentes.
-- Un solo prompt y un solo modelo local. No se generalizan a otros modelos ni prompts sin repetir el experimento.
-- Los modelos de Claude (Sonnet 5.5, Opus 5.5, Fable 5.1) no aceptan `temperature` libre; Haiku 5.5 solo acepta `temperature` = 1 y `top_p` = 0.99. Por eso el barrido se hizo con Qwen local.
-- Las 60 cifras por condición no son independientes, porque comparten respuestas dentro de cada corrida. Los intervalos son algo optimistas.
-- La diferencia entre `top_p` 0.9 y 1.0 no se resuelve con 3 corridas.
+- Jaccard measures variation in words, not in meaning. Two responses with the same content and different wording score as different.
+- One prompt and one local model. The results do not generalize to other models or prompts without repeating the experiment.
+- The Claude models (Sonnet 5.5, Opus 5.5, Fable 5.1) do not accept an arbitrary `temperature`; Haiku 5.5 accepts only `temperature` = 1 and `top_p` = 0.99. That is why the sweep was run with a local Qwen model.
+- The 60 values per condition are not independent, because they share responses within each run. The intervals are somewhat optimistic.
+- The difference between `top_p` 0.9 and 1.0 is not resolved with 3 runs.
 
 ---
 
-## Probabilidades por token
+## Per-token probabilities
 
-### Qué expone cada API
+### What each API exposes
 
-- **Anthropic (Messages API):** no expone logprobs. La referencia de `Create a Message` no tiene parámetros ni campos de probabilidad.
-- **LM Studio (`/v1/chat/completions`):** acepta `logprobs` pero devuelve `null`. No hay probabilidades por token desde la API.
+- **Anthropic (Messages API):** it does not expose logprobs. The `Create a Message` reference has no probability parameters or fields.
+- **LM Studio (`/v1/chat/completions`):** it accepts `logprobs` but returns `null`. There are no per-token probabilities from the API.
 
-Por eso las probabilidades se calcularon localmente con `mlx-lm` sobre el mismo modelo.
+That is why the probabilities were computed locally with `mlx-lm` on the same model.
 
-### Distribución del primer token
+### First-token distribution
 
-Prompt "Di hola", con `enable_thinking=False`:
+Prompt "Di hola" ("Say hello"), with `enable_thinking=False`:
 
-| T | Entropía (bits) | p(`¡`) |
+| T | Entropy (bits) | p(`¡`) |
 |---|---|---|
 | 0.0 | 0.000 | 1.0000 |
 | 0.7 | 0.147 | 0.9826 |
 | 1.0 | 0.612 | 0.9209 |
 
-El primer token casi no varía. Con `top_p` = 0.9, el núcleo es un solo token en las tres temperaturas.
+The first token barely varies. With `top_p` = 0.9, the nucleus is a single token at all three temperatures.
 
-### Entropía a lo largo de la respuesta
+### Entropy along the response
 
-Con 20 semillas por temperatura (`entropia_multisemilla.py`), la entropía media por respuesta es:
+With 20 seeds per temperature (`entropia_multisemilla.py`), the mean entropy per response is:
 
-| T | Entropía media (bits) | IC 95 % | Respuestas distintas |
+| T | Mean entropy (bits) | 95% CI | Distinct responses |
 |---|---|---|---|
 | 0.7 | 0.518 | [0.502, 0.534] | 20/20 |
 | 1.0 | 0.954 | [0.898, 1.010] | 20/20 |
 
-La incertidumbre se concentra en la redacción (sinónimos válidos como "asegurar" o "garantizar"), no en el significado. Eso explica en parte por qué Jaccard mide variación léxica y no de contenido.
+The uncertainty concentrates in the wording (valid synonyms such as *asegurar* and *garantizar*, both "ensure"), not in the meaning. That partly explains why Jaccard measures lexical variation rather than variation in content.
 
 ---
 
-## Cómo correrlo
+## How to run it
 
 ```bash
-cd ~/AI-projects-llm-internals
+# from the repository root
 
-# Tokens y entregable
+# Tokens and the deliverable
 uv run --with jupyter jupyter lab semana-02/entregable_semana2.ipynb
 
-# Variabilidad (LM Studio encendido con qwen3.8-27b-mlx@4bit)
+# Variability (LM Studio running with qwen3.8-27b-mlx@4bit)
 uv run python semana-02/variabilidad.py 20
 
-# Entropía por semilla
+# Entropy per seed
 uv run python semana-02/entropia_multisemilla.py 20
 ```
 
-Para el conteo de tokens desde script: `uv run python semana-02/practica_tokens.py`. Necesita `ANTHROPIC_API_KEY` en el entorno para el conteo oficial de Claude.
+To count tokens from a script: `uv run python semana-02/practica_tokens.py`. The official Claude count needs `ANTHROPIC_API_KEY` in the environment.

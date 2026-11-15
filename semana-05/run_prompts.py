@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Ejecuta una plantilla de prompt de la semana 5 contra un proveedor de LLM.
+"""Runs a week 5 prompt template against an LLM provider.
 
-Proveedores: anthropic (por defecto), openai, gemini. Sin dependencias externas.
-Las claves se leen del entorno o de semana-05/.env (ignorado por Git):
+Providers: anthropic (the default), openai, gemini. No external dependencies.
+The keys are read from the environment or from semana-05/.env (ignored by Git):
 ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY.
-Para openai y gemini hay que indicar --modelo. Cada ejecución se agrega a
+openai and gemini need --modelo. Each execution is appended to
 resultados/ejecuciones.jsonl.
 """
 import argparse
@@ -33,7 +33,7 @@ PROVEEDORES = {
 
 
 def cargar_env_local():
-    """Carga las claves de semana-05/.env si no están en el entorno. No imprime valores."""
+    """Loads the keys from semana-05/.env if they are not in the environment. It prints no values."""
     ruta = RAIZ / ".env"
     if not ruta.exists():
         return
@@ -51,7 +51,7 @@ def cargar_plantilla(nombre):
     ruta = PLANTILLAS / f"{nombre}.json"
     if not ruta.exists():
         disponibles = sorted(p.stem for p in PLANTILLAS.glob("*.json"))
-        sys.exit(f"Plantilla '{nombre}' no existe. Disponibles: {', '.join(disponibles)}")
+        sys.exit(f"Template '{nombre}' does not exist. Available: {', '.join(disponibles)}")
     return json.loads(ruta.read_text(encoding="utf-8"))
 
 
@@ -97,7 +97,7 @@ def construir(proveedor, plantilla, variables, modelo, max_tokens):
             cuerpo["tools"] = [{"type": "function", "function": {
                 "name": h["name"], "description": h["description"],
                 "parameters": h["input_schema"]}} for h in herramientas]
-            # OpenAI rechaza herramientas en chat/completions con reasoning activo (gpt-5.6-luna).
+            # OpenAI rejects tools on chat/completions when reasoning is active (gpt-5.6-luna).
             cuerpo["reasoning_effort"] = "none"
         return cuerpo
     # gemini
@@ -133,7 +133,7 @@ def llamar(proveedor, cuerpo, clave, modelo):
 
 
 def interpretar(proveedor, r, modelo):
-    """Convierte la respuesta de cada proveedor a un formato común."""
+    """Converts each provider's response to a common format."""
     if proveedor == "anthropic":
         uso = r.get("usage", {})
         return {
@@ -218,17 +218,17 @@ def main():
     parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--no-guardar", action="store_true")
     parser.add_argument("--dry-run", action="store_true",
-                        help="Imprime el cuerpo de la petición sin llamar a la API.")
+                        help="Print the request body without calling the API.")
     args = parser.parse_args()
 
     if args.modelo is None:
         if args.proveedor != "anthropic":
-            sys.exit(f"Indica --modelo para el proveedor {args.proveedor}.")
+            sys.exit(f"Pass --modelo for the provider {args.proveedor}.")
         args.modelo = MODELO_ANTHROPIC
 
     clave = os.environ.get(PROVEEDORES[args.proveedor]["clave"], "")
     if not clave and not args.dry_run:
-        sys.exit(f"Falta {PROVEEDORES[args.proveedor]['clave']} (en el entorno o en semana-05/.env).")
+        sys.exit(f"{PROVEEDORES[args.proveedor]['clave']} is missing (in the environment or in semana-05/.env).")
 
     plantilla = cargar_plantilla(args.plantilla)
     variables = {}
@@ -241,7 +241,7 @@ def main():
 
     faltan = set(re.findall(r"\{(\w+)\}", plantilla["usuario"])) - set(variables)
     if faltan:
-        sys.exit(f"Faltan variables: {', '.join(sorted(faltan))}")
+        sys.exit(f"Missing variables: {', '.join(sorted(faltan))}")
 
     cuerpo = construir(args.proveedor, plantilla, variables, args.modelo, args.max_tokens)
     if args.dry_run:

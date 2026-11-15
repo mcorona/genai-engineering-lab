@@ -215,4 +215,4 @@ with SALIDA.open("w", encoding="utf-8") as archivo:
             registro = {"id": f"hard-{i:03d}-{lang}", "lang": lang, "question": pregunta,
                         "tags": tags, "sql": sql, "order_matters": False}
             archivo.write(json.dumps(registro, ensure_ascii=False) + "\n")
-print(f"{len(items)} preguntas duras, {2 * len(items)} líneas en {SALIDA}")
+print(f"{len(items)} hard questions, {2 * len(items)} lines in {SALIDA}")

@@ -165,4 +165,4 @@ with SALIDA.open("w", encoding="utf-8") as archivo:
             registro = {"id": f"nlq-{i:03d}-{lang}", "lang": lang, "question": it[lang], **base}
             archivo.write(json.dumps(registro, ensure_ascii=False) + "\n")
 
-print(f"{len(items)} preguntas únicas, {2 * len(items)} líneas en {SALIDA}")
+print(f"{len(items)} unique questions, {2 * len(items)} lines in {SALIDA}")

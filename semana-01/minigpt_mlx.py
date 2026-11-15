@@ -4,7 +4,7 @@ from mlx.utils import tree_flatten
 
 
 class CausalSelfAttention(nn.Module):
-    """Atención multi-cabeza con máscara causal (la misma lógica del paso 3)."""
+    """Multi-head attention with a causal mask (the same logic as step 3)."""
 
     def __init__(self, n_embd, n_head):
         super().__init__()
@@ -41,7 +41,7 @@ class MLP(nn.Module):
 
 
 class Block(nn.Module):
-    """Pre-norm: atención y MLP, cada una con conexión residual."""
+    """Pre-norm: attention and MLP, each with a residual connection."""
 
     def __init__(self, n_embd, n_head):
         super().__init__()
@@ -79,25 +79,25 @@ if __name__ == "__main__":
     VOCAB, BLOCK = 65, 32
     model = MiniGPT(VOCAB, BLOCK)
 
-    # 1. Forma de salida
+    # 1. Output shape
     idx = mx.random.randint(0, VOCAB, (4, BLOCK))
     logits = model(idx)
-    print("forma de logits:", logits.shape)
+    print("logits shape:", logits.shape)
 
-    # 2. Pérdida inicial: debe rondar ln(65) ≈ 4.17
+    # 2. Initial loss: it should be close to ln(65) ≈ 4.17
     targets = mx.random.randint(0, VOCAB, (4, BLOCK))
     loss = nn.losses.cross_entropy(logits, targets).mean()
-    print("pérdida inicial:", round(loss.item(), 4))
+    print("initial loss:", round(loss.item(), 4))
 
-    # 3. Número de parámetros
+    # 3. Number of parameters
     n_params = sum(p.size for _, p in tree_flatten(model.parameters()))
-    print("parámetros:", n_params)
+    print("parameters:", n_params)
 
-    # 4. Prueba de causalidad: cambiar el token 20 no debe afectar los logits de las posiciones 0 a 19
+    # 4. Causality test: changing token 20 must not affect the logits of positions 0 to 19
     idx2 = mx.concatenate(
         [idx[:, :20], mx.zeros((4, 1), dtype=idx.dtype), idx[:, 21:]], axis=1
     )
     same_before = mx.allclose(model(idx)[:, :20], model(idx2)[:, :20], atol=1e-5).item()
     same_at = mx.allclose(model(idx)[:, 20], model(idx2)[:, 20], atol=1e-5).item()
-    print("posiciones 0-19 no cambian:", same_before)
-    print("posición 20 sí cambia:", not same_at)
+    print("positions 0-19 do not change:", same_before)
+    print("position 20 does change:", not same_at)

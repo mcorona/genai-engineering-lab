@@ -1,13 +1,13 @@
-"""Semana 2: cuánto varía la respuesta según temperature y top_p.
+"""Week 2: how much the response varies with temperature and top_p.
 
-Modelo local en LM Studio (servidor compatible con OpenAI).
-Uso:  python variabilidad.py [N]        (N por defecto = 20)
+A local model in LM Studio (OpenAI-compatible server).
+Usage:  python variabilidad.py [N]        (N defaults to 20)
 
-Para cada valor se piden N respuestas al mismo prompt.
-Variabilidad de una respuesta i = 1 - promedio de Jaccard(i, j) contra las demás.
-Variabilidad del valor = promedio de esas N cifras (0 = todas idénticas).
-Con las N cifras por respuesta se calculan desviación estándar, error estándar
-e intervalo de confianza al 95 % (aprox. normal).
+For each value, N responses to the same prompt are requested.
+Variability of a response i = 1 - the mean Jaccard(i, j) against the others.
+Variability of the value = the mean of those N figures (0 = all identical).
+The N per-response figures give the standard deviation, the standard error
+and a 95 % confidence interval (normal approximation).
 """
 import csv
 import os
@@ -22,9 +22,9 @@ BASE_URL = "http://localhost:1234/v1"
 MODEL = "qwen3.8-27b-mlx@4bit"
 PROMPT = "Explica en tres frases qué es el punto de reorden de un SKU y cuándo conviene revisarlo."
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 20
-MAX_TOKENS = 600                 # margen para el razonamiento interno del modelo
-TEMPERATURES = [0.0, 0.7, 1.0]   # barrido con top_p = 1.0
-TOP_PS = [0.5, 0.9, 1.0]         # barrido con temperature = 1.0
+MAX_TOKENS = 600                 # headroom for the model's internal reasoning
+TEMPERATURES = [0.0, 0.7, 1.0]   # sweep with top_p = 1.0
+TOP_PS = [0.5, 0.9, 1.0]         # sweep with temperature = 1.0
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 client = OpenAI(base_url=BASE_URL, api_key="lm-studio")
@@ -39,7 +39,7 @@ def responder(temperature, top_p):
         max_tokens=MAX_TOKENS,
     )
     texto = r.choices[0].message.content or ""
-    # Quita el bloque de razonamiento <think>...</think> si el modelo lo emite
+    # Strip the <think>...</think> reasoning block if the model emits one
     return re.sub(r"<think>.*?</think>", "", texto, flags=re.S).strip()
 
 
@@ -49,7 +49,7 @@ def jaccard(a, b):
 
 
 def cifras_por_respuesta(respuestas):
-    """Una cifra por respuesta: 1 - Jaccard promedio contra las otras."""
+    """One figure per response: 1 - the mean Jaccard against the others."""
     n = len(respuestas)
     return [
         1 - statistics.mean(jaccard(respuestas[i], respuestas[j])
@@ -81,8 +81,8 @@ for nombre, casos in barridos.items():
         cifras = cifras_por_respuesta(respuestas)
         media, desv, ic_inf, ic_sup = estadisticas(cifras)
         resumen.append((nombre, valor, N, media, desv, ic_inf, ic_sup))
-        print(f"{nombre}={valor}: variabilidad {media:.3f} "
-              f"(desv {desv:.3f}, IC95 [{ic_inf:.3f}, {ic_sup:.3f}], N={N})")
+        print(f"{nombre}={valor}: variability {media:.3f} "
+              f"(sd {desv:.3f}, 95% CI [{ic_inf:.3f}, {ic_sup:.3f}], N={N})")
 
 with open(os.path.join(DIR, "variabilidad_respuestas.csv"), "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
@@ -108,4 +108,4 @@ for ax, nombre in zip(ejes, barridos):
     ax.grid(alpha=0.3)
 fig.tight_layout()
 fig.savefig(os.path.join(DIR, "variabilidad.png"), dpi=150)
-print(f"gráfica y CSV guardados en {DIR}")
+print(f"chart and CSV saved to {DIR}")

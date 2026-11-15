@@ -1,21 +1,21 @@
-"""Benchmark de latencia, throughput y costo: modelo local cuantizado contra API.
+"""Latency, throughput and cost benchmark: a local quantized model vs. an API.
 
-Corre el mismo conjunto de consultas contra dos destinos compatibles con OpenAI y
-registra por consulta: latencia, tokens de salida, tokens por segundo y costo.
+Runs the same set of queries against two OpenAI-compatible targets and records,
+per query: latency, output tokens, tokens per second and cost.
 
-Uso (local en LM Studio y API en OpenRouter, por ejemplo):
+Usage (local in LM Studio and the API on OpenRouter, for example):
 
     uv run python semana-04/benchmark_modelos.py \
         --consultas semana-04/consultas.jsonl \
         --local-url http://localhost:1234/v1 --local-modelo qwen3.8-27b-mlx@4bit \
-        --api-url https://openrouter.ai/api/v1 --api-modelo <id-del-modelo> \
+        --api-url https://openrouter.ai/api/v1 --api-modelo <model-id> \
         --api-key-env OPENROUTER_API_KEY \
         --precio-in 0.50 --precio-out 1.50 --nombre semana4
 
-Los precios son USD por millón de tokens para la API; para el local usa 0 (costo de
-electricidad no incluido, se declara en el README).
+Prices are USD per million tokens for the API; use 0 for the local model (electricity
+cost not included; this is stated in the README).
 
-La clave de la API se lee de la variable de entorno indicada, nunca de la línea de comandos.
+The API key is read from the given environment variable, never from the command line.
 """
 import argparse
 import csv
@@ -63,7 +63,7 @@ def correr_destino(nombre, cliente, modelo, consultas, max_tokens, temperatura, 
             t_out = uso.completion_tokens if uso else 0
             costo = (t_in * precio_in + t_out * precio_out) / 1_000_000
             error = ""
-        except Exception as e:  # registramos el fallo y seguimos con la siguiente consulta
+        except Exception as e:  # record the failure and move on to the next query
             latencia = time.perf_counter() - inicio
             t_in = t_out = 0
             costo = 0.0
@@ -107,27 +107,27 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--consultas", type=Path, default=RAIZ / "consultas.jsonl")
     ap.add_argument("--local-url", default="http://localhost:1234/v1")
-    ap.add_argument("--local-modelo", default=None, help="requerido si no usas --solo api")
+    ap.add_argument("--local-modelo", default=None, help="required unless you use --solo api")
     ap.add_argument("--api-url", default="https://openrouter.ai/api/v1")
-    ap.add_argument("--api-modelo", default=None, help="requerido si no usas --solo local")
+    ap.add_argument("--api-modelo", default=None, help="required unless you use --solo local")
     ap.add_argument("--api-key-env", default="OPENROUTER_API_KEY")
-    ap.add_argument("--precio-in", type=float, default=0.0, help="USD por millón de tokens de entrada (API)")
-    ap.add_argument("--precio-out", type=float, default=0.0, help="USD por millón de tokens de salida (API)")
+    ap.add_argument("--precio-in", type=float, default=0.0, help="USD per million input tokens (API)")
+    ap.add_argument("--precio-out", type=float, default=0.0, help="USD per million output tokens (API)")
     ap.add_argument("--max-tokens", type=int, default=1024)
-    ap.add_argument("--temp-local", type=float, default=0.0, help="temperatura del local; 0 para reproducir")
+    ap.add_argument("--temp-local", type=float, default=0.0, help="local temperature; 0 for reproducibility")
     ap.add_argument("--temp-api", type=float, default=None,
-                    help="temperatura de la API; vacío = no enviarla (Haiku 5.5 solo acepta 1)")
-    ap.add_argument("--limite", type=int, default=0, help="0 = todas")
+                    help="API temperature; empty = do not send it (Haiku 5.5 accepts only 1)")
+    ap.add_argument("--limite", type=int, default=0, help="0 = all")
     ap.add_argument("--nombre", default="benchmark")
-    ap.add_argument("--solo", choices=["local", "api"], help="correr un solo destino")
+    ap.add_argument("--solo", choices=["local", "api"], help="run a single target")
     args = ap.parse_args()
     if args.solo != "api" and not args.local_modelo:
-        ap.error("falta --local-modelo")
+        ap.error("--local-modelo is missing")
     if args.solo != "local" and not args.api_modelo:
-        ap.error("falta --api-modelo")
+        ap.error("--api-modelo is missing")
 
     consultas = cargar_consultas(args.consultas, args.limite)
-    print(f"{len(consultas)} consultas desde {args.consultas}")
+    print(f"{len(consultas)} queries from {args.consultas}")
 
     detalle, resumenes = [], []
     if args.solo != "api":
@@ -137,7 +137,7 @@ def main():
     if args.solo != "local":
         clave = os.environ.get(args.api_key_env)
         if not clave:
-            raise SystemExit(f"Falta la variable {args.api_key_env} en el entorno")
+            raise SystemExit(f"The variable {args.api_key_env} is missing from the environment")
         api = OpenAI(base_url=args.api_url, api_key=clave, timeout=300)
         f = correr_destino("api", api, args.api_modelo, consultas, args.max_tokens, args.temp_api,
                            args.precio_in, args.precio_out, detalle)

@@ -1,7 +1,7 @@
-"""RAG ligero: selecciona solo las reglas de negocio relevantes para cada pregunta.
+"""Lightweight RAG: selects only the business rules relevant to each question.
 
-Las reglas viven en reglas_legado.md, numeradas. Cada regla tiene palabras clave; si la
-pregunta contiene alguna, la regla entra al prompt. La regla 12 (texto libre) siempre entra.
+The rules live in reglas_legado.md, numbered. Each rule has keywords; if the
+question contains any of them, the rule goes into the prompt. Rule 12 (free text) always goes in.
 """
 import re
 from pathlib import Path

@@ -1,9 +1,9 @@
-"""Entropía del siguiente token a lo largo de una respuesta completa.
+"""Next-token entropy along a complete response.
 
-Genera una respuesta muestreando con cada temperatura (mlx-lm, con caché KV)
-y registra, en cada posición, la probabilidad del token elegido y la entropía
-de la distribución de ese paso (en bits). Las posiciones con entropía alta son
-donde el modelo podía haber elegido distinto.
+Generates one response by sampling at each temperature (mlx-lm, with a KV cache)
+and records, at each position, the probability of the chosen token and the entropy
+of that step's distribution (in bits). Positions with high entropy are where the
+model could have chosen differently.
 """
 import csv
 import math
@@ -64,11 +64,11 @@ csv_filas = []
 for T in TEMPERATURAS:
     texto, filas = generar(T)
     hs = [f[4] for f in filas]
-    print(f"\n=== T = {T} · {len(filas)} tokens · entropía media {sum(hs)/len(hs):.3f} bits, máx {max(hs):.3f} ===")
+    print(f"\n=== T = {T} · {len(filas)} tokens · mean entropy {sum(hs)/len(hs):.3f} bits, max {max(hs):.3f} ===")
     print(texto.strip())
-    print("\nPosiciones de mayor entropía:")
+    print("\nHighest-entropy positions:")
     for pos, ctx, tid, pe, h in sorted(filas, key=lambda f: -f[4])[:TOP_MOSTRAR]:
-        print(f"  pos {pos:3d}  H={h:.2f} bits  elegido {tok.decode([tid])!r:>12} (p={pe:.3f})  después de ...{ctx!r}")
+        print(f"  pos {pos:3d}  H={h:.2f} bits  chosen {tok.decode([tid])!r:>12} (p={pe:.3f})  after ...{ctx!r}")
     for pos, ctx, tid, pe, h in filas:
         csv_filas.append((T, pos, tok.decode([tid]), round(pe, 6), round(h, 4)))
 
@@ -76,4 +76,4 @@ with open(os.path.join(DIR, "entropia_por_token.csv"), "w", newline="", encoding
     w = csv.writer(f)
     w.writerow(["temperatura", "posicion", "token", "p_elegido", "entropia_bits"])
     w.writerows(csv_filas)
-print(f"\nCSV guardado en {DIR}/entropia_por_token.csv")
+print(f"\nCSV saved to {DIR}/entropia_por_token.csv")

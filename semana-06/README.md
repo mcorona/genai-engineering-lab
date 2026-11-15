@@ -1,55 +1,55 @@
-# Semana 6: evals y regresión en GitHub Actions
+# Week 6: evals and regression testing in GitHub Actions
 
-Objetivo: cualquier cambio de prompt o de modelo se mide antes de fusionarse. El evaluador corre los casos dorados, aplica checks deterministas y un juez LLM para la fidelidad de los resúmenes, y compara contra una línea base.
+Goal: every prompt or model change is measured before it is merged. The evaluator runs the golden cases, applies deterministic checks and an LLM judge for the faithfulness of the summaries, and compares the results against a baseline.
 
-## Estructura
+## Structure
 
-| Archivo | Contenido |
+| File | Contents |
 |---|---|
-| `evaluar.py` | Evaluador: genera la salida con las plantillas de `semana-05`, aplica checks y compara con la línea base |
-| `golden/casos.jsonl` | 16 casos dorados (6 clasificación, 4 extracción, 3 herramienta, 3 resumen). Borrador de autor, pendiente de revisión |
-| `rubricas/fidelidad_resumen.txt` | Rúbrica del juez: escala de 1 a 5 y salida en JSON |
-| `baseline/resultados_base.json` | Línea base contra la que se compara (se genera con `--actualizar-base`) |
-| `resultados/` | Reporte de cada corrida (`eval_<fecha>.json`) |
-| `../.github/workflows/evals-semana-06.yml` | Workflow que corre las evals en cada pull request que toque prompts, el ejecutor o esta carpeta |
+| `evaluar.py` | The evaluator: it generates the output with the `semana-05` templates, applies the checks and compares with the baseline |
+| `golden/casos.jsonl` | 16 golden cases (6 classification, 4 extraction, 3 tool use, 3 summary). An author's draft, pending review |
+| `rubricas/fidelidad_resumen.txt` | The judge's rubric: a 1-to-5 scale and JSON output |
+| `baseline/resultados_base.json` | The baseline to compare against (generated with `--actualizar-base`) |
+| `resultados/` | The report of each run (`eval_<date>.json`) |
+| `../.github/workflows/evals-semana-06.yml` | The workflow that runs the evals on every pull request that touches the prompts, the runner or the units that depend on them |
 
 ## Checks
 
-- `etiqueta`: la salida es exactamente la etiqueta esperada.
-- `json_campos`: la salida es JSON válido y los campos indicados coinciden (`null` cuenta como coincidencia).
-- `herramienta`: el modelo llamó `buscar_sku` con la entrada esperada, o no llamó ninguna herramienta cuando el caso lo pide.
-- `resumen_estructura`: tres viñetas de máximo 25 palabras, o `INSUFICIENTE`.
-- `juez: true`: además del check estructural, el juez puntúa la fidelidad del resumen al documento. El caso pasa con fidelidad de 4 o 5.
+- `etiqueta`: the output is exactly the expected label.
+- `json_campos`: the output is valid JSON and the listed fields match (`null` counts as a match).
+- `herramienta`: the model called `buscar_sku` with the expected input, or called no tool when the case requires that.
+- `resumen_estructura`: three bullets of at most 25 words, or `INSUFICIENTE`.
+- `juez: true`: on top of the structural check, the judge scores the summary's faithfulness to the document. The case passes with a faithfulness score of 4 or 5.
 
-## Regresión
+## Regression
 
-El evaluador falla (código 1) si ocurre cualquiera de estas dos cosas frente a la línea base:
+The evaluator fails (exit code 1) if either of these happens with respect to the baseline:
 
-- Un caso que antes pasaba ahora falla.
-- La tasa de aprobación cae más de 0.05.
+- A case that used to pass now fails.
+- The pass rate drops by more than 0.05.
 
-## Cómo correr
+## How to run it
 
 ```bash
-cd ~/AI-projects-llm-internals
-python3 semana-06/evaluar.py                      # compara con la línea base si existe
-python3 semana-06/evaluar.py --actualizar-base    # guarda esta corrida como línea base
-python3 semana-06/evaluar.py --limite 3           # prueba rápida con 3 casos
+# from the repository root
+python3 semana-06/evaluar.py                      # compares with the baseline if there is one
+python3 semana-06/evaluar.py --actualizar-base    # saves this run as the baseline
+python3 semana-06/evaluar.py --limite 3           # quick test with 3 cases
 ```
 
-La clave se lee de `ANTHROPIC_API_KEY` en el entorno o de `semana-05/.env`. En GitHub Actions se toma del secreto del repositorio.
+The key is read from `ANTHROPIC_API_KEY` in the environment or from `semana-05/.env`. In GitHub Actions it comes from the repository secret.
 
-## Decisiones
+## Decisions
 
-- **El juez es el mismo modelo que genera** (`claude-haiku-5-5`). Es una limitación conocida: un juez de la misma familia puede favorecer sus propias salidas. Más adelante conviene probar un juez de otra familia.
-- **Las herramientas se evalúan por nombre y entrada**, no por el texto de la respuesta, porque en esos casos el modelo no escribe texto.
-- **La línea base se versiona en Git.** Si se actualiza, debe quedar en el mismo commit que el cambio que la justifica.
-- **Los casos dorados son un borrador de autor.** Antes de usarlos como referencia, hay que revisar cada caso con el equipo.
+- **The judge is the same model that generates** (`claude-haiku-5-5`). This is a known limitation: a judge from the same family can favor its own outputs. A judge from another family should be tried later.
+- **Tools are evaluated by name and input**, not by the text of the response, because in those cases the model writes no text.
+- **The baseline is versioned in Git.** If it is updated, it must be in the same commit as the change that justifies it.
+- **The golden cases are an author's draft.** Before they are used as a reference, each case must be reviewed with the team.
 
-## Estado
+## Status
 
-- Semana 6: cerrada.
-- Evaluador y casos dorados: creados. Checks deterministas y juez LLM probados.
-- Línea base: 16/16 aprobados, guardada en `baseline/resultados_base.json`. El juez puntuó con fidelidad 5 los dos resúmenes con cifras.
-- Secreto `ANTHROPIC_API_KEY` en GitHub: configurado y verificado con el PR #1. El job `regresion` pasó en verde.
-- Pendiente para la siguiente iteración: juez de otra familia de modelos, y revisión de los casos dorados con el equipo.
+- Week 6: closed.
+- Evaluator and golden cases: created. Deterministic checks and the LLM judge tested.
+- Baseline: 16/16 passing, saved in `baseline/resultados_base.json`. The judge gave a faithfulness score of 5 to the two summaries with figures.
+- The `ANTHROPIC_API_KEY` secret in GitHub: configured and verified with PR #1. The `regresion` job passed.
+- Pending for the next iteration: a judge from another model family, and a review of the golden cases with the team.

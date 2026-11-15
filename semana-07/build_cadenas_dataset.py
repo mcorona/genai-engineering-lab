@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Set de cadenas de 3 turnos (semana 7, tercera iteración). Congelado antes de correrlo.
+"""A set of 3-turn chains (week 7, third iteration). Frozen before it was run.
 
-Cada cadena tiene dos turnos previos (pregunta, SQL de referencia) y una pregunta final que
-depende de ellos: correcciones, cambios de filtro, referencias a turnos anteriores.
-Salida: datasets/nlq_cadenas.jsonl (16 cadenas x 2 idiomas).
+Each chain has two previous turns (question, reference SQL) and a final question that
+depends on them: corrections, filter changes, references to earlier turns.
+Output: datasets/nlq_cadenas.jsonl (16 chains x 2 languages).
 """
 import json
 from pathlib import Path
@@ -20,7 +20,7 @@ TOP_SKU = "(SELECT sku FROM sales_daily GROUP BY sku ORDER BY SUM(units) DESC, s
 CON_MONTERREY = ("EXISTS (SELECT 1 FROM stock s JOIN warehouses w ON w.warehouse_id = s.warehouse_id "
                  "WHERE s.sku = d.sku AND w.city = 'Monterrey')")
 
-# (id, (es_t1, es_t2, es_t3), (en_t1, en_t2, en_t3), (sql1, sql2, sql3), etiquetas)
+# (id, (es_t1, es_t2, es_t3), (en_t1, en_t2, en_t3), (sql1, sql2, sql3), tags)
 CADENAS = [
  ("cad-01",
   ("¿Qué productos están por debajo de su punto de reorden en Guadalajara?", "No, mejor solo los críticos.", "¿Y cuál es el costo unitario total de esos?"),
@@ -146,4 +146,4 @@ with SALIDA.open("w", encoding="utf-8") as archivo:
                         "ejemplos": [{"entrada": t1, "salida": sqls[0]}, {"entrada": t2, "salida": sqls[1]}],
                         "tags": ["cadena_3_turnos"] + etiquetas, "sql": sqls[2], "order_matters": False}
             archivo.write(json.dumps(registro, ensure_ascii=False) + "\n")
-print(f"{len(CADENAS)} cadenas, {2 * len(CADENAS)} líneas en {SALIDA}")
+print(f"{len(CADENAS)} chains, {2 * len(CADENAS)} lines in {SALIDA}")
