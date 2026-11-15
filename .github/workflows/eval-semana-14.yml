@@ -1,14 +1,14 @@
 name: eval-semana-14
 
-# Semana 14. Sin API: línea base del SDK, matriz de amenazas, primitivas, transporte HTTP, Keycloak (actividad 4),
-# OAuth y auth negativas (actividad 5), cliente seguro y defensas de poisoning (actividad 6), contra Postgres y un
-# Keycloak efímero del job. Con API (actividad 8): mini eval del agente contra el servidor MCP remoto con OAuth,
-# Haiku 5.5 low, tope de costo por corrida (semana-14/ci/eval_ci.py).
+# Unit 14. Without the API: the SDK baseline, the threat matrix, primitives, HTTP transport, Keycloak (activity 4),
+# OAuth and negative auth (activity 5), the secure client and poisoning defenses (activity 6), against Postgres and an
+# ephemeral Keycloak per job. With the API (activity 8): an agent mini eval against the remote MCP server with OAuth,
+# Haiku 5.5 low, with a cost cap per run (semana-14/ci/eval_ci.py).
 on:
   pull_request:
     paths:
       - "semana-14/**"
-      - "!semana-14/**/*.md"          # documentación y resultados: no pagan una eval
+      - "!semana-14/**/*.md"          # documentation and results do not pay for an eval
       - "!semana-14/resultados/**"
       - "semana-13/agente/**"
       - "semana-13/herramientas/**"
@@ -17,7 +17,7 @@ on:
 permissions:
   contents: read
 
-concurrency:   # un push nuevo cancela la corrida anterior del mismo PR (no se paga una eval que ya no cuenta)
+concurrency:   # a new push cancels the previous run of the same PR (no paying for an eval that no longer counts)
   group: eval-semana-14-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
@@ -41,30 +41,30 @@ jobs:
       PG_ADMIN_DSN: postgresql://admin:ci-admin@localhost:5432/inventory
       PG_DSN: postgresql://copilot_ro:ci-ro@localhost:5432/inventory
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: pip install "psycopg[binary]==3.3.6" "pydantic==2.14.1" "sqlglot==30.26.0" "mcp==2.3.0" "jsonschema==4.26.0" "pyjwt[crypto]==2.15.1" pytest
-      - name: Keycloak efímero (realm legacybridge, contraseñas aleatorias del job)
+      - name: Ephemeral Keycloak (legacybridge realm, random passwords per job)
         run: semana-14/auth/arrancar.sh
-      - name: Preparar base de CI (esquema, copilot_ro y datos sintéticos, semilla 42) y esquema legado
+      - name: Prepare the CI database (schema, copilot_ro and synthetic data, seed 42) and the legacy schema
         run: |
           python semana-07/ci/preparar_base.py
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-10/legado/legado.sql
           psql "$PG_ADMIN_DSN" -v ON_ERROR_STOP=1 -f semana-13/seguridad/artnot.sql
-      - name: Línea base del SDK (24 comprobaciones)
+      - name: SDK baseline (24 checks)
         run: python semana-14/linea_base/verificar_sdk.py
-      - name: Contrato, transporte, Keycloak, OAuth, auth negativas y defensas de poisoning (sin API)
+      - name: Contract, transport, Keycloak, OAuth, negative auth and poisoning defenses (no API)
         run: |
           cd semana-14 && python -m pytest -q tests -p no:cacheprovider -rs | tee /tmp/pytest.txt
-          if grep -q "Keycloak no está corriendo" /tmp/pytest.txt; then echo "::error::las pruebas de Keycloak se omitieron"; exit 1; fi
-      - name: Mini eval del agente contra el servidor remoto (Haiku 5.5 low, tope por corrida)
+          if grep -q "Keycloak no está corriendo" /tmp/pytest.txt; then echo "::error::the Keycloak tests were skipped"; exit 1; fi
+      - name: Agent mini eval against the remote server (Haiku 5.5 low, cap per run)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PR_DE_FORK: ${{ github.event.pull_request.head.repo.fork }}
         run: cd semana-14 && python ci/eval_ci.py
-      - name: Detener Keycloak
+      - name: Stop Keycloak
         if: always()
         run: semana-14/auth/arrancar.sh --borrar

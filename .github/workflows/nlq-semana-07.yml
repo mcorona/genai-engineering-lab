@@ -8,9 +8,13 @@ on:
       - "**/prompts/**"
       - ".github/workflows/nlq-semana-07.yml"
 
+permissions:
+  contents: read
+
 jobs:
   nlq:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -28,17 +32,17 @@ jobs:
       NLQ_DSN: postgresql://copilot_ro:ci-ro@localhost:5432/inventory
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: pip install "psycopg[binary]"
-      - name: Preparar base de CI
+      - name: Prepare the CI database
         run: python semana-07/ci/preparar_base.py
-      - name: Validar preguntas y evaluar Haiku (set difícil)
+      - name: Validate the questions and evaluate Haiku (hard set)
         run: |
           python semana-07/run_eval.py --set dificil --validar
           python semana-07/run_eval.py --set dificil --modelos anthropic:claude-haiku-5-5
-      - name: Umbral de exactitud
+      - name: Accuracy threshold
         run: python semana-07/ci/umbral.py 0.90

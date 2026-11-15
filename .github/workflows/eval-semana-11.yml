@@ -1,9 +1,12 @@
 name: eval-semana-11
 
-# Corre en todos los PR para que sus dos checks puedan ser requeridos en el ruleset: si el PR no toca semana-11/**
-# ni este workflow, los dos jobs se omiten (skipped cuenta como aprobado) y no se gasta nada.
+# Runs on every PR so that its two checks can be required by the ruleset: if the PR touches neither semana-11/** nor
+# this workflow, both jobs are skipped (a skipped job counts as passed) and nothing is spent.
 on:
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   cambios:
@@ -11,7 +14,7 @@ jobs:
     outputs:
       semana11: ${{ steps.filtro.outputs.semana11 }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
       - id: filtro
@@ -46,15 +49,15 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: pip install "psycopg[binary]==3.3.6"
-      - name: Preparar base de CI (rol copilot_ro y datos sintéticos, semilla 42)
+      - name: Prepare the CI database (copilot_ro role and synthetic data, seed 42)
         run: python semana-07/ci/preparar_base.py
-      - name: Suite de recuperación (índice, top 20, reranking; métricas exactas)
+      - name: Retrieval suite (index, top 20, reranking; exact metrics)
         run: python semana-11/ci/eval_ci.py --suite recuperacion
 
   generacion:
@@ -67,13 +70,13 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
-      - name: Instalar dependencias (versiones de la semana 11)
+      - name: Install dependencies (unit 11 versions)
         run: >-
           pip install "psycopg[binary]==3.3.6" anthropic==1.15.0 openai==3.3.0 instructor==1.17.0
           ragas==0.4.3 langchain-community==0.4.1 langchain-core==1.7.0 langchain-openai==1.7.3
-      - name: Suite de generación (contextos fijos; RAGAS, juez propio, citas y abstención)
+      - name: Generation suite (fixed contexts; RAGAS, in-house judge, citations and abstention)
         run: python semana-11/ci/eval_ci.py --suite generacion
