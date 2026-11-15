@@ -1,9 +1,9 @@
-"""Chunking de Markdown por secciones.
+"""Section-based Markdown chunking.
 
-Cada seccion `##` es la unidad natural de una politica, asi que se usa como chunk; si una
-seccion excede `max_chars` se parte por parrafos con traslape. Cada chunk lleva un
-encabezado de contexto ("Documento > Seccion") para que el embedding no pierda de que
-documento viene un fragmento corto como "Plazo: 30 dias".
+Each `##` section is the natural unit of a policy, so it is used as a chunk; if a
+section exceeds `max_chars`, it is split by paragraphs with overlap. Each chunk carries a
+context header ("Document > Section") so that the embedding does not lose which
+document a short fragment such as "Plazo: 30 dias" comes from.
 """
 from __future__ import annotations
 
@@ -47,10 +47,10 @@ def chunk_markdown(text: str, source: str, max_chars: int = MAX_CHARS,
     title = m.group(1).strip() if m else source
     heads = list(_H2_RE.finditer(text))
     sections: list[tuple[str, str]] = []
-    # el preambulo (entre el titulo y la primera ##) solo se indexa si tiene contenido propio
+    # the preamble (between the title and the first ##) is indexed only if it has content of its own
     pre_start = m.end() if m else 0
     preamble = text[pre_start: heads[0].start() if heads else len(text)]
-    # las lineas de cita (> ...) son notas de control del documento, no contenido
+    # quote lines (> ...) are the document's control notes, not content
     preamble = "\n".join(ln for ln in preamble.splitlines() if not ln.lstrip().startswith(">")).strip()
     if preamble:
         sections.append(("Introduccion", preamble))

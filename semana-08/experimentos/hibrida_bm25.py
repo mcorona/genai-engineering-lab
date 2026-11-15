@@ -1,9 +1,9 @@
-"""Actividad 6: BM25, vectorial e híbrido (RRF) sobre el índice semana8 de OpenSearch.
+"""Activity 6: BM25, vector and hybrid (RRF) search over OpenSearch's semana8 index.
 
-BM25 usa el analizador estándar del campo content (default de OpenSearch).
-Híbrido: fusión RRF (k=60) de los top-20 de BM25 y de los top-20 vectoriales.
-Métricas: recall@5, recall@10 y MRR por pasaje de referencia, en ES y EN.
-Requiere LM Studio con bge-m3 y OpenSearch levantado con los vectores cargados.
+BM25 uses the standard analyzer of the content field (the OpenSearch default).
+Hybrid: RRF fusion (k=60) of the BM25 top 20 and the vector top 20.
+Metrics: recall@5, recall@10 and MRR per reference passage, in ES and EN.
+Requires LM Studio with bge-m3 and OpenSearch running with the vectors loaded.
 """
 import json
 import os
@@ -44,7 +44,7 @@ def fusionar_rrf(listas, k_rrf=K_RRF):
 
 
 def metricas(consulta, ranking):
-    """recall@5, recall@10 y MRR para una consulta con sus pasajes de referencia."""
+    """recall@5, recall@10 and MRR for a query with its reference passages."""
     r5 = r10 = 0.0
     rr = []
     for g in consulta["gold"]:

@@ -1,18 +1,18 @@
-"""Construye el golden set integrado de semana 10 y las fuentes no textuales.
+"""Builds the week 10 integrated gold set and the non-text sources.
 
-Tipos (51 preguntas por idioma):
-- sql (15): del set difícil de semana 7 (nlq_hard_validado), con su SQL de referencia.
-- documental (15): preguntas base de semana 9, con pasaje literal del corpus de semana 8.
-- no_textual (15): 5 de PDF con tablas, 5 de OCR y 5 de imagen. La respuesta está SOLO en documentos nuevos
-  (semana-10/fuentes/), que no existen en el corpus de texto; las actividades 3 a 5 los convierten a PDF,
-  escaneo o imagen sin cambiar su contenido.
-- mixta (6): necesitan SQL y documento; llevan SQL de referencia y pasaje literal. Incluye el ejemplo del plan
-  (SKUs críticos en riesgo hoy y quién aprueba su compra urgente), con la definición de riesgo de skus_criticos.md:
-  días de cobertura (stock total / venta diaria promedio de los últimos 30 días) menores que el tiempo de entrega.
+Types (51 questions per language):
+- sql (15): from the week 7 hard set (nlq_hard_validado), with their reference SQL.
+- document (15): week 9 base questions, with a literal passage from the week 8 corpus.
+- non_text (15): 5 PDF-table, 5 OCR and 5 image questions. The answer is ONLY in new documents
+  (semana-10/fuentes/), which do not exist in the text corpus; activities 3 to 5 turn them into a PDF, a
+  scan or an image without changing their content.
+- mixed (6): they need SQL and a document; they carry a reference SQL and a literal passage. Includes the plan's
+  example (critical SKUs at risk today and who approves their urgent purchase), with the risk definition in
+  skus_criticos.md: days of coverage (total stock / average daily sales over the last 30 days) lower than the lead time.
 
-Validación sin base de datos: pasajes literales en el corpus, respuestas no textuales contenidas en su fuente.
-Validación de SQL (todas las de tipo sql y mixta): python3 construir_integrado.py --validar-sql con PG_DSN;
-cada consulta debe ejecutarse y devolver al menos una fila sin nulos.
+Validation without a database: literal passages in the corpus, non-text answers contained in their source.
+SQL validation (every sql and mixed query): python3 construir_integrado.py --validar-sql with PG_DSN;
+each query must run and return at least one row with no nulls.
 """
 import json
 import os
@@ -25,7 +25,7 @@ DS = R / "semana-10" / "datasets"
 FUENTES = R / "semana-10" / "fuentes"
 CORPUS = R / "semana-08" / "corpus"
 
-# ---------- fuentes nuevas (contenido congelado; el formato se genera después) ----------
+# ---------- new sources (frozen content; the format is generated later) ----------
 DOCS = {
     "tarifas_flete.md": """# Tarifas de flete entre CEDIS
 
@@ -86,7 +86,7 @@ IMAGENES = {
     },
 }
 
-# (formato, fuente, pregunta ES, pregunta EN, respuesta)
+# (format, source, ES question, EN question, answer)
 NO_TEXTUAL = [
     ("pdf", "tarifas_flete.md", "¿Cuánto cuesta el flete normal de Guadalajara a Monterrey?",
      "How much does standard freight from Guadalajara to Monterrey cost?", "$10,900"),
@@ -125,7 +125,7 @@ SQL_IDS = ["hard-001", "hard-002", "hard-003", "hard-004", "hard-005", "hard-006
 DOC_IDS = ["rec-02", "rec-03", "rec-06", "rec-09", "rec-12", "rec-17", "rec-19", "rec-20", "rec-24",
            "rec-27", "rec-29", "rec-31", "rec-35", "rec-39", "rec-43"]
 
-# (pregunta ES, pregunta EN, SQL de referencia, documento, pasaje literal)
+# (ES question, EN question, reference SQL, document, literal passage)
 MIXTAS = [
     ("¿Cuántos SKUs críticos hay en el catálogo y qué factor de seguridad usan en el punto de reorden?",
      "How many critical SKUs are in the catalog, and what safety factor do they use in the reorder point?",
@@ -217,7 +217,7 @@ def construir():
     for x in out["es"]:
         k = x["tipo"] + (f"/{x['formato']}" if "formato" in x else "")
         conteo[k] = conteo.get(k, 0) + 1
-    print(f"por idioma: {len(out['es'])} preguntas {conteo}; validación sin base de datos OK")
+    print(f"per language: {len(out['es'])} questions {conteo}; validation without a database OK")
     return out
 
 
@@ -239,8 +239,8 @@ def validar_sql(out):
             elif x["tipo"] == "mixta" and x["lang"] == "es":
                 print(f"  {x['id']}: {filas[:3]}{' ...' if len(filas) > 3 else ''}")
     if malos:
-        raise SystemExit("SQL inválidas:\n" + "\n".join(malos))
-    print("validación de SQL OK: todas se ejecutan y devuelven filas sin nulos")
+        raise SystemExit("Invalid SQL:\n" + "\n".join(malos))
+    print("SQL validation OK: every query runs and returns rows with no nulls")
 
 
 if __name__ == "__main__":

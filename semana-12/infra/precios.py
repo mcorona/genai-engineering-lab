@@ -1,12 +1,12 @@
-"""Semana 12, actividad 1: precios oficiales desde los catálogos de precios de cada nube (no de páginas de terceros).
+"""Week 12, activity 1: official prices from each cloud's price catalogs (not from third-party pages).
 
-- AWS: Price List API (`aws pricing get-products`, endpoint us-east-1) para los servicios de Bedrock y para S3 (S3 Vectors
-  y S3 Standard), región us-east-1.
-- Google Cloud: Cloud Billing Catalog API (`cloudbilling.googleapis.com/v1/services/.../skus`), con el token de ADC, para
-  Vertex AI Search (Discovery Engine / Agent Search) y Cloud Storage.
-Filtra por palabras clave de lo que usa la semana 12 y escribe resultados/precios_catalogo_<fecha>.csv con fuente, servicio,
-SKU o usage type, descripción, unidad y precio en USD. Solo lectura, sin costo.
-Requiere AWS CLI con sesión iniciada y gcloud con ADC (gcloud auth application-default login).
+- AWS: the Price List API (`aws pricing get-products`, us-east-1 endpoint) for the Bedrock services and for S3 (S3 Vectors
+  and S3 Standard), region us-east-1.
+- Google Cloud: the Cloud Billing Catalog API (`cloudbilling.googleapis.com/v1/services/.../skus`), with the ADC token, for
+  Vertex AI Search (Discovery Engine / Agent Search) and Cloud Storage.
+It filters by keywords of what week 12 uses and writes resultados/precios_catalogo_<date>.csv with source, service,
+SKU or usage type, description, unit and price in USD. Read-only, at no cost.
+Requires the AWS CLI with a signed-in session and gcloud with ADC (gcloud auth application-default login).
 """
 import csv
 import datetime as dt
@@ -75,7 +75,7 @@ def filas_gcp():
         objetivo = [s for s in servicios if s["displayName"] == nombre
                     or (nombre == "Vertex AI Search" and s["displayName"] in ("Discovery Engine", "Agent Search", "Vertex AI Agent Builder"))]
         if not objetivo:
-            print(f"aviso: servicio '{nombre}' no encontrado en el catálogo", file=sys.stderr)
+            print(f"warning: service '{nombre}' not found in the catalog", file=sys.stderr)
         for s in objetivo:
             page = ""
             while True:
@@ -119,7 +119,7 @@ def main():
         w = csv.DictWriter(fh, fieldnames=list(unicas[0].keys()))
         w.writeheader()
         w.writerows(sorted(unicas, key=lambda f: (f["fuente"], f["servicio"], f["descripcion"])))
-    print(f"{len(unicas)} filas en {salida}", file=sys.stderr)
+    print(f"{len(unicas)} rows in {salida}", file=sys.stderr)
 
 
 if __name__ == "__main__":

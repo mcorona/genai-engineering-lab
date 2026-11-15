@@ -1,7 +1,7 @@
-"""Actividad 5: calidad, latencia, tamaño y filtros en pgvector, Qdrant y OpenSearch.
+"""Activity 5: quality, latency, size and filters in pgvector, Qdrant and OpenSearch.
 
-Mismas consultas (ES y EN), mismo k, mismo recall que en la actividad 2.
-Requiere lo mismo que cargar_vector_dbs.py: PG_ADMIN_DSN, LM Studio con bge-m3, y las dos bases levantadas.
+The same queries (ES and EN), the same k and the same recall as in activity 2.
+Requires the same as cargar_vector_dbs.py: PG_ADMIN_DSN, LM Studio with bge-m3, and both databases running.
 """
 import json
 import os
@@ -44,7 +44,7 @@ def buscar_qdrant(v, k, fuente=None):
 
 
 def buscar_opensearch(v, k, fuente=None):
-    # El filtro va dentro de la cláusula knn (filtrado eficiente), no junto a ella (filtrado posterior).
+    # The filter goes inside the knn clause (efficient filtering), not next to it (post-filtering).
     knn = {"embedding": {"vector": v, "k": k}}
     if fuente:
         knn["embedding"]["filter"] = {"term": {"source": fuente}}
@@ -54,7 +54,7 @@ def buscar_opensearch(v, k, fuente=None):
 
 
 def main():
-    from chunking_pasajes import ESTRATEGIAS  # noqa: F401  (mismo chunking que la carga)
+    from chunking_pasajes import ESTRATEGIAS  # noqa: F401  (the same chunking as the load)
     consultas = []
     for idioma in ("es", "en"):
         ruta = RAIZ / "datasets" / f"recuperacion_{idioma}.jsonl"
@@ -96,15 +96,15 @@ def main():
             print(f"{nombre:<12}{statistics.mean(r5):>10.3f}{statistics.mean(r10):>11.3f}"
                   f"{p50:>9.1f}{p95:>9.1f}{tam:>22}")
 
-        # Filtro por metadatos: todos los resultados deben venir del documento pedido
+        # Metadata filter: every result must come from the requested document
         objetivo = "politica_reorden.md"
-        print(f"\nfiltro por source='{objetivo}' (5 consultas):")
+        print(f"\nfilter by source='{objetivo}' (5 queries):")
         for nombre, buscar in motores.items():
             ok = 0
             for v in vq[:5]:
                 res = buscar(v, 5, objetivo)
                 ok += int(bool(res) and all(s == objetivo for s, _ in res))
-            print(f"  {nombre:<12} {ok}/5 correctas")
+            print(f"  {nombre:<12} {ok}/5 correct")
 
 
 if __name__ == "__main__":

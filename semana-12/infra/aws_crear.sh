@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Semana 12, actividad 1 (AWS): presupuesto con alertas, rol de servicio de la Knowledge Base y rol operador con
-# permisos mínimos, más el perfil `semana12` que asume ese rol. Idempotente. Lo corre un administrador (manuel-admin).
-# No crea recursos facturables (buckets, vector buckets, KB): eso va en las actividades 2 y 4.
+# Week 12, activity 1 (AWS): a budget with alerts, the Knowledge Base service role and an operator role with
+# least privilege, plus the `semana12` profile that assumes that role. Idempotent. An administrator runs it (manuel-admin).
+# It creates no billable resources (buckets, vector buckets, KBs): those come in activities 2 and 4.
 set -euo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PAGER=""
-[ -n "$CUENTA_AWS" ] || { echo "Sin sesión de AWS (aws login)"; exit 1; }
-[ -n "$ALERTA_CORREO" ] || { echo "Define ALERTA_CORREO=<correo> para las alertas del presupuesto"; exit 1; }
+[ -n "$CUENTA_AWS" ] || { echo "No AWS session (aws login)"; exit 1; }
+[ -n "$ALERTA_CORREO" ] || { echo "Set ALERTA_CORREO=<email> for the budget alerts"; exit 1; }
 YO=$(aws sts get-caller-identity --query Arn --output text)
-echo "cuenta $CUENTA_AWS, región $REGION, como $YO"
+echo "account $CUENTA_AWS, region $REGION, as $YO"
 TMP=$(mktemp -d)
 
-# 1. Presupuesto mensual de la cuenta (los costos por etiqueta requieren activar la etiqueta de asignación y tardan 24 h).
+# 1. The account's monthly budget (costs by tag require activating the cost allocation tag and take 24 h).
 if aws budgets describe-budget --account-id "$CUENTA_AWS" --budget-name "$PREFIJO" >/dev/null 2>&1; then
-  echo "presupuesto $PREFIJO: ya existe"
+  echo "budget $PREFIJO: already exists"
 else
   cat > $TMP/presupuesto.json <<J
 {"BudgetName":"$PREFIJO","BudgetLimit":{"Amount":"$PRESUPUESTO_USD","Unit":"USD"},"TimeUnit":"MONTHLY","BudgetType":"COST"}
@@ -27,21 +27,21 @@ print(json.dumps(n))
 P
   aws budgets create-budget --account-id "$CUENTA_AWS" --budget file://$TMP/presupuesto.json \
     --notifications-with-subscribers file://$TMP/avisos.json
-  echo "presupuesto $PREFIJO: creado (\$$PRESUPUESTO_USD al mes; alertas 50/90/100 % real y 100 % pronosticado)"
+  echo "budget $PREFIJO: created (\$$PRESUPUESTO_USD per month; alerts at 50/90/100 % actual and 100 % forecasted)"
 fi
 
 etiquetas="Key=$ETIQUETA_CLAVE,Value=$ETIQUETA_VALOR"
-crear_rol() {  # nombre, archivo de confianza
+crear_rol() {  # name, trust policy file
   if aws iam get-role --role-name "$1" >/dev/null 2>&1; then
-    aws iam update-assume-role-policy --role-name "$1" --policy-document file://$2; echo "rol $1: confianza actualizada"
+    aws iam update-assume-role-policy --role-name "$1" --policy-document file://$2; echo "role $1: trust policy updated"
   else
     aws iam create-role --role-name "$1" --assume-role-policy-document file://$2 --tags $etiquetas --max-session-duration 14400 >/dev/null
-    echo "rol $1: creado"
+    echo "role $1: created"
   fi
 }
 lista() { local p=$1; shift; local out=""; for x in "$@"; do out+="\"${p}${x}\","; done; echo "${out%,}"; }
 
-# 2. Rol de servicio de la Knowledge Base: lee el bucket de documentos, escribe y consulta el vector bucket, embebe.
+# 2. The Knowledge Base service role: reads the document bucket, writes to and queries the vector bucket, embeds.
 cat > $TMP/confianza_kb.json <<J
 {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"bedrock.amazonaws.com"},"Action":"sts:AssumeRole",
  "Condition":{"StringEquals":{"aws:SourceAccount":"$CUENTA_AWS"},"ArnLike":{"aws:SourceArn":"arn:aws:bedrock:$REGION:$CUENTA_AWS:knowledge-base/*"}}}]}
@@ -62,7 +62,7 @@ J
 crear_rol "$ROL_KB" $TMP/confianza_kb.json
 aws iam put-role-policy --role-name "$ROL_KB" --policy-name "${PREFIJO}-kb" --policy-document file://$TMP/permisos_kb.json
 
-# 3. Rol operador: lo asume el usuario que corre la semana; solo los recursos con prefijo semana12 y los modelos usados.
+# 3. The operator role: assumed by the user who runs the week; only resources with the semana12 prefix and the models used.
 cat > $TMP/confianza_op.json <<J
 {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":"$YO"},"Action":"sts:AssumeRole"}]}
 J
@@ -92,11 +92,11 @@ J
 crear_rol "$ROL_OPERADOR" $TMP/confianza_op.json
 aws iam put-role-policy --role-name "$ROL_OPERADOR" --policy-name "${PREFIJO}-operador" --policy-document file://$TMP/permisos_op.json
 
-# 4. Perfil local `semana12` (en ~/.aws/config, fuera del repo) que asume el rol operador con la sesión actual.
+# 4. The local `semana12` profile (in ~/.aws/config, outside the repository) that assumes the operator role with the current session.
 aws configure set profile.$PERFIL_AWS.role_arn "arn:aws:iam::$CUENTA_AWS:role/$ROL_OPERADOR"
 aws configure set profile.$PERFIL_AWS.source_profile "${AWS_PROFILE:-default}"
 aws configure set profile.$PERFIL_AWS.region "$REGION"
-sleep 10  # propagación de IAM
+sleep 10  # IAM propagation
 aws sts get-caller-identity --profile $PERFIL_AWS --query Arn --output text | sed 's/^/perfil semana12 asume: /'
 rm -rf $TMP
-echo "AWS listo. Usa --profile $PERFIL_AWS (o AWS_PROFILE=$PERFIL_AWS) en los scripts de la semana."
+echo "AWS ready. Use --profile $PERFIL_AWS (or AWS_PROFILE=$PERFIL_AWS) in the week's scripts."

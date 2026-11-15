@@ -1,76 +1,76 @@
-# Actividad 4: OCR de documentos escaneados
+# Activity 4: OCR of scanned documents
 
-Corrida del 2026-10-26. Script: `experimentos/ocr.py`.
+Run of 2026-10-26. Script: `experimentos/ocr.py`.
 
-## Escaneos
+## Scans
 
-5 documentos, una página cada uno, en `escaneos/`:
+5 documents, one page each, in `escaneos/`:
 
-| Documento | Origen | Para qué |
+| Document | Origin | Purpose |
 |---|---|---|
-| `acta_inventario_norte` | `fuentes/` (congelada en la actividad 1) | 3 preguntas de OCR del golden set |
-| `remision_r4471` | `fuentes/` (congelada en la actividad 1) | 2 preguntas de OCR del golden set |
-| `devoluciones` | corpus de semana 8 | pasajes `rec-01` a `rec-03` |
-| `inventario_ciclico` | corpus de semana 8 | pasajes `rec-04` a `rec-06` |
-| `recepcion_almacen` | corpus de semana 8 | pasajes `rec-18` a `rec-20` |
+| `acta_inventario_norte` | `fuentes/` (frozen in activity 1) | 3 OCR questions of the gold set |
+| `remision_r4471` | `fuentes/` (frozen in activity 1) | 2 OCR questions of the gold set |
+| `devoluciones` | the week 8 corpus | passages `rec-01` to `rec-03` |
+| `inventario_ciclico` | the week 8 corpus | passages `rec-04` to `rec-06` |
+| `recepcion_almacen` | the week 8 corpus | passages `rec-18` to `rec-20` |
 
-Proceso: Markdown → PDF (generador de la actividad 3) → imagen a 200 dpi en grises → rotación aleatoria de ±1.5°, desenfoque gaussiano (0.6), ruido gaussiano y puntos de sal y pimienta → JPEG con calidad 85. Semilla fija (20261026).
+Process: Markdown → PDF (the activity 3 generator) → an image at 200 dpi in grayscale → random rotation of ±1.5°, Gaussian blur (0.6), Gaussian noise and salt-and-pepper dots → JPEG at quality 85. Fixed seed (20261026).
 
-## Extractores
+## Extractors
 
-- **original (sin escanear):** el texto visible de la página; referencia superior.
-- **Tesseract 5.5.3**, idioma español (`spa`).
-- **Claude Haiku 5.5** y **Claude Sonnet 5.5**, ambos con esfuerzo `low`, con la imagen como entrada y transcripción a Markdown.
+- **original (not scanned):** the visible text of the page; the upper reference.
+- **Tesseract 5.5.3**, Spanish language (`spa`).
+- **Claude Haiku 5.5** and **Claude Sonnet 5.5**, both with effort `low`, with the image as input and a transcription to Markdown.
 
-Las extracciones están en `resultados/ocr_extracciones/`.
+The extractions are in `resultados/ocr_extracciones/`.
 
-## Resultados
+## Results
 
-### Tasa de error por carácter (CER)
+### Character error rate (CER)
 
-| Extractor | Acta | Remisión | Devoluciones | Inventario cíclico | Recepción | **Medio** |
+| Extractor | Record | Delivery note | Returns | Cycle counting | Receiving | **Mean** |
 |---|---|---|---|---|---|---|
-| original (sin escanear) | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
+| original (not scanned) | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
 | Tesseract (spa) | 0.003 | 0.007 | 0.016 | 0.017 | 0.004 | **0.009** |
 | Claude Haiku 5.5 (low) | 0.003 | 0.000 | 0.000 | 0.000 | 0.000 | **0.001** |
 | Claude Sonnet 5.5 (low) | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | **0.000** |
 
-### Recuperación (9 pasajes y 5 respuestas por idioma)
+### Retrieval (9 passages and 5 answers per language)
 
-| Extractor | ES pasajes | EN pasajes | ES respuestas | EN respuestas |
+| Extractor | ES passages | EN passages | ES answers | EN answers |
 |---|---|---|---|---|
-| original (sin escanear) | 8/9 | 8/9 | 5/5 | 5/5 |
+| original (not scanned) | 8/9 | 8/9 | 5/5 | 5/5 |
 | Tesseract (spa) | 8/9 | 8/9 | 5/5 | 5/5 |
 | Claude Haiku 5.5 (low) | 8/9 | 8/9 | 5/5 | 5/5 |
 | Claude Sonnet 5.5 (low) | 8/9 | 8/9 | 5/5 | 5/5 |
 
-El pasaje que falla es `rec-06` (clases ABC del inventario cíclico) en todos los extractores, incluido el original. Es un problema de ranking de esa pregunta, no de OCR.
+The passage that fails is `rec-06` (the ABC classes of cycle counting) with every extractor, including the original. It is a ranking problem of that question, not an OCR problem.
 
-### Costo y latencia de Claude
+### Claude cost and latency
 
-| Modelo | Tokens de entrada | Tokens de salida | Costo (5 páginas) | Costo por página | Latencia media |
+| Model | Input tokens | Output tokens | Cost (5 pages) | Cost per page | Mean latency |
 |---|---|---|---|---|---|
 | Haiku 5.5 (low) | 24,200 | 1,714 | $0.00328 | $0.0007 | 3.2 s |
 | Sonnet 5.5 (low) | 24,200 | 1,714 | $0.06554 | $0.0131 | 4.3 s |
 
-Cada página escaneada cuenta 4,840 tokens de entrada (la imagen más el prompt). Haiku y Sonnet transcribieron **exactamente el mismo texto** en 4 de los 5 documentos. En el acta, Haiku leyó un punto como paréntesis ("DIF)" en lugar de "DIF."); es la única diferencia. Por eso coinciden los tokens de salida.
+Each scanned page counts 4,840 input tokens (the image plus the prompt). Haiku and Sonnet transcribed **exactly the same text** in 4 of the 5 documents. In the inventory record, Haiku read a period as a parenthesis ("DIF)" instead of "DIF."); it is the only difference. That is why the output tokens match.
 
-## Lectura
+## Reading
 
-- **Claude transcribe casi sin errores:** Haiku, con un solo carácter mal en 5 páginas; Sonnet, con ninguno.
-- **Tesseract tiene un CER de 0.9 %, y la mayoría no afecta el contenido:** lee las viñetas "•" como "+" o "»", cambia alguna puntuación ("Ficticia," por "Ficticia;") y comete algún error de letra ("entrega" por "eritrega").
-- **Con este nivel de ruido, el OCR no cambia el recall:** los 4 extractores recuperan lo mismo que el texto original, en pasajes y en respuestas. Ningún error de Tesseract cayó dentro de un pasaje o una cifra preguntada.
-- **Sonnet no aporta frente a Haiku en esta tarea:** mismo texto en 4 de 5 documentos, 20 veces el costo y más latencia.
+- **Claude transcribes almost without errors:** Haiku, with a single wrong character in 5 pages; Sonnet, with none.
+- **Tesseract has a CER of 0.9 %, and most of it does not affect the content:** it reads the "•" bullets as "+" or "»", changes some punctuation ("Ficticia," for "Ficticia;") and makes the occasional letter error ("entrega" as "eritrega").
+- **At this noise level, OCR does not change recall:** the 4 extractors retrieve the same as the original text, in passages and in answers. No Tesseract error fell inside a passage or a figure that was asked about.
+- **Sonnet adds nothing over Haiku for this task:** the same text in 4 of 5 documents, at 20 times the cost and with more latency.
 
-## Decisión
+## Decision
 
-- **Escaneos limpios o moderados, como estos:** Tesseract. No cuesta nada, es local y no alteró ninguna cifra ni pasaje preguntado.
-- **Cuando la exactitud de cifras importa o el escaneo es malo** (actas, remisiones, facturas): Claude Haiku 5.5 con esfuerzo `low`, a unos $0.0007 por página.
-- **Sonnet no se usa para OCR:** cuesta 20 veces más y no mejoró a Haiku.
+- **Clean or moderately noisy scans, like these:** Tesseract. It costs nothing, runs locally and did not alter any figure or passage that was asked about.
+- **When the accuracy of figures matters or the scan is poor** (inventory records, delivery notes, invoices): Claude Haiku 5.5 with effort `low`, at about $0.0007 per page.
+- **Sonnet is not used for OCR:** it costs 20 times more and did not improve on Haiku.
 
-## Limitaciones
+## Limitations
 
-- Escaneos sintéticos con ruido moderado, una página por documento y fuente digital limpia. No hay manuscritos, sellos, manchas, baja resolución ni fotos tomadas con celular.
-- Un documento por fuente y una sola semilla de ruido. Con más ruido, la diferencia entre Tesseract y Claude probablemente crecería; esta corrida no lo mide.
-- 9 pasajes y 5 respuestas por idioma.
-- El CER cuenta los errores de viñetas igual que los de contenido.
+- Synthetic scans with moderate noise, one page per document and a clean digital font. There is no handwriting, no stamps, stains, low resolution or phone photos.
+- One document per source and a single noise seed. With more noise, the gap between Tesseract and Claude would probably grow; this run does not measure that.
+- 9 passages and 5 answers per language.
+- The CER counts bullet errors the same as content errors.

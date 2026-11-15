@@ -1,29 +1,29 @@
-# Actividad 5: filtros por metadatos y ACLs
+# Activity 5: metadata filters and ACLs
 
-Corrida del 2026-10-26. Script: `experimentos/permisos.py`. Sin llamadas a modelos generativos: costo de API 0.
+Run of 2026-10-26. Script: `experimentos/permisos.py`. No calls to generative models: API cost 0.
 
-Los 57 chunks de semana 8 (fijo 400/80, bge-m3) se cargaron en índices nuevos con `tenant_id = "alfa"` y los `roles` de su documento según `datasets/permisos.json` (modelo sintético de prueba):
-pgvector (`semana9.chunks`, pgvector 0.8.6), Qdrant (`semana9_acl`, v1.12.4) y OpenSearch (`semana9_acl`, 2.19.1). Los índices de semana 8 no se tocaron.
+The 57 week 8 chunks (fixed 400/80, bge-m3) were loaded into new indexes with `tenant_id = "alfa"` and the `roles` of their document according to `datasets/permisos.json` (a synthetic test model):
+pgvector (`semana9.chunks`, pgvector 0.8.6), Qdrant (`semana9_acl`, v1.12.4) and OpenSearch (`semana9_acl`, 2.19.1). The week 8 indexes were not touched.
 
-## Dónde va el filtro
+## Where the filter goes
 
-El filtro va dentro de la consulta de búsqueda en las tres bases, no se aplica sobre resultados ya recuperados:
+The filter goes inside the search query in all three databases; it is not applied to results already retrieved:
 
-- **pgvector:** `WHERE tenant_id = %s AND roles && %s::text[]` en la misma SQL del `ORDER BY embedding <=> ...`. Con `hnsw.iterative_scan = strict_order` (pgvector ≥ 0.8), el índice HNSW sigue buscando hasta llenar k con filas que cumplen el filtro.
-- **Qdrant:** `filter` con `must` sobre `tenant_id` y `roles` (match any) dentro de `points/query`, con índices de payload `keyword` en ambos campos.
-- **OpenSearch:** `filter` (bool con `term` y `terms`) dentro de la cláusula `knn`, que filtra durante la búsqueda en lugar de después.
+- **pgvector:** `WHERE tenant_id = %s AND roles && %s::text[]` in the same SQL as the `ORDER BY embedding <=> ...`. With `hnsw.iterative_scan = strict_order` (pgvector ≥ 0.8), the HNSW index keeps searching until it fills k with rows that satisfy the filter.
+- **Qdrant:** a `filter` with `must` on `tenant_id` and `roles` (match any) inside `points/query`, with `keyword` payload indexes on both fields.
+- **OpenSearch:** a `filter` (bool with `term` and `terms`) inside the `knn` clause, which filters during the search instead of afterwards.
 
-## Cómo se mide
+## How it is measured
 
-- **Fuga de permisos:** chunks del top 10 devueltos a un usuario cuyo tenant no coincide o cuyos roles no intersecan los del documento. Se juzga contra `permisos.json`, no contra lo que guarda la base, así que un error de carga también contaría como fuga.
-- **Barrido:** 50 preguntas base × 6 roles = 300 consultas por base e idioma, con filtro y sin filtro (contraste).
-- **recall@5 con filtro frente a sin filtro:** en los 112 pares pregunta–rol donde el rol puede ver el documento de referencia.
-- **Casos de permiso del golden set:** 5 permitidos (recall@5) y 5 prohibidos (el pasaje no debe aparecer).
-- **Resultados cortos:** búsquedas filtradas que devuelven menos de k chunks aunque haya k visibles.
+- **Permission leak:** top-10 chunks returned to a user whose tenant does not match or whose roles do not intersect the document's. It is judged against `permisos.json`, not against what the database stores, so a loading error would also count as a leak.
+- **Sweep:** 50 base questions × 6 roles = 300 queries per database and language, with and without the filter (contrast).
+- **recall@5 with vs. without the filter:** on the 112 question–role pairs where the role can see the reference document.
+- **Permission cases from the gold set:** 5 allowed (recall@5) and 5 forbidden (the passage must not appear).
+- **Short results:** filtered searches that return fewer than k chunks although k are visible.
 
-## Resultados
+## Results
 
-| Base | Idioma | Consultas | Fuga con filtro | Chunks no autorizados sin filtro | recall@5 sin filtro | recall@5 con filtro | Permitidos recall@5 (sin / con) | Prohibidos devueltos (sin / con) | Resultados cortos |
+| Database | Language | Queries | Leak with filter | Unauthorized chunks without filter | recall@5 without filter | recall@5 with filter | Allowed recall@5 (without / with) | Forbidden returned (without / with) | Short results |
 |---|---|---|---|---|---|---|---|---|---|
 | pgvector | es | 300 | **0** | 1983 | 1.000 | 0.991 | 1.000 / 1.000 | 5/5 / **0/5** | 0 |
 | Qdrant | es | 300 | **0** | 1983 | 1.000 | 0.991 | 1.000 / 1.000 | 5/5 / **0/5** | 0 |
@@ -32,20 +32,20 @@ El filtro va dentro de la consulta de búsqueda en las tres bases, no se aplica 
 | Qdrant | en | 300 | **0** | 1980 | 1.000 | 0.991 | 1.000 / 1.000 | 5/5 / **0/5** | 0 |
 | OpenSearch | en | 300 | **0** | 1984 | 1.000 | 0.991 | 1.000 / 1.000 | 5/5 / **0/5** | 0 |
 
-Fuga total con filtro: **0**. El script sale con código 0; con cualquier fuga sale con código 1.
+Total leak with the filter: **0**. The script exits with code 0; with any leak it exits with code 1.
 
-## Lectura
+## Reading
 
-- **Fuga 0 en las tres bases y en ambos idiomas.** El criterio no negociable se cumple con un solo tenant (la prueba entre tenants va en la actividad 6).
-- **Sin filtro, el riesgo es real:** cerca de 1,980 de los 3,000 chunks devueltos (66 %) no estaban autorizados para el usuario, y los 5 pasajes prohibidos del golden set aparecían todos.
-- **El recall de 0.991 con filtro es el comportamiento correcto, no una pérdida.** Se reproduce exactamente solo con los permisos: en `rec-47`, el rol `compras` no puede ver `transferencias_cedis.md`, y en `rec-49`, el rol `almacen` no puede ver `ordenes_de_compra.md`. Son preguntas con dos pasajes de referencia, y el filtro oculta el que el usuario no puede ver. Los 5 casos permitidos mantienen recall@5 de 1.000.
-- **Sin resultados cortos.** En pgvector, `iterative_scan` evita que el filtro deje la búsqueda HNSW con menos de k resultados.
-- **Diferencias pequeñas sin filtro** (1,974 a 1,984) entre bases vienen de que cada motor ordena distinto los vecinos aproximados de la cola del top 10. No afectan la fuga con filtro.
+- **0 leaks in all three databases and in both languages.** The non-negotiable criterion is met with a single tenant (the cross-tenant test is activity 6).
+- **Without the filter, the risk is real:** about 1,980 of the 3,000 chunks returned (66 %) were not authorized for the user, and all 5 forbidden passages of the gold set appeared.
+- **The 0.991 recall with the filter is the correct behavior, not a loss.** It is reproduced exactly by the permissions alone: in `rec-47`, the `compras` role cannot see `transferencias_cedis.md`, and in `rec-49`, the `almacen` role cannot see `ordenes_de_compra.md`. These are questions with two reference passages, and the filter hides the one the user is not allowed to see. The 5 allowed cases keep a recall@5 of 1.000.
+- **No short results.** In pgvector, `iterative_scan` prevents the filter from leaving the HNSW search with fewer than k results.
+- **Small differences without the filter** (1,974 to 1,984) between databases come from each engine ordering the approximate neighbors at the tail of the top 10 differently. They do not affect the leak with the filter.
 
-## Limitaciones
+## Limitations
 
-- Un solo tenant (`alfa`). El aislamiento entre tenants se prueba en la actividad 6.
-- Permisos a nivel de documento, con un rol por usuario. No se probaron usuarios con varios roles ni permisos por chunk.
-- Roles sintéticos (`permisos.json`), no permisos reales de inventory-copilot.
-- Corpus pequeño (57 chunks): con muchos más documentos, el filtrado dentro de HNSW se vuelve más exigente y habría que volver a medir resultados cortos y latencia.
-- No se midió la latencia con filtro frente a sin filtro.
+- A single tenant (`alfa`). Isolation between tenants is tested in activity 6.
+- Document-level permissions, with one role per user. Users with several roles and per-chunk permissions were not tested.
+- Synthetic roles (`permisos.json`), not real inventory-copilot permissions.
+- A small corpus (57 chunks): with many more documents, filtering inside HNSW becomes more demanding, and short results and latency would have to be measured again.
+- The latency with the filter vs. without it was not measured.

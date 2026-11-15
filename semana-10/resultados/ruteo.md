@@ -1,66 +1,66 @@
-# Actividad 6: ruteo de preguntas
+# Activity 6: question routing
 
-Corrida del 2026-10-26. Script: `experimentos/ruteo.py`. Modelo: **claude-haiku-5-5, esfuerzo `low`**.
+Run of 2026-10-26. Script: `experimentos/ruteo.py`. Model: **claude-haiku-5-5, effort `low`**.
 
-## Diseño
+## Design
 
-- **Preguntas:** golden set integrado, 51 por idioma (`datasets/integrado_{es,en}.jsonl`).
-- **Etiqueta correcta**, derivada del tipo congelado en la actividad 1: `sql` (15 por idioma), `documental` (15 documentales de texto y 15 no textuales de PDF, escaneo o imagen) y `mixta` (6).
-- **Clasificadores:**
-  - **Mayoritaria:** siempre `documental`. Es el piso: 30/51 = 0.588.
-  - **Haiku 5.5 (`low`):** recibe la descripción de las dos herramientas (qué hay en la base de datos y qué hay en los documentos) y devuelve JSON con la ruta.
+- **Questions:** the integrated gold set, 51 per language (`datasets/integrado_{es,en}.jsonl`).
+- **Correct label**, derived from the type frozen in activity 1: `sql` (15 per language), `documental` (15 text documents and 15 non-text ones from a PDF, a scan or an image) and `mixta` (6).
+- **Classifiers:**
+  - **Majority:** always `documental`. It is the floor: 30/51 = 0.588.
+  - **Haiku 5.5 (`low`):** it receives the description of the two tools (what is in the database and what is in the documents) and returns JSON with the route.
 
-## Resultados
+## Results
 
-| Clasificador | Idioma | Exactitud | SQL | Documental (texto) | Documental (no textual) | Mixta |
+| Classifier | Language | Accuracy | SQL | Document (text) | Document (non-text) | Mixed |
 |---|---|---|---|---|---|---|
-| Mayoritaria (siempre documental) | ES | 0.588 (30/51) | 0/15 | 15/15 | 15/15 | 0/6 |
-| Mayoritaria (siempre documental) | EN | 0.588 (30/51) | 0/15 | 15/15 | 15/15 | 0/6 |
+| Majority (always document) | ES | 0.588 (30/51) | 0/15 | 15/15 | 15/15 | 0/6 |
+| Majority (always document) | EN | 0.588 (30/51) | 0/15 | 15/15 | 15/15 | 0/6 |
 | Haiku 5.5 (low) | ES | **0.882** (45/51) | **15/15** | 14/15 | 10/15 | **6/6** |
 | Haiku 5.5 (low) | EN | **0.863** (44/51) | **15/15** | 14/15 | 9/15 | **6/6** |
 
-### Matriz de confusión de Haiku (ambos idiomas)
+### Haiku's confusion matrix (both languages)
 
-| Esperado \ Predicho | sql | documental | mixta | formato inválido |
+| Expected \ Predicted | sql | document | mixed | invalid format |
 |---|---|---|---|---|
 | sql | **30** | 0 | 0 | 0 |
-| documental | 9 | **47** | 4 | 0 |
-| mixta | 0 | 0 | **12** | 0 |
+| document | 9 | **47** | 4 | 0 |
+| mixed | 0 | 0 | **12** | 0 |
 
-**Costo y latencia:** $0.00891 por 102 preguntas ($0.000087 por pregunta). Latencia p50 de 0.96 s; 65 tokens de salida en promedio; ninguna salida truncada ni con formato inválido.
+**Cost and latency:** $0.00891 for 102 questions ($0.000087 per question). p50 latency of 0.96 s; 65 output tokens on average; no output truncated or with an invalid format.
 
-Detalle: `ruteo_detalle_claude-haiku-5-5_low.csv`. Respuestas del modelo: `ruteo_claude-haiku-5-5_low.json`.
+Detail: `ruteo_detalle_claude-haiku-5-5_low.csv`. The model's responses: `ruteo_claude-haiku-5-5_low.json`.
 
-## Errores
+## Errors
 
-| Pregunta | Tipo | Idioma | Predicho | Efecto |
+| Question | Type | Language | Predicted | Effect |
 |---|---|---|---|---|
-| `int-doc-27` "¿Qué puede consultar el copiloto sobre existencias?" | documental | ES, EN | sql | dañino |
-| `int-pdf-04` tiempo de entrega pactado de Shenzhen Industrial Parts | PDF | ES, EN | sql | dañino (ver nota) |
-| `int-pdf-05` proveedor de Seguridad con clasificación C | PDF | ES, EN | mixta | benigno |
-| `int-imagen-11` nivel de servicio más bajo | imagen | ES, EN | sql | dañino |
-| `int-imagen-12` nivel de servicio del CEDIS Norte | imagen | ES / EN | mixta / sql | benigno / dañino |
-| `int-imagen-13` nivel de servicio del CEDIS Centro | imagen | ES / EN | sql / mixta | dañino / benigno |
-| `int-ocr-07` diferencia valorizada del acta del CEDIS Norte | escaneo | EN | sql | dañino |
+| `int-doc-27` "¿Qué puede consultar el copiloto sobre existencias?" ("What can the copilot look up about stock?") | document | ES, EN | sql | harmful |
+| `int-pdf-04` the agreed lead time of Shenzhen Industrial Parts | PDF | ES, EN | sql | harmful (see note) |
+| `int-pdf-05` the Seguridad (safety) supplier with a C rating | PDF | ES, EN | mixed | benign |
+| `int-imagen-11` the lowest service level | image | ES, EN | sql | harmful |
+| `int-imagen-12` the service level of the Norte distribution center | image | ES / EN | mixed / sql | benign / harmful |
+| `int-imagen-13` the service level of the Centro distribution center | image | ES / EN | sql / mixed | harmful / benign |
+| `int-ocr-07` the valued difference in the Norte distribution center's inventory record | scan | EN | sql | harmful |
 
-- **Documental → mixta (4 casos): benigno.** La ruta mixta también consulta los documentos, así que la respuesta sigue al alcance; solo cuesta una consulta de más.
-- **Documental → SQL (9 casos): dañino.** El asistente buscaría en la base de datos algo que solo está en un documento.
-- **Nota sobre `int-pdf-04`:** la base sí tiene tiempos de entrega por proveedor, pero no ese proveedor, que solo existe en la matriz en PDF. Es la inconsistencia del mundo sintético anotada en la actividad 1 (los nombres de proveedores del PDF no coinciden con los de la base). Desde la redacción, rutearla a SQL es razonable.
+- **Document → mixed (4 cases): benign.** The mixed route also queries the documents, so the answer stays within reach; it only costs one extra query.
+- **Document → SQL (9 cases): harmful.** The assistant would search the database for something that exists only in a document.
+- **Note on `int-pdf-04`:** the database does have lead times per supplier, but not for that supplier, which exists only in the PDF matrix. It is the inconsistency of the synthetic world noted in activity 1 (the supplier names in the PDF do not match those in the database). From the wording, routing it to SQL is reasonable.
 
-## Lectura
+## Reading
 
-- **SQL y mixtas se rutean perfecto** (30/30 y 12/12). Ninguna mixta se pierde hacia una sola fuente, que es el error más caro.
-- **Los errores se concentran en las preguntas no textuales** (19/30 correctas). Su redacción suena a dato de base de datos (niveles de servicio, tiempos de entrega, diferencias de inventario), aunque el dato solo esté en una gráfica, una tabla o un acta. El clasificador no sabe qué cifras existen en la base y cuáles solo en documentos.
-- **Errores dañinos:** 9 de 102 (8.8 %). Errores totales: 13 de 102.
-- **Costo y latencia despreciables** frente a una respuesta completa: menos de una décima de centavo y menos de un segundo por pregunta.
+- **SQL and mixed questions are routed perfectly** (30/30 and 12/12). No mixed question is lost to a single source, which is the most expensive error.
+- **The errors concentrate on non-text questions** (19/30 correct). Their wording sounds like database data (service levels, lead times, inventory differences), even though the figure exists only in a chart, a table or a record. The classifier does not know which figures exist in the database and which exist only in documents.
+- **Harmful errors:** 9 of 102 (8.8 %). Total errors: 13 of 102.
+- **Negligible cost and latency** compared with a full answer: less than a tenth of a cent and less than a second per question.
 
-## Decisión para el asistente (actividad 7)
+## Decision for the assistant (activity 7)
 
-Usar el clasificador de Haiku `low` **con respaldo**: si la ruta SQL devuelve un error o cero filas, consultar también los documentos. Eso convierte los errores documental → SQL en una consulta extra en lugar de una respuesta perdida. Ese mecanismo no se probó aquí; se mide en la actividad 7.
+Use the Haiku `low` classifier **with a fallback**: if the SQL route returns an error or zero rows, also query the documents. That turns the document → SQL errors into an extra query instead of a lost answer. The mechanism was not tested here; it is measured in activity 7.
 
-## Limitaciones
+## Limitations
 
-- 51 preguntas por idioma, con solo 6 mixtas.
-- La descripción de la herramienta documental menciona los tipos de documento que existen (tablas en PDF, actas escaneadas, gráficas y planos). Es lo que sabría un asistente real sobre sus fuentes, pero facilita el ruteo de las preguntas no textuales.
-- La inconsistencia de nombres de proveedores entre la base y la matriz en PDF afecta a una pregunta.
-- Una corrida, con un solo modelo y esfuerzo.
+- 51 questions per language, with only 6 mixed ones.
+- The description of the document tool mentions the kinds of documents that exist (PDF tables, scanned records, charts and floor plans). It is what a real assistant would know about its sources, but it makes routing the non-text questions easier.
+- The inconsistency of supplier names between the database and the PDF matrix affects one question.
+- One run, with a single model and effort level.

@@ -1,14 +1,14 @@
-"""Semana 12, actividad 7 (costo): costo de ingesta, costo fijo mensual y costo por consulta de cada opción, y punto de
-equilibrio en consultas al mes. Precios de resultados/precios_catalogo_2026-10-28.csv (catálogos oficiales, actividad 1)
-y, para alojar el pipeline propio, la instancia RDS más pequeña con pgvector, consultada en la AWS Price List API.
-Costos por consulta medidos en las actividades 3 a 5 (resúmenes *_resumen.json) y en latencia_resumen.json.
+"""Week 12, activity 7 (cost): the ingestion cost, the fixed monthly cost and the cost per query of each option, and the
+break-even point in queries per month. Prices from resultados/precios_catalogo_2026-10-28.csv (official catalogs, activity 1)
+and, to host the in-house pipeline, the smallest RDS instance with pgvector, looked up in the AWS Price List API.
+Costs per query measured in activities 3 to 5 (the *_resumen.json summaries) and in latencia_resumen.json.
 
-Supuestos (escritos aquí y en resultados/latencia_costo.md):
-- El pipeline propio en la nube = PostgreSQL con pgvector en RDS db.t4g.micro Single-AZ con 20 GB gp3 (lo mínimo que
-  sostiene este corpus), embeddings de consulta con Cohere multilingual en Bedrock (bge-m3 corre local, sin costo de
-  API) y reranking con Haiku 5.5. No se cuentan cómputo de aplicación ni red, iguales en todas las opciones.
-- Todas las opciones responden con el generador común (Haiku 5.5, API de Anthropic), salvo RetrieveAndGenerate.
-- Vertex: las primeras 10,000 consultas al mes no se cobran (Enterprise y Standard); después, precio de lista Enterprise.
+Assumptions (written here and in resultados/latencia_costo.md):
+- The in-house pipeline in the cloud = PostgreSQL with pgvector on RDS db.t4g.micro Single-AZ with 20 GB gp3 (the minimum
+  that sustains this corpus), query embeddings with Cohere multilingual on Bedrock (bge-m3 runs locally, at no API
+  cost) and reranking with Haiku 5.5. Application compute and network are not counted; they are the same for every option.
+- Every option answers with the common generator (Haiku 5.5, Anthropic API), except RetrieveAndGenerate.
+- Vertex: the first 10,000 queries per month are free (Enterprise and Standard); after that, the Enterprise list price.
 """
 import csv
 import json
@@ -27,7 +27,7 @@ def precio(id_, modelo=None):
     for f in csv.DictReader(open(RES / "precios_catalogo_2026-10-28.csv", encoding="utf-8")):
         if f["id"] == id_ and (modelo is None or f["modelo"] == modelo):
             return float(f["usd"])
-    raise SystemExit(f"precio no encontrado: {id_}")
+    raise SystemExit(f"price not found: {id_}")
 
 
 def rds():
@@ -75,8 +75,8 @@ def main():
     (hora, desc_h), (gp3, desc_s) = rds()
     rds_mes = hora * HORAS_MES + gp3 * 20
 
-    # ---------- ingesta (una vez) ----------
-    vect_bytes = 1024 * 4 + 1024  # vector float32 + metadatos (≤ 1 KB)
+    # ---------- ingestion (one time) ----------
+    vect_bytes = 1024 * 4 + 1024  # float32 vector + metadata (≤ 1 KB)
     ing = {
         "propio": {"usd": 0.003, "detalle": "bge-m3 local; extracción de imágenes con Haiku (semana 10, $0.003)"},
         "bedrock_ctl-chunks": {"usd": chars_chunks / 4 * p["cohere_tok"] + 101 * vect_bytes / 1e9 * p["s3v_put_gb"],
@@ -88,13 +88,13 @@ def main():
         "vertex_vx-adm": {"usd": (html_pag + pdf_pag + imagenes) * p["layout_pag"],
                           "detalle": f"layout parser: {html_pag} páginas HTML (3,000 caracteres por página), {pdf_pag} PDF, {imagenes} imágenes en PDF"},
     }
-    # ---------- fijo mensual ----------
+    # ---------- fixed monthly ----------
     gb_vect = 101 * vect_bytes / 1e9
     gb_docs = sum(f.stat().st_size for f in PAQ.rglob("*") if f.is_file()) / 1e9
     fijo = {"propio": rds_mes, "bedrock_ctl-chunks": gb_vect * p["s3v_gb_mes"] + gb_docs * p["s3_gb_mes"],
             "bedrock_adm-fijo-bda": gb_vect * 2 * p["s3v_gb_mes"] + gb_docs * p["s3_gb_mes"],
             "vertex_vx-ctl": gb_docs * p["gcs_gb_mes"], "vertex_vx-adm": gb_docs * p["gcs_gb_mes"]}
-    # ---------- por consulta (respuesta completa) ----------
+    # ---------- per query (full answer) ----------
     lat = json.loads((RES / "latencia_resumen.json").read_text(encoding="utf-8")) if (RES / "latencia_resumen.json").exists() else {}
     gen = resumen("propio")["costo_usd_por_consulta"]["generacion"]
     emb_q = 20 * p["cohere_tok"]

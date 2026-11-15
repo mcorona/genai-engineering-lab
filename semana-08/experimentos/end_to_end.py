@@ -1,8 +1,8 @@
-"""Actividad 8: respuesta con citas sobre el top 5 (vectorial + reranking con Haiku) y evaluación.
+"""Activity 8: an answer with citations over the top 5 (vector + reranking with Haiku), and its evaluation.
 
-Por idioma: exactitud (juez Haiku: la respuesta contiene el dato de los pasajes de referencia),
-precisión de citas (la cita [n] apunta a un chunk que contiene un pasaje de referencia),
-respuestas sin cita, y costo por respuesta (rerank + respuesta + juez).
+Per language: accuracy (Haiku judge: the answer contains the data of the reference passages),
+citation precision (the citation [n] points to a chunk that contains a reference passage),
+answers without a citation, and cost per answer (rerank + answer + judge).
 """
 import json
 import re
@@ -80,10 +80,10 @@ def main():
                     cit_buenas += 1
         n = len(consultas)
         costo = (tin * rk.PRECIO["in"] + tout * rk.PRECIO["out"]) / 1e6
-        print(f"{idioma} exactitud={correctas / n:.3f} ({correctas}/{n}) "
-              f"precision_citas={(cit_buenas / cit_total) if cit_total else 0:.3f} "
-              f"sin_cita={sin_cita} fallos_juez={fallos_juez} "
-              f"costo_por_respuesta=${costo / n:.6f}")
+        print(f"{idioma} accuracy={correctas / n:.3f} ({correctas}/{n}) "
+              f"citation_precision={(cit_buenas / cit_total) if cit_total else 0:.3f} "
+              f"no_citation={sin_cita} judge_failures={fallos_juez} "
+              f"cost_per_answer=${costo / n:.6f}")
 
 
 if __name__ == "__main__":

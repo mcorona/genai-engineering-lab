@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Semana 12, actividad 4: crea y llena las Knowledge Bases de Bedrock (con el rol operador, perfil semana12).
-#   1. bucket de documentos semana12-docs-<cuenta> (privado) y subida del paquete de ingesta (actividad 2);
-#   2. vector bucket semana12-vectores-<cuenta> con un índice por configuración (1024 dimensiones, coseno, float32;
-#      texto y metadatos internos de Bedrock como no filtrables, para que tenant_id y roles sí lo sean);
-#   3. una Knowledge Base por configuración (embeddings Cohere Embed Multilingual v3) con su data source e ingesta.
-# Configuraciones (CONFIGS="..." para elegir; por defecto todas):
-#   adm-pred      originales (administrado/), chunking predeterminado de Bedrock, parser predeterminado
-#   adm-fijo      originales, tamaño fijo 100 tokens con 20 % de solape (lo más cercano a 400/80 caracteres)
-#   adm-fijo-bda  como adm-fijo, con el parser Bedrock Data Automation (PDF e imágenes)
-#   ctl-chunks    chunks del pipeline propio (controlado/chunks/), sin re-trocear (chunking NONE)
-# Idempotente: reutiliza lo que ya existe por nombre. Escribe los ids en estado_aws.json (fuera de Git).
+# Week 12, activity 4: creates and fills the Bedrock Knowledge Bases (with the operator role, profile semana12).
+#   1. the document bucket semana12-docs-<account> (private) and the upload of the ingestion package (activity 2);
+#   2. the vector bucket semana12-vectores-<account> with one index per configuration (1024 dimensions, cosine, float32;
+#      Bedrock's internal text and metadata as non-filterable, so that tenant_id and roles are filterable);
+#   3. one Knowledge Base per configuration (Cohere Embed Multilingual v3 embeddings) with its data source and ingestion.
+# Configurations (CONFIGS="..." to choose; all of them by default):
+#   adm-pred      originals (administrado/), Bedrock's default chunking, default parser
+#   adm-fijo      originals, a fixed size of 100 tokens with 20 % overlap (the closest to 400/80 characters)
+#   adm-fijo-bda  like adm-fijo, with the Bedrock Data Automation parser (PDFs and images)
+#   ctl-chunks    the in-house pipeline's chunks (controlado/chunks/), without re-chunking (chunking NONE)
+# Idempotent: it reuses whatever already exists by name. It writes the ids to estado_aws.json (outside Git).
 set -euo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PROFILE=$PERFIL_AWS AWS_PAGER=""
@@ -19,54 +19,54 @@ EMB="arn:aws:bedrock:$REGION::foundation-model/cohere.embed-multilingual-v3"
 ROL_KB_ARN="arn:aws:iam::$CUENTA_AWS:role/$ROL_KB"
 CONFIGS=${CONFIGS:-"adm-pred adm-fijo adm-fijo-bda ctl-chunks"}
 ESTADO=estado_aws.json; [ -f $ESTADO ] || echo '{}' > $ESTADO
-echo "como $(aws sts get-caller-identity --query Arn --output text)"
+echo "as $(aws sts get-caller-identity --query Arn --output text)"
 
-# 1. Bucket de documentos y subida del paquete
+# 1. Document bucket and upload of the package
 if ! aws s3api head-bucket --bucket $S3_DOCS 2>/dev/null; then
   aws s3api create-bucket --bucket $S3_DOCS $R >/dev/null
   aws s3api put-public-access-block --bucket $S3_DOCS --public-access-block-configuration \
     BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
   aws s3api put-bucket-tagging --bucket $S3_DOCS --tagging "TagSet=[{Key=$ETIQUETA_CLAVE,Value=$ETIQUETA_VALOR}]"
-  echo "bucket $S3_DOCS: creado (privado)"
+  echo "bucket $S3_DOCS: created (private)"
 fi
 aws s3 sync $PAQUETE s3://$S3_DOCS/ --exclude "vertex_*" --exclude "manifiesto.json" --delete --only-show-errors
-echo "paquete subido: $(aws s3 ls s3://$S3_DOCS/ --recursive | wc -l | tr -d ' ') objetos"
+echo "package uploaded: $(aws s3 ls s3://$S3_DOCS/ --recursive | wc -l | tr -d ' ') objects"
 
-# Bucket del almacenamiento suplementario de BDA multimodal (debe ser la raíz de un bucket)
+# Bucket for the supplemental storage of multimodal BDA (it must be the root of a bucket)
 if [[ " $CONFIGS " == *" adm-fijo-bda "* ]] && ! aws s3api head-bucket --bucket $S3_MULTIMODAL 2>/dev/null; then
   aws s3api create-bucket --bucket $S3_MULTIMODAL $R >/dev/null
   aws s3api put-public-access-block --bucket $S3_MULTIMODAL --public-access-block-configuration \
     BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
   aws s3api put-bucket-tagging --bucket $S3_MULTIMODAL --tagging "TagSet=[{Key=$ETIQUETA_CLAVE,Value=$ETIQUETA_VALOR}]"
-  echo "bucket $S3_MULTIMODAL: creado (privado)"
+  echo "bucket $S3_MULTIMODAL: created (private)"
 fi
 
 # 2. Vector bucket
 aws s3vectors get-vector-bucket --vector-bucket-name $S3_VECTORES $R >/dev/null 2>&1 || \
-  { aws s3vectors create-vector-bucket --vector-bucket-name $S3_VECTORES $R >/dev/null; echo "vector bucket $S3_VECTORES: creado"; }
+  { aws s3vectors create-vector-bucket --vector-bucket-name $S3_VECTORES $R >/dev/null; echo "vector bucket $S3_VECTORES: created"; }
 
-ingesta() {  # config, prefijo, configuración de ingesta (JSON o vacío)
+ingesta() {  # config, prefix, ingestion configuration (JSON or empty)
   local cfg=$1 pref=$2 vic=$3 nombre="$PREFIJO-$1" idx="$1"
   aws s3vectors get-index --vector-bucket-name $S3_VECTORES --index-name $idx $R >/dev/null 2>&1 || \
     aws s3vectors create-index --vector-bucket-name $S3_VECTORES --index-name $idx --data-type float32 --dimension 1024 \
       --distance-metric cosine --metadata-configuration '{"nonFilterableMetadataKeys":["AMAZON_BEDROCK_TEXT","AMAZON_BEDROCK_METADATA"]}' $R
   local idx_arn; idx_arn=$(aws s3vectors get-index --vector-bucket-name $S3_VECTORES --index-name $idx $R --query index.indexArn --output text)
   local kb; kb=$(aws bedrock-agent list-knowledge-bases $R --query "knowledgeBaseSummaries[?name=='$nombre'].knowledgeBaseId" --output text)
-  if [ -n "$kb" ] && [[ " ${RECREAR:-} " == *" $cfg "* ]]; then  # RECREAR="cfg ..." borra la KB (y sus vectores) antes de crearla
+  if [ -n "$kb" ] && [[ " ${RECREAR:-} " == *" $cfg "* ]]; then  # RECREAR="cfg ..." deletes the KB (and its vectors) before creating it
     for d in $(aws bedrock-agent list-data-sources $R --knowledge-base-id $kb --query 'dataSourceSummaries[].dataSourceId' --output text); do
       aws bedrock-agent delete-data-source $R --knowledge-base-id $kb --data-source-id $d >/dev/null; done
     sleep 20; aws bedrock-agent delete-knowledge-base $R --knowledge-base-id $kb >/dev/null
     while aws bedrock-agent get-knowledge-base $R --knowledge-base-id $kb >/dev/null 2>&1; do sleep 5; done
-    echo "KB $nombre: borrada para recrearla"; kb=""
+    echo "KB $nombre: deleted to recreate it"; kb=""
   fi
-  local extra=""  # BDA multimodal guarda las imágenes extraídas en S3 (almacenamiento suplementario de la KB)
+  local extra=""  # multimodal BDA stores the extracted images in S3 (the KB's supplemental storage)
   [ "$cfg" = adm-fijo-bda ] && extra=",\"supplementalDataStorageConfiguration\":{\"storageLocations\":[{\"type\":\"S3\",\"s3Location\":{\"uri\":\"s3://$S3_MULTIMODAL\"}}]}"
   if [ -z "$kb" ]; then
     kb=$(aws bedrock-agent create-knowledge-base $R --name $nombre --role-arn $ROL_KB_ARN \
       --knowledge-base-configuration "{\"type\":\"VECTOR\",\"vectorKnowledgeBaseConfiguration\":{\"embeddingModelArn\":\"$EMB\"$extra}}" \
       --storage-configuration "{\"type\":\"S3_VECTORS\",\"s3VectorsConfiguration\":{\"indexArn\":\"$idx_arn\"}}" \
       --tags $ETIQUETA_CLAVE=$ETIQUETA_VALOR --query knowledgeBase.knowledgeBaseId --output text)
-    echo "KB $nombre: creada ($kb)"
+    echo "KB $nombre: created ($kb)"
   fi
   until [ "$(aws bedrock-agent get-knowledge-base $R --knowledge-base-id $kb --query knowledgeBase.status --output text)" = ACTIVE ]; do sleep 5; done
   local ds; ds=$(aws bedrock-agent list-data-sources $R --knowledge-base-id $kb --query 'dataSourceSummaries[0].dataSourceId' --output text)
@@ -75,7 +75,7 @@ ingesta() {  # config, prefijo, configuración de ingesta (JSON o vacío)
       --data-source-configuration "{\"type\":\"S3\",\"s3Configuration\":{\"bucketArn\":\"arn:aws:s3:::$S3_DOCS\",\"inclusionPrefixes\":[\"$pref\"]}}")
     [ -n "$vic" ] && args+=(--vector-ingestion-configuration "$vic")
     ds=$(aws bedrock-agent create-data-source $R "${args[@]}" --query dataSource.dataSourceId --output text)
-    echo "data source $nombre-ds: creado ($ds)"
+    echo "data source $nombre-ds: created ($ds)"
   fi
   local job; job=$(aws bedrock-agent start-ingestion-job $R --knowledge-base-id $kb --data-source-id $ds --query ingestionJob.ingestionJobId --output text)
   local t0=$SECONDS st
@@ -83,7 +83,7 @@ ingesta() {  # config, prefijo, configuración de ingesta (JSON o vacío)
     st=$(aws bedrock-agent get-ingestion-job $R --knowledge-base-id $kb --data-source-id $ds --ingestion-job-id $job --query ingestionJob.status --output text)
     case $st in COMPLETE|FAILED|STOPPED) break;; esac; sleep 10
   done
-  echo "ingesta $nombre: $st en $((SECONDS - t0)) s"
+  echo "ingestion $nombre: $st in $((SECONDS - t0)) s"
   aws bedrock-agent get-ingestion-job $R --knowledge-base-id $kb --data-source-id $ds --ingestion-job-id $job \
     --query 'ingestionJob.[statistics, failureReasons]' --output json | python3 -c "
 import json,sys
@@ -107,7 +107,7 @@ for cfg in $CONFIGS; do
     adm-fijo)     ingesta $cfg administrado/ "{$FIJO}" ;;
     adm-fijo-bda) ingesta $cfg administrado/ "{$FIJO,\"parsingConfiguration\":{\"parsingStrategy\":\"BEDROCK_DATA_AUTOMATION\",\"bedrockDataAutomationConfiguration\":{\"parsingModality\":\"MULTIMODAL\"}}}" ;;
     ctl-chunks)   ingesta $cfg controlado/chunks/ '{"chunkingConfiguration":{"chunkingStrategy":"NONE"}}' ;;
-    *) echo "configuración desconocida: $cfg"; exit 1 ;;
+    *) echo "unknown configuration: $cfg"; exit 1 ;;
   esac
 done
 echo; cat $ESTADO

@@ -1,19 +1,19 @@
-"""Semana 11, actividad 7: costo y latencia por consulta, por etapa.
+"""Week 11, activity 7: cost and latency per query, by stage.
 
-Corre el pipeline decidido (recuperación adoptada + generador con el prompt solo_documentos de la actividad 6) sobre las 150
-preguntas del golden set (65 respondibles y 10 sin respuesta por idioma), instrumentado por etapa:
-- recuperación: embedding de la pregunta (bge-m3 local, una pregunta a la vez), búsqueda en pgvector con filtro (top 20)
-  y reranking con Haiku 5.5 (el de la actividad 2); la recuperación va secuencial para que la latencia sea la de una
-  consulta sola;
-- generación: Haiku 5.5 medium sobre el top 5 (4 en paralelo);
-- evaluación: la suite de generación por respuesta (juez Haiku 5.5 low, actividad 3): faithfulness y answer relevancy de
-  RAGAS, exactitud con el juez propio y clasificación de abstención en las respondibles; solo la clasificación en las sin
-  respuesta. Sin caché en disco, para que el costo sea el real; las métricas de una consulta van en serie y las consultas,
-  8 en paralelo.
-Tokens y USD de cada etapa salen del uso que devuelve la API (precios de semana-07/prices.json). Latencias p50 y p95 por
-etapa. Al final, el costo de correr cada suite completa una vez (lo que costaría una corrida de CI), con estas cifras y
-con las de las actividades 2 y 4.
-Caché por consulta en resultados/costo_por_consulta_cache.json (para reanudar). Requiere NLQ_DSN, LM Studio con bge-m3 y
+Runs the chosen pipeline (the adopted retrieval + the generator with activity 6's solo_documentos prompt) over the 150
+questions of the gold set (65 answerable and 10 unanswerable per language), instrumented by stage:
+- retrieval: the question's embedding (local bge-m3, one question at a time), a pgvector search with the filter (top 20)
+  and reranking with Haiku 5.5 (the one from activity 2); retrieval runs sequentially so that the latency is that of a
+  single query;
+- generation: Haiku 5.5 medium over the top 5 (4 in parallel);
+- evaluation: the generation suite per answer (judge Haiku 5.5 low, activity 3): RAGAS faithfulness and answer relevancy,
+  accuracy with the in-house judge and the abstention classification on answerable questions; only the classification on
+  the unanswerable ones. No disk cache, so that the cost is the real one; the metrics of one query run in series and the
+  queries, 8 in parallel.
+Tokens and USD per stage come from the usage the API returns (prices in semana-07/prices.json). p50 and p95 latencies per
+stage. At the end, the cost of running each full suite once (what a CI run would cost), with these figures and
+with those of activities 2 and 4.
+Cache per query in resultados/costo_por_consulta_cache.json (to resume). Requires NLQ_DSN, LM Studio with bge-m3, and
 ANTHROPIC_API_KEY.
 """
 import asyncio
@@ -115,7 +115,7 @@ async def evaluar(items, cache, guardar):
         return r
     cliente.messages.create = crear_contando
     juez = llm_factory(a.HAIKU, provider="anthropic", client=cliente, max_tokens=4000,
-                       extra_body={"output_config": {"effort": "low"}})  # sin caché: costo real
+                       extra_body={"output_config": {"effort": "low"}})  # no cache: real cost
     juez.model_args["max_retries"] = 3
     juez.model_args.pop("temperature", None)
     juez.model_args.pop("top_p", None)
@@ -182,8 +182,8 @@ def main():
               f"{pct(lat, 0.5):.2f} | {pct(lat, 0.95):.2f} | {nota} |")
         return statistics.mean(c)
 
-    print("## Costo y latencia por consulta y etapa (150 preguntas; medias por consulta)\n")
-    print("| Etapa | Tokens de entrada | Tokens de salida | USD por consulta | Latencia p50 (s) | Latencia p95 (s) | Nota |")
+    print("## Cost and latency per query and stage (150 questions; means per query)\n")
+    print("| Stage | Input tokens | Output tokens | USD per query | p50 latency (s) | p95 latency (s) | Note |")
     print("|---|---|---|---|---|---|---|")
     cero = [0] * len(rec)
     fila("Recuperación: embedding (bge-m3)", cero, cero, [r["lat_embedding"] for r in rec], "local, sin costo de API")
@@ -191,16 +191,16 @@ def main():
     c_rr = fila("Recuperación: reranking (Haiku)", [r["rerank_in"] for r in rec], [r["rerank_out"] for r in rec],
                 [r["lat_rerank"] for r in rec], "20 candidatos")
     lat_rec = [r["lat_embedding"] + r["lat_busqueda"] + r["lat_rerank"] for r in rec]
-    print(f"| **Recuperación total** | | | ${c_rr:.5f} | {pct(lat_rec, 0.5):.2f} | {pct(lat_rec, 0.95):.2f} | |")
+    print(f"| **Total retrieval** | | | ${c_rr:.5f} | {pct(lat_rec, 0.5):.2f} | {pct(lat_rec, 0.95):.2f} | |")
     c_gen = fila("**Generación** (Haiku medium)", [g["in"] for g in gen], [g["out"] for g in gen], [g["lat"] for g in gen], "top 5, prompt solo_documentos")
     lat_q = [r + g["lat"] for r, g in zip(lat_rec, gen)]
-    print(f"| **Respuesta al usuario** (recuperación + generación) | | | ${c_rr + c_gen:.5f} | {pct(lat_q, 0.5):.2f} | {pct(lat_q, 0.95):.2f} | lo que paga producción |")
+    print(f"| **Answer to the user** (retrieval + generation) | | | ${c_rr + c_gen:.5f} | {pct(lat_q, 0.5):.2f} | {pct(lat_q, 0.95):.2f} | what production pays |")
     c_er = fila("Evaluación, respondible (4 métricas)", [e["in"] for e in ev_r], [e["out"] for e in ev_r],
                 [sum(e["lat"].values()) for e in ev_r], f"{statistics.mean(e['llamadas'] for e in ev_r):.1f} llamadas al juez")
     c_es = fila("Evaluación, sin respuesta (abstención)", [e["in"] for e in ev_s], [e["out"] for e in ev_s],
                 [sum(e["lat"].values()) for e in ev_s], "1 llamada")
-    print("\n### Evaluación por métrica (respondibles, latencia)\n")
-    print("| Métrica | p50 (s) | p95 (s) |")
+    print("\n### Evaluation per metric (answerable questions, latency)\n")
+    print("| Metric | p50 (s) | p95 (s) |")
     print("|---|---|---|")
     for m in ("faithfulness", "answer_relevancy", "exactitud", "clase"):
         v = [e["lat"][m] for e in ev_r if m in e["lat"]]
@@ -208,23 +208,23 @@ def main():
 
     n_r, n_s = len(ev_r), len(ev_s)
     rec2 = json.loads((RES / "suite_recuperacion_cache.json").read_text(encoding="utf-8"))
-    ragas_ctx = 0.4071 / 260  # actividad 2: juez de RAGAS (context precision y recall), por consulta y configuración
-    print("\n## Costo de correr cada suite una vez (una corrida de CI)\n")
-    print("| Suite | Qué incluye | Costo |")
+    ragas_ctx = 0.4071 / 260  # activity 2: the RAGAS judge (context precision and recall), per query and configuration
+    print("\n## Cost of running each suite once (one CI run)\n")
+    print("| Suite | What it includes | Cost |")
     print("|---|---|---|")
     s_rec_exacta = c_rr * n_r
-    print(f"| Recuperación, métricas exactas | {n_r} consultas: embedding + búsqueda + reranking | ${s_rec_exacta:.3f} |")
-    print(f"| Recuperación + RAGAS (context precision y recall) | lo anterior + juez (${ragas_ctx:.5f} por consulta, actividad 2) | "
+    print(f"| Retrieval, exact metrics | {n_r} queries: embedding + search + reranking | ${s_rec_exacta:.3f} |")
+    print(f"| Retrieval + RAGAS (context precision and recall) | the above + the judge (${ragas_ctx:.5f} per query, activity 2) | "
           f"${s_rec_exacta + ragas_ctx * n_r:.3f} |")
     s_gen = c_gen * (n_r + n_s) + c_er * n_r + c_es * n_s
-    print(f"| Generación | {n_r + n_s} respuestas sobre contextos fijos + evaluación | ${s_gen:.3f} |")
-    print(f"| **Las dos suites, métricas exactas en recuperación** | | **${s_rec_exacta + s_gen:.3f}** |")
-    print(f"| Las dos suites con RAGAS también en recuperación | | ${s_rec_exacta + ragas_ctx * n_r + s_gen:.3f} |")
+    print(f"| Generation | {n_r + n_s} answers over fixed contexts + evaluation | ${s_gen:.3f} |")
+    print(f"| **Both suites, exact metrics for retrieval** | | **${s_rec_exacta + s_gen:.3f}** |")
+    print(f"| Both suites with RAGAS for retrieval too | | ${s_rec_exacta + ragas_ctx * n_r + s_gen:.3f} |")
     errores = sum(len(e["errores"]) for e in ev_r + ev_s)
     total = sum(usd(r["rerank_in"], r["rerank_out"]) for r in rec) + sum(usd(g["in"], g["out"]) for g in gen) + \
         sum(usd(e["in"], e["out"]) for e in ev_r + ev_s)
-    print(f"\nMétricas con error del juez: {errores}. Costo de esta corrida: ${total:.4f}. "
-          f"Rankings de la actividad 2 disponibles: {sum(1 for k in rec2 if k.startswith('adoptado::'))}.")
+    print(f"\nMetrics with a judge error: {errores}. Cost of this run: ${total:.4f}. "
+          f"Activity 2 rankings available: {sum(1 for k in rec2 if k.startswith('adoptado::'))}.")
 
 
 if __name__ == "__main__":

@@ -1,23 +1,23 @@
-"""Semana 11, actividad 1: golden set de evaluación de RAG (ES/EN), congelado.
+"""Week 11, activity 1: the frozen RAG evaluation gold set (ES/EN).
 
-Composición por idioma (75 preguntas):
-- base (50): las preguntas de semana 8/9 (semana-08/datasets/recuperacion_{es,en}.jsonl), con sus pasajes literales.
-  Las 15 documentales del golden set integrado de semana 10 salen de este mismo set (campo `origen`), así que ya
-  están aquí; no se duplican.
-- no_textual (15): las de semana 10 (5 de PDF, 5 de OCR y 5 de imagen). Su `gold` es la respuesta exacta y el documento
-  fuente (la evidencia en el índice es un chunk de ese documento que contiene la respuesta, como en semana 10).
-- sin_respuesta (10): preguntas del mismo dominio cuya respuesta no está en el corpus. Lo correcto es decir que no está
-  en los documentos. Se valida que sus términos clave no aparezcan en el corpus de semana 8 ni en las fuentes de semana 10.
+Composition per language (75 questions):
+- base (50): the week 8/9 questions (semana-08/datasets/recuperacion_{es,en}.jsonl), with their literal passages.
+  The 15 document questions of the week 10 integrated gold set come from this same set (field `origen`), so they are
+  already here; they are not duplicated.
+- no_textual (15): the week 10 ones (5 PDF, 5 OCR and 5 image). Their `gold` is the exact answer and the source
+  document (the evidence in the index is a chunk of that document that contains the answer, as in week 10).
+- sin_respuesta (10): questions from the same domain whose answer is not in the corpus. The correct answer is to say it
+  is not in the documents. It checks that their key terms appear neither in the week 8 corpus nor in the week 10 sources.
 
-Respuesta de referencia (`referencia`): Haiku 5.5 low la redacta solo con el pasaje (o con el documento fuente y la
-respuesta exacta, en las no textuales), en el idioma de la pregunta, en una o dos oraciones. Validación automática:
-toda cifra de la referencia aparece en el pasaje (o en la línea del documento que lo contiene), la fuente o la pregunta; ninguna referencia de una pregunta
-respondible dice que no hay respuesta; y en las no textuales la respuesta exacta aparece en la
-referencia. Las respuestas del modelo se guardan en resultados/referencias_cache.json (se reutilizan al reconstruir).
-Muestra para revisión manual: 20 respondibles (10 por idioma, semilla 11) en resultados/revision_referencias.md.
+Reference answer (`referencia`): Haiku 5.5 low writes it using only the passage (or the source document and the
+exact answer, for non-text questions), in the question's language, in one or two sentences. Automatic validation:
+every figure in the reference appears in the passage (or in the document line that contains it), the source or the question;
+no reference of an answerable question says there is no answer; and for non-text questions the exact answer appears in the
+reference. The model's answers are saved in resultados/referencias_cache.json (reused when rebuilding).
+A sample for manual review: 20 answerable questions (10 per language, seed 11) in resultados/revision_referencias.md.
 
-Salida: datasets/eval_rag_{es,en}.jsonl con id, lang, tipo, question, gold, referencia, respondible y origen.
-Requiere ANTHROPIC_API_KEY (solo para las referencias que no estén en la caché).
+Output: datasets/eval_rag_{es,en}.jsonl with id, lang, tipo, question, gold, referencia, respondible and origen.
+Requires ANTHROPIC_API_KEY (only for the references that are not in the cache).
 """
 import json
 import os
@@ -46,7 +46,7 @@ SISTEMA = ("Redactas la respuesta de referencia de un conjunto de evaluación. R
            "como aparecen. Si el texto está en español y la pregunta en inglés, traduce la respuesta pero no las cifras. "
            "Escribe solo la respuesta, sin comillas ni preámbulo.")
 
-# (id, ES, EN, términos que no deben aparecer en el corpus)
+# (id, ES, EN, terms that must not appear in the corpus)
 SIN_RESPUESTA = [
     ("nr-01", "¿Cuántos días de vacaciones tiene un empleado de almacén en su primer año?",
      "How many vacation days does a warehouse employee get in their first year?", ["vacacion"]),
@@ -90,7 +90,7 @@ def llamar(contenido):
                 continue
             raise SystemExit(f"API HTTP {e.code}: {e.read().decode()[:300]}")
     if d.get("stop_reason") == "max_tokens":
-        raise SystemExit("Salida truncada por max_tokens.")
+        raise SystemExit("Output truncated by max_tokens.")
     u, p = d["usage"], PRECIOS[f"anthropic:{MODELO}"]
     texto = "".join(b.get("text", "") for b in d["content"] if b.get("type") == "text").strip()
     return {"texto": texto, "tokens_in": u["input_tokens"], "tokens_out": u["output_tokens"],
@@ -103,7 +103,7 @@ def cifras(t):
 
 
 def lineas_con(doc, pasaje):
-    """Líneas completas del documento que contienen el pasaje (o su inicio, si el pasaje cruza líneas)."""
+    """The full document lines that contain the passage (or its start, if the passage spans lines)."""
     inicio = pasaje.strip().splitlines()[0][:40]
     return "\n".join(l for l in doc.splitlines() if inicio in l)
 
@@ -131,8 +131,8 @@ def main():
             items.append({"id": x["id"], "lang": lang, "tipo": "base", "question": x["question"], "gold": x["gold"],
                           "respondible": True, "origen": "semana-08/datasets/recuperacion",
                           "_contenido": f"Documento:\n{docs}\n\nPasaje de referencia:\n{texto}\n\nPregunta: {x['question']}",
-                          # Para validar cifras: el pasaje más la línea completa del documento que lo contiene (por ejemplo,
-                          # el "Nivel 2" del inicio de la línea, que el pasaje literal omite).
+                          # To validate figures: the passage plus the full document line that contains it (for example,
+                          # the "Nivel 2" at the start of the line, which the literal passage omits).
                           "_fuente": texto + "\n" + "\n".join(lineas_con((CORPUS / g["source"]).read_text(encoding="utf-8"), g["passage"]) for g in x["gold"])})
         for x in integ:
             if x["tipo"] != "no_textual":
@@ -152,13 +152,13 @@ def main():
         for x in items:
             if not x["respondible"]:
                 continue
-            k = f"v2::{x['id']}::{lang}"  # v2: con el documento como contexto (v1 malinterpretó la fila de tabla de rec-07)
+            k = f"v2::{x['id']}::{lang}"  # v2: with the document as context (v1 misread the table row of rec-07)
             if k not in cache:
                 cache[k] = llamar(x["_contenido"])
                 costo_nuevo += cache[k]["costo_usd"]
                 CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             x["referencia"] = cache[k]["texto"]
-            extra = cifras(x["referencia"]) - cifras(x["_fuente"]) - cifras(x["question"])  # la pregunta puede traer cifras
+            extra = cifras(x["referencia"]) - cifras(x["_fuente"]) - cifras(x["question"])  # the question can carry figures
             if extra:
                 errores.append(f"{x['id']} {lang}: cifras de la referencia que no están en el texto: {sorted(extra)}")
             if x.get("_respuesta") and not cifras(x["_respuesta"]) <= cifras(x["referencia"]) | {""}:
@@ -176,9 +176,9 @@ def main():
     rnd = random.Random(11)
     for lang in ("es", "en"):
         muestra += rnd.sample([x for x in salida[lang] if x["respondible"]], 10)
-    lineas = ["# Revisión manual de referencias (muestra de 20, semilla 11)", "",
-              "Criterio: la referencia responde la pregunta, usa solo el pasaje y no agrega ni cambia datos.", "",
-              "| # | Id | Idioma | Pregunta | Pasaje o respuesta exacta | Referencia | Veredicto |", "|---|---|---|---|---|---|---|"]
+    lineas = ["# Manual review of references (sample of 20, seed 11)", "",
+              "Criterion: the reference answers the question, uses only the passage and adds or changes no data.", "",
+              "| # | Id | Language | Question | Passage or exact answer | Reference | Verdict |", "|---|---|---|---|---|---|---|"]
     for n, x in enumerate(muestra, 1):
         pas = " / ".join(g["passage"] for g in x["gold"]).replace("|", "\\|").replace("\n", " ")
         lineas.append(f"| {n} | {x['id']} | {x['lang']} | {x['question']} | {pas} | {x['referencia'].replace('|', '/')} | |")
@@ -186,13 +186,13 @@ def main():
     total = sum(v["costo_usd"] for v in cache.values())
     for lang in ("es", "en"):
         f = salida[lang]
-        print(f"{lang}: {len(f)} preguntas (base {sum(x['tipo'] == 'base' for x in f)}, "
-              f"no textuales {sum(x['tipo'].startswith('no_textual') for x in f)}, sin respuesta {sum(not x['respondible'] for x in f)})")
-    print(f"Referencias: costo de esta corrida ${costo_nuevo:.4f}; total en caché ${total:.4f}")
+        print(f"{lang}: {len(f)} questions (base {sum(x['tipo'] == 'base' for x in f)}, "
+              f"non-text {sum(x['tipo'].startswith('no_textual') for x in f)}, unanswerable {sum(not x['respondible'] for x in f)})")
+    print(f"References: cost of this run ${costo_nuevo:.4f}; total in the cache ${total:.4f}")
     if errores:
         print("VALIDACIÓN CON OBSERVACIONES:\n- " + "\n- ".join(errores))
         sys.exit(1)
-    print("Validación OK.")
+    print("Validation OK.")
 
 
 if __name__ == "__main__":

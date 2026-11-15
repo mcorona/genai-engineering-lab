@@ -1,7 +1,7 @@
-"""Actividad 2 (segunda parte): recall@k por estrategia de chunking, con bge-m3 local.
+"""Activity 2 (second part): recall@k per chunking strategy, with local bge-m3.
 
-Un pasaje de referencia se considera recuperado si alguno de los top-k chunks lo contiene íntegro.
-Recall de una consulta = pasajes recuperados / pasajes de referencia de esa consulta.
+A reference passage counts as retrieved if any of the top-k chunks contains it whole.
+Recall of a query = retrieved passages / reference passages of that query.
 """
 import json
 import math

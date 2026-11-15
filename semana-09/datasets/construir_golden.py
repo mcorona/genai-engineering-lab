@@ -1,8 +1,8 @@
-"""Construye el golden set de semana 9 a partir del de semana 8.
+"""Builds the week 9 gold set from the week 8 one.
 
-Salida: avanzado_es.jsonl, avanzado_en.jsonl y permisos.json.
-Cada pasaje de referencia se valida como texto literal dentro de su documento.
-Los roles por documento son un modelo sintético de prueba (no es un sistema real de permisos).
+Output: avanzado_es.jsonl, avanzado_en.jsonl and permisos.json.
+Each reference passage is validated as literal text within its document.
+The roles per document are a synthetic test model (not a real permission system).
 """
 import json
 import pathlib
@@ -43,7 +43,7 @@ ROLES = {
     "wms_respaldos.md": ["operaciones"],
 }
 
-# (id base de la pregunta previa, id base del pasaje de referencia, pregunta ES, pregunta EN)
+# (base id of the previous question, base id of the reference passage, ES question, EN question)
 SEGUIMIENTO = [
     ("rec-01", "rec-03", "¿Y el plazo si el producto tiene defecto de calidad y lo devuelvo a un proveedor?", "And what is the deadline if the product has a quality defect and I return it to a supplier?"),
     ("rec-04", "rec-06", "¿Y cada cuánto se cuentan los SKUs de clase A para llegar a esa meta?", "And how often are class A SKUs counted to reach that target?"),
@@ -62,7 +62,7 @@ SEGUIMIENTO = [
     ("rec-41", "rec-42", "¿Y cuál es la penalización por entrega tardía en ese contrato?", "And what is the late-delivery penalty in that contract?"),
 ]
 
-# (id base de la pregunta, rol del usuario, ¿tiene permiso sobre el documento de referencia?)
+# (base id of the question, the user's role, does it have permission over the reference document?)
 PERMISO = [
     ("rec-01", "ventas", True),
     ("rec-07", "compras", True),
@@ -97,7 +97,7 @@ for lang in ("es", "en"):
             "gold": item["gold"],
         })
 
-# Validación
+# Validation
 errores = []
 for lang, items in out.items():
     ids = [x["id"] for x in items]
@@ -132,4 +132,4 @@ for lang, items in out.items():
     for x in items:
         conteo[x["tipo"]] = conteo.get(x["tipo"], 0) + 1
     print(lang, conteo, "total", len(items))
-print("validación: OK")
+print("validation: OK")

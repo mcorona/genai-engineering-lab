@@ -1,8 +1,8 @@
-"""Actividad 7: reranking con claude-haiku-5-5 sobre los top 20 del vectorial (OpenSearch, bge-m3).
+"""Activity 7: reranking with claude-haiku-5-5 over the vector top 20 (OpenSearch, bge-m3).
 
-Métricas por idioma, con y sin reranker: recall@5, nDCG@10 (relevancia binaria: el chunk contiene
-algún pasaje de referencia) y MRR. Además: costo por consulta con prices.json de semana 7 y latencia.
-Requiere LM Studio con bge-m3, OpenSearch con el índice semana8, y ANTHROPIC_API_KEY.
+Metrics per language, with and without the reranker: recall@5, nDCG@10 (binary relevance: the chunk contains
+a reference passage) and MRR. Also: cost per query with week 7's prices.json, and latency.
+Requires LM Studio with bge-m3, OpenSearch with the semana8 index, and ANTHROPIC_API_KEY.
 """
 import json
 import math
@@ -68,8 +68,8 @@ def relevante(c, gold):
 
 def metricas(consulta, ranking):
     gold = consulta["gold"]
-    # Cada pasaje de referencia cuenta una sola vez: con chunks solapados, un mismo pasaje
-    # puede estar en dos chunks, y sin este control nDCG podría pasar de 1.
+    # Each reference passage counts only once: with overlapping chunks, the same passage
+    # can be in two chunks, and without this check nDCG could exceed 1.
     rel, usados = [], set()
     for c in ranking[:10]:
         idx = next((i for i, g in enumerate(gold)
@@ -120,8 +120,8 @@ def main():
         for nombre, filas in (("vectorial", base), ("vectorial + haiku", rer)):
             print(f"{idioma} {nombre:<18} recall@5={sum(f[0] for f in filas)/n:.3f} "
                   f"nDCG@10={sum(f[1] for f in filas)/n:.3f} MRR={sum(f[2] for f in filas)/n:.3f}")
-        print(f"{idioma} haiku: fallos de formato={fallos}/{n} costo_total=${costo:.5f} "
-              f"por_consulta=${costo/n:.6f} p50={statistics.median(latencias):.0f} ms\n")
+        print(f"{idioma} haiku: format_failures={fallos}/{n} total_cost=${costo:.5f} "
+              f"per_query=${costo/n:.6f} p50={statistics.median(latencias):.0f} ms\n")
 
 
 if __name__ == "__main__":

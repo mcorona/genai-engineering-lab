@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Semana 12, actividad 10: costo real de la semana en AWS, por servicio y por día, desde Cost Explorer. Solo lectura.
-#   ./costo_real.sh [inicio] [fin]      fechas AAAA-MM-DD; fin exclusivo. Por defecto 2026-10-26 a mañana.
-# Cada consulta a la API de Cost Explorer cuesta $0.01; este script hace UNA. Los datos tardan de 24 a 48 h en
-# consolidarse, así que se corre de nuevo el día 2 después del borrado. El costo es de toda la cuenta (el presupuesto
-# también lo es): se separan los servicios que usó la semana 12 de los demás. Se agrupa también por tipo de registro
-# porque los créditos promocionales de la cuenta compensan el uso y el neto sale en $0: el costo real es el uso bruto.
+# Week 12, activity 10: the week's real cost in AWS, by service and by day, from Cost Explorer. Read-only.
+#   ./costo_real.sh [start] [end]      dates YYYY-MM-DD; end exclusive. By default 2026-10-26 to tomorrow.
+# Each Cost Explorer API query costs $0.01; this script makes ONE. The data takes 24 to 48 h to
+# consolidate, so it is run again on day 2 after the deletion. The cost is for the whole account (so is the
+# budget): the services week 12 used are separated from the rest. It is also grouped by record type,
+# because the account's promotional credits offset the usage and the net comes out at $0: the real cost is the gross usage.
 set -euo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PAGER=""
@@ -12,6 +12,6 @@ INI=${1:-2026-10-26}; FIN=${2:-$(python3 -c 'import datetime;print(datetime.date
 aws ce get-cost-and-usage --region us-east-1 --time-period Start=$INI,End=$FIN --granularity DAILY \
   --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE Type=DIMENSION,Key=RECORD_TYPE --output json | python3 costo_real.py
 echo
-echo "Google Cloud (sin API de costos sin exportación a BigQuery): consola > Facturación > Informes, proyecto $GCP_PROYECTO,"
-echo "  agrupar por SKU, del $INI a hoy: https://console.cloud.google.com/billing/reports?project=$GCP_PROYECTO"
-echo "Anthropic API (generador y juez Haiku 5.5): https://console.anthropic.com/usage   ·   OpenAI (embeddings de answer relevancy en CI): https://platform.openai.com/usage"
+echo "Google Cloud (no cost API without a BigQuery export): console > Billing > Reports, project $GCP_PROYECTO,"
+echo "  grouped by SKU, from $INI to today: https://console.cloud.google.com/billing/reports?project=$GCP_PROYECTO"
+echo "Anthropic API (Haiku 5.5 generator and judge): https://console.anthropic.com/usage   ·   OpenAI (answer relevancy embeddings in CI): https://platform.openai.com/usage"

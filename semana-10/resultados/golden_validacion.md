@@ -1,40 +1,40 @@
-# Actividad 1: validación del golden set integrado
+# Activity 1: validating the integrated gold set
 
-Fecha: 2026-10-26. Script: `datasets/construir_integrado.py`. Archivos: `datasets/integrado_{es,en}.jsonl` y `fuentes/`.
+Date: 2026-10-26. Script: `datasets/construir_integrado.py`. Files: `datasets/integrado_{es,en}.jsonl` and `fuentes/`.
 
-## Composición (por idioma)
+## Composition (per language)
 
-| Tipo | Preguntas | Referencia | Origen |
+| Type | Questions | Reference | Origin |
 |---|---|---|---|
-| SQL | 15 | SQL esperado, exactitud por ejecución (`order_matters` del set original) | `semana-07/datasets/nlq_hard_validado.jsonl` |
-| Documental | 15 | Pasaje literal | Preguntas base de `semana-09/datasets/avanzado_*.jsonl` |
-| No textual: PDF con tablas | 5 | Respuesta exacta en la fuente | `fuentes/tarifas_flete.md`, `fuentes/matriz_proveedores.md` |
-| No textual: OCR | 5 | Respuesta exacta en la fuente | `fuentes/acta_inventario_norte.md`, `fuentes/remision_r4471.md` |
-| No textual: imagen | 5 | Respuesta exacta en la fuente | `fuentes/grafica_nivel_servicio.json`, `fuentes/plano_cedis_occidente.json` |
-| Mixta | 6 | SQL esperado + pasaje literal | SQL nuevo + corpus de semana 8 |
+| SQL | 15 | Expected SQL, execution accuracy (`order_matters` from the original set) | `semana-07/datasets/nlq_hard_validado.jsonl` |
+| Document | 15 | Literal passage | The base questions of `semana-09/datasets/avanzado_*.jsonl` |
+| Non-text: PDF with tables | 5 | Exact answer in the source | `fuentes/tarifas_flete.md`, `fuentes/matriz_proveedores.md` |
+| Non-text: OCR | 5 | Exact answer in the source | `fuentes/acta_inventario_norte.md`, `fuentes/remision_r4471.md` |
+| Non-text: image | 5 | Exact answer in the source | `fuentes/grafica_nivel_servicio.json`, `fuentes/plano_cedis_occidente.json` |
+| Mixed | 6 | Expected SQL + literal passage | New SQL + the week 8 corpus |
 
-Total: 51 por idioma. Las preguntas EN son traducciones de las ES con la misma referencia.
+Total: 51 per language. The EN questions are translations of the ES ones, with the same reference.
 
-## Validaciones
+## Validations
 
-- **Pasajes literales:** los de las preguntas documentales y mixtas aparecen tal cual en el corpus de semana 8.
-- **Fuentes no textuales:** cada respuesta está en su fuente y **no** aparece en el corpus de texto. Si apareciera, la pregunta podría responderse sin leer el PDF, el escaneo o la imagen. Esta regla rechazó una primera versión de una pregunta de imagen (respuesta "Occidente", que ya está en el corpus); se cambió por el valor de la gráfica (95.1%).
-- **SQL (42 consultas, 15 SQL y 6 mixtas por idioma):** ejecutadas contra la base de inventory-copilot con su rol de lectura (`PG_DSN`). Todas se ejecutan y devuelven al menos una fila sin nulos.
+- **Literal passages:** those of the document and mixed questions appear verbatim in the week 8 corpus.
+- **Non-text sources:** each answer is in its source and does **not** appear in the text corpus. If it did, the question could be answered without reading the PDF, the scan or the image. This rule rejected a first version of an image question (the answer "Occidente", which is already in the corpus); it was replaced by the chart's value (95.1%).
+- **SQL (42 queries, 15 SQL and 6 mixed per language):** executed against the inventory-copilot database with its read role (`PG_DSN`). All of them run and return at least one row with no nulls.
 
-Resultados de las mixtas en la validación:
+The results of the mixed questions in the validation:
 
-| Mixta | Resultado SQL |
+| Mixed | SQL result |
 |---|---|
-| `int-mix-01` SKUs críticos | 30 |
-| `int-mix-02` unidades vendidas en septiembre de 2026 | 75,001 |
-| `int-mix-03` proveedores con más de 20 días de entrega | Shenzhen Components, Ningbo Hardware, Rhein Industrietechnik, … |
-| `int-mix-04` existencias en Monterrey | 49,382 |
-| `int-mix-05` productos de la categoría Seguridad | 25 |
-| `int-mix-06` SKUs críticos en riesgo hoy (ejemplo del plan) | SKU-0164, SKU-0009, SKU-0189, … |
+| `int-mix-01` critical SKUs | 30 |
+| `int-mix-02` units sold in September 2026 | 75,001 |
+| `int-mix-03` suppliers with more than 20 days of lead time | Shenzhen Components, Ningbo Hardware, Rhein Industrietechnik, … |
+| `int-mix-04` stock in Monterrey | 49,382 |
+| `int-mix-05` products in the Seguridad (safety) category | 25 |
+| `int-mix-06` critical SKUs at risk today (the plan's example) | SKU-0164, SKU-0009, SKU-0189, … |
 
-`int-mix-06` usa la definición de riesgo de `skus_criticos.md`: días de cobertura (stock total ÷ venta diaria promedio de los últimos 30 días) menores que el tiempo de entrega del proveedor.
+`int-mix-06` uses the risk definition in `skus_criticos.md`: days of coverage (total stock ÷ average daily sales over the last 30 days) lower than the supplier's lead time.
 
-## Limitaciones
+## Limitations
 
-- Los nombres de proveedores de la matriz en PDF (por ejemplo, Shenzhen Industrial Parts) no coinciden con los de la base (por ejemplo, Shenzhen Components). Son mundos sintéticos separados; ninguna pregunta cruza la matriz con la base, pero un asistente podría confundirlos si alguna lo hiciera.
-- Los resultados SQL dependen de los datos sintéticos actuales de la base de inventory-copilot. Si se regeneran, las respuestas esperadas pueden cambiar, aunque las consultas siguen siendo válidas; la evaluación por ejecución compara contra el resultado del SQL de referencia en la misma base, no contra estos valores.
+- The supplier names in the PDF matrix (for example, Shenzhen Industrial Parts) do not match those in the database (for example, Shenzhen Components). They are separate synthetic worlds; no question crosses the matrix with the database, but an assistant could confuse them if one did.
+- The SQL results depend on the current synthetic data in the inventory-copilot database. If the data is regenerated, the expected answers can change, although the queries remain valid; the execution-based evaluation compares against the result of the reference SQL on the same database, not against these values.

@@ -1,21 +1,21 @@
-"""Semana 11, pendiente previo: verifica RAGAS con un juez de Anthropic y embeddings bge-m3 de LM Studio.
+"""Week 11, a prerequisite: checks RAGAS with an Anthropic judge and bge-m3 embeddings from LM Studio.
 
-Registra versiones y corre 4 métricas de RAGAS (API moderna, ragas.metrics.collections) sobre 4 casos con
-resultado conocido, construidos con un pasaje literal de semana-08/corpus/devoluciones.md:
-- fiel: respuesta correcta y apoyada en el contexto (faithfulness y answer relevance altas);
-- cifra_cambiada: "45 días" en lugar de "30 días" (faithfulness debe bajar);
-- fuera_de_tema: respuesta cierta pero que no contesta la pregunta (answer relevance debe bajar);
-- contexto_equivocado: contexto sin el pasaje de referencia (context recall debe bajar).
-No es la meta-evaluación de la actividad 3 (eso usa 20 preguntas por idioma): solo confirma que la configuración
-funciona y que las métricas se mueven en la dirección esperada. Registra tokens y costo del juez.
+Records the versions and runs 4 RAGAS metrics (the modern API, ragas.metrics.collections) on 4 cases with a
+known result, built from a literal passage of semana-08/corpus/devoluciones.md:
+- fiel: a correct answer supported by the context (high faithfulness and answer relevance);
+- cifra_cambiada: "45 días" instead of "30 días" (faithfulness must drop);
+- fuera_de_tema: a true answer that does not answer the question (answer relevance must drop);
+- contexto_equivocado: a context without the reference passage (context recall must drop).
+It is not the activity 3 meta-evaluation (that one uses 20 questions per language): it only confirms that the setup
+works and that the metrics move in the expected direction. It records the judge's tokens and cost.
 
-Configuración:
-- Juez: llm_factory(modelo, provider="anthropic", client=AsyncAnthropic()). Las métricas de ragas.metrics.collections
-  llaman a agenerate(), así que el cliente tiene que ser asíncrono (con Anthropic() fallan con TypeError). RAGAS manda por defecto temperature=0.01
-  y top_p=0.1; los modelos Claude actuales no aceptan ambos, así que se quitan los dos. El esfuerzo va en
-  extra_body.output_config (default de Haiku: medium) y max_tokens sube a 4000 porque el razonamiento cuenta como salida.
+Configuration:
+- Judge: llm_factory(model, provider="anthropic", client=AsyncAnthropic()). The ragas.metrics.collections metrics
+  call agenerate(), so the client has to be asynchronous (with Anthropic() they fail with a TypeError). RAGAS sends
+  temperature=0.01 and top_p=0.1 by default; current Claude models do not accept both, so both are removed. The effort goes in
+  extra_body.output_config (Haiku's default: medium) and max_tokens goes up to 4000 because reasoning counts as output.
 - Embeddings: embedding_factory("openai", model=LMSTUDIO_EMBED_MODEL, client=AsyncOpenAI(base_url=LM Studio)).
-Requiere ANTHROPIC_API_KEY y LM Studio con bge-m3. Uso: python verificar_ragas.py [--modelo ...] [--esfuerzo low]
+Requires ANTHROPIC_API_KEY and LM Studio with bge-m3. Usage: python verificar_ragas.py [--modelo ...] [--esfuerzo low]
 """
 import argparse
 import importlib.metadata as md
@@ -52,7 +52,7 @@ def main():
         try:
             print(f"{pkg}=={md.version(pkg)}")
         except md.PackageNotFoundError:
-            print(f"{pkg}: no instalado")
+            print(f"{pkg}: not installed")
 
     from anthropic import AsyncAnthropic
     from openai import AsyncOpenAI
@@ -76,7 +76,7 @@ def main():
                        extra_body={"output_config": {"effort": args.esfuerzo}})
     juez.model_args.pop("temperature", None)
     juez.model_args.pop("top_p", None)
-    print(f"juez: {args.modelo} ({args.esfuerzo}); argumentos: {juez.model_args}")
+    print(f"judge: {args.modelo} ({args.esfuerzo}); arguments: {juez.model_args}")
 
     base = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1")
     modelo_emb = os.getenv("LMSTUDIO_EMBED_MODEL", "text-embedding-bge-m3")
@@ -94,8 +94,8 @@ def main():
         c = metricas["context_recall"].score(user_input=PREGUNTA, retrieved_contexts=ctx, reference=REFERENCIA).value
         print(f"| {nombre} | {f:.2f} | {r:.2f} | {c:.2f} | {time.perf_counter() - t0:.1f} |")
     p = PRECIOS[f"anthropic:{args.modelo}"]
-    print(f"\nJuez: {uso['llamadas']} llamadas, {uso['in']} tokens de entrada y {uso['out']} de salida; "
-          f"costo ${(uso['in'] * p['in'] + uso['out'] * p['out']) / 1e6:.5f}")
+    print(f"\nJudge: {uso['llamadas']} calls, {uso['in']} input tokens and {uso['out']} output tokens; "
+          f"cost ${(uso['in'] * p['in'] + uso['out'] * p['out']) / 1e6:.5f}")
     esperado = ("Esperado: fiel con faithfulness y relevance altas; cifra_cambiada con faithfulness baja; "
                 "fuera_de_tema con relevance más baja que fiel; contexto_equivocado con context_recall baja.")
     print(esperado, file=sys.stderr)

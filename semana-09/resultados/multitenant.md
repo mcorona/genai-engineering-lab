@@ -1,24 +1,24 @@
-# Actividad 6: aislamiento multi-tenant
+# Activity 6: multi-tenant isolation
 
-Corrida del 2026-10-26. Script: `experimentos/multitenant.py`. Sin llamadas a modelos generativos: costo de API 0.
+Run of 2026-10-26. Script: `experimentos/multitenant.py`. No calls to generative models: API cost 0.
 
-## Tenants de prueba
+## Test tenants
 
-- **alfa:** los 24 documentos de semana 8 (57 chunks).
-- **beta:** `corpus_beta/`, 10 documentos copiados de alfa. Cada uno difiere de su par en una sola línea: la cifra del pasaje de referencia (por ejemplo, plazo de devolución de 30 a 20 días; factor de seguridad de SKUs críticos de 1.5 a 2.0). 33 chunks. Generado y validado por `datasets/construir_multitenant.py`: cada pasaje cambiado aparece una vez y queda completo dentro de un chunk en ambos tenants.
+- **alfa:** the 24 week 8 documents (57 chunks).
+- **beta:** `corpus_beta/`, 10 documents copied from alfa. Each differs from its pair in a single line: the figure in the reference passage (for example, a return window of 30 instead of 20 days; a safety factor for critical SKUs of 1.5 instead of 2.0). 33 chunks. Generated and validated by `datasets/construir_multitenant.py`: each changed passage appears once and stays whole within one chunk in both tenants.
 
-Ambos tenants están en los mismos índices: `semana9.chunks_mt` en pgvector 0.8.6, `semana9_mt` en Qdrant 1.12.4 y `semana9_mt` en OpenSearch 2.19.1, con `tenant_id` y `roles`. El filtro va dentro de la consulta, igual que en la actividad 5. Los índices de las actividades anteriores no se tocaron.
+Both tenants are in the same indexes: `semana9.chunks_mt` in pgvector 0.8.6, `semana9_mt` in Qdrant 1.12.4 and `semana9_mt` in OpenSearch 2.19.1, with `tenant_id` and `roles`. The filter goes inside the query, as in activity 5. The indexes of earlier activities were not touched.
 
-## Cómo se mide
+## How it is measured
 
-- **Barrido:** 50 preguntas base × 2 tenants, con un usuario que tiene todos los roles, para que solo actúe el filtro de tenant. La fuga se juzga contra el `tenant_id` y `permisos.json`.
-- **Casos solapados** (`datasets/multitenant_{es,en}.jsonl`): las 10 preguntas cuyo pasaje existe casi idéntico en ambos tenants, hechas desde alfa y desde beta, con un rol que ve el documento. Son 20 casos por base e idioma.
-- **Contraste sin filtro:** el mismo barrido sin filtro, separado por tenant (cuántos chunks del otro tenant vería cada usuario).
-- **Resultados cortos:** búsquedas filtradas con menos de k chunks aunque haya k visibles.
+- **Sweep:** 50 base questions × 2 tenants, with a user who has every role, so that only the tenant filter acts. Leaks are judged against `tenant_id` and `permisos.json`.
+- **Overlapping cases** (`datasets/multitenant_{es,en}.jsonl`): the 10 questions whose passage exists almost identically in both tenants, asked from alfa and from beta, with a role that can see the document. That gives 20 cases per database and language.
+- **Contrast without the filter:** the same sweep without the filter, split by tenant (how many chunks from the other tenant each user would see).
+- **Short results:** filtered searches that return fewer than k chunks although k are visible.
 
-## Resultados
+## Results
 
-| Base | Idioma | Barrido (pregunta × tenant) | Fuga con filtro | Chunks del otro tenant sin filtro (top 10 de alfa / de beta) | Casos solapados | Cifra propia en top 5 (con filtro) | Cifra del otro tenant devuelta (sin / con filtro) | Otro tenant antes que el propio (sin filtro) | Resultados cortos |
+| Database | Language | Sweep (question × tenant) | Leak with filter | Other tenant's chunks without filter (alfa's / beta's top 10) | Overlapping cases | Own figure in top 5 (with filter) | Other tenant's figure returned (without / with filter) | Other tenant ranked above own (without filter) | Short results |
 |---|---|---|---|---|---|---|---|---|---|
 | pgvector | es | 100 | **0** | 185 / 315 | 20 | 20/20 | 20/20 / **0/20** | 10/20 | 0 |
 | Qdrant | es | 100 | **0** | 191 / 309 | 20 | 20/20 | 20/20 / **0/20** | 10/20 | 0 |
@@ -27,22 +27,22 @@ Ambos tenants están en los mismos índices: `semana9.chunks_mt` en pgvector 0.8
 | Qdrant | en | 100 | **0** | 187 / 313 | 20 | 20/20 | 20/20 / **0/20** | 10/20 | 0 |
 | OpenSearch | en | 100 | **0** | 180 / 320 | 20 | 20/20 | 20/20 / **0/20** | 10/20 | 0 |
 
-Fuga total con filtro, incluida la cifra del otro tenant: **0**. Código de salida 0.
+Total leak with the filter, including the other tenant's figure: **0**. Exit code 0.
 
-## Lectura
+## Reading
 
-- **Aislamiento total con filtro:** fuga 0 en las tres bases y en ambos idiomas. Ninguna consulta devolvió la cifra del otro tenant, aunque los chunks son casi idénticos.
-- **Cada tenant recibe su propia respuesta:** 20 de 20 casos solapados tienen la cifra propia en el top 5.
-- **Sin filtro, el riesgo es alto:** un usuario de alfa vería entre 180 y 191 chunks de beta de 500 (36 a 38 %), y uno de beta entre 309 y 320 chunks de alfa (62 a 64 %). En los casos solapados, la cifra del otro tenant aparece en el top 10 en 20 de 20, y sale antes que la propia en 10 de 20. Con texto casi idéntico, el orden entre tenants es prácticamente aleatorio, así que sin filtro un usuario recibiría la cifra de la otra empresa la mitad de las veces.
-- **Sin resultados cortos:** el filtro no deja ninguna búsqueda con menos de k resultados.
+- **Complete isolation with the filter:** 0 leaks in all three databases and in both languages. No query returned the other tenant's figure, even though the chunks are almost identical.
+- **Each tenant gets its own answer:** 20 of 20 overlapping cases have the tenant's own figure in the top 5.
+- **Without the filter, the risk is high:** an alfa user would see 180 to 191 of 500 chunks from beta (36 to 38 %), and a beta user 309 to 320 chunks from alfa (62 to 64 %). In the overlapping cases, the other tenant's figure appears in the top 10 in 20 of 20, and it ranks above the tenant's own in 10 of 20. With almost identical text, the ordering between tenants is practically random, so without the filter a user would get the other company's figure half of the time.
+- **No short results:** the filter leaves no search with fewer than k results.
 
-## Corrección durante la actividad
+## Correction during the activity
 
-La primera versión sumaba en una sola columna los chunks del otro tenant sin filtro, para ambos usuarios. Esa suma da siempre 10 por pregunta (500 en total) por construcción, porque sin filtro el resultado es el mismo para los dos usuarios. Se separó por tenant. Fuga, casos solapados y resultados cortos no cambiaron entre corridas.
+The first version summed, in a single column, the other tenant's chunks without the filter for both users. That sum is always 10 per question (500 in total) by construction, because without the filter the result is the same for both users. It was split by tenant. Leaks, overlapping cases and short results did not change between runs.
 
-## Limitaciones
+## Limitations
 
-- Dos tenants en índices compartidos, separados por filtro. No se probó aislamiento físico (un índice o colección por tenant).
-- El tenant beta tiene 10 documentos: el contraste sin filtro depende de ese tamaño.
-- Un rol por usuario en los casos solapados. Los permisos y tenants son sintéticos.
-- No se midió la latencia con filtro frente a sin filtro.
+- Two tenants in shared indexes, separated by a filter. Physical isolation (one index or collection per tenant) was not tested.
+- The beta tenant has 10 documents: the contrast without the filter depends on that size.
+- One role per user in the overlapping cases. The permissions and tenants are synthetic.
+- The latency with the filter vs. without it was not measured.

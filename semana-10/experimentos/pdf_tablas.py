@@ -1,21 +1,21 @@
-"""Actividad 3: PDFs con tablas.
+"""Activity 3: PDFs with tables.
 
-1. Genera PDFs (reportlab) desde cuatro documentos con tablas o listas: las fuentes congeladas
-   fuentes/tarifas_flete.md y fuentes/matriz_proveedores.md (con preguntas en el golden set) y, del corpus de
-   semana 8, ordenes_de_compra.md (tabla de niveles de aprobación) y proveedores.md (tiempos de entrega).
-2. Extrae el texto con: pypdf (texto plano), pdfplumber (tablas como filas, resto del texto aparte) y Claude con el
-   PDF como entrada (transcripción a Markdown). Referencia superior: el Markdown original, sin pasar por PDF.
-3. Métricas, fijadas antes de correr:
-   - Celdas presentes: celdas de las tablas originales que aparecen en algún lugar del texto extraído.
-   - Celdas en su fila: celdas que aparecen en la misma línea que el resto de su fila (la línea con más coincidencias).
-   - Filas íntegras: filas con todas sus celdas en una sola línea.
-   Coincidencia de celda: texto exacto (sin negritas, espacios normalizados), con límites de palabra.
-   - recall@5: preguntas de PDF del golden set (datasets/integrado_*.jsonl, formato pdf, 5 por idioma). Se indexa
-     lo extraído de los 4 PDFs junto con el resto del corpus de semana 8 (sin los 2 documentos que ahora son PDF),
-     con chunking fijo 400/80 y bge-m3. Acierto: algún chunk del top 5 viene de ese PDF y contiene la respuesta.
-Salidas: tablas en stdout, resultados/pdf_extracciones/ (texto extraído por extractor) y resultados/pdf_tablas_detalle.csv.
-Claude se guarda en caché (resultados/pdf_extracciones/claude_<modelo>_<esfuerzo>.json); --regenerar-claude lo rehace.
-Requiere reportlab, pypdf, pdfplumber, LM Studio con bge-m3 y, salvo --sin-claude, ANTHROPIC_API_KEY.
+1. Generates PDFs (reportlab) from four documents with tables or lists: the frozen sources
+   fuentes/tarifas_flete.md and fuentes/matriz_proveedores.md (with questions in the gold set) and, from the week 8
+   corpus, ordenes_de_compra.md (the approval-level table) and proveedores.md (lead times).
+2. Extracts the text with: pypdf (plain text), pdfplumber (tables as rows, the rest of the text separately) and Claude with the
+   PDF as input (a transcription to Markdown). Upper reference: the original Markdown, without going through a PDF.
+3. Metrics, fixed before the run:
+   - Cells present: cells of the original tables that appear anywhere in the extracted text.
+   - Cells in their row: cells that appear on the same line as the rest of their row (the line with the most matches).
+   - Intact rows: rows with all their cells on a single line.
+   Cell match: exact text (no bold, normalized spaces), with word boundaries.
+   - recall@5: the gold set's PDF questions (datasets/integrado_*.jsonl, pdf format, 5 per language). What is extracted
+     from the 4 PDFs is indexed together with the rest of the week 8 corpus (without the 2 documents that are now PDFs),
+     with fixed 400/80 chunking and bge-m3. A hit: some chunk in the top 5 comes from that PDF and contains the answer.
+Outputs: tables on stdout, resultados/pdf_extracciones/ (the text extracted per extractor) and resultados/pdf_tablas_detalle.csv.
+Claude's output is cached (resultados/pdf_extracciones/claude_<model>_<effort>.json); --regenerar-claude redoes it.
+Requires reportlab, pypdf, pdfplumber, LM Studio with bge-m3 and, unless --sin-claude, ANTHROPIC_API_KEY.
 """
 import argparse
 import base64
@@ -51,7 +51,7 @@ PROMPT = ("Transcribe este documento PDF a Markdown, completo y literal. Conserv
           "todas sus filas y columnas. No resumas, no traduzcas y no agregues texto.")
 
 
-# ---------- Markdown: bloques y tablas de referencia ----------
+# ---------- Markdown: blocks and reference tables ----------
 
 def bloques(md):
     out, para, lineas, i = [], [], md.splitlines(), 0
@@ -99,7 +99,7 @@ def tablas_referencia(md):
     return [b[1] for b in bloques(md) if b[0] == "tabla"]
 
 
-# ---------- Generación de PDFs ----------
+# ---------- PDF generation ----------
 
 def fuente_unicode():
     from reportlab.pdfbase.ttfonts import TTFont
@@ -113,7 +113,7 @@ def fuente_unicode():
             f = TTFont("Uni", str(c))
             if all(ord(ch) in f.face.charToGlyph for ch in "→áéíóúñÓ±"):
                 return f, c
-    raise SystemExit("No se encontró una fuente TTF con '→' y acentos; los PDF tendrían caracteres faltantes.")
+    raise SystemExit("No TTF font with '→' and accents was found; the PDFs would have missing characters.")
 
 
 def generar_pdf(md_path, pdf_path, estilos):
@@ -150,10 +150,10 @@ def generar_pdfs():
     PDF_DIR.mkdir(parents=True, exist_ok=True)
     for md in FUENTES:
         generar_pdf(md, PDF_DIR / f"{md.stem}.pdf", estilos)
-    print(f"PDFs: {len(FUENTES)} en {PDF_DIR.relative_to(REPO)} (fuente {ruta.name})", file=sys.stderr)
+    print(f"PDFs: {len(FUENTES)} in {PDF_DIR.relative_to(REPO)} (font {ruta.name})", file=sys.stderr)
 
 
-# ---------- Extractores ----------
+# ---------- Extractors ----------
 
 def ext_original(md, pdf):
     return md.read_text(encoding="utf-8").replace("**", "")
@@ -207,7 +207,7 @@ def ext_claude(modelo, esfuerzo, regenerar):
             except urllib.error.HTTPError as e:
                 raise SystemExit(f"API HTTP {e.code} en {pdf.name}: {e.read().decode()[:300]}")
             if d.get("stop_reason") == "max_tokens":
-                raise SystemExit(f"Salida truncada por max_tokens en {pdf.name}; no se usa una transcripción incompleta.")
+                raise SystemExit(f"Output truncated by max_tokens in {pdf.name}; an incomplete transcription is not used.")
             u = d["usage"]
             cache[pdf.stem] = {"texto": "".join(b.get("text", "") for b in d["content"] if b.get("type") == "text"),
                                "tokens_in": u["input_tokens"], "tokens_out": u["output_tokens"],
@@ -219,7 +219,7 @@ def ext_claude(modelo, esfuerzo, regenerar):
     return f, cache
 
 
-# ---------- Métricas ----------
+# ---------- Metrics ----------
 
 def norm_ws(s):
     return re.sub(r"\s+", " ", s.replace("**", "").replace(" ", " ")).strip()
@@ -272,7 +272,7 @@ def main():
             (EXT_DIR / f"{clave}__{stem}.txt").write_text(t, encoding="utf-8")
 
     detalle = []
-    print("| Extractor | Celdas presentes | Celdas en su fila | Filas íntegras |")
+    print("| Extractor | Cells present | Cells in their row | Intact rows |")
     print("|---|---|---|---|")
     for nombre in extractores:
         agg = [0, 0, 0, 0, 0]
@@ -292,7 +292,7 @@ def main():
     preguntas = {lang: [json.loads(l) for l in (RAIZ / "datasets" / f"integrado_{lang}.jsonl").read_text(encoding="utf-8").splitlines()
                         if json.loads(l).get("formato") == "pdf"] for lang in ("es", "en")}
     vq = {lang: emb_bge([q["question"] for q in qs], "query")[0] for lang, qs in preguntas.items()}
-    print("\n| Extractor | Idioma | recall@5 |")
+    print("\n| Extractor | Language | recall@5 |")
     print("|---|---|---|")
     for nombre in extractores:
         docs = {**otros, **textos[nombre]}
@@ -310,14 +310,14 @@ def main():
 
     if cache:
         c = list(cache.values())
-        print(f"\nClaude: {len(c)} PDFs, tokens de entrada {sum(x['tokens_in'] for x in c)}, de salida {sum(x['tokens_out'] for x in c)}, "
-              f"costo ${sum(x['costo_usd'] for x in c):.5f}, latencia media {sum(x['latencia_s'] for x in c) / len(c):.1f} s por PDF")
+        print(f"\nClaude: {len(c)} PDFs, input tokens {sum(x['tokens_in'] for x in c)}, output {sum(x['tokens_out'] for x in c)}, "
+              f"cost ${sum(x['costo_usd'] for x in c):.5f}, mean latency {sum(x['latencia_s'] for x in c) / len(c):.1f} s per PDF")
     campos = sorted({k for d in detalle for k in d})
     with (RES / "pdf_tablas_detalle.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=campos)
         w.writeheader()
         w.writerows(detalle)
-    print(f"detalle: {RES / 'pdf_tablas_detalle.csv'}", file=sys.stderr)
+    print(f"detail: {RES / 'pdf_tablas_detalle.csv'}", file=sys.stderr)
 
 
 if __name__ == "__main__":

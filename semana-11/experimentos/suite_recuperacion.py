@@ -1,28 +1,28 @@
-"""Semana 11, actividad 2: suite de recuperación (no llama al modelo de respuesta).
+"""Week 11, activity 2: the retrieval suite (does not call the answer model).
 
-Golden set: datasets/eval_rag_{es,en}.jsonl, solo las preguntas respondibles (65 por idioma: 50 base y 15 no textuales).
-Índice: semana10.chunks de la actividad 7 (30 documentos, 68 chunks, bge-m3), usuario del tenant alfa con todos los roles;
-el filtro de tenant y roles va dentro de la consulta, como en el asistente.
+Gold set: datasets/eval_rag_{es,en}.jsonl, only the answerable questions (65 per language: 50 base and 15 non-text).
+Index: activity 7's semana10.chunks (30 documents, 68 chunks, bge-m3), a user of the alfa tenant with every role;
+the tenant and role filter goes inside the query, as in the assistant.
 
-Configuraciones:
-- base: vectorial + filtro, en orden de similitud (top 20 candidatos).
-- adoptado: vectorial + filtro + reranking con Haiku 5.5 (el de semana 8 y del asistente) sobre los 20 candidatos.
+Configurations:
+- base: vector + filter, in similarity order (top 20 candidates).
+- adoptado: vector + filter + reranking with Haiku 5.5 (the one from week 8 and the assistant) over the 20 candidates.
 
-Métricas propias (relevancia exacta: un chunk del documento de referencia que contiene el pasaje; en las no textuales,
-la respuesta exacta; misma definición que semanas 8 a 10):
-- recall@k (k = 1, 3, 5, 10): fracción de pasajes de referencia que aparecen en el top k.
-- MRR: inverso de la posición del primer chunk relevante en el top 10.
-- nDCG@10: ganancia binaria; cada pasaje cuenta una sola vez (los chunks se solapan).
-- precision@5: fracción de los 5 primeros chunks que son relevantes (contraparte propia de context precision).
-Métricas de RAGAS 0.4.3 sobre el top 5, con la respuesta de referencia y juez Haiku 5.5 low:
-- context precision (con referencia): precisión ponderada por posición de los chunks útiles para la referencia.
-- context recall: fracción de las afirmaciones de la referencia que se pueden atribuir al top 5.
-Comparación propia contra RAGAS en las mismas consultas: correlación, tabla de acuerdo (recall@5 = 1 contra context
-recall >= 0.5) y los desacuerdos con su texto. Diferencia entre configuraciones: media pareada por consulta con
-intervalo bootstrap de 95 % (2,000 remuestreos, semilla 11).
-Costo: reranking y juez de RAGAS por separado (el juez usa caché en disco, así que los chunks repetidos entre
-configuraciones no se vuelven a cobrar). Caché de rankings y puntajes en resultados/suite_recuperacion_cache.json.
-Requiere NLQ_DSN, LM Studio con bge-m3 y ANTHROPIC_API_KEY.
+In-house metrics (exact relevance: a chunk of the reference document that contains the passage; for non-text questions,
+the exact answer; the same definition as weeks 8 to 10):
+- recall@k (k = 1, 3, 5, 10): the fraction of reference passages that appear in the top k.
+- MRR: the inverse of the position of the first relevant chunk in the top 10.
+- nDCG@10: binary gain; each passage counts only once (the chunks overlap).
+- precision@5: the fraction of the first 5 chunks that are relevant (the in-house counterpart of context precision).
+RAGAS 0.4.3 metrics over the top 5, with the reference answer and judge Haiku 5.5 low:
+- context precision (with reference): the position-weighted precision of the chunks useful for the reference.
+- context recall: the fraction of the reference's claims that can be attributed to the top 5.
+In-house vs. RAGAS comparison on the same queries: correlation, an agreement table (recall@5 = 1 vs. context
+recall >= 0.5) and the disagreements with their text. Difference between configurations: the paired mean per query with
+a 95 % bootstrap interval (2,000 resamples, seed 11).
+Cost: reranking and the RAGAS judge separately (the judge uses a disk cache, so chunks repeated across
+configurations are not billed again). Cache of rankings and scores in resultados/suite_recuperacion_cache.json.
+Requires NLQ_DSN, LM Studio with bge-m3, and ANTHROPIC_API_KEY.
 """
 import asyncio
 import csv
@@ -74,8 +74,8 @@ def metricas(ranking, gold):
     pos = next((i for i, c in enumerate(ranking[:10], 1) if pasajes_en(c, gold)), None)
     m["mrr"] = 1 / pos if pos else 0.0
     m["precision@5"] = sum(1 for c in ranking[:5] if pasajes_en(c, gold)) / 5
-    # AP@5: la misma fórmula que context precision de RAGAS (media de precision@i en las posiciones relevantes),
-    # pero con la relevancia exacta en lugar del juez. Agregada después de la primera corrida para comparar 1 a 1.
+    # AP@5: the same formula as RAGAS context precision (the mean of precision@i at the relevant positions),
+    # but with exact relevance instead of the judge. Added after the first run to compare one to one.
     r = [bool(pasajes_en(c, gold)) for c in ranking[:5]]
     m["ap@5"] = (sum(sum(r[:i]) / i for i in range(1, 6) if r[i - 1]) / sum(r)) if any(r) else 0.0
     return m
@@ -202,8 +202,8 @@ def main():
         v = [d[c] for d in f if d[c] is not None]
         return statistics.mean(v) if v else float("nan")
 
-    print("## Métricas por configuración\n")
-    print("| Configuración | Idioma | Tipo | n | " + " | ".join(campos) + " | Latencia p50 (s) |")
+    print("## Metrics per configuration\n")
+    print("| Configuration | Language | Type | n | " + " | ".join(campos) + " | p50 latency (s) |")
     print("|" + "---|" * (len(campos) + 5))
     for config in CONFIGS:
         for lang in ("es", "en"):
@@ -212,8 +212,8 @@ def main():
                 print(f"| {config} | {lang} | {tipo} | {len(f)} | " + " | ".join(f"{media(f, c):.3f}" for c in campos)
                       + f" | {statistics.median(d['latencia_s'] for d in f):.2f} |")
 
-    print("\n## Diferencia adoptado − base (media pareada por consulta, IC bootstrap 95 %)\n")
-    print("| Idioma | Métrica | Diferencia | IC 95 % | Consultas que suben / bajan |")
+    print("\n## Difference adoptado − base (paired mean per query, 95 % bootstrap CI)\n")
+    print("| Language | Metric | Difference | 95 % CI | Queries that rise / fall |")
     print("|---|---|---|---|---|")
     for lang in ("es", "en"):
         for c in campos:
@@ -224,8 +224,8 @@ def main():
             m, lo, hi = bootstrap(dif)
             print(f"| {lang} | {c} | {m:+.3f} | [{lo:+.3f}, {hi:+.3f}] | {sum(v > 0 for v in dif)} / {sum(v < 0 for v in dif)} |")
 
-    print("\n## Propias contra RAGAS (mismas consultas, top 5)\n")
-    print("| Configuración | Par | Pearson | Acuerdo |")
+    print("\n## In-house vs. RAGAS (same queries, top 5)\n")
+    print("| Configuration | Pair | Pearson | Agreement |")
     print("|---|---|---|---|")
     desacuerdos = []
     for config in CONFIGS:
@@ -236,8 +236,8 @@ def main():
         print(f"| {config} | precision@5 / context_precision | {pearson([d['precision@5'] for d in f], [d['context_precision'] for d in f]):.3f} | - |")
         print(f"| {config} | mrr / context_precision | {pearson([d['mrr'] for d in f], [d['context_precision'] for d in f]):.3f} | - |")
         print(f"| {config} | ap@5 / context_precision | {pearson([d['ap@5'] for d in f], [d['context_precision'] for d in f]):.3f} | "
-              f"{sum(abs(d['ap@5'] - d['context_precision']) <= 0.1 for d in f)}/{len(f)} con diferencia <= 0.1; RAGAS más alto en "
-              f"{sum(d['context_precision'] > d['ap@5'] + 0.1 for d in f)}, más bajo en {sum(d['context_precision'] < d['ap@5'] - 0.1 for d in f)} |")
+              f"{sum(abs(d['ap@5'] - d['context_precision']) <= 0.1 for d in f)}/{len(f)} with a difference <= 0.1; RAGAS higher in "
+              f"{sum(d['context_precision'] > d['ap@5'] + 0.1 for d in f)}, lower in {sum(d['context_precision'] < d['ap@5'] - 0.1 for d in f)} |")
         desacuerdos += [(config, d) for d in f if (d["recall@5"] == 1) != (d["context_recall"] >= 0.5)
                         or abs(d["ap@5"] - d["context_precision"]) > 0.3]
     preguntas = {(x["id"], x["lang"]): x["question"] for x in items}
@@ -247,10 +247,10 @@ def main():
               f"ap@5={d['ap@5']:.2f}, context_precision={d['context_precision']:.2f} | {preguntas[(d['id'], d['lang'])][:80]}")
     errores = sum(1 for d in detalle if d["ragas_error"])
     costo_rerank = sum(d["costo_rerank"] for d in detalle)
-    print(f"\nRAGAS sin puntaje (error del juez): {errores} de {len(detalle)}")
-    print(f"Costo: reranking ${costo_rerank:.4f} (${costo_rerank / len(items):.5f} por consulta); juez de RAGAS en esta corrida "
-          f"${(uso['in'] * PRECIO['in'] + uso['out'] * PRECIO['out']) / 1e6:.4f} ({uso['llamadas']} llamadas, "
-          f"{uso['in']} tokens de entrada y {uso['out']} de salida; las respuestas en caché no se cobran)")
+    print(f"\nRAGAS without a score (judge error): {errores} of {len(detalle)}")
+    print(f"Cost: reranking ${costo_rerank:.4f} (${costo_rerank / len(items):.5f} per query); RAGAS judge in this run "
+          f"${(uso['in'] * PRECIO['in'] + uso['out'] * PRECIO['out']) / 1e6:.4f} ({uso['llamadas']} calls, "
+          f"{uso['in']} input tokens and {uso['out']} output tokens; cached answers are not billed)")
     with (RES / "suite_recuperacion_detalle.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(detalle[0].keys()))
         w.writeheader()

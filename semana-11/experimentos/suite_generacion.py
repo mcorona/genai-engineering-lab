@@ -1,27 +1,27 @@
-"""Semana 11, actividad 4: suite de generación (no depende del buscador).
+"""Week 11, activity 4: the generation suite (does not depend on the retriever).
 
-Golden set: datasets/eval_rag_{es,en}.jsonl completo (75 por idioma: 65 respondibles y 10 sin respuesta).
+Gold set: the full datasets/eval_rag_{es,en}.jsonl (75 per language: 65 answerable and 10 unanswerable).
 
-Contexto fijo, congelado en resultados/contextos_generacion.json antes de generar:
-- respondibles: un chunk del índice de la actividad 7 por cada pasaje de referencia (el mejor rankeado que lo contiene) más
-  k distractores (k entre 2 y 4, aleatorio con semilla 11), tomados al azar entre los 10 candidatos mejor rankeados que no
-  contienen ningún pasaje de referencia (distractores difíciles: del mismo corpus y parecidos a la pregunta). Los rankings
-  son los del pipeline adoptado de la actividad 2 (resultados/suite_recuperacion_cache.json).
-- sin respuesta: k entre 3 y 5 chunks tomados al azar entre los 10 más parecidos a la pregunta (bge-m3, mismo filtro).
-- el orden de los chunks se baraja con semilla 11.
+A fixed context, frozen in resultados/contextos_generacion.json before generating:
+- answerable: one chunk of the activity 7 index per reference passage (the best-ranked one that contains it) plus
+  k distractors (k between 2 and 4, random with seed 11), drawn at random from the 10 best-ranked candidates that
+  contain no reference passage (hard distractors: from the same corpus and similar to the question). The rankings
+  are those of activity 2's adopted pipeline (resultados/suite_recuperacion_cache.json).
+- unanswerable: k between 3 and 5 chunks drawn at random from the 10 most similar to the question (bge-m3, same filter).
+- the order of the chunks is shuffled with seed 11.
 
-Generador: el del asistente de semana 10 (Haiku 5.5 medium, SIS_RESP, chunks como [D1]..[Dn]).
+Generator: the week 10 assistant's (Haiku 5.5 medium, SIS_RESP, chunks as [D1]..[Dn]).
 
-Métricas (juez Haiku 5.5 low, decisión de la actividad 3):
-- respondibles: faithfulness y answer relevancy (RAGAS 0.4.3, bge-m3), exactitud contra la referencia (juez propio de
-  semanas 8 y 10), precisión de citas (citas [Dn] cuyo chunk contiene un pasaje de referencia / citas) y cobertura de cita
-  (respuestas que citan al menos un chunk con el pasaje).
-- todas: clasificación de la respuesta en "abstiene" (dice que la información no está en los documentos y no da un dato
-  como respuesta) o "responde" (juez Haiku 5.5 low). En las sin respuesta: tasa de abstención correcta y tasa de respuesta
-  inventada (= responde). En las respondibles: tasa de abstención falsa.
-- costo por consulta: generación y evaluación por separado; latencia p50 de la generación.
-Caché por pregunta y métrica en resultados/suite_generacion_cache.json; caché en disco del juez separada por modelo.
-Requiere LM Studio con bge-m3 y ANTHROPIC_API_KEY; NLQ_DSN solo la primera vez (contextos de las preguntas sin respuesta).
+Metrics (judge Haiku 5.5 low, the activity 3 decision):
+- answerable: faithfulness and answer relevancy (RAGAS 0.4.3, bge-m3), accuracy against the reference (the in-house
+  judge of weeks 8 and 10), citation precision (citations [Dn] whose chunk contains a reference passage / citations) and
+  citation coverage (answers that cite at least one chunk with the passage).
+- all: classification of the answer as "abstiene" (it says the information is not in the documents and gives no figure
+  as the answer) or "responde" (judge Haiku 5.5 low). For the unanswerable ones: the correct-abstention rate and the
+  invented-answer rate (= responde). For the answerable ones: the false-abstention rate.
+- cost per query: generation and evaluation separately; p50 latency of the generation.
+Cache per question and metric in resultados/suite_generacion_cache.json; the judge's disk cache separated by model.
+Requires LM Studio with bge-m3 and ANTHROPIC_API_KEY; NLQ_DSN only the first time (contexts of the unanswerable questions).
 """
 import asyncio
 import csv
@@ -37,7 +37,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import suite_recuperacion as sr  # noqa: E402  (importa también el asistente de semana 10)
+import suite_recuperacion as sr  # noqa: E402  (also imports the week 10 assistant)
 
 a = sr.a
 RES = RAIZ / "resultados"
@@ -60,7 +60,7 @@ def construir_contextos(items):
     rec = json.loads((RES / "suite_recuperacion_cache.json").read_text(encoding="utf-8"))
     sin = [x for x in items if not x["respondible"]]
     local = {}
-    sr.recuperar(sin, local)  # top 20 por similitud (y su reranking, que aquí no se usa)
+    sr.recuperar(sin, local)  # top 20 by similarity (and its reranking, which is not used here)
     rnd = random.Random(11)
     ctx = {}
     for x in items:
@@ -85,7 +85,7 @@ def construir_contextos(items):
 
 
 def generar(items, ctx, cache, guardar, sistema=None):
-    """sistema: prompt del generador; por defecto el del asistente de semana 10 (a.SIS_RESP). Actividad 6 lo cambia."""
+    """sistema: the generator's prompt; by default the week 10 assistant's (a.SIS_RESP). Activity 6 changes it."""
     def uno(x):
         k = f"gen::{x['id']}::{x['lang']}"
         if k in cache:
@@ -121,12 +121,12 @@ async def evaluar(items, ctx, cache, guardar):
     cliente.messages.create = crear_contando
     juez = llm_factory(a.HAIKU, provider="anthropic", client=cliente, max_tokens=4000,
                        extra_body={"output_config": {"effort": "low"}},
-                       cache=DiskCacheBackend(str(Path.home() / ".cache" / "ragas_semana11")))  # caché de Haiku (actividad 3)
+                       cache=DiskCacheBackend(str(Path.home() / ".cache" / "ragas_semana11")))  # Haiku cache (activity 3)
     juez.model_args["max_retries"] = 3
     juez.model_args.pop("temperature", None)
     juez.model_args.pop("top_p", None)
     emb = embedding_factory("openai", model=os.getenv("LMSTUDIO_EMBED_MODEL", "text-embedding-bge-m3"),
-                            client=AsyncOpenAI(base_url=os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1"), api_key=os.getenv("EMB_API_KEY", "lm-studio")))  # EMB_API_KEY: CI con OpenAI
+                            client=AsyncOpenAI(base_url=os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1"), api_key=os.getenv("EMB_API_KEY", "lm-studio")))  # EMB_API_KEY: CI with OpenAI
     faith, relev = Faithfulness(llm=juez), AnswerRelevancy(llm=juez, embeddings=emb)
     sem = asyncio.Semaphore(CONCURRENCIA)
 
@@ -206,7 +206,7 @@ def main():
         return f"{statistics.mean(v):.3f}" if v else "-"
 
     print("## Respondibles\n")
-    print("| Idioma | Tipo | n | faithfulness | answer_relevancy | exactitud (juez propio) | precisión de citas | cobertura de cita | abstención falsa |")
+    print("| Language | Type | n | faithfulness | answer_relevancy | accuracy (in-house judge) | citation precision | citation coverage | false abstention |")
     print("|---|---|---|---|---|---|---|---|---|")
     for lang in ("es", "en"):
         for tipo in ("base", "no_textual", "todas"):
@@ -216,22 +216,22 @@ def main():
             cob = sum(1 for r in f if r["citas_con_pasaje"]) / len(f)
             print(f"| {lang} | {tipo} | {len(f)} | {media(f, 'faithfulness')} | {media(f, 'answer_relevancy')} | {media(f, 'exactitud')} | "
                   f"{prec} | {cob:.3f} | {sum(r['clase'] == 'abstiene' for r in f)}/{len(f)} |")
-    print("\n## Sin respuesta\n")
-    print("| Idioma | n | Abstención correcta | Respuesta inventada | Sin clasificar |")
+    print("\n## Unanswerable\n")
+    print("| Language | n | Correct abstention | Invented answer | Unclassified |")
     print("|---|---|---|---|---|")
     for lang in ("es", "en"):
         f = [r for r in filas if r["lang"] == lang and r["tipo"] == "sin_respuesta"]
         print(f"| {lang} | {len(f)} | {sum(r['clase'] == 'abstiene' for r in f)}/{len(f)} | {sum(r['clase'] == 'responde' for r in f)}/{len(f)} | "
               f"{sum(r['clase'] not in ('abstiene', 'responde') for r in f)} |")
-    print("\n## Por número de chunks en el contexto (respondibles, ambos idiomas)\n")
-    print("| Chunks | n | faithfulness | exactitud | precisión de citas |")
+    print("\n## By number of chunks in the context (answerable questions, both languages)\n")
+    print("| Chunks | n | faithfulness | accuracy | citation precision |")
     print("|---|---|---|---|---|")
     for n in sorted({r["n_chunks"] for r in filas if r["tipo"] != "sin_respuesta"}):
         f = [r for r in filas if r["tipo"] != "sin_respuesta" and r["n_chunks"] == n]
         nc = sum(r["citas"] for r in f)
         print(f"| {n} | {len(f)} | {media(f, 'faithfulness')} | {media(f, 'exactitud')} | "
               f"{sum(r['citas_con_pasaje'] for r in f) / nc:.3f} |" if nc else f"| {n} | {len(f)} | - | - | - |")
-    print("\n## Casos para revisar\n")
+    print("\n## Cases to review\n")
     for r in filas:
         motivo = []
         if r["tipo"] == "sin_respuesta" and r["clase"] != "abstiene":
@@ -248,10 +248,10 @@ def main():
     sin = sum(1 for k, v in cache.items() if not k.startswith("gen::") and v.get("valor") is None)
     costo_gen = sum(r["costo_gen"] for r in filas)
     costo_ev = (uso["in"] * PRECIO["in"] + uso["out"] * PRECIO["out"]) / 1e6
-    print(f"\nSin puntaje del juez: {sin}")
-    print(f"Costo: generación ${costo_gen:.4f} (${costo_gen / len(filas):.5f} por consulta; latencia p50 "
-          f"{statistics.median(r['latencia_s'] for r in filas):.1f} s); evaluación en esta corrida ${costo_ev:.4f} "
-          f"({uso['llamadas']} llamadas; lo que ya estaba en caché no se cobra)")
+    print(f"\nWithout a judge score: {sin}")
+    print(f"Cost: generation ${costo_gen:.4f} (${costo_gen / len(filas):.5f} per query; p50 latency "
+          f"{statistics.median(r['latencia_s'] for r in filas):.1f} s); evaluation in this run ${costo_ev:.4f} "
+          f"({uso['llamadas']} calls; what was already cached is not billed)")
 
 
 if __name__ == "__main__":

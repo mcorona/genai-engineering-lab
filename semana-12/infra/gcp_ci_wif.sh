@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Semana 12, actividad 9 (Google Cloud, lo corre el dueño): Workload Identity Federation para GitHub Actions, sin llaves.
-# Pool semana12-github con proveedor OIDC de GitHub limitado a este repo; cuenta de servicio semana12-ci (Discovery Engine
-# viewer: buscar y rankear, sin crear ni borrar) que solo puede usar el sujeto repo:<repo>:environment:nube-semana12.
+# Week 12, activity 9 (Google Cloud, run by the owner): Workload Identity Federation for GitHub Actions, without keys.
+# The semana12-github pool with a GitHub OIDC provider limited to this repository; the semana12-ci service account (Discovery Engine
+# viewer: search and rank, without creating or deleting) that only the subject repo:<repo>:environment:nube-semana12 can use.
 set -euo pipefail
 cd "$(dirname "$0")"; source config.sh
 SUJETO=$(gh_sujeto); P=$GCP_PROYECTO; NUM=$(gcloud projects describe $P --format='value(projectNumber)')
@@ -21,9 +21,9 @@ gcloud iam workload-identity-pools providers describe github --workload-identity
 BASE=principal://iam.googleapis.com/projects/$NUM/locations/global/workloadIdentityPools/$GCP_POOL/subject
 gcloud iam service-accounts add-iam-policy-binding $GCP_SA_CI_EMAIL --project=$P --role=roles/iam.workloadIdentityUser \
   --member="$BASE/$SUJETO" >/dev/null
-# Quita el enlace con el formato de sujeto por nombre si quedó de una corrida anterior y ya no aplica
+# Remove the binding with the name-based subject format if it is left from an earlier run and no longer applies
 [ "$SUJETO" != "repo:$GH_REPO:environment:$GH_ENTORNO" ] && gcloud iam service-accounts remove-iam-policy-binding $GCP_SA_CI_EMAIL \
   --project=$P --role=roles/iam.workloadIdentityUser --member="$BASE/repo:$GH_REPO:environment:$GH_ENTORNO" >/dev/null 2>&1 || true
-echo "sujeto aceptado: $SUJETO"
-echo "proveedor: projects/$NUM/locations/global/workloadIdentityPools/$GCP_POOL/providers/github"
-echo "cuenta de servicio: $GCP_SA_CI_EMAIL (llaves de usuario: $(gcloud iam service-accounts keys list --iam-account=$GCP_SA_CI_EMAIL --managed-by=user --format='value(name)' | wc -l | tr -d ' '))"
+echo "accepted subject: $SUJETO"
+echo "provider: projects/$NUM/locations/global/workloadIdentityPools/$GCP_POOL/providers/github"
+echo "service account: $GCP_SA_CI_EMAIL (user-managed keys: $(gcloud iam service-accounts keys list --iam-account=$GCP_SA_CI_EMAIL --managed-by=user --format='value(name)' | wc -l | tr -d ' '))"

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Semana 12, actividad 9: entorno de GitHub nube-semana12, solo desplegable desde main, con las variables (no secretas)
-# que usa el workflow manual para federarse con AWS y Google Cloud. Las llaves de Anthropic y OpenAI se guardan como
-# secretos DEL ENTORNO: solo los ve un job que declara environment: nube-semana12, es decir, el workflow manual.
-#   ./github_entorno.sh            crea o actualiza el entorno
-#   ./github_entorno.sh --borrar   lo borra con sus secretos (actividad 10)
+# Week 12, activity 9: the nube-semana12 GitHub environment, deployable only from main, with the (non-secret) variables
+# the manual workflow uses to federate with AWS and Google Cloud. The Anthropic and OpenAI keys are stored as
+# ENVIRONMENT secrets: only a job that declares environment: nube-semana12, that is, the manual workflow, can see them.
+#   ./github_entorno.sh            creates or updates the environment
+#   ./github_entorno.sh --borrar   deletes it with its secrets (activity 10)
 set -euo pipefail
 cd "$(dirname "$0")"; source config.sh
-if [ "${1:-}" = "--borrar" ]; then   # actividad 10: borra el entorno con sus variables y secretos (llaves de Anthropic y OpenAI)
-  gh api -X DELETE repos/$GH_REPO/environments/$GH_ENTORNO && echo "entorno $GH_ENTORNO: borrado (con sus secretos y variables)"
+if [ "${1:-}" = "--borrar" ]; then   # activity 10: deletes the environment with its variables and secrets (the Anthropic and OpenAI keys)
+  gh api -X DELETE repos/$GH_REPO/environments/$GH_ENTORNO && echo "environment $GH_ENTORNO: deleted (with its secrets and variables)"
   exit 0
 fi
 NUM=$(gcloud projects describe $GCP_PROYECTO --format='value(projectNumber)')
@@ -22,5 +22,5 @@ gh variable set GCP_SA --env $GH_ENTORNO --repo $GH_REPO --body "$GCP_SA_CI_EMAI
 gh variable set GCP_PROYECTO --env $GH_ENTORNO --repo $GH_REPO --body "$GCP_PROYECTO"
 [ -n "${ANTHROPIC_API_KEY:-}" ] && printf %s "$ANTHROPIC_API_KEY" | gh secret set ANTHROPIC_API_KEY --env $GH_ENTORNO --repo $GH_REPO
 [ -n "${OPENAI_API_KEY:-}" ] && printf %s "$OPENAI_API_KEY" | gh secret set OPENAI_API_KEY --env $GH_ENTORNO --repo $GH_REPO
-echo "entorno $GH_ENTORNO: solo main; variables:"; gh variable list --env $GH_ENTORNO --repo $GH_REPO
-echo "secretos del entorno:"; gh secret list --env $GH_ENTORNO --repo $GH_REPO
+echo "environment $GH_ENTORNO: main only; variables:"; gh variable list --env $GH_ENTORNO --repo $GH_REPO
+echo "environment secrets:"; gh secret list --env $GH_ENTORNO --repo $GH_REPO

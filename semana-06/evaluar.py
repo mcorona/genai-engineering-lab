@@ -58,7 +58,7 @@ def evaluar_caso(caso, salida, plantilla):
         return ok, {"herramientas": llamadas}
     if tipo == "resumen_estructura":
         return rp.validar(texto, plantilla.get("validar")) is True, {"obtenido": texto}
-    raise ValueError(f"check desconocido: {tipo}")
+    raise ValueError(f"unknown check: {tipo}")
 
 
 def juzgar(documento, resumen, clave):
@@ -71,7 +71,7 @@ def juzgar(documento, resumen, clave):
         datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
         return int(datos["fidelidad"]), datos.get("motivo", "")
     except (ValueError, KeyError):
-        return None, f"respuesta del juez no interpretable: {texto[:120]}"
+        return None, f"judge response could not be parsed: {texto[:120]}"
 
 
 def main():
@@ -109,7 +109,7 @@ def main():
         detalle_caso = detalle if ok_caso or fallida is None else fallida[1]
         resultados.append({"id": caso["id"], "plantilla": caso["plantilla"], "ok": ok_caso,
                            "aprobados": aprobados, "repeticiones": REPETICIONES, **detalle_caso})
-        print(f"{'OK   ' if ok_caso else 'FALLA'} {caso['id']} ({aprobados}/{REPETICIONES})")
+        print(f"{'OK  ' if ok_caso else 'FAIL'} {caso['id']} ({aprobados}/{REPETICIONES})")
         if not ok_caso and fallida is not None:
             salida_f, detalle_f = fallida
             print(f"  output: {salida_f['texto'][:600]!r}")

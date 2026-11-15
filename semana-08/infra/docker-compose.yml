@@ -1,5 +1,5 @@
-# Qdrant y OpenSearch para la actividad 4. pgvector usa el Postgres de inventory-copilot.
-# Solo para desarrollo local: sin seguridad y un nodo.
+# Qdrant and OpenSearch for activity 4. pgvector uses inventory-copilot's Postgres.
+# Local development only: no security and a single node.
 services:
   qdrant:
     image: qdrant/qdrant:v1.12.4

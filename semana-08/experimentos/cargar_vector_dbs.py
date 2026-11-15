@@ -1,7 +1,7 @@
-"""Actividad 4: los mismos vectores (bge-m3, chunking fijo 400/80) en pgvector, Qdrant y OpenSearch.
+"""Activity 4: the same vectors (bge-m3, fixed 400/80 chunking) in pgvector, Qdrant and OpenSearch.
 
-Requiere: PG_ADMIN_DSN (Postgres de inventory-copilot con pgvector), LM Studio con bge-m3,
-y Qdrant y OpenSearch levantados con semana-08/infra/docker-compose.yml.
+Requires: PG_ADMIN_DSN (inventory-copilot's Postgres with pgvector), LM Studio with bge-m3,
+and Qdrant and OpenSearch running from semana-08/infra/docker-compose.yml.
 """
 import json
 import os
@@ -100,10 +100,10 @@ def main():
     fs = filas()
     print(f"chunks: {len(fs)}")
     vecs, _ = emb_bge([f["content"] for f in fs], "doc")
-    print(f"vectores: {len(vecs)} x {len(vecs[0])}")
-    print(f"pgvector: {cargar_pgvector(fs, vecs)} filas")
-    print(f"qdrant:   {cargar_qdrant(fs, vecs)} puntos")
-    print(f"opensearch: {cargar_opensearch(fs, vecs)} documentos")
+    print(f"vectors: {len(vecs)} x {len(vecs[0])}")
+    print(f"pgvector: {cargar_pgvector(fs, vecs)} rows")
+    print(f"qdrant:   {cargar_qdrant(fs, vecs)} points")
+    print(f"opensearch: {cargar_opensearch(fs, vecs)} documents")
 
 
 if __name__ == "__main__":
