@@ -1,65 +1,65 @@
-# Semana 4 · Destilación y DPO (práctica extra)
+# Week 4: distillation and DPO (extra practice)
 
-Ajustar un modelo pequeño con respuestas de uno grande (destilación) y con preferencias entre respuestas (DPO), usando el mismo esquema legado y la misma evaluación de la semana 3.
+Fine-tuning a small model on the answers of a large one (distillation) and on preferences between answers (DPO), using the same legacy schema and the same evaluation as week 3.
 
-## Diseño
+## Design
 
-- **Maestro:** Qwen3.8-27B con las reglas de negocio en el prompt. Es el mejor método medido en la semana 3 (50.0 % de coincidencia).
-- **Alumno:** Qwen2.5-Coder-7B, sin reglas en el prompt.
-- **Datos de entrenamiento:** solo `semana-03/data/lora/train.jsonl` (157 preguntas). La evaluación (`pares_eval.jsonl`, 46 pares) no entra a ningún paso.
+- **Teacher:** Qwen3.8-27B with the business rules in the prompt. It is the best method measured in week 3 (a 50.0 % result match).
+- **Student:** Qwen2.5-Coder-7B, without rules in the prompt.
+- **Training data:** only `semana-03/data/lora/train.jsonl` (157 questions). The evaluation set (`pares_eval.jsonl`, 46 pairs) enters no step.
 
-Esto prueba la destilación de contexto: si el alumno aprende a aplicar las reglas sin tenerlas en el prompt.
+This tests context distillation: whether the student learns to apply the rules without having them in the prompt.
 
-## Pasos
+## Steps
 
-1. `generar_teacher.py`: el maestro responde las 157 preguntas de entrenamiento. Se ejecuta y se compara con la referencia. Salida: `data/teacher.jsonl`.
-2. `construir_datasets.py`: arma dos datasets desde `teacher.jsonl`:
-   - `destilacion/train.jsonl`: pregunta -> SQL del maestro, solo donde acertó. Sistema sin reglas.
-   - `dpo/train.jsonl`: prompt -> `chosen` (SQL de referencia) y `rejected` (SQL del maestro), solo donde falló.
-3. Entrenamiento:
-   - Destilación: LoRA con mlx-lm sobre `destilacion/`, igual que en la semana 3.
-   - DPO: pendiente de confirmar el formato que acepta `mlx-lm` en la versión instalada.
-4. Evaluación: el alumno destilado y el alumno DPO se corren con `evaluar_sql.py` sobre `pares_eval.jsonl`, y se comparan con el 7B base y el 27B con reglas usando `estadistica.py`.
+1. `generar_teacher.py`: the teacher answers the 157 training questions. Each answer is executed and compared with the reference. Output: `data/teacher.jsonl`.
+2. `construir_datasets.py`: builds two datasets from `teacher.jsonl`:
+   - `destilacion/train.jsonl`: question -> the teacher's SQL, only where it was right. The system prompt has no rules.
+   - `dpo/train.jsonl`: prompt -> `chosen` (the reference SQL) and `rejected` (the teacher's SQL), only where it was wrong.
+3. Training:
+   - Distillation: LoRA with mlx-lm on `destilacion/`, as in week 3.
+   - DPO: pending confirmation of the format that the installed version of `mlx-lm` accepts.
+4. Evaluation: the distilled student and the DPO student are run with `evaluar_sql.py` on `pares_eval.jsonl`, and compared with the 7B base and the 27B model with rules using `estadistica.py`.
 
-## Cómo correrlo
+## How to run it
 
-Requiere LM Studio con el 27B cargado y `LB_READER_DSN` en el entorno (el mismo `.env` de LegacyBridge que usaste en la semana 3).
+It needs LM Studio with the 27B model loaded and `LB_READER_DSN` in the environment (the same LegacyBridge `.env` used in week 3).
 
 ```bash
-cd ~/AI-projects-llm-internals
+# from the repository root
 set -a; source ~/legacybridge-v2/.env; set +a
 caffeinate -i uv run python semana-04/entrenamiento/generar_teacher.py
 uv run python semana-04/entrenamiento/construir_datasets.py
 ```
 
-El primer comando tarda varias horas: 157 preguntas, con razonamiento del 27B de hasta 8192 tokens cada una.
+The first command takes several hours: 157 questions, each with up to 8192 tokens of 27B reasoning.
 
-## Resultados
+## Results
 
-Mismos 46 pares de evaluación de la semana 3 (sin reglas en el prompt).
+The same 46 evaluation pairs as week 3 (no rules in the prompt).
 
-| Método | Ejecuta | Coincide en resultado [IC 95 %] |
+| Method | Executes | Result match [95% CI] |
 |---|---|---|
 | 7B base | 80.4 % | 37.0 % [24.5, 51.4] |
-| 7B + LoRA v1 (semana 3) | 84.8 % | 37.0 % [24.5, 51.4] |
-| 7B + destilación (checkpoint 150) | 84.8 % | 37.0 % [24.5, 51.4] |
-| 27B + reglas en prompt (maestro) | 69.6 % | 50.0 % [36.1, 63.9] |
+| 7B + LoRA v1 (week 3) | 84.8 % | 37.0 % [24.5, 51.4] |
+| 7B + distillation (checkpoint 150) | 84.8 % | 37.0 % [24.5, 51.4] |
+| 27B + rules in the prompt (teacher) | 69.6 % | 50.0 % [36.1, 63.9] |
 
-- Destilación contra 7B base: los mismos 46 casos aciertan, McNemar p = 1.000. El adaptador sí cambia el SQL en 14 de 46 respuestas, pero ninguno cambia el resultado correcto.
-- El alumno no aprendió las reglas que el maestro sí aplica. Con 95 ejemplos de entrenamiento, el adaptador aprende el formato, igual que el LoRA v1.
+- Distillation vs. the 7B base: the same 46 cases are right, McNemar p = 1.000. The adapter does change the SQL in 14 of 46 answers, but none of the changes alters a correct result.
+- The student did not learn the rules that the teacher does apply. With 95 training examples, the adapter learns the format, as LoRA v1 did.
 
-Problemas de la corrida:
+Issues in the run:
 
-- Divergencia numérica: la pérdida dio `nan` en la iteración 280 con lr 5e-6, y en la 60 con lr 1e-5. Usamos el checkpoint 150, antes de cualquier `nan`.
-- 9 de 49 preguntas difíciles quedaron sin SQL del maestro, así que el alumno no vio esos casos.
-- DPO no se entrenó: la versión instalada de `mlx-lm` no tiene modo DPO en el CLI.
+- Numerical divergence: the loss became `nan` at iteration 280 with lr 5e-6, and at iteration 60 with lr 1e-5. Checkpoint 150, before any `nan`, is the one used.
+- 9 of the 49 hard questions got no SQL from the teacher, so the student never saw those cases.
+- DPO was not trained: the installed version of `mlx-lm` has no DPO mode in its CLI.
 
-Decisión: no se usa el adaptador de destilación. La regla de la semana 3 se mantiene: si el prompt basta, no se ajusta.
+Decision: the distillation adapter is not used. The week 3 rule stands: if the prompt is enough, do not fine-tune.
 
-## Decisión sobre DPO
+## Decision on DPO
 
-**No se entrena DPO en esta semana.** Motivo: el CLI instalado de `mlx_lm.lora` no tiene modo DPO, y escribir un ciclo de entrenamiento propio queda fuera del alcance de la semana.
+**DPO is not trained in this week.** Reason: the installed `mlx_lm.lora` CLI has no DPO mode, and writing a custom training loop is out of scope for the week.
 
-- Lo que sí queda hecho: el dataset de preferencias `dpo/train.jsonl` (42 pares, `chosen` = SQL de referencia, `rejected` = SQL del maestro donde falló).
-- Lo que falta para usarlo: un framework con DPO (por ejemplo, TRL de Hugging Face) corriendo sobre GPU o en un entorno con soporte. Queda como trabajo futuro.
-- Esta decisión no cambia la conclusión de la semana: con 46 pares de evaluación, el ajuste supervisado tampoco mejoró el resultado, así que no hay evidencia para priorizar DPO.
+- What is done: the preference dataset `dpo/train.jsonl` (42 pairs; `chosen` = the reference SQL, `rejected` = the teacher's SQL where it was wrong).
+- What is missing to use it: a framework with DPO (for example, Hugging Face TRL) running on a GPU or in a supported environment. It remains future work.
+- This decision does not change the week's conclusion: with 46 evaluation pairs, supervised fine-tuning did not improve the result either, so there is no evidence to prioritize DPO.

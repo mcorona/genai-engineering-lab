@@ -1,8 +1,8 @@
-"""Semana 3: separa el entrenamiento en train y valid para mlx-lm.
+"""Week 3: splits the training data into train and valid for mlx-lm.
 
-- data/lora/train.jsonl: pares de entrenamiento menos la validación.
-- data/lora/valid.jsonl: 10 % de pares_train, para vigilar la pérdida durante el ajuste.
-- data/pares_eval.jsonl no se usa aquí: queda intacto como prueba final.
+- data/lora/train.jsonl: the training pairs minus the validation pairs.
+- data/lora/valid.jsonl: 10 % of pares_train, to watch the loss during fine-tuning.
+- data/pares_eval.jsonl is not used here: it stays untouched as the final test.
 """
 import json
 import random
@@ -19,4 +19,4 @@ n_valid = round(len(filas) * 0.10)
 valid, train = filas[:n_valid], filas[n_valid:]
 (DESTINO / "valid.jsonl").write_text("\n".join(valid) + "\n", encoding="utf-8")
 (DESTINO / "train.jsonl").write_text("\n".join(train) + "\n", encoding="utf-8")
-print(f"train: {len(train)}  valid: {len(valid)}  (eval intacto: data/pares_eval.jsonl)")
+print(f"train: {len(train)}  valid: {len(valid)}  (eval untouched: data/pares_eval.jsonl)")

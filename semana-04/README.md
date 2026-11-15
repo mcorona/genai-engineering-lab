@@ -1,62 +1,62 @@
-# Semana 4 · Inferencia: cuantización, latencia y costo
+# Week 4: inference — quantization, latency and cost
 
-Práctica: benchmark del mismo conjunto de consultas en un modelo local cuantizado y en una API, midiendo latencia, throughput y costo.
+Practice: a benchmark of the same set of queries on a local quantized model and on an API, measuring latency, throughput and cost.
 
-## Estado
+## Status
 
-- [x] Script de benchmark (`benchmark_modelos.py`): latencia p50/p95, tokens por segundo y costo por 1 000 consultas.
-- [x] Conjunto de 50 consultas (`consultas.jsonl`): 10 de código, 10 de redacción, 10 de razonamiento, 10 de negocio y 10 de explicación técnica. **Generado para esta práctica; no es el set de Cascada**, así que los resultados no son comparables con su benchmark.
-- [x] Corrida local (Qwen3.8-27B en formato MLX, cuantizado a 4 bits, en LM Studio), 8192 tokens: `resultados/semana4_local_8k_*`.
-- [x] Corrida API (Claude Haiku 5.5), 8192 tokens: `resultados/semana4_api_*`.
-- [x] Destilación (práctica extra): entrenada y evaluada. 7B destilado con 37.0 % de coincidencia, igual que el 7B base. Sin ganancia. Ver `entrenamiento/README.md`.
-- [x] DPO (práctica extra): no ejecutado. El CLI de `mlx-lm` instalado no tiene modo DPO. El dataset de 42 pares queda para un framework con soporte. Ver `entrenamiento/README.md`.
+- [x] A benchmark script (`benchmark_modelos.py`): p50/p95 latency, tokens per second and cost per 1 000 queries.
+- [x] A set of 50 queries (`consultas.jsonl`): 10 coding, 10 writing, 10 reasoning, 10 business and 10 technical-explanation queries. **Generated for this practice; it is not the query set of Cascada** (the author's separate LLM-routing project), so the results are not comparable with that benchmark.
+- [x] Local run (Qwen3.8-27B in MLX format, quantized to 4 bits, in LM Studio), 8192 tokens: `resultados/semana4_local_8k_*`.
+- [x] API run (Claude Haiku 5.5), 8192 tokens: `resultados/semana4_api_*`.
+- [x] Distillation (extra practice): trained and evaluated. The distilled 7B model reaches a 37.0 % result match, the same as the 7B base. No gain. See `entrenamiento/README.md`.
+- [x] DPO (extra practice): not run. The installed `mlx-lm` CLI has no DPO mode. The 42-pair dataset is kept for a framework that supports it. See `entrenamiento/README.md`.
 
-## Destinos
+## Targets
 
-| Destino | Endpoint | Modelo | Precio (USD por millón) |
+| Target | Endpoint | Model | Price (USD per million tokens) |
 |---|---|---|---|
-| Local | `http://localhost:1234/v1` (LM Studio) | `qwen3.8-27b-mlx@4bit` | 0 (la electricidad no se incluye) |
-| API | `https://api.anthropic.com/v1/` (compatibilidad OpenAI de Anthropic) | `claude-haiku-5-5` | entrada 0.10, salida 0.50 |
+| Local | `http://localhost:1234/v1` (LM Studio) | `qwen3.8-27b-mlx@4bit` | 0 (electricity not included) |
+| API | `https://api.anthropic.com/v1/` (Anthropic's OpenAI-compatible endpoint) | `claude-haiku-5-5` | input 0.10, output 0.50 |
 
-Precio de Haiku 5.5 verificado en la [página oficial de precios de Anthropic](https://platform.claude.com/docs/en/about-claude/pricing): 0.10 USD por millón de tokens de entrada y 0.50 de salida hasta 100 000 tokens de prompt (octubre 2026). Si el precio cambia, ajusta `--precio-in` y `--precio-out`. Haiku 5.5 solo acepta `temperature` 1, por eso la API corre sin enviar temperatura (`--temp-api` vacío). El local usa temperatura 0.
+The Haiku 5.5 price was checked on the [official Anthropic pricing page](https://platform.claude.com/docs/en/about-claude/pricing): USD 0.10 per million input tokens and 0.50 per million output tokens, for prompts up to 100 000 tokens (October 2026). If the price changes, adjust `--precio-in` and `--precio-out`. Haiku 5.5 accepts only `temperature` 1, so the API runs without sending a temperature (`--temp-api` empty). The local model uses temperature 0.
 
-## Resultados
+## Results
 
-Mismas 50 consultas, `--max-tokens 8192` en ambos destinos, temperatura 0 en el local y sin temperatura en la API.
+The same 50 queries, `--max-tokens 8192` on both targets, temperature 0 locally and no temperature on the API.
 
-| Métrica | Local: Qwen3.8-27B MLX 4 bits | API: Claude Haiku 5.5 |
+| Metric | Local: Qwen3.8-27B MLX 4-bit | API: Claude Haiku 5.5 |
 |---|---|---|
-| Latencia p50 | 52.4 s | 4.0 s |
-| Latencia p95 | 137.6 s | 10.9 s |
-| Latencia media | 53.0 s | 4.9 s |
-| Tokens por segundo (mediana) | 23.4 | 185.0 |
-| Costo por 1 000 consultas | 0 USD (electricidad no incluida) | 0.47 USD |
-| Errores | 0 | 0 |
+| p50 latency | 52.4 s | 4.0 s |
+| p95 latency | 137.6 s | 10.9 s |
+| Mean latency | 53.0 s | 4.9 s |
+| Tokens per second (median) | 23.4 | 185.0 |
+| Cost per 1 000 queries | USD 0 (electricity not included) | USD 0.47 |
+| Errors | 0 | 0 |
 
-Lectura:
+Reading the results:
 
-- La API es unas 13 veces más rápida en p50 y unas 12 veces en p95, y unas 8 veces en tokens por segundo.
-- El local gasta más tokens por respuesta porque el 27B razona antes de contestar. Esos tokens de razonamiento cuentan en `tokens_salida`, así que el tiempo por respuesta visible sale distinto del que muestra la tabla.
-- El costo local es cero en el script, pero la electricidad y el hardware no se contabilizan.
+- The API is about 13 times faster at p50, about 12 times faster at p95, and about 8 times faster in tokens per second.
+- The local model spends more tokens per answer because the 27B model reasons before it answers. Those reasoning tokens count in `tokens_salida`, so the time per visible answer differs from what the table shows.
+- The local cost is zero in the script, but electricity and hardware are not accounted for.
 
-Limitaciones:
+Limitations:
 
-- **Este benchmark mide velocidad y costo, no calidad.** No se evaluó si las respuestas son correctas; eso ya se midió en la semana 3 con SQL.
-- El set de 50 consultas es generado, no el de Cascada.
-- Un solo intento por consulta; no hay repeticiones ni intervalos.
+- **This benchmark measures speed and cost, not quality.** The correctness of the answers was not evaluated; that was already measured in week 3 with SQL.
+- The 50-query set is generated; it is not Cascada's set.
+- One attempt per query; there are no repetitions or intervals.
 
-Corridas descartadas, se conservan para trazabilidad:
+Discarded runs, kept for traceability:
 
-- `semana4_api` a 1024 tokens: 19 de 50 respuestas truncadas. Sustituida por la corrida de 8192.
-- `semana4_local` a 1024 tokens: 27 de 50 respuestas truncadas. Sustituida por `semana4_local_8k`.
+- `semana4_api` at 1024 tokens: 19 of 50 answers truncated. Replaced by the 8192-token run.
+- `semana4_local` at 1024 tokens: 27 of 50 answers truncated. Replaced by `semana4_local_8k`.
 
-## Cómo correrlo
+## How to run it
 
 ```bash
-cd ~/AI-projects-llm-internals
-read -s ANTHROPIC_API_KEY && export ANTHROPIC_API_KEY   # tu clave; no se escribe en el chat
+# from the repository root
+read -s ANTHROPIC_API_KEY && export ANTHROPIC_API_KEY   # your key; it is never typed into a chat
 
-# Local (LM Studio con el 27B cargado)
+# Local (LM Studio with the 27B model loaded)
 uv run python semana-04/benchmark_modelos.py --solo local \
   --local-modelo qwen3.8-27b-mlx@4bit --nombre semana4
 
@@ -66,5 +66,5 @@ uv run python semana-04/benchmark_modelos.py --solo api \
   --api-key-env ANTHROPIC_API_KEY --precio-in 0.10 --precio-out 0.50 --nombre semana4_api
 ```
 
-Salidas: `resultados/<nombre>_detalle.csv` (una fila por consulta) y `resultados/<nombre>_resumen.json`.
-Para correr los dos destinos en una sola ejecución, omite `--solo` y pasa también los parámetros del local.
+Outputs: `resultados/<nombre>_detalle.csv` (one row per query) and `resultados/<nombre>_resumen.json`.
+To run both targets in a single execution, omit `--solo` and also pass the local parameters.

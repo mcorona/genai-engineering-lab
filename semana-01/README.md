@@ -1,91 +1,94 @@
-# Semana 1 · Notas de práctica
+# Week 1: practice notes
 
-Proyecto: genai-engineering-lab (antes AI-projects-llm-internals) · Fase 1 (Fundamentos profundos de LLMs)
-Referencia: serie Zero to Hero de Andrej Karpathy, en MLX.
+Project: genai-engineering-lab (formerly AI-projects-llm-internals) · Phase 1 (LLM fundamentals in depth)
+Reference: Andrej Karpathy's *Neural Networks: Zero to Hero* series, implemented in MLX.
 
-## Estado
+## Status
 
-- [x] Paso 1: MLX instalado. La GPU de Apple Silicon responde (`Device(gpu, 0)`).
-- [x] Paso 2: bigram en MLX (`bigram_mlx.py`). Pérdida de 3.3120 a 2.4819.
-- [x] Paso 3: una cabeza de atención con máscara causal (`attention_mlx.py`). Pesos del token 0 = `[1, 0, 0, 0]` y coincide con `mx.fast`.
-- [x] Paso 4: bloque completo del mini-GPT (`minigpt_mlx.py`). 30 400 parámetros; prueba de causalidad superada.
-- [x] Paso 5: entrenamiento con Tiny Shakespeare y registro de pérdida (`train_minigpt_mlx.py`, `perdidas.csv`).
+- [x] Step 1: MLX installed. The Apple Silicon GPU responds (`Device(gpu, 0)`).
+- [x] Step 2: a bigram model in MLX (`bigram_mlx.py`). Loss from 3.3120 to 2.4819.
+- [x] Step 3: one attention head with a causal mask (`attention_mlx.py`). The weights of token 0 are `[1, 0, 0, 0]`, and the output matches `mx.fast`.
+- [x] Step 4: the full mini-GPT block (`minigpt_mlx.py`). 30 400 parameters; causality test passed.
+- [x] Step 5: training on Tiny Shakespeare with a loss log (`train_minigpt_mlx.py`, `perdidas.csv`).
 
-## Cómo leer la pérdida del bigram
+## How to read the bigram loss
 
-La pérdida es la log-verosimilitud negativa promedio: `-log p(siguiente carácter correcto)`, promediada sobre los 228 146 bigramas del dataset. Mientras más baja, mejor.
+The loss is the average negative log-likelihood, `-log p(correct next character)`, averaged over the 228 146 bigrams in the dataset. Lower is better.
 
-- **Paso 0 (≈ 3.31):** con pesos aleatorios, el modelo reparte la probabilidad casi igual entre los 27 caracteres. Eso da `ln(27) ≈ 3.30`, así que el valor inicial es el esperado.
-- **Paso 199 (≈ 2.48):** la pérdida se estabiliza. Es el límite de un modelo que solo mira el carácter anterior.
-- **Interpretación:** `exp(2.48) ≈ 12`. En promedio, el modelo queda dudando entre unos 12 caracteres posibles para el siguiente.
+- **Step 0 (≈ 3.31):** with random weights, the model spreads the probability almost evenly over the 27 characters. That gives `ln(27) ≈ 3.30`, so the initial value is the expected one.
+- **Step 199 (≈ 2.48):** the loss plateaus. This is the limit of a model that only looks at the previous character.
+- **Interpretation:** `exp(2.48) ≈ 12`. On average, the model is choosing among about 12 plausible next characters (its perplexity).
 
-## Por qué la tabla 27×27 equivale a conteos
+## Why the 27×27 table is equivalent to counts
 
-- Cada fila `i` representa un carácter actual. Sus 27 valores son los logits del siguiente carácter.
-- `softmax` sobre cada fila convierte los logits en una distribución de probabilidad.
-- Los conteos de bigramas también son una tabla 27×27: `N[i, j]` cuenta cuántas veces aparece `j` después de `i`. Normalizar cada fila de `N` da la misma información que la tabla aprendida.
-- El entrenamiento con gradientes llega a una aproximación de esa distribución, porque minimizar la pérdida equivale a maximizar la verosimilitud de los bigramas. Por eso la pérdida final de `bigram_mlx.py` queda cerca de la de `bigram_grad.py`.
+- Each row `i` stands for a current character. Its 27 values are the logits of the next character.
+- A `softmax` over each row turns the logits into a probability distribution.
+- Bigram counts are also a 27×27 table: `N[i, j]` counts how often `j` follows `i`. Normalizing each row of `N` gives the same information as the learned table.
+- Gradient training converges to an approximation of that distribution, because minimizing the loss is equivalent to maximizing the likelihood of the bigrams. That is why the final loss of `bigram_mlx.py` ends up close to that of `bigram_grad.py`.
 
-## Por qué existe el término de regularización
+## Why the regularization term exists
 
-El término `0.01 * mean(W²)` penaliza pesos grandes. Sin él, los logits de los bigramas raros pueden crecer sin límite para ajustarse a casos específicos, y el modelo queda sobreconfiado. Con 228 mil pares el efecto práctico es pequeño, pero en modelos grandes evita que la pérdida de entrenamiento engañe.
+The `0.01 * mean(W²)` term penalizes large weights. Without it, the logits of rare bigrams can grow without bound to fit specific cases, and the model becomes overconfident. With 228 thousand pairs the practical effect is small, but in large models it keeps the training loss from being misleading.
 
-## Glosario de los cuatro conceptos
+## Glossary of the four concepts
 
-- **Tokenización BPE:** el texto se convierte en tokens. BPE empieza con caracteres o bytes y fusiona las parejas más frecuentes hasta llegar al tamaño de vocabulario. Un texto en español suele consumir más tokens que el mismo texto en inglés. El mini-GPT de Karpathy usa caracteres; BPE es el paso siguiente.
-- **Ventana de contexto:** máximo de tokens que el modelo procesa en una pasada. En el código aparece como `block_size`. El costo de la atención crece con el cuadrado de la longitud.
-- **Atención:** cada token calcula `softmax(Q·Kᵀ/√d)·V`. Q busca, K ofrece, V aporta información. La máscara causal impide mirar tokens futuros.
-- **KV cache:** guarda las K y V ya calculadas para no recalcularlas al generar. Ocupa memoria: por token, `2 × capas × cabezas_KV × dim_cabeza × bytes`. Con un modelo de 7 000 M parámetros en fp16 y 4 096 tokens, ronda los 2 GB.
+- **BPE tokenization:** text is converted into tokens. BPE starts from characters or bytes and merges the most frequent pairs until it reaches the vocabulary size. A text in Spanish usually takes more tokens than the same text in English. Karpathy's mini-GPT uses characters; BPE is the next step.
+- **Context window:** the maximum number of tokens the model processes in one pass. In the code it appears as `block_size`. The cost of attention grows with the square of the sequence length.
+- **Attention:** each token computes `softmax(Q·Kᵀ/√d)·V`. Q queries, K is matched against, and V carries the information. The causal mask prevents attending to future tokens.
+- **KV cache:** stores the K and V tensors already computed so they are not recomputed during generation. It takes memory: per token, `2 × layers × KV_heads × head_dim × bytes`. For a 7 000 M-parameter model in fp16 with 4 096 tokens, it is about 2 GB.
 
-## Dudas para repasar
+## Review questions
 
-- ¿Qué cambiaría en la pérdida inicial si los pesos fueran todos cero en lugar de aleatorios?
-- ¿Por qué la atención causal necesita máscara y el bigram no la necesita?
-- ¿Qué parte del costo de generar un token nuevo crece con el contexto: los pesos del modelo o el KV cache?
+- How would the initial loss change if all the weights were zero instead of random?
+- Why does causal attention need a mask while the bigram model does not?
+- Which part of the cost of generating a new token grows with the context: the model weights or the KV cache?
 
-## Resultados del mini-GPT (paso 5)
+## Mini-GPT results (step 5)
 
-Configuración común: tokenización a nivel de carácter, `block=64`, `batch=32`, 2000 pasos, AdamW. Cada corrida guarda su curva en `perdidas_*.csv`.
+Shared configuration: character-level tokenization, `block=64`, `batch=32`, 2000 steps, AdamW. Each run saves its curve in `perdidas_*.csv`.
 
-| Configuración | Val final | Train final | Brecha val-train |
+| Configuration | Final val | Final train | Val-train gap |
 |---|---|---|---|
 | n=64, lr=3e-3 | 1.87 | 1.75 | 0.12 |
 | n=64, lr=1e-3 | 1.74 | 1.57 | 0.17 |
 | n=128, lr=1e-3 | 1.72 | 1.54 | 0.18 |
 
-Conclusiones:
-- El learning rate fue el factor dominante. Bajarlo de 3e-3 a 1e-3 mejoró la validación en 0.13. Con el ancho de 128, un `lr` de 3e-3 hace que la pérdida oscile y avance más lento, porque las actualizaciones de Adam se suman sobre más conexiones.
-- Con este presupuesto de entrenamiento, pasar de 64 a 128 de ancho solo aporta 0.02 en validación.
-- La brecha val-train es casi igual en ambos anchos (0.17 y 0.18). No hay sobreajuste atribuible a la capacidad en 2000 pasos (unas 4 pasadas sobre el texto).
-- Para observar sobreajuste hace falta más entrenamiento, por ejemplo 10 000 pasos, y ver si la validación deja de bajar mientras la de entrenamiento sigue cayendo.
-- La pérdida de entrenamiento se mide sobre un solo lote y es ruidosa. Para comparaciones finas, medirla con `eval_loss` sobre varios lotes.
-- Muestras: las tres corridas producen texto con formato de obra de teatro (personajes en mayúsculas, saltos de línea) y palabras reconocibles, con errores ortográficos típicos de un modelo a nivel de carácter.
-- No comparable con el bigram: son datasets distintos (nombres contra Shakespeare, con vocabularios distintos).
-- Error encontrado: `LR = 2000` en lugar de `3e-3` hizo que la pérdida explotara (val 9.5e8 y luego NaN). Lección: revisar cada variable de configuración antes de correr el script.
+Conclusions:
 
-## Práctica: memoria del KV cache y decisión de arquitectura
+- The learning rate was the dominant factor. Lowering it from 3e-3 to 1e-3 improved validation by 0.13. With a width of 128, an `lr` of 3e-3 makes the loss oscillate and progress more slowly, because Adam's updates add up over more connections.
+- With this training budget, going from a width of 64 to 128 improves validation by only 0.02.
+- The val-train gap is almost the same at both widths (0.17 and 0.18). There is no overfitting attributable to capacity in 2000 steps (about 4 passes over the text).
+- Observing overfitting needs more training, for example 10 000 steps, to see whether validation stops improving while training loss keeps falling.
+- The training loss is measured on a single batch and is noisy. For fine comparisons, measure it with `eval_loss` over several batches.
+- Samples: all three runs produce text formatted like a play (character names in capitals, line breaks) with recognizable words, and with the spelling errors typical of a character-level model.
+- Not comparable with the bigram model: the datasets differ (names vs. Shakespeare, with different vocabularies).
+- Bug found: `LR = 2000` instead of `3e-3` made the loss explode (val 9.5e8, then NaN). Lesson: check every configuration variable before running the script.
 
-Script: `practica_kv_cache.py`. Estima la memoria del caché para dos modelos de referencia (8B y 70B, fp16), con distintos largos de contexto y número de usuarios simultáneos.
+## Practice: KV cache memory and an architecture decision
 
-Resultados clave:
-- Caché por token: 128 KB (8B) y 320 KB (70B).
-- Caso de referencia: documentos de 60 000 tokens y 50 consultas simultáneas.
-  - Modelo 8B: unos 366 GiB de caché.
-  - Modelo 70B: unos 915 GiB de caché.
-- Pesos en fp16: unos 16 GB (8B) y 140 GB (70B). Con muchas consultas simultáneas, el caché pesa más que los pesos.
-- Con RAG y 4 096 tokens por consulta, el caché baja a 25 GiB (8B) y 62.5 GiB (70B).
+Script: `practica_kv_cache.py`. It estimates the cache memory of two reference models (8B and 70B, fp16) for several context lengths and numbers of concurrent users.
 
-Decisión: RAG como palanca principal para reducir memoria.
+Key results:
 
-Pérdida que hay que declarar al cliente: respuestas que requieren combinar partes distantes del manual, porque el buscador puede recuperar fragmentos incompletos.
+- Cache per token: 128 KB (8B) and 320 KB (70B).
+- Reference case: 60 000-token documents and 50 concurrent queries.
+  - 8B model: about 366 GiB of cache.
+  - 70B model: about 915 GiB of cache.
+- Weights in fp16: about 16 GB (8B) and 140 GB (70B). With many concurrent queries, the cache outweighs the weights.
+- With RAG and 4 096 tokens per query, the cache drops to 25 GiB (8B) and 62.5 GiB (70B).
 
-Mitigación y medición:
-- Medir **hit@k**: porcentaje de preguntas en las que el fragmento correcto aparece entre los k recuperados.
-- Usar preguntas reales del cliente, incluyendo preguntas poco frecuentes y las que cruzan secciones.
-- Mantener en contexto fijo, con caché de prefijos, solo las secciones más consultadas. Esa memoria fija también consume caché, así que el ahorro no es total.
+Decision: RAG as the main lever to reduce memory.
 
-## Próximos pasos
+The trade-off to disclose to the client: answers that require combining distant parts of the manual, because the retriever can return incomplete chunks.
 
-1. Semana 2 (desde el 26 de octubre): embeddings, sampling y alucinación. Con el mini-GPT, probar `temp` en 0.5, 0.8 y 1.2 y comparar la muestra.
-2. Repetir el entrenamiento con `n_layer=4` o `n_embd=128` y registrar cuánto mejora la validación y cuánto tarda.
-3. Responder las dudas de repaso en esta nota antes de la semana 2.
+Mitigation and measurement:
+
+- Measure **hit@k**: the share of questions for which the correct chunk is among the k retrieved.
+- Use the client's real questions, including infrequent questions and those that span sections.
+- Keep only the most-consulted sections in a fixed context, with prefix caching. That fixed memory also consumes cache, so the savings are not total.
+
+## Next steps (as written at the close of week 1)
+
+1. Week 2: embeddings, sampling and hallucination. With the mini-GPT, try `temp` at 0.5, 0.8 and 1.2 and compare the samples.
+2. Repeat the training with `n_layer=4` or `n_embd=128`, and record how much validation improves and how long it takes.
+3. Answer the review questions in this note before week 2.

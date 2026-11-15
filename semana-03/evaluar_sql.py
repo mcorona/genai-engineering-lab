@@ -1,15 +1,15 @@
-"""Semana 3: evalúa un modelo pregunta -> SQL contra pares_eval.jsonl.
+"""Week 3: evaluates a question -> SQL model against pares_eval.jsonl.
 
-Para cada par, el modelo genera SQL. Se ejecutan el SQL del modelo y el de referencia con
-lb_reader (solo lectura, timeout de 5 s) y se comparan los resultados:
-- ejecuta: el SQL del modelo corre y devuelve filas útiles.
-- coincide_resultado: mismas filas que la referencia (sin importar el orden).
-- coincide_sql: mismo texto que la referencia, normalizado (medida débil).
+For each pair, the model generates SQL. The model's SQL and the reference SQL are executed with
+lb_reader (read-only, 5 s timeout) and the results are compared:
+- ejecuta: the model's SQL runs and returns usable rows.
+- coincide_resultado: the same rows as the reference (order ignored).
+- coincide_sql: the same text as the reference, normalized (a weak measure).
 
-Uso (desde la raíz del repo, con LB_READER_DSN en el entorno):
+Usage (from the repository root, with LB_READER_DSN in the environment):
     uv run python semana-03/evaluar_sql.py --nombre base
-    uv run python semana-03/evaluar_sql.py --nombre lora --base-url http://localhost:8080/v1 --modelo <nombre>
-    --limite 3   para una prueba rápida con 3 pares
+    uv run python semana-03/evaluar_sql.py --nombre lora --base-url http://localhost:8080/v1 --modelo <name>
+    --limite 3   for a quick test with 3 pairs
 """
 import argparse
 import json
@@ -27,7 +27,7 @@ DSN = os.environ["LB_READER_DSN"]
 
 import sys
 sys.path.insert(0, str(RAIZ))
-from generar_pares import PLANTILLAS  # solo la definición de plantillas; no toca la base
+from generar_pares import PLANTILLAS  # only the template definitions; it does not touch the database
 from rag_reglas import reglas_para
 
 _PATRONES = []
@@ -85,7 +85,7 @@ def normalizar_sql(sql):
 
 
 def reevaluar(nombre):
-    """Vuelve a ejecutar el SQL guardado (del modelo y de referencia) y recalcula métricas."""
+    """Re-executes the saved SQL (the model's and the reference) and recomputes the metrics."""
     filas = [json.loads(l) for l in open(RAIZ / "resultados" / f"{nombre}_detalle.jsonl", encoding="utf-8")]
     with psycopg.connect(DSN) as conn:
         for f in filas:
@@ -105,20 +105,20 @@ def reevaluar(nombre):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--nombre", default="", help="etiqueta del resultado: base, lora, ...")
+    ap.add_argument("--nombre", default="", help="result label: base, lora, ...")
     ap.add_argument("--base-url", default="http://localhost:1234/v1")
     ap.add_argument("--modelo", default="qwen3.8-27b-mlx@4bit")
     ap.add_argument("--limite", type=int, default=0)
-    ap.add_argument("--reglas", action="store_true", help="agrega todas las reglas al prompt de sistema")
-    ap.add_argument("--rag", action="store_true", help="agrega solo las reglas relevantes a cada pregunta")
-    ap.add_argument("--reevaluar", default="", help="vuelve a calcular métricas de un detalle guardado, sin modelo")
+    ap.add_argument("--reglas", action="store_true", help="add all the rules to the system prompt")
+    ap.add_argument("--rag", action="store_true", help="add only the rules relevant to each question")
+    ap.add_argument("--reevaluar", default="", help="recompute the metrics of a saved detail file, without a model")
     args = ap.parse_args()
 
     if args.reevaluar:
         reevaluar(args.reevaluar)
         return
     if not args.nombre:
-        ap.error("falta --nombre (o usa --reevaluar NOMBRE)")
+        ap.error("--nombre is missing (or use --reevaluar NOMBRE)")
 
     pares = [json.loads(l) for l in open(RAIZ / "data" / "pares_eval.jsonl", encoding="utf-8")]
     if args.limite:
@@ -156,7 +156,7 @@ def main():
             por_plantilla[pl]["n"] += 1
             por_plantilla[pl]["ejecuta"] += int(ejecuta)
             por_plantilla[pl]["coincide_resultado"] += int(coincide)
-            print(f"[{i}/{len(pares)}] ejecuta={ejecuta} coincide={coincide} {pregunta[:70]}", flush=True)
+            print(f"[{i}/{len(pares)}] executes={ejecuta} matches={coincide} {pregunta[:70]}", flush=True)
 
     n = len(filas)
     resumen = dict(

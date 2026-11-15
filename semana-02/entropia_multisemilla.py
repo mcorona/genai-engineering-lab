@@ -1,9 +1,9 @@
-"""Entropía media por respuesta, repitiendo el muestreo con varias semillas.
+"""Mean entropy per response, repeating the sampling with several seeds.
 
-Para cada temperatura genera N respuestas (una por semilla) y calcula la
-entropía media de los tokens de cada una. Con eso da media, desviación
-estándar e intervalo de confianza al 95 % por temperatura.
-Uso:  python entropia_multisemilla.py [N]   (N por defecto = 20)
+For each temperature it generates N responses (one per seed) and computes the
+mean entropy of the tokens of each one. From those it reports the mean, standard
+deviation and 95 % confidence interval per temperature.
+Usage:  python entropia_multisemilla.py [N]   (N defaults to 20)
 """
 import csv
 import math
@@ -68,15 +68,15 @@ for T in TEMPERATURAS:
         textos.append(texto)
         medias.append(media)
         filas.append((T, semilla, len(hs), round(media, 4), round(maxima, 4), texto.strip()))
-        print(f"T={T} semilla={semilla:2d}  tokens={len(hs):3d}  H media={media:.3f}  H max={maxima:.2f}", flush=True)
+        print(f"T={T} seed={semilla:2d}  tokens={len(hs):3d}  mean H={media:.3f}  max H={maxima:.2f}", flush=True)
     desv = statistics.stdev(medias)
     ee = desv / N ** 0.5
-    print(f"\n>>> T = {T}: H media {statistics.mean(medias):.3f} bits "
-          f"(desv {desv:.3f}, IC95 [{statistics.mean(medias)-1.96*ee:.3f}, {statistics.mean(medias)+1.96*ee:.3f}]), "
-          f"respuestas distintas: {len(set(textos))}/{N}\n", flush=True)
+    print(f"\n>>> T = {T}: mean H {statistics.mean(medias):.3f} bits "
+          f"(sd {desv:.3f}, 95% CI [{statistics.mean(medias)-1.96*ee:.3f}, {statistics.mean(medias)+1.96*ee:.3f}]), "
+          f"distinct responses: {len(set(textos))}/{N}\n", flush=True)
 
 with open(os.path.join(DIR, "entropia_multisemilla.csv"), "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
     w.writerow(["temperatura", "semilla", "tokens", "entropia_media_bits", "entropia_max_bits", "respuesta"])
     w.writerows(filas)
-print(f"CSV guardado en {DIR}/entropia_multisemilla.csv")
+print(f"CSV saved to {DIR}/entropia_multisemilla.csv")
