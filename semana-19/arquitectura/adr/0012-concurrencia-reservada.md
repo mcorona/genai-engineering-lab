@@ -17,3 +17,7 @@ minimum of 10 unreserved, which the quota allows.
 ## Consequences
 
 - No quota increase is needed.
+
+## Costs
+
+- Reserved concurrency has no charge of its own (**M**, 0 USD); Lambda is billed per use (`lambda_solicitud`, `lambda_arm_gb_s`, **M**).

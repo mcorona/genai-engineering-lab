@@ -22,3 +22,8 @@ token without the scope gets 403 needs the check at the authorizer.
   upper bound is **0.03 USD per month**. Whether the free tier covers them is **not verified**.
 - **Cost authorized by Manuel** (upper bound 0.03 USD per month). Before the deployment (PR 4) the free-tier
   coverage is still to be verified.
+
+## Costs
+
+- Cognito Essentials: 0.015 USD per MAU (`cognito_mau`, **M**). Two test users: **0.03 USD per month upper bound (M)**.
+- Free-tier coverage of the two users: **N**, not verified.
