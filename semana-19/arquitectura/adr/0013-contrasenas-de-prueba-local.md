@@ -18,3 +18,8 @@ or committed.
 
 - The file is removed by `destruir.sh --todo` together with the test users.
 - A test checks that the password does not appear in the repo, the logs or the output of `usuarios.py`.
+
+## Costs
+
+- Local file: 0 USD (**M**).
+- Secrets Manager (alternative): **N**, not priced in `precios.json`.

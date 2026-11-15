@@ -20,3 +20,7 @@ or in an API response.
 
 - The token stays out of logs (checked by a log-capture test) and out of responses.
 - Costs: DynamoDB on-demand is not in `precios.json`; **not quoted**.
+
+## Costs
+
+- DynamoDB on-demand with TTL: **N**, not priced in `precios.json`.

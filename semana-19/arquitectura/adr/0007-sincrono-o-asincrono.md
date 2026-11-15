@@ -23,3 +23,8 @@ week 17 wall-clock budget is below that timeout. The API never waits on the loop
 - The client polls; the answer carries its status (`pendiente`, `respondida`, `requiere_aclaracion`, `abstenida`,
   `presupuesto_agotado`).
 - Costs: DynamoDB on-demand is not priced in `precios.json`; it is **not quoted** yet.
+
+## Costs
+
+- DynamoDB on-demand for the results: **N**, not priced in `precios.json`.
+- HTTP API requests: 9e-07 USD each (`apigw_http_solicitud`, **M**); the polling traffic is counted with the queries.

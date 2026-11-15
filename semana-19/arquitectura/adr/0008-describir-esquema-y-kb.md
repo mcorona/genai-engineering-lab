@@ -21,3 +21,8 @@ the agent's role. No new endpoint is added.
 - The agent role gets `bedrock:Retrieve` on the Knowledge Base ARN only.
 - ADR 0005 stays as it is.
 - Costs: (a) adds no endpoint. Retrieval is billed by the Knowledge Base, **not quoted** here.
+
+## Costs
+
+- Knowledge Base retrieval: billed by the service, **N** (not priced in `precios.json`).
+- No new interface endpoint: 0 USD added (**M**).

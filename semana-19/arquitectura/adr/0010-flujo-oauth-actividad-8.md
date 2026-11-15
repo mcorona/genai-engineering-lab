@@ -19,3 +19,7 @@ verified** in the documentation yet; they are verified before activity 8.
 
 - An app client without secret, with the authorization code grant and PKCE, and the scopes of ADR 0009.
 - **Accepted by Manuel:** the activity 8 script may depend on a browser sign-in. The fallback (b) is not needed.
+
+## Costs
+
+- No added cost (**M**, 0 USD). The Cognito cost is the one of ADR 0009.

@@ -11,8 +11,8 @@ ADR = sorted((S19 / "arquitectura" / "adr").glob("[0-9][0-9][0-9][0-9]-*.md"))
 SECCIONES = ["Context", "Alternatives", "Decision", "Consequences"]
 
 
-def test_hay_seis_adrs_numerados_del_0001_al_0006():
-    assert [a.name[:4] for a in ADR] == ["0001", "0002", "0003", "0004", "0005", "0006"]
+def test_hay_trece_adrs_numerados_del_0001_al_0013():
+    assert [a.name[:4] for a in ADR] == [f"{n:04d}" for n in range(1, 14)]
 
 
 @pytest.mark.parametrize("ruta", ADR, ids=lambda p: p.name)
