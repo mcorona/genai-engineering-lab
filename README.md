@@ -78,9 +78,9 @@ The pieces were built and measured one at a time:
 
 ## Repository map
 
-Each folder `semana-NN` is one unit of the lab's study program; *semana* is Spanish for "week", and each unit is sized as a week of work. Units are completed at the author's own pace, so commit dates do not follow calendar weeks. Every unit has its own `README.md` with method, results, cost and decisions.
+Each folder `semana-NN` is week NN of the lab's study program (*semana* is Spanish for "week"). A week is a unit of work, not a calendar week: weeks are completed at the author's own pace, so commit dates do not line up with them. Every week has its own `README.md` with method, results, cost and decisions.
 
-| Area | Units | What you will find |
+| Area | Weeks | What you will find |
 |---|---|---|
 | LLM fundamentals | [1](semana-01/README.md) · [2](semana-02/README.md) · [3](semana-03/README.md) · [4](semana-04/README.md) | A mini-GPT in MLX; token cost and sampling variability by language; a documented decision *not* to fine-tune (LoRA vs. prompting); local quantized inference vs. an API (the API is about 13× faster at p50) |
 | Prompts and evals | [5](semana-05/README.md) · [6](semana-06/README.md) · [7](semana-07/README.md) | A versioned prompt library; regression evals as a required PR check; bilingual natural-language querying (NLQ) measured by execution |
@@ -94,7 +94,7 @@ Code identifiers, folder names and some runtime messages are in Spanish, because
 
 | Name | Meaning | Name | Meaning |
 |---|---|---|---|
-| `semana-NN` | unit (week) NN | `resultados/` | results and evidence |
+| `semana-NN` | week NN | `resultados/` | results and evidence |
 | `golden/` | frozen gold sets | `linea_base/` | baseline checks |
 | `herramientas/` | agent tools | `seguridad/` | security tests |
 | `servidor/`, `cliente/` | server, client | `legado` | the legacy schema |
@@ -125,17 +125,17 @@ uv run python -m pytest -q semana-14/tests                        # MCP server (
 uv run python semana-14/linea_base/verificar_sdk.py               # MCP SDK baseline against the spec
 ```
 
-Each unit's test suite runs on its own, because the suites use separate `conftest.py` files. Evals that call a model need `ANTHROPIC_API_KEY`; each one prints its estimated cost, and most CI runs cost between $0.10 and $0.30.
+Each week's test suite runs on its own, because the suites use separate `conftest.py` files. Evals that call a model need `ANTHROPIC_API_KEY`; each one prints its estimated cost, and most CI runs cost between $0.10 and $0.30.
 
 ## Status
 
-| Phase | Units | Status |
+| Phase | Weeks | Status |
 |---|---|---|
 | 1. LLM fundamentals | 1–4 | Complete |
 | 2. Prompts, evals and NLQ | 5–7 | Complete |
 | 3. RAG and data | 8–12 | Complete, with all 11 exit criteria verified |
-| 4. Agents, MCP and orchestration | 13–18 | In progress: units 13 to 17 complete (exit criteria 13 to 17 verified); unit 18 has the LegacyBridge v1 scope, bring-up and command merged |
-| 5. LLMOps and multicloud production | 19–24 | In progress: unit 19 has the account baseline, the IaC decision (six ADRs) and the foundation stack merged; no exit criterion verified yet |
+| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 17 complete (exit criteria 13 to 17 verified); week 18 has the LegacyBridge v1 scope, bring-up and command merged |
+| 5. LLMOps and multicloud production | 19–24 | In progress: week 19 has the account baseline, the IaC decision (six ADRs) and the foundation stack merged; no exit criterion verified yet |
 
 The exit criteria of every phase, each with the PR that verified it, are listed in [docs/exit-criteria.md](docs/exit-criteria.md).
 
@@ -143,17 +143,17 @@ The exit criteria of every phase, each with the PR that verified it, are listed 
 
 LegacyBridge goes from demo to production in the client's cloud, with IaC, security, monitoring and controlled costs. The phase closes with the AWS Certified Generative AI Developer – Professional (AIP-C01) exam.
 
-| Criterion | Unit | Status |
+| Criterion | Week | Status |
 |---|---|---|
 | 19. LegacyBridge deployed on AWS from IaC: a reference architecture diagram, least-privilege IAM, KMS encryption at rest, private networking through VPC endpoints, a Bedrock Guardrail and versioned prompts, the golden mini eval passing against the deployed endpoint, measured cost per query, and a verified teardown | 19 | Pending (in progress) |
-| 20. A cost-per-query dashboard and a budget alarm, with prompt caching, batch inference and model routing measured against the unit 19 baseline | 20 | Pending |
+| 20. A cost-per-query dashboard and a budget alarm, with prompt caching, batch inference and model routing measured against the week 19 baseline | 20 | Pending |
 | 21. A red-teaming report for the deployed API, with findings and mitigations (OWASP Top 10 for LLM Applications) | 21 | Pending |
 | 22. An AWS ↔ Azure ↔ GCP service matrix and a minimal deployment in a second cloud | 22 | Pending |
 
-Two cross-cutting criteria apply to every unit:
+Two cross-cutting criteria apply to every week:
 
-- **Cost:** the error of the monthly quote against the real cost is measured and must stay within ±20%. Pending: the first measurement comes with the unit 19 deployment.
-- **Security:** no unsuppressed scanner finding, and no public resource except the API. Pending: the first check comes with the unit 19 IaC.
+- **Cost:** the error of the monthly quote against the real cost is measured and must stay within ±20%. Pending: the first measurement comes with the week 19 deployment.
+- **Security:** no unsuppressed scanner finding, and no public resource except the API. Pending: the first check comes with the week 19 IaC.
 
 ## Security and credentials
 
