@@ -20,6 +20,7 @@ from pathlib import Path
 from agente import capa_determinista as C
 from agente.converse_adaptador import api_converse
 from agente.presupuesto import Precios
+from agente.sumidero_logs import SumideroCloudWatch
 from presupuestos.politica import Limite, Politica
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -28,6 +29,7 @@ MODELO_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 FUNCION_HERRAMIENTAS = "FUNCION_HERRAMIENTAS"     # environment variable names (no defaults: fail closed)
 GUARDRAIL_ID = "GUARDRAIL_ID"
 GUARDRAIL_VERSION = "GUARDRAIL_VERSION"
+GRUPO_SPANS = "GRUPO_SPANS"      # CloudWatch Logs group of the span lines (set by the stack)
 
 _PRESUPUESTO_TAREA_HAIKU55 = {"usd": 0.0063, "tokens": 46000}   # week 17 calibration (semana-17/presupuestos/politica_calibrada.json)
 _RAZON_PRECIO = 1.1 / 0.1     # Haiku 4.5 over Haiku 5.5 in week 7's table, input and output alike
@@ -88,12 +90,13 @@ def politica_de_la_tarea() -> Politica:
 
 
 def exigir_entorno(entorno) -> None:
-    faltan = [n for n in (FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION) if not entorno.get(n)]
+    faltan = [n for n in (FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION, GRUPO_SPANS) if not entorno.get(n)]
     if faltan:
         raise RuntimeError(f"faltan variables de entorno: {', '.join(faltan)}")
 
 
-def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None) -> dict:
+def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, cliente_logs=None,
+              flujo_spans: str = "agente") -> dict:
     """The collaborators of agente.handler.tratar_pregunta. Missing environment is an error, not a default."""
     entorno = os.environ if entorno is None else entorno
     exigir_entorno(entorno)
@@ -114,5 +117,5 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None) 
         "api_modelo": api,
         "politica": politica_de_la_tarea(),
         "precios": Precios(entrada_1m=1.1, salida_1m=5.5),
-        "exportar": exportar or (lambda linea: print(linea, flush=True)),
+        "exportar": exportar or SumideroCloudWatch(cliente_logs, entorno[GRUPO_SPANS], flujo_spans),
     }
