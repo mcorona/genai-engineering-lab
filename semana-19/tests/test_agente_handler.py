@@ -18,7 +18,7 @@ from presupuestos.politica import Limite, Politica  # noqa: E402
 
 N = C.N
 CLAIMS = {"sub": "usuario-prueba-1", "tenant": "lab",
-          "scope": "legado:leer legado:proveedores legado:ventas legado:compras:proponer basura"}
+          "scope": "legado/leer legado/proveedores legado/ventas legado/compras_proponer basura"}
 ALCANCE = H.alcance_desde_claims(CLAIMS)
 PREGUNTA = "¿Cuántos SKU hay en el catálogo?"
 POL = Politica(tarea=Limite(usd=1.0, tokens=10_000_000))
@@ -75,6 +75,7 @@ def _deps(resultado=None, api=None, salida=None):
 def test_identidad_sale_del_token_y_descarta_scopes_desconocidos():
     assert ALCANCE.usuario == "usuario-prueba-1" and ALCANCE.tenant == "lab"
     assert ALCANCE.scopes == frozenset({"legado:leer", "legado:proveedores", "legado:ventas", "legado:compras:proponer"})
+    assert all(v in {s for c in N.SCOPES_DE.values() for s in c} for v in H.SCOPES_DE_TOKEN.values())
 
 
 def test_token_sin_tenant_se_rechaza():
@@ -147,6 +148,8 @@ def test_presupuesto_agotado_termina_como_limite_con_motivo_de_la_lista_fija():
     assert json.loads(lineas[0])["attrs"]["lab.outcome.reason"] == "presupuesto_tarea"
 
 
-def test_handler_sin_dependencias_reales_falla_con_mensaje_claro():
-    with pytest.raises(NotImplementedError):
+def test_handler_sin_entorno_falla_antes_de_crear_clientes(monkeypatch):
+    for n in ("FUNCION_HERRAMIENTAS", "GUARDRAIL_ID", "GUARDRAIL_VERSION"):
+        monkeypatch.delenv(n, raising=False)
+    with pytest.raises(RuntimeError, match="faltan variables de entorno"):
         H.handler({"claims": CLAIMS, "pregunta": PREGUNTA}, None)
