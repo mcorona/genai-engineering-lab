@@ -1088,6 +1088,10 @@ class Computo(Stack):
             id="AwsSolutions-IAM5", reason="Lectura y borrado en la tabla de tokens (y sus índices) y envío de decisión a esta sola máquina de estados.")], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(maquina.role, [NagPackSuppression(
             id="AwsSolutions-IAM5", reason="Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.")], apply_to_children=True)
+        # The approval state machine writes to its log group, which is encrypted with the stack key. The key policy does
+        # not name this role, so the role gets the key actions in its own policy (the key policy's account root allows it).
+        llave.grant(maquina.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey")
+
         cdk.CfnOutput(self, "IdUsuarios", value=pool.ref)
         cdk.CfnOutput(self, "IdClienteApp", value=cliente.ref)
         cdk.CfnOutput(self, "UrlApi", value=api.api_endpoint)
