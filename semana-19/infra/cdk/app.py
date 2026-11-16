@@ -901,6 +901,10 @@ class Computo(Stack):
             mfa_configuration="OFF",
             policies=cognito.CfnUserPool.PoliciesProperty(password_policy=cognito.CfnUserPool.PasswordPolicyProperty(
                 minimum_length=12, require_lowercase=True, require_uppercase=True, require_numbers=True, require_symbols=True)))
+        # Groups read by the pre-token trigger (computo/tokens.py); the test users are added to them by usuarios.py.
+        for nombre_grupo in ("analistas", "aprobadores"):
+            cognito.CfnUserPoolGroup(self, f"Grupo{nombre_grupo.capitalize()}", user_pool_id=pool.ref, group_name=nombre_grupo,
+                                     description=f"Grupo {nombre_grupo} de LegacyBridge (activity 6)")
         servidor = cognito.CfnUserPoolResourceServer(
             self, "ServidorLegacyBridge", user_pool_id=pool.ref, identifier="legacybridge", name="LegacyBridge",
             scopes=[cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(

@@ -145,7 +145,8 @@ def construir_deps():
 
     from agente import construccion
     construccion.exigir_entorno(os.environ)
-    return construccion.construir(cliente_converse=boto3.client("bedrock-runtime"), cliente_lambda=boto3.client("lambda"))
+    return construccion.construir(cliente_converse=boto3.client("bedrock-runtime"), cliente_lambda=boto3.client("lambda"),
+                                  cliente_logs=boto3.client("logs"))
 
 
 def handler(event: dict, context, deps: dict | None = None) -> dict:
