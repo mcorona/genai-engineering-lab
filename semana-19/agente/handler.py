@@ -29,12 +29,20 @@ AGENTE = "legadobridge"
 MOTIVO_PRESUPUESTO = {"presupuesto_usd": "presupuesto_tarea", "presupuesto_tokens": "presupuesto_tarea"}
 
 
+# The token's data scopes (resource server `legado`, see computo/tokens.py) to the week 17 vocabulary.
+SCOPES_DE_TOKEN = {
+    "legado/leer": "legado:leer",
+    "legado/proveedores": "legado:proveedores",
+    "legado/ventas": "legado:ventas",
+    "legado/compras_proponer": "legado:compras:proponer",
+}
+
+
 def alcance_desde_claims(claims: dict) -> "N.Alcance":
     """Scopes and tenant from the token. Unknown scopes are dropped; a missing tenant is refused."""
     if not claims.get("sub") or not claims.get("tenant"):
         raise PermissionError("el token no trae sujeto o tenant")
-    conocidos = {s for conjunto in N.SCOPES_DE.values() for s in conjunto}
-    scopes = frozenset(s for s in str(claims.get("scope", "")).split() if s in conocidos)
+    scopes = frozenset(SCOPES_DE_TOKEN[s] for s in str(claims.get("scope", "")).split() if s in SCOPES_DE_TOKEN)
     return N.Alcance(claims["sub"], claims["tenant"], scopes, "es")
 
 
@@ -130,9 +138,14 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
 
 
 def construir_deps():
-    """The Lambda's real collaborators: the week 13 loop bound to the converse adapter, the tools Lambda invoked over the
-    lab's endpoint, the pinned prompts and the week 17 policy. Not written yet; raises until it is."""
-    raise NotImplementedError("binding pendiente: loop de semana 13 + adaptador Converse + Lambda de herramientas en AWS")
+    """The Lambda's real collaborators (agente/construccion.py). The environment is checked before any client exists."""
+    import os
+
+    import boto3  # provided by the Lambda runtime
+
+    from agente import construccion
+    construccion.exigir_entorno(os.environ)
+    return construccion.construir(cliente_converse=boto3.client("bedrock-runtime"), cliente_lambda=boto3.client("lambda"))
 
 
 def handler(event: dict, context, deps: dict | None = None) -> dict:

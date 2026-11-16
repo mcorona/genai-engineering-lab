@@ -88,8 +88,10 @@ def test_decision_invalida_no_llama_a_nada():
 
 
 def test_grupos_se_convierten_en_scopes_y_grupo_desconocido_no_da_nada():
-    assert T.scopes_de_grupos(["analistas", "grupo-raro"]) == ["legacybridge/consultas"]
-    assert T.scopes_de_grupos(["aprobadores"]) == ["legacybridge/aprobaciones", "legacybridge/consultas"]
+    assert T.scopes_de_grupos(["analistas", "grupo-raro"]) == sorted(
+        ["legacybridge/consultas", "legado/leer", "legado/proveedores", "legado/ventas"])
+    assert "legado/compras_proponer" in T.scopes_de_grupos(["aprobadores"])
+    assert "legacybridge/aprobaciones" in T.scopes_de_grupos(["aprobadores"])
     assert T.scopes_de_grupos(["desconocido"]) == []
 
 

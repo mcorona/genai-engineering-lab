@@ -904,13 +904,20 @@ class Computo(Stack):
                         scope_name="consultas", scope_description="Consultas del agente"),
                     cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(
                         scope_name="aprobaciones", scope_description="Aprobaciones de órdenes")])
+        servidor_legado = cognito.CfnUserPoolResourceServer(
+            self, "ServidorLegado", user_pool_id=pool.ref, identifier="legado", name="Legado (datos)",
+            scopes=[cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(scope_name=nombre, scope_description=descripcion)
+                    for nombre, descripcion in (("leer", "Lectura del esquema legado"), ("proveedores", "Proveedores"),
+                                                ("ventas", "Ventas"), ("compras_proponer", "Proponer órdenes de compra"))])
         cliente = cognito.CfnUserPoolClient(
             self, "ClienteApp", user_pool_id=pool.ref, client_name="semana19-app", generate_secret=False,
             allowed_o_auth_flows=["code"], allowed_o_auth_flows_user_pool_client=True,
-            allowed_o_auth_scopes=["openid", "email", "profile", "legacybridge/consultas", "legacybridge/aprobaciones"],
+            allowed_o_auth_scopes=["openid", "email", "profile", "legacybridge/consultas", "legacybridge/aprobaciones",
+                                   "legado/leer", "legado/proveedores", "legado/ventas", "legado/compras_proponer"],
             callback_ur_ls=["http://localhost:8080/callback"],  # GAP: managed login steps not verified (ADR 0010)
             supported_identity_providers=["COGNITO"], prevent_user_existence_errors="ENABLED")
         cliente.node.add_dependency(servidor)
+        cliente.node.add_dependency(servidor_legado)
 
         token_fn = lambda_.Function(
             self, "FuncionTokens", runtime=lambda_.Runtime.PYTHON_3_13, handler="tokens.handler", code=codigo,

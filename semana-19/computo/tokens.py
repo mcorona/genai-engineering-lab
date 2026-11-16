@@ -3,14 +3,17 @@
 ADR 0009: Cognito groups become scopes here, so the HTTP API's JWT authorizer enforces them (403 without the scope).
 The scopes are the resource server's (`legacybridge/consultas`, `legacybridge/aprobaciones`).
 
-GAP (not solved here): the data scopes of week 17 (`legado:leer`, ...) that the deterministic layer needs are not in the
-token yet. Without them the agent's data tools are refused (fail closed). They need their own resource server decision.
+Data scopes (resource server `legado`) are added the same way. Their names are not in the week 17 form (`legado:leer`):
+the handler maps them back (agente/handler.py, SCOPES_DE_TOKEN). GAP: Cognito's allowed characters for scope names
+are not verified; `compras_proponer` is chosen to avoid `:`. Check it before the deploy.
 """
 from __future__ import annotations
 
+# Data scopes come from the resource server `legado` (week 17 vocabulary: legado:leer, ... ; see agente/handler.py).
 GRUPOS_A_SCOPES = {
-    "analistas": ["legacybridge/consultas"],
-    "aprobadores": ["legacybridge/consultas", "legacybridge/aprobaciones"],
+    "analistas": ["legacybridge/consultas", "legado/leer", "legado/proveedores", "legado/ventas"],
+    "aprobadores": ["legacybridge/consultas", "legacybridge/aprobaciones", "legado/leer", "legado/proveedores",
+                    "legado/ventas", "legado/compras_proponer"],
 }
 
 
