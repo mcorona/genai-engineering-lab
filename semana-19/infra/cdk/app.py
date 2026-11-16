@@ -1031,6 +1031,35 @@ class Computo(Stack):
         NagSuppressions.add_resource_suppressions(escritor, [NagPackSuppression(
             id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
 
+        # Tools Lambda (activity 6b): read-only SQL as copilot_ro and the approval starter. Same VPC rules as the writer:
+        # PostgreSQL to the database and HTTPS to the endpoints only. It is not invoked by any route in this change.
+        sg_herramientas = ec2.SecurityGroup(
+            self, "SgHerramientas", vpc=red, allow_all_outbound=False,
+            description="Tools Lambda (activity 6b): PostgreSQL 5432 and HTTPS to the endpoints only.")
+        sg_herramientas.add_egress_rule(ec2.Peer.security_group_id(sg_bd.security_group_id), ec2.Port.tcp(5432), "PostgreSQL")
+        sg_herramientas.add_egress_rule(ec2.Peer.security_group_id(sg_endpoints.security_group_id), ec2.Port.tcp(443),
+                                        "HTTPS a los endpoints (Step Functions, logs)")
+        ec2.CfnSecurityGroupIngress(
+            self, "BdDesdeHerramientas", group_id=sg_bd.security_group_id, ip_protocol="tcp", from_port=5432, to_port=5432,
+            source_security_group_id=sg_herramientas.security_group_id, description="PostgreSQL desde la funcion de herramientas")
+        ec2.CfnSecurityGroupIngress(
+            self, "EndpointsDesdeHerramientas", group_id=sg_endpoints.security_group_id, ip_protocol="tcp", from_port=443,
+            to_port=443, source_security_group_id=sg_herramientas.security_group_id, description="HTTPS desde la funcion de herramientas")
+        herramientas = lambda_.Function(
+            self, "FuncionHerramientas", runtime=lambda_.Runtime.PYTHON_3_13, handler="herramientas.construccion.handler_lambda",
+            code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("herramientas"),
+            vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+            security_groups=[sg_herramientas], reserved_concurrent_executions=2,
+            environment={"HOST_BD": bd.db_instance_endpoint_address},
+            description="Tools (activity 6b): read-only SQL as copilot_ro and the start of the approval workflow.")
+        herramientas.add_to_role_policy(_declaracion(
+            sid="ConectarComoCopilotRo", actions=["rds-db:connect"],
+            resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:{bd.instance_resource_id}/copilot_ro"]))
+        NagSuppressions.add_resource_suppressions(herramientas.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de la VPC.")])
+        NagSuppressions.add_resource_suppressions(herramientas, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+
         espera = tasks.LambdaInvoke(
             self, "RegistrarToken", lambda_function=registrar,
             integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
@@ -1094,6 +1123,8 @@ class Computo(Stack):
         # The approval state machine writes to its log group, which is encrypted with the stack key. The key policy does
         # not name this role, so the role gets the key actions in its own policy (the key policy's account root allows it).
         llave.grant(maquina.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey")
+        herramientas.add_to_role_policy(iam.PolicyStatement(
+            sid="ArrancarAprobacion", actions=["states:StartExecution"], resources=[maquina.state_machine_arn]))
 
         cdk.CfnOutput(self, "IdUsuarios", value=pool.ref)
         cdk.CfnOutput(self, "IdClienteApp", value=cliente.ref)
