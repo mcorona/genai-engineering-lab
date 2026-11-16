@@ -11,6 +11,8 @@
 #   S19_PERFIL_DESPLIEGUE            profile that assumes semana19-despliegue (default semana19-despliegue)
 #   S19_PYTHON                       python with aws-cdk-lib 2.276.0 (default: .venv-cdk of the worktree)
 #   ALERTA_EMAIL                     alert address, from the environment only; never written to the repo
+#   S19_BUCKET_PLANTILLAS            temporary S3 bucket to stage the control template (> 51,200 bytes); created and
+#                                    deleted by the operator, never written to the repo
 #
 # The account ID never appears in this file or in its output: it is resolved at run time and printed as <account>.
 set -euo pipefail
@@ -128,12 +130,17 @@ fi
 CUENTA="$(aws sts get-caller-identity --profile "$PERFIL_ADMIN" --query Account --output text)"
 echo "== Cuenta: <account> (resuelta en ejecución, no se imprime)"
 
+# The control template is larger than 51,200 bytes, so CloudFormation needs an S3 bucket to stage it. The bootstrap
+# bucket does not exist yet at this step (the bootstrap trusts the role this stack creates). S19_BUCKET_PLANTILLAS names
+# a temporary bucket created by the operator and deleted after the run; it is never written to the repo.
 desplegar_control() {
   local bootstrap_creado="$1"
+  local bucket=()
+  if [ -n "${S19_BUCKET_PLANTILLAS:-}" ]; then bucket=(--s3-bucket "$S19_BUCKET_PLANTILLAS"); fi
   aws cloudformation deploy --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN" \
     --template-file "$OUT/semana19-control.template.json" --capabilities CAPABILITY_NAMED_IAM \
     --parameter-overrides "CorreoAlerta=$ALERTA_EMAIL" "BootstrapCreado=$bootstrap_creado" \
-    --no-fail-on-empty-changeset
+    --no-fail-on-empty-changeset ${bucket[@]+"${bucket[@]}"}
 }
 
 BOOTSTRAP_ANTES="false"
