@@ -270,7 +270,8 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
     return [
         # HTTP API (API Gateway v2): the create call has no ARN yet, so the path is the only resource.
         _declaracion(sid="ApiHttpPorCfn", actions=[
-            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE"],
+            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE",
+            "apigateway:TagResource", "apigateway:UntagResource"],
             resources=[f"{region_api}/apis", f"{region_api}/apis/*", f"{region_api}/tags/*"]),
         # Cognito pool, its client, resource servers and groups: created by CloudFormation, no ARN before creation.
         _declaracion(sid="CognitoPorCfn", actions=[
@@ -991,7 +992,7 @@ class Computo(Stack):
                                     "HTTPS a los endpoints (logs)")
         ec2.CfnSecurityGroupIngress(
             self, "BdDesdeEscritor", group_id=sg_bd.security_group_id, ip_protocol="tcp", from_port=5432, to_port=5432,
-            source_security_group_id=sg_escritor.security_group_id, description="PostgreSQL desde el escritor de órdenes")
+            source_security_group_id=sg_escritor.security_group_id, description="PostgreSQL desde el escritor de ordenes")
         ec2.CfnSecurityGroupIngress(
             self, "EndpointsDesdeEscritor", group_id=sg_endpoints.security_group_id, ip_protocol="tcp", from_port=443,
             to_port=443, source_security_group_id=sg_escritor.security_group_id, description="HTTPS desde el escritor")
