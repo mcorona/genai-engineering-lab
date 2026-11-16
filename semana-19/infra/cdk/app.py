@@ -898,7 +898,7 @@ class Computo(Stack):
                     cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(
                         scope_name="aprobaciones", scope_description="Aprobaciones de órdenes")])
         servidor_legado = cognito.CfnUserPoolResourceServer(
-            self, "ServidorLegado", user_pool_id=pool.ref, identifier="legado", name="Legado (datos)",
+            self, "ServidorLegado", user_pool_id=pool.ref, identifier="legado", name="Legado datos",
             scopes=[cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(scope_name=nombre, scope_description=descripcion)
                     for nombre, descripcion in (("leer", "Lectura del esquema legado"), ("proveedores", "Proveedores"),
                                                 ("ventas", "Ventas"), ("compras_proponer", "Proponer órdenes de compra"))])
@@ -943,7 +943,7 @@ class Computo(Stack):
             self, "EndpointsDesdeEscritor", group_id=sg_endpoints.security_group_id, ip_protocol="tcp", from_port=443,
             to_port=443, source_security_group_id=sg_escritor.security_group_id, description="HTTPS desde el escritor")
         codigo_escritor = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2]), exclude=[
-            "infra/cdk", "tests", "**/tests", "**/__pycache__", "**/*.gz", "resultados", "video", "**/.secretos.env",
+            "infra/cdk", "cdk.out", "**/cdk.out", "tests", "**/tests", "**/__pycache__", "**/*.gz", "resultados", "video", "**/.secretos.env",
             ".venv", "**/.venv"])
         escritor = lambda_.Function(
             self, "FuncionEscritor", runtime=lambda_.Runtime.PYTHON_3_13, handler="computo.escritor.handler_escritor",
@@ -981,7 +981,8 @@ class Computo(Stack):
             timeout=Duration.seconds(10), memory_size=128, log_group=grupo("aprobar"),
             environment={"TABLA_TOKENS": tabla.table_name},
             description="Approver's decision: sends success or failure to the approval state machine (activity 6).")
-        tabla.grant_read_write_data(aprobar)
+        # Only what the handler does: get_item to read the token, delete_item after the decision (no scan, query or stream).
+        tabla.grant(aprobar, "dynamodb:GetItem", "dynamodb:DeleteItem")
         aprobar.add_to_role_policy(iam.PolicyStatement(
             sid="DecisionAlFlujo", actions=["states:SendTaskSuccess", "states:SendTaskFailure"],
             resources=[maquina.state_machine_arn]))
