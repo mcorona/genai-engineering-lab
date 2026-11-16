@@ -72,6 +72,7 @@ EXCEPCIONES = {
     "PasarRolesDeComputoAFuncionesYMaquina": "iam:PassRole sobre role/semana19-* solo hacia lambda.amazonaws.com y states.amazonaws.com: CloudFormation asigna los roles con límite que crea el stack a sus funciones y a la máquina de aprobación.",
     "EntregaDeLogsDeApiPorCfn": "Acciones de entrega de logs de API Gateway (CreateLogDelivery y similares) sobre '*': no admiten ARN de recurso; API Gateway las usa para los logs de acceso de la HTTP API del stack computo.",
     "RolesDeComputoPorCfn": "Leer y modificar las políticas y etiquetas de los roles del stack computo, solo sobre role/semana19-computo-*: CloudFormation los lee y actualiza al crearlos. Sin la condición del límite porque estas llamadas no la llevan; la creación sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite.",
+    "DeliveryDeLogsDescifra": "kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
 }
 
 # Roles that may create IAM roles besides the deploy role. Decided by Manuel on 2026-11-14 (documented exception).

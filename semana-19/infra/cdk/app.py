@@ -588,6 +588,9 @@ class Base(Stack):
                     principals=[iam.ArnPrincipal(f"arn:{Aws.PARTITION}:iam::{cuenta}:role/{DESPLIEGUE}"),
                                 iam.ArnPrincipal(f"arn:{Aws.PARTITION}:iam::{cuenta}:role/cdk-s19-cfn-exec-role-{cuenta}-{region}")],
                     resources=["*"]),
+                # Step Functions log delivery (state machine logs to an encrypted group) is performed by the delivery service.
+                _declaracion(sid="DeliveryDeLogsDescifra", actions=["kms:Decrypt"], resources=["*"],
+                             principals=[iam.ServicePrincipal("delivery.logs.amazonaws.com")]),
                 _declaracion(sid="LogsDelProyectoConLaLlave", actions=[
                     "kms:Encrypt", "kms:Decrypt", "kms:ReEncryptFrom", "kms:ReEncryptTo", "kms:GenerateDataKey",
                     "kms:GenerateDataKeyWithoutPlaintext", "kms:DescribeKey"],
