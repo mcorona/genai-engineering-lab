@@ -330,10 +330,20 @@ def test_sin_monitor_de_anomalias_hasta_confirmar_su_precio(perfil):
 # ---------------------------------------------------------------- wildcards and naming
 
 
+def _plantilla_computo(perfil: str) -> dict:
+    """The compute stack (COMPUTO=1) is scanned too: its wildcards are in the same register."""
+    salida = Path(tempfile.mkdtemp(prefix=f"s19-computo-{perfil}-"))
+    entorno = {**os.environ, "PERFIL": perfil, "CDK_OUTDIR": str(salida), "COMPUTO": "1"}
+    r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-2000:]
+    return json.loads((salida / "semana19-computo.template.json").read_text(encoding="utf-8"))
+
+
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_comodines_coinciden_con_el_registro(perfil):
     usados = set()
-    for pl in sintetizar(perfil)["plantillas"].values():
+    plantillas = list(sintetizar(perfil)["plantillas"].values()) + [_plantilla_computo(perfil)]
+    for pl in plantillas:
         for _, _, st in declaraciones(pl):
             if "*" in texto(st.get("Action", "")) or "*" in texto(st.get("Resource", "")):
                 usados.add(st.get("Sid", "-"))

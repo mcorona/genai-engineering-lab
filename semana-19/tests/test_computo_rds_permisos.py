@@ -17,10 +17,19 @@ S19 = Path(__file__).resolve().parents[1]
 APP = S19 / "infra" / "cdk" / "app.py"
 
 
+def preparar_paquete() -> None:
+    """Layout of the agent asset without dependencies, only when missing (never replaces a full build)."""
+    if not (S19 / ".build" / "agente" / "agente").is_dir():
+        sys.path.insert(0, str(S19 / "infra"))
+        import paquete_agente
+        paquete_agente.construir(sin_dependencias=True)
+
+
 @lru_cache(maxsize=None)
 def plantilla_computo() -> dict:
     salida = Path(tempfile.mkdtemp(prefix="s19-rds-"))
-    entorno = {**os.environ, "COMPUTO": "1", "CDK_OUTDIR": str(salida)}
+    preparar_paquete()
+    entorno = {**os.environ, "COMPUTO": "1", "CDK_OUTDIR": str(salida), "S19_SIN_DEPENDENCIAS": "1"}
     r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True, cwd=str(S19))
     assert r.returncode == 0, r.stderr[-2000:]
     return json.loads((salida / "semana19-computo.template.json").read_text(encoding="utf-8"))

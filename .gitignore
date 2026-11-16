@@ -62,3 +62,4 @@ cdk.out/
 .terraform/
 *.tfstate*
 semana-19/**/.secretos.env
+semana-19/.build/

@@ -925,6 +925,8 @@ class Ia(Stack):
             version = bedrock.CfnPromptVersion(self, f"VersionPrompt{idioma.upper()}", prompt_arn=prompt.attr_arn,
                                                description=f"Version pinned by the agent: system prompt {idioma}.")
             cdk.CfnOutput(self, f"ArnVersionPrompt{idioma.upper()}", value=version.attr_arn)
+        self.guardrail_id = recurso.get_att_string("GuardrailId")
+        self.guardrail_version = recurso.get_att_string("Version")
         cdk.CfnOutput(self, "IdGuardrail", value=recurso.get_att_string("GuardrailId"))
         cdk.CfnOutput(self, "VersionGuardrail", value=recurso.get_att_string("Version"))
 
@@ -940,7 +942,8 @@ class Computo(Stack):
     """
 
     def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, red: ec2.Vpc, bd: rds.DatabaseInstance,
-                 sg_bd: ec2.SecurityGroup, sg_endpoints: ec2.SecurityGroup, **kwargs) -> None:
+                 sg_bd: ec2.SecurityGroup, sg_endpoints: ec2.SecurityGroup, guardrail_id: str, guardrail_version: str,
+                 **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         codigo = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "computo"), exclude=["tests", "__pycache__"])
 
@@ -1060,6 +1063,43 @@ class Computo(Stack):
         NagSuppressions.add_resource_suppressions(herramientas, [NagPackSuppression(
             id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
 
+        # Agent (activity 6b): the week 13 loop with the guardrail, the budget and the spans of week 17. Outside the VPC:
+        # it calls Bedrock and the tools function through their public endpoints. Not behind any route yet.
+        ruta_agente = Path(__file__).resolve().parents[2] / ".build" / "agente"
+        if not (ruta_agente / "pydantic").is_dir() and os.environ.get("S19_SIN_DEPENDENCIAS") != "1":
+            raise RuntimeError("falta el paquete del agente: ejecuta python3 semana-19/infra/paquete_agente.py antes de desplegar")
+        grupo_spans = grupo("spans")
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from ia.config import MODELO_ID as modelo_con_perfil  # the one place the model id lives (ia/config.py)
+        perfil_modelo = modelo_con_perfil                       # us.<family>...
+        modelo_fundacion = modelo_con_perfil.split(".", 1)[1]    # the foundation model id behind the profile
+        agente = lambda_.Function(
+            self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="agente.handler.handler",
+            code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(120), memory_size=512,
+            log_group=grupo("agente"), reserved_concurrent_executions=2,
+            environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
+                         "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
+                         "S19_RUTA_SEMANA13": "/var/task/s13"},
+            description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
+        agente.add_to_role_policy(_declaracion(
+            sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil_modelo}",
+                       f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{modelo_fundacion}"]))
+        agente.add_to_role_policy(_declaracion(
+            sid="GuardrailDelAgente", actions=["bedrock:ApplyGuardrail"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/{guardrail_id}"]))
+        agente.add_to_role_policy(_declaracion(
+            sid="EscribirSpansDelAgente", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+            resources=[grupo_spans.log_group_arn, f"{grupo_spans.log_group_arn}:*"]))
+        agente.add_to_role_policy(iam.PolicyStatement(
+            sid="InvocarHerramientas", actions=["lambda:InvokeFunction"], resources=[herramientas.function_arn]))
+        NagSuppressions.add_resource_suppressions(agente.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.")])
+        NagSuppressions.add_resource_suppressions(agente, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+        suprimir_iam5(agente.role, ["ModeloDeHaikuPorConverse", "EscribirSpansDelAgente"])
+
         espera = tasks.LambdaInvoke(
             self, "RegistrarToken", lambda_function=registrar,
             integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
@@ -1130,6 +1170,7 @@ class Computo(Stack):
         cdk.CfnOutput(self, "IdClienteApp", value=cliente.ref)
         cdk.CfnOutput(self, "UrlApi", value=api.api_endpoint)
         cdk.CfnOutput(self, "ArnAprobacion", value=maquina.state_machine_arn)
+        cdk.CfnOutput(self, "ArnAgente", value=agente.function_arn)
 
 
 def construir(app: cdk.App) -> None:
@@ -1143,7 +1184,8 @@ def construir(app: cdk.App) -> None:
     pilas = [control, base, datos, ia]
     if os.environ.get("COMPUTO") == "1":
         pilas.append(Computo(app, "semana19-computo", llave=base.llave, red=base.red, bd=datos.bd, sg_bd=datos.sg_bd,
-                             sg_endpoints=base.sg_endpoints, env=cdk.Environment(region=REGION),
+                             sg_endpoints=base.sg_endpoints, guardrail_id=ia.guardrail_id,
+                             guardrail_version=ia.guardrail_version, env=cdk.Environment(region=REGION),
                              synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19")))
     for pila in pilas:
         Aspects.of(pila).add(AplicarLimite())

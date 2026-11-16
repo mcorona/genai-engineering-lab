@@ -24,7 +24,8 @@ from agente.sumidero_logs import SumideroCloudWatch
 from presupuestos.politica import Limite, Politica
 
 RAIZ = Path(__file__).resolve().parents[2]
-S13 = RAIZ / "semana-13"
+# The week 13 loop: the repository folder, or the asset folder of the agent Lambda (infra/paquete_agente.py sets it).
+S13 = Path(os.environ.get("S19_RUTA_SEMANA13", RAIZ / "semana-13"))
 MODELO_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 FUNCION_HERRAMIENTAS = "FUNCION_HERRAMIENTAS"     # environment variable names (no defaults: fail closed)
 GUARDRAIL_ID = "GUARDRAIL_ID"
