@@ -103,3 +103,29 @@ def test_ninguna_supresion_de_cdk_nag_queda_vacia():
     for r in sintetizar()["nag"]:
         if r["Compliance"] != "Compliant" and r.get("Exception Reason"):
             assert len(r["Exception Reason"].strip()) > 40, r["Rule ID"]
+
+
+def _definicion_maquina() -> dict:
+    (sm,) = recursos("AWS::StepFunctions::StateMachine").values()
+    cuerpo = sm["Properties"]["DefinitionString"]
+    return json.loads(json.dumps(cuerpo)) if isinstance(cuerpo, dict) else cuerpo
+
+
+def test_escritor_esta_en_la_vpc_y_solo_abre_5432_y_443():
+    (sg,) = [r for n, r in recursos("AWS::EC2::SecurityGroup").items() if "escritor" in n.lower() or "Escritor" in n]
+    puertos = {(e.get("FromPort"), e.get("ToPort")) for e in sg["Properties"]["SecurityGroupEgress"]}
+    assert puertos == {(5432, 5432), (443, 443)}
+
+
+def test_escritor_corre_como_funcion_con_vpc_y_handler_del_paquete():
+    funciones = [r for n, r in recursos("AWS::Lambda::Function").items() if n.startswith("FuncionEscritor")]
+    assert len(funciones) == 1
+    f = funciones[0]["Properties"]
+    assert f["Handler"] == "computo.escritor.handler_escritor"
+    assert "VpcConfig" in f and f["VpcConfig"]["SecurityGroupIds"]
+
+
+def test_maquina_escribe_la_orden_solo_despues_de_la_aprobacion():
+    texto = json.dumps(_definicion_maquina())
+    assert "EscribirOrden" in texto and "FuncionEscritor" in texto
+    assert "RechazadaPorAprobador" in texto and "Rechazada" in texto and "Succeed" in texto

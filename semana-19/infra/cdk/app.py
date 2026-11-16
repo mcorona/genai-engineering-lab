@@ -585,6 +585,7 @@ class Base(Stack):
             self, "SgEndpoints", vpc=red, allow_all_outbound=False,
             description="Interface endpoints: HTTPS only from the tools Lambda security group.")
         sg_endpoints.add_ingress_rule(sg_herramientas, ec2.Port.tcp(443), "HTTPS desde la Lambda de herramientas")
+        self.sg_endpoints = sg_endpoints
 
         politica_cuenta = {"Version": "2012-10-17", "Statement": [{
             "Sid": "SoloLaCuenta", "Effect": "Allow", "Principal": "*", "Action": "*", "Resource": "*",
@@ -649,6 +650,7 @@ class Datos(Stack):
 
         self.bd = bd
         self.sg_cargador = sg_cargador
+        self.sg_bd = sg_bd
         NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
             id="AwsSolutions-RDS11", reason="Puerto 5432 de PostgreSQL: el acceso lo limita el SG a la Lambda del cargador.")])
         NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
@@ -875,11 +877,12 @@ class Computo(Stack):
     DynamoDB table encrypted with the stack key, with a TTL (ADR 0011). Opt-in with COMPUTO=1, so the foundation
     snapshots do not change. Synthesis only: nothing here is deployed by this activity without authorization.
 
-    GAP: the approval step does not write the order yet (the order_writer step is pending), and the agent's compute
-    is not in this stack.
+    The approved request is written by the order writer (order_writer, inside the VPC) after the approval. The agent's
+    compute and the tools Lambda are not in this stack.
     """
 
-    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, red: ec2.Vpc, bd: rds.DatabaseInstance,
+                 sg_bd: ec2.SecurityGroup, sg_endpoints: ec2.SecurityGroup, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         codigo = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "computo"), exclude=["tests", "__pycache__"])
 
@@ -936,14 +939,50 @@ class Computo(Stack):
             description="Stores the approval task token in DynamoDB (activity 6). The token is never logged.")
         tabla.grant_write_data(registrar)
 
+        # Order writer (activity 6): the only step that writes purchase_orders, as order_writer, inside the VPC.
+        sg_escritor = ec2.SecurityGroup(
+            self, "SgEscritor", vpc=red, allow_all_outbound=False,
+            description="Order writer Lambda (activity 6): PostgreSQL 5432 and HTTPS to the endpoints only.")
+        sg_escritor.add_egress_rule(ec2.Peer.security_group_id(sg_bd.security_group_id), ec2.Port.tcp(5432), "PostgreSQL")
+        sg_escritor.add_egress_rule(ec2.Peer.security_group_id(sg_endpoints.security_group_id), ec2.Port.tcp(443),
+                                    "HTTPS a los endpoints (logs)")
+        ec2.CfnSecurityGroupIngress(
+            self, "BdDesdeEscritor", group_id=sg_bd.security_group_id, ip_protocol="tcp", from_port=5432, to_port=5432,
+            source_security_group_id=sg_escritor.security_group_id, description="PostgreSQL desde el escritor de órdenes")
+        ec2.CfnSecurityGroupIngress(
+            self, "EndpointsDesdeEscritor", group_id=sg_endpoints.security_group_id, ip_protocol="tcp", from_port=443,
+            to_port=443, source_security_group_id=sg_escritor.security_group_id, description="HTTPS desde el escritor")
+        codigo_escritor = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2]), exclude=[
+            "infra/cdk", "tests", "**/tests", "**/__pycache__", "**/*.gz", "resultados", "video", "**/.secretos.env",
+            ".venv", "**/.venv"])
+        escritor = lambda_.Function(
+            self, "FuncionEscritor", runtime=lambda_.Runtime.PYTHON_3_13, handler="computo.escritor.handler_escritor",
+            code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("escritor"),
+            vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
+            security_groups=[sg_escritor], environment={"HOST_BD": bd.db_instance_endpoint_address},
+            description="Order writer (activity 6): inserts an approved order as order_writer, after the approval.")
+        escritor.add_to_role_policy(_declaracion(
+            sid="ConectarComoOrderWriter", actions=["rds-db:connect"],
+            resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:{bd.instance_resource_id}/order_writer"]))
+        NagSuppressions.add_resource_suppressions(escritor.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de una VPC.")])
+        NagSuppressions.add_resource_suppressions(escritor, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+
+        espera = tasks.LambdaInvoke(
+            self, "RegistrarToken", lambda_function=registrar,
+            integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+            payload=sfn.TaskInput.from_object({"id.$": "$.id", "token": sfn.JsonPath.task_token,
+                                               "solicitud.$": "$.solicitud"}),
+            result_path="$.decision", timeout=Duration.hours(24))
+        espera.add_catch(sfn.Succeed(self, "Rechazada"), errors=["RechazadaPorAprobador"], result_path="$.rechazo")
+        escribir = tasks.LambdaInvoke(
+            self, "EscribirOrden", lambda_function=escritor,
+            payload=sfn.TaskInput.from_object({"solicitud.$": "$.solicitud"}), result_path="$.orden")
+
         maquina = sfn.StateMachine(
             self, "Aprobacion", state_machine_name="semana19-aprobacion",
-            definition_body=sfn.DefinitionBody.from_chainable(tasks.LambdaInvoke(
-                self, "RegistrarToken", lambda_function=registrar,
-                integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-                payload=sfn.TaskInput.from_object({"id.$": "$.id", "token": sfn.JsonPath.task_token,
-                                                   "solicitud.$": "$.solicitud"}),
-                timeout=Duration.hours(24))),
+            definition_body=sfn.DefinitionBody.from_chainable(espera.next(escribir)),
             logs=sfn.LogOptions(destination=grupo("aprobacion"), level=sfn.LogLevel.ALL, include_execution_data=False),
             tracing_enabled=True, timeout=Duration.hours(24))
 
@@ -1005,7 +1044,8 @@ def construir(app: cdk.App) -> None:
             synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
     pilas = [control, base, datos, ia]
     if os.environ.get("COMPUTO") == "1":
-        pilas.append(Computo(app, "semana19-computo", llave=base.llave, env=cdk.Environment(region=REGION),
+        pilas.append(Computo(app, "semana19-computo", llave=base.llave, red=base.red, bd=datos.bd, sg_bd=datos.sg_bd,
+                             sg_endpoints=base.sg_endpoints, env=cdk.Environment(region=REGION),
                              synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19")))
     for pila in pilas:
         Aspects.of(pila).add(AplicarLimite())
