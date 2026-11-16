@@ -72,6 +72,8 @@ EXCEPCIONES = {
     "PasarRolesDeComputoAFuncionesYMaquina": "iam:PassRole sobre role/semana19-* solo hacia lambda.amazonaws.com y states.amazonaws.com: CloudFormation asigna los roles con límite que crea el stack a sus funciones y a la máquina de aprobación.",
     "EntregaDeLogsDeApiPorCfn": "Acciones de entrega de logs de API Gateway (CreateLogDelivery y similares) sobre '*': no admiten ARN de recurso; API Gateway las usa para los logs de acceso de la HTTP API del stack computo.",
     "RolesDeComputoPorCfn": "Leer y modificar las políticas y etiquetas de los roles del stack computo, solo sobre role/semana19-computo-*: CloudFormation los lee y actualiza al crearlos. Sin la condición del límite porque estas llamadas no la llevan; la creación sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite.",
+    "ModeloDeHaikuPorConverse": "bedrock:InvokeModel sobre el perfil de inferencia del modelo del agente (ia/config.py) de esta cuenta y el modelo de fundación en cualquier Región (el perfil cross-Region enruta a varias Regiones de EE. UU.): sin el comodín no funciona la llamada.",
+    "EscribirSpansDelAgente": "CreateLogStream y PutLogEvents sobre el grupo de spans del agente y sus flujos (/semana19/computo/spans): el flujo lo crea el SDK.",
     "DeliveryDeLogsDescifra": "kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
 }
 
