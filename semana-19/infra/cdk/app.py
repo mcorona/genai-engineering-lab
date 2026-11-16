@@ -22,7 +22,14 @@ import jsii
 from aws_cdk import Aspects, Aws, CfnParameter, Duration, IAspect, RemovalPolicy, Stack, Tags
 from aws_cdk import aws_bedrock as bedrock
 from aws_cdk import aws_budgets as budgets
+from aws_cdk import aws_apigatewayv2 as apigwv2
+from aws_cdk import aws_apigatewayv2_authorizers as apigwv2_auth
+from aws_cdk import aws_apigatewayv2_integrations as apigwv2_int
+from aws_cdk import aws_cognito as cognito
+from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_ec2 as ec2
+from aws_cdk import aws_stepfunctions as sfn
+from aws_cdk import aws_stepfunctions_tasks as tasks
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_kms as kms
 from aws_cdk import aws_rds as rds
@@ -862,6 +869,125 @@ class Ia(Stack):
         cdk.CfnOutput(self, "VersionGuardrail", value=recurso.get_att_string("Version"))
 
 
+class Computo(Stack):
+    """Activity 6: the approval workflow (Step Functions `semana19-aprobacion`), the approver's HTTP API (`semana19-api`) and
+    the Cognito pool `semana19-usuarios` (Essentials, ADR 0009) with its pre-token trigger. The task token lives in a
+    DynamoDB table encrypted with the stack key, with a TTL (ADR 0011). Opt-in with COMPUTO=1, so the foundation
+    snapshots do not change. Synthesis only: nothing here is deployed by this activity without authorization.
+
+    GAP: the approval step does not write the order yet (the order_writer step is pending), and the agent's compute
+    is not in this stack.
+    """
+
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        codigo = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "computo"), exclude=["tests", "__pycache__"])
+
+        def grupo(nombre: str) -> logs.LogGroup:
+            return logs.LogGroup(self, f"Logs{nombre.replace('-', '')}", log_group_name=f"{PREFIJO_LOGS}computo/{nombre}",
+                                 retention=logs.RetentionDays.ONE_WEEK, encryption_key=llave, removal_policy=RemovalPolicy.DESTROY)
+
+        tabla = dynamodb.Table(
+            self, "Tokens", partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST, encryption=dynamodb.TableEncryption.CUSTOMER_MANAGED,
+            encryption_key=llave, time_to_live_attribute="expira", removal_policy=RemovalPolicy.DESTROY)
+
+        pool = cognito.CfnUserPool(
+            self, "Usuarios", user_pool_name="semana19-usuarios", user_pool_tier="ESSENTIALS",
+            admin_create_user_config=cognito.CfnUserPool.AdminCreateUserConfigProperty(allow_admin_create_user_only=True),
+            mfa_configuration="OFF",
+            policies=cognito.CfnUserPool.PoliciesProperty(password_policy=cognito.CfnUserPool.PasswordPolicyProperty(
+                minimum_length=12, require_lowercase=True, require_uppercase=True, require_numbers=True, require_symbols=True)))
+        servidor = cognito.CfnUserPoolResourceServer(
+            self, "ServidorLegacyBridge", user_pool_id=pool.ref, identifier="legacybridge", name="LegacyBridge",
+            scopes=[cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(
+                        scope_name="consultas", scope_description="Consultas del agente"),
+                    cognito.CfnUserPoolResourceServer.ResourceServerScopeTypeProperty(
+                        scope_name="aprobaciones", scope_description="Aprobaciones de órdenes")])
+        cliente = cognito.CfnUserPoolClient(
+            self, "ClienteApp", user_pool_id=pool.ref, client_name="semana19-app", generate_secret=False,
+            allowed_o_auth_flows=["code"], allowed_o_auth_flows_user_pool_client=True,
+            allowed_o_auth_scopes=["openid", "email", "profile", "legacybridge/consultas", "legacybridge/aprobaciones"],
+            callback_ur_ls=["http://localhost:8080/callback"],  # GAP: managed login steps not verified (ADR 0010)
+            supported_identity_providers=["COGNITO"], prevent_user_existence_errors="ENABLED")
+        cliente.node.add_dependency(servidor)
+
+        token_fn = lambda_.Function(
+            self, "FuncionTokens", runtime=lambda_.Runtime.PYTHON_3_13, handler="tokens.handler", code=codigo,
+            timeout=Duration.seconds(5), memory_size=128, log_group=grupo("tokens"),
+            description="Pre-token generation V2: adds the LegacyBridge scopes from the groups (ADR 0009).")
+        token_fn.add_permission("PermisoCognito", principal=iam.ServicePrincipal("cognito-idp.amazonaws.com"),
+                                source_arn=pool.attr_arn)
+        pool.lambda_config = cognito.CfnUserPool.LambdaConfigProperty(
+            pre_token_generation_config=cognito.CfnUserPool.PreTokenGenerationConfigProperty(
+                lambda_arn=token_fn.function_arn, lambda_version="V2_0"))
+
+        registrar = lambda_.Function(
+            self, "FuncionRegistrarToken", runtime=lambda_.Runtime.PYTHON_3_13, handler="aprobacion.handler_registrar",
+            code=codigo, timeout=Duration.seconds(10), memory_size=128, log_group=grupo("registrar-token"),
+            environment={"TABLA_TOKENS": tabla.table_name},
+            description="Stores the approval task token in DynamoDB (activity 6). The token is never logged.")
+        tabla.grant_write_data(registrar)
+
+        maquina = sfn.StateMachine(
+            self, "Aprobacion", state_machine_name="semana19-aprobacion",
+            definition_body=sfn.DefinitionBody.from_chainable(tasks.LambdaInvoke(
+                self, "RegistrarToken", lambda_function=registrar,
+                integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+                payload=sfn.TaskInput.from_object({"id.$": "$.id", "token": sfn.JsonPath.task_token,
+                                                   "solicitud.$": "$.solicitud"}),
+                timeout=Duration.hours(24))),
+            logs=sfn.LogOptions(destination=grupo("aprobacion"), level=sfn.LogLevel.ALL, include_execution_data=False),
+            tracing_enabled=True, timeout=Duration.hours(24))
+
+        aprobar = lambda_.Function(
+            self, "FuncionAprobar", runtime=lambda_.Runtime.PYTHON_3_13, handler="aprobacion.handler_aprobar", code=codigo,
+            timeout=Duration.seconds(10), memory_size=128, log_group=grupo("aprobar"),
+            environment={"TABLA_TOKENS": tabla.table_name},
+            description="Approver's decision: sends success or failure to the approval state machine (activity 6).")
+        tabla.grant_read_write_data(aprobar)
+        aprobar.add_to_role_policy(iam.PolicyStatement(
+            sid="DecisionAlFlujo", actions=["states:SendTaskSuccess", "states:SendTaskFailure"],
+            resources=[maquina.state_machine_arn]))
+
+        autorizador = apigwv2_auth.HttpJwtAuthorizer(
+            "AutorizadorJwt", jwt_issuer=f"https://cognito-idp.{REGION}.amazonaws.com/{pool.ref}",
+            jwt_audience=[cliente.ref], identity_source=["$request.header.Authorization"])
+        api = apigwv2.HttpApi(self, "Api", api_name="semana19-api", create_default_stage=True)
+        api.add_routes(
+            path="/aprobaciones/{id}", methods=[apigwv2.HttpMethod.POST],
+            integration=apigwv2_int.HttpLambdaIntegration("IntegracionAprobar", aprobar), authorizer=autorizador)
+        etapa = api.default_stage.node.default_child
+        etapa.access_log_settings = apigwv2.CfnStage.AccessLogSettingsProperty(
+            destination_arn=grupo("api-acceso").log_group_arn,
+            format=json.dumps({"requestId": "$context.requestId", "routeKey": "$context.routeKey",
+                               "status": "$context.status", "responseLatency": "$context.responseLatency"}))
+        for hijo in api.node.find_all():
+            if isinstance(hijo, apigwv2.CfnRoute) and hijo.route_key == "POST /aprobaciones/{id}":
+                hijo.authorization_scopes = ["legacybridge/aprobaciones"]
+
+        NagSuppressions.add_resource_suppressions(tabla, [NagPackSuppression(
+            id="AwsSolutions-DDB3", reason="Tokens de tarea: caducan por TTL a las 24 h y se borran al decidir; la recuperación a un punto en el tiempo no aporta nada aquí y su costo no está verificado.")])
+        NagSuppressions.add_resource_suppressions(pool, [
+            NagPackSuppression(id="AwsSolutions-COG2", reason="MFA desactivada en el laboratorio: usuarios de prueba creados por un administrador (ADR 0013); la decisión de MFA es de la actividad 8."),
+            NagPackSuppression(id="AwsSolutions-COG8", reason="Feature plan Essentials por ADR 0009 (costo autorizado por Manuel); Plus no está autorizado y su costo no está verificado.")])
+        for funcion in (token_fn, registrar, aprobar):
+            NagSuppressions.add_resource_suppressions(funcion, [NagPackSuppression(
+                id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).")])
+            NagSuppressions.add_resource_suppressions(funcion.role, [NagPackSuppression(
+                id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.")])
+        NagSuppressions.add_resource_suppressions(registrar.role, [NagPackSuppression(
+            id="AwsSolutions-IAM5", reason="Acceso de escritura a la tabla de tokens y a su llave KMS (grant de CDK: la tabla y sus índices, no otra tabla).")], apply_to_children=True)
+        NagSuppressions.add_resource_suppressions(aprobar.role, [NagPackSuppression(
+            id="AwsSolutions-IAM5", reason="Lectura y borrado en la tabla de tokens (y sus índices) y envío de decisión a esta sola máquina de estados.")], apply_to_children=True)
+        NagSuppressions.add_resource_suppressions(maquina.role, [NagPackSuppression(
+            id="AwsSolutions-IAM5", reason="Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.")], apply_to_children=True)
+        cdk.CfnOutput(self, "IdUsuarios", value=pool.ref)
+        cdk.CfnOutput(self, "IdClienteApp", value=cliente.ref)
+        cdk.CfnOutput(self, "UrlApi", value=api.api_endpoint)
+        cdk.CfnOutput(self, "ArnAprobacion", value=maquina.state_machine_arn)
+
+
 def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
@@ -870,7 +996,11 @@ def construir(app: cdk.App) -> None:
                   synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
     ia = Ia(app, "semana19-ia", llave=base.llave, env=cdk.Environment(region=REGION),
             synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
-    for pila in (control, base, datos, ia):
+    pilas = [control, base, datos, ia]
+    if os.environ.get("COMPUTO") == "1":
+        pilas.append(Computo(app, "semana19-computo", llave=base.llave, env=cdk.Environment(region=REGION),
+                             synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19")))
+    for pila in pilas:
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())
         Aspects.of(pila).add(OmitirCheckovEnProveedorCdk())
