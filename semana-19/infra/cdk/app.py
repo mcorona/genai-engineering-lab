@@ -292,6 +292,11 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
         _declaracion(sid="LlaveDeLaTablaPorCfn", actions=["kms:CreateGrant", "kms:ListGrants", "kms:DescribeKey"],
                      resources=["*"],
                      conditions={"StringEquals": {"kms:ViaService": f"dynamodb.{REGION}.amazonaws.com"}}),
+        # Access logs of the HTTP API: API Gateway enables delivery to the log group. Delivery actions have no ARN.
+        _declaracion(sid="EntregaDeLogsDeApiPorCfn", actions=[
+            "logs:CreateLogDelivery", "logs:DeleteLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery",
+            "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies"],
+            resources=["*"]),
         # Approval state machine (Step Functions) named semana19-aprobacion.
         _declaracion(sid="MaquinaDeAprobacionPorCfn", actions=[
             "states:CreateStateMachine", "states:UpdateStateMachine", "states:DeleteStateMachine",
@@ -541,6 +546,7 @@ class Control(Stack):
         suprimir_iam5(ejecucion_ia, ["PromptsDelAgentePorCfn", "LlaveDeLosPromptsPorCfn", "PasarRolDelCreadorDeGuardrail",
                                      "PoliticasYAdjuntosDelRolDeIa", "BorrarRolDeIa"])
         suprimir_iam5(ejecucion_computo, ["ApiHttpPorCfn", "CognitoPorCfn", "TablaDeTokensPorCfn", "LlaveDeLaTablaPorCfn",
+                                          "EntregaDeLogsDeApiPorCfn",
                                           "MaquinaDeAprobacionPorCfn", "PasarRolesDeComputoAFuncionesYMaquina"])
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
