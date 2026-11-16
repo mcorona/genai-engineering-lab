@@ -33,18 +33,6 @@
       "AWS::IAM::ManagedPolicy"
     ],
     [
-      "Operador",
-      "AWS::IAM::Role"
-    ],
-    [
-      "OperadorDefaultPolicy",
-      "AWS::IAM::Policy"
-    ],
-    [
-      "OperadorLimite",
-      "AWS::IAM::ManagedPolicy"
-    ],
-    [
       "Presupuesto",
       "AWS::Budgets::Budget"
     ],
