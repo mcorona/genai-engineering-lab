@@ -37,7 +37,6 @@ EXCEPCIONES = {
     "LlaveParaRdsYSecretos": "kms:CreateGrant y ListGrants para que RDS y Secrets Manager usen la llave del proyecto; el recurso es la llave (AWS exige '*' en la política de ejecución) y la condición kms:ViaService limita el uso a esos dos servicios.",
     "LeerLosDocs": "Lectura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base, para el rol de Bedrock; el ARN de objeto se acota al prefijo.",
     "EscribirDocsKb": "Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
-    "LeerInventario": "Acciones de descripción y listado de AWS que no admiten ARN de recurso (describe/list): resource '*' con solo lectura; el rol del operador no puede crear, cambiar ni borrar.",
     "LogsDelGrupoDelProyecto": "Nombre por prefijo: los grupos del proyecto empiezan por /semana19/. El recurso no tiene ARN previo.",
     "LogsDescribir": "logs:DescribeLogGroups no acepta ARN de recurso: AWS exige resource '*'.",
     "CdkAssumeRoles": "Nombre por prefijo: los roles del bootstrap llevan la cuenta y la región en el nombre (cdk-s19-*-<cuenta>-us-east-1); la cuenta no se escribe en el repo.",
