@@ -1069,18 +1069,25 @@ class Computo(Stack):
         if not (ruta_agente / "pydantic").is_dir() and os.environ.get("S19_SIN_DEPENDENCIAS") != "1":
             raise RuntimeError("falta el paquete del agente: ejecuta python3 semana-19/infra/paquete_agente.py antes de desplegar")
         grupo_spans = grupo("spans")
+        # Questions and answers (activity 6b): encrypted with the stack key, owner as a hash, expired by TTL after 7 days.
+        tabla_consultas = dynamodb.Table(
+            self, "Consultas", partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST, encryption=dynamodb.TableEncryption.CUSTOMER_MANAGED,
+            encryption_key=llave, time_to_live_attribute="expira", removal_policy=RemovalPolicy.DESTROY)
+        NagSuppressions.add_resource_suppressions(tabla_consultas, [NagPackSuppression(
+            id="AwsSolutions-DDB3", reason="Consultas: respuestas efímeras con TTL de 7 días; la recuperación a un punto en el tiempo no aporta aquí y su costo no está verificado.")])
         import sys as _sys
         _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from ia.config import MODELO_ID as modelo_con_perfil  # the one place the model id lives (ia/config.py)
         perfil_modelo = modelo_con_perfil                       # us.<family>...
         modelo_fundacion = modelo_con_perfil.split(".", 1)[1]    # the foundation model id behind the profile
         agente = lambda_.Function(
-            self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="agente.handler.handler",
+            self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="consultas.worker.handler_lambda",
             code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(120), memory_size=512,
             log_group=grupo("agente"), reserved_concurrent_executions=2,
             environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
-                         "S19_RUTA_SEMANA13": "/var/task/s13"},
+                         "S19_RUTA_SEMANA13": "/var/task/s13", "TABLA_CONSULTAS": tabla_consultas.table_name},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
         agente.add_to_role_policy(_declaracion(
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
@@ -1094,6 +1101,9 @@ class Computo(Stack):
             resources=[grupo_spans.log_group_arn, f"{grupo_spans.log_group_arn}:*"]))
         agente.add_to_role_policy(iam.PolicyStatement(
             sid="InvocarHerramientas", actions=["lambda:InvokeFunction"], resources=[herramientas.function_arn]))
+        agente.add_to_role_policy(_declaracion(
+            sid="ActualizarConsultas", actions=["dynamodb:UpdateItem"], resources=[tabla_consultas.table_arn]))
+        llave.grant(agente.role, "kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey")
         NagSuppressions.add_resource_suppressions(agente.role, [NagPackSuppression(
             id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.")])
         NagSuppressions.add_resource_suppressions(agente, [NagPackSuppression(
@@ -1165,6 +1175,30 @@ class Computo(Stack):
         llave.grant(maquina.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey")
         herramientas.add_to_role_policy(iam.PolicyStatement(
             sid="ArrancarAprobacion", actions=["states:StartExecution"], resources=[maquina.state_machine_arn]))
+
+        # Questions (activity 6b): POST /consultas starts the agent asynchronously; GET /consultas/{id} reads the owner's answer.
+        consultas_api = lambda_.Function(
+            self, "FuncionConsultas", runtime=lambda_.Runtime.PYTHON_3_13, handler="consultas.api.handler_lambda",
+            code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(10), memory_size=128,
+            log_group=grupo("consultas"), reserved_concurrent_executions=5,
+            environment={"TABLA_CONSULTAS": tabla_consultas.table_name, "FUNCION_AGENTE": agente.function_name},
+            description="HTTP handler for POST /consultas and GET /consultas/{id} (activity 6b).")
+        consultas_api.add_to_role_policy(_declaracion(
+            sid="LeerEscribirConsultas", actions=["dynamodb:PutItem", "dynamodb:GetItem"], resources=[tabla_consultas.table_arn]))
+        llave.grant(consultas_api.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:DescribeKey")
+        consultas_api.add_to_role_policy(iam.PolicyStatement(
+            sid="IniciarAgente", actions=["lambda:InvokeFunction"], resources=[agente.function_arn]))
+        ruta_consulta = apigwv2_int.HttpLambdaIntegration("IntegracionConsultaCrear", consultas_api)
+        ruta_lectura = apigwv2_int.HttpLambdaIntegration("IntegracionConsultaLeer", consultas_api)
+        api.add_routes(path="/consultas", methods=[apigwv2.HttpMethod.POST], integration=ruta_consulta, authorizer=autorizador)
+        api.add_routes(path="/consultas/{id}", methods=[apigwv2.HttpMethod.GET], integration=ruta_lectura, authorizer=autorizador)
+        for hijo in api.node.find_all():
+            if isinstance(hijo, apigwv2.CfnRoute) and hijo.route_key in ("POST /consultas", "GET /consultas/{id}"):
+                hijo.authorization_scopes = ["legacybridge/consultas"]
+        NagSuppressions.add_resource_suppressions(consultas_api.role, [NagPackSuppression(
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.")])
+        NagSuppressions.add_resource_suppressions(consultas_api, [NagPackSuppression(
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
 
         cdk.CfnOutput(self, "IdUsuarios", value=pool.ref)
         cdk.CfnOutput(self, "IdClienteApp", value=cliente.ref)
