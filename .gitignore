@@ -26,6 +26,8 @@ semana-04/entrenamiento/adapters/
 
 # Semana 12: credenciales de nube nunca en el repo (se usan sesiones de CLI, perfiles e impersonación)
 *.pem
+# Week 19, activity 5: the botocore certificate bundle vendored in the guardrail creator is a public CA list, not a credential
+!semana-19/guardrail/vendor/botocore/cacert.pem
 # Week 19, activity 6: the RDS CA bundle is a public certificate, not a credential (pinned by SHA-256 in tests/test_rds_ca.py)
 !semana-19/infra/loader/rds-ca.pem
 !semana-19/herramientas/rds-ca.pem
