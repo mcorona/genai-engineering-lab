@@ -71,7 +71,16 @@ def test_api_tiene_logs_de_acceso():
 
 
 def test_tabla_de_tokens_cifrada_con_llave_del_stack_y_ttl():
-    (tabla,) = recursos("AWS::DynamoDB::Table").values()
+    tablas = {k: v for k, v in recursos("AWS::DynamoDB::Table").items() if k.startswith("Tokens")}
+    (tabla,) = tablas.values()
+    p = tabla["Properties"]
+    assert p["SSESpecification"]["SSEType"] == "KMS"
+    assert p["TimeToLiveSpecification"] == {"AttributeName": "expira", "Enabled": True}
+
+
+def test_tabla_de_consultas_cifrada_con_llave_del_stack_y_ttl():
+    tablas = {k: v for k, v in recursos("AWS::DynamoDB::Table").items() if k.startswith("Consultas")}
+    (tabla,) = tablas.values()
     p = tabla["Properties"]
     assert p["SSESpecification"]["SSEType"] == "KMS"
     assert p["TimeToLiveSpecification"] == {"AttributeName": "expira", "Enabled": True}

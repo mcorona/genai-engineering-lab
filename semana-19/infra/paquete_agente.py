@@ -22,6 +22,7 @@ DESTINO = S19 / ".build" / "agente"
 COPIAS = {
     "agente": S19 / "agente",
     "herramientas": S19 / "herramientas",
+    "consultas": S19 / "consultas",
     "presupuestos": RAIZ / "semana-17" / "presupuestos",
     "instrumentacion": RAIZ / "semana-17" / "instrumentacion",
     "s13/agente": RAIZ / "semana-13" / "agente",
