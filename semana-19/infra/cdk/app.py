@@ -52,6 +52,7 @@ REGION = "us-east-1"
 LIMITE = "semana19-limite"
 CONGELAR = "semana19-congelar"
 EJECUCION_CFN = "semana19-cfn-exec"
+EJECUCION_CFN_IA = "semana19-cfn-exec-ia"  # split from semana19-cfn-exec: over the 6,144-character managed policy limit
 EJECUCION_CFN_DATOS = "semana19-cfn-exec-datos"
 DESPLIEGUE = "semana19-despliegue"
 OPERADOR_ROL = "semana19-operador"
@@ -86,6 +87,7 @@ def arn_iam(recurso: str) -> str:
 ARN_LIMITE = arn_iam(f"policy/{LIMITE}")
 ARN_CONGELAR = arn_iam(f"policy/{CONGELAR}")
 ARN_EJECUCION_CFN = arn_iam(f"policy/{EJECUCION_CFN}")
+ARN_EJECUCION_CFN_IA = arn_iam(f"policy/{EJECUCION_CFN_IA}")
 ARN_EJECUCION_CFN_DATOS = arn_iam(f"policy/{EJECUCION_CFN_DATOS}")
 ARN_DESPLIEGUE = arn_iam(f"role/{DESPLIEGUE}")
 
@@ -213,32 +215,12 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolDelCustomResourceDelProyecto", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-base-CustomVpcRestrictDefaultSGCustomResou*")],
                      conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
-        # Prompt Management for the agent's system prompt (stack semana19-ia): create, version and read prompts of this account.
-        _declaracion(sid="PromptsDelAgentePorCfn", actions=[
-            "bedrock:CreatePrompt", "bedrock:CreatePromptVersion", "bedrock:GetPrompt", "bedrock:UpdatePrompt",
-            "bedrock:DeletePrompt", "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
-            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:prompt/*"]),
-        _declaracion(sid="LlaveDeLosPromptsPorCfn", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
-                                                             "kms:DescribeKey", "kms:CreateGrant"],
-                     resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
-                     conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
-        # The guardrail creator's function runs with its role (stack semana19-ia): CloudFormation passes it to Lambda.
-        _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
-                     resources=[arn_iam("role/semana19-ia-*")],
-                     conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
         _declaracion(sid="PoliticasYAdjuntosDeRolesDelBase", actions=[
             "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
             "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
             resources=[arn_iam("role/semana19-base-*")]),
         _declaracion(sid="BorrarRolesDelBase", actions=["iam:DeleteRole"],
                      resources=[arn_iam("role/semana19-base-*")]),
-        # The guardrail creator's role (stack semana19-ia): its inline policies and deletion, same shape as the base.
-        _declaracion(sid="PoliticasYAdjuntosDelRolDeIa", actions=[
-            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
-            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
-            resources=[arn_iam("role/semana19-ia-*")]),
-        _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
-                     resources=[arn_iam("role/semana19-ia-*")]),
         _declaracion(sid="LeerActivosDelBootstrap", actions=["s3:GetObject", "s3:GetObjectVersion", "s3:GetBucketLocation",
                                                              "s3:ListBucket"],
                      resources=[f"arn:{Aws.PARTITION}:s3:::cdk-s19-assets-{Aws.ACCOUNT_ID}-{REGION}",
@@ -260,6 +242,33 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             "iam:UpdateAssumeRolePolicy", "iam:ListRoleTags"],
             resources=[arn_iam(f"role/{PREFIJO_LOGS.strip('/')}*"), arn_iam("role/semana19-*")],
             conditions={"StringEquals": {"iam:PermissionsBoundary": ARN_LIMITE}}),
+    ]
+
+
+def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
+    """Second execution policy of the bootstrap, for the stacks semana19-ia (prompts, guardrail creator). Split from
+    semana19-cfn-exec, which exceeded the 6,144-character managed policy limit. Same statements, same permissions."""
+    return [
+        # Prompt Management for the agent's system prompt (stack semana19-ia): create, version and read prompts of this account.
+        _declaracion(sid="PromptsDelAgentePorCfn", actions=[
+            "bedrock:CreatePrompt", "bedrock:CreatePromptVersion", "bedrock:GetPrompt", "bedrock:UpdatePrompt",
+            "bedrock:DeletePrompt", "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:prompt/*"]),
+        _declaracion(sid="LlaveDeLosPromptsPorCfn", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
+                                                             "kms:DescribeKey", "kms:CreateGrant"],
+                     resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+                     conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
+        # The guardrail creator's function runs with its role (stack semana19-ia): CloudFormation passes it to Lambda.
+        _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-ia-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
+        # The guardrail creator's role (stack semana19-ia): its inline policies and deletion, same shape as the base.
+        _declaracion(sid="PoliticasYAdjuntosDelRolDeIa", actions=[
+            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
+            resources=[arn_iam("role/semana19-ia-*")]),
+        _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
+                     resources=[arn_iam("role/semana19-ia-*")]),
     ]
 
 
@@ -401,6 +410,9 @@ class Control(Stack):
         ejecucion_datos = iam.ManagedPolicy(self, "EjecucionCfnDatos", managed_policy_name=EJECUCION_CFN_DATOS,
                                             statements=politica_ejecucion_datos(),
                                             description="Second CloudFormation execution policy: stack semana19-datos (activity 4).")
+        ejecucion_ia = iam.ManagedPolicy(self, "EjecucionCfnIa", managed_policy_name=EJECUCION_CFN_IA,
+                                         statements=politica_ejecucion_ia(),
+                                         description="Third CloudFormation execution policy: stacks semana19-ia (prompts, guardrail creator), split from semana19-cfn-exec.")
 
         despliegue = iam.Role(
             self, "Despliegue", role_name=DESPLIEGUE,
@@ -422,7 +434,7 @@ class Control(Stack):
             sid="NoModificarLaPoliticaDelLimiteNiDeLaCongelacion", effect=iam.Effect.DENY, actions=[
                 "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:DeletePolicyVersion",
                 "iam:SetDefaultPolicyVersion"],
-            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS]))
+            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS, ARN_EJECUCION_CFN_IA]))
         despliegue.add_to_principal_policy(_declaracion(
             sid="NoModificarseASiMismo", effect=iam.Effect.DENY, actions=[
                 "iam:UpdateAssumeRolePolicy", "iam:PutRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
@@ -490,6 +502,8 @@ class Control(Stack):
         saltar_checkov(ejecucion, {
             "CKV_AWS_111": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
+        suprimir_iam5(ejecucion_ia, ["PromptsDelAgentePorCfn", "LlaveDeLosPromptsPorCfn", "PasarRolDelCreadorDeGuardrail",
+                                     "PoliticasYAdjuntosDelRolDeIa", "BorrarRolDeIa"])
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
         operador_limite = iam.ManagedPolicy(
@@ -511,6 +525,7 @@ class Control(Stack):
         cdk.CfnOutput(self, "ArnCongelar", value=congelar.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfn", value=ejecucion.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfnDatos", value=ejecucion_datos.managed_policy_arn)
+        cdk.CfnOutput(self, "ArnEjecucionCfnIa", value=ejecucion_ia.managed_policy_arn)
 
 
 class Base(Stack):
