@@ -53,6 +53,7 @@ LIMITE = "semana19-limite"
 CONGELAR = "semana19-congelar"
 EJECUCION_CFN = "semana19-cfn-exec"
 EJECUCION_CFN_IA = "semana19-cfn-exec-ia"  # split from semana19-cfn-exec: over the 6,144-character managed policy limit
+EJECUCION_CFN_COMPUTO = "semana19-cfn-exec-computo"  # stack semana19-computo: approval workflow, Cognito and HTTP API
 EJECUCION_CFN_DATOS = "semana19-cfn-exec-datos"
 DESPLIEGUE = "semana19-despliegue"
 ROL_PRESUPUESTO = "semana19-accion-presupuesto"
@@ -77,6 +78,7 @@ ARN_LIMITE = arn_iam(f"policy/{LIMITE}")
 ARN_CONGELAR = arn_iam(f"policy/{CONGELAR}")
 ARN_EJECUCION_CFN = arn_iam(f"policy/{EJECUCION_CFN}")
 ARN_EJECUCION_CFN_IA = arn_iam(f"policy/{EJECUCION_CFN_IA}")
+ARN_EJECUCION_CFN_COMPUTO = arn_iam(f"policy/{EJECUCION_CFN_COMPUTO}")
 ARN_EJECUCION_CFN_DATOS = arn_iam(f"policy/{EJECUCION_CFN_DATOS}")
 ARN_DESPLIEGUE = arn_iam(f"role/{DESPLIEGUE}")
 
@@ -261,6 +263,48 @@ def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
     ]
 
 
+def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
+    """Fourth execution policy of the bootstrap, for stack semana19-computo (Cognito, token table, approval state machine,
+    HTTP API). Split out because the stack's calls do not fit the 6,144-character limit of the other policies."""
+    region_api = f"arn:{Aws.PARTITION}:apigateway:{REGION}::"
+    return [
+        # HTTP API (API Gateway v2): the create call has no ARN yet, so the path is the only resource.
+        _declaracion(sid="ApiHttpPorCfn", actions=[
+            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE"],
+            resources=[f"{region_api}/apis", f"{region_api}/apis/*", f"{region_api}/tags/*"]),
+        # Cognito pool, its client, resource servers and groups: created by CloudFormation, no ARN before creation.
+        _declaracion(sid="CognitoPorCfn", actions=[
+            "cognito-idp:CreateUserPool", "cognito-idp:UpdateUserPool", "cognito-idp:DeleteUserPool",
+            "cognito-idp:DescribeUserPool", "cognito-idp:SetUserPoolMfaConfig", "cognito-idp:GetUserPoolMfaConfig",
+            "cognito-idp:CreateUserPoolClient", "cognito-idp:UpdateUserPoolClient", "cognito-idp:DeleteUserPoolClient",
+            "cognito-idp:DescribeUserPoolClient", "cognito-idp:CreateResourceServer", "cognito-idp:UpdateResourceServer",
+            "cognito-idp:DeleteResourceServer", "cognito-idp:CreateGroup", "cognito-idp:UpdateGroup",
+            "cognito-idp:DeleteGroup", "cognito-idp:GetGroup", "cognito-idp:TagResource", "cognito-idp:UntagResource",
+            "cognito-idp:ListTagsForResource"],
+            resources=["*"]),
+        # Token table (DynamoDB) with the stack key: named by CloudFormation from the stack name.
+        _declaracion(sid="TablaDeTokensPorCfn", actions=[
+            "dynamodb:CreateTable", "dynamodb:UpdateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
+            "dynamodb:UpdateTimeToLive", "dynamodb:DescribeTimeToLive", "dynamodb:TagResource",
+            "dynamodb:UntagResource", "dynamodb:ListTagsOfResource", "dynamodb:DescribeContinuousBackups"],
+            resources=[f"arn:{Aws.PARTITION}:dynamodb:{REGION}:{Aws.ACCOUNT_ID}:table/semana19-*"]),
+        _declaracion(sid="LlaveDeLaTablaPorCfn", actions=["kms:CreateGrant", "kms:ListGrants", "kms:DescribeKey"],
+                     resources=["*"],
+                     conditions={"StringEquals": {"kms:ViaService": f"dynamodb.{REGION}.amazonaws.com"}}),
+        # Approval state machine (Step Functions) named semana19-aprobacion.
+        _declaracion(sid="MaquinaDeAprobacionPorCfn", actions=[
+            "states:CreateStateMachine", "states:UpdateStateMachine", "states:DeleteStateMachine",
+            "states:DescribeStateMachine", "states:TagResource", "states:UntagResource", "states:ListTagsForResource"],
+            resources=[f"arn:{Aws.PARTITION}:states:{REGION}:{Aws.ACCOUNT_ID}:stateMachine:semana19-*"]),
+        # The roles of computo's functions and state machine are created with the boundary (RolesConLimite in the
+        # first policy); CloudFormation only passes them to Lambda and Step Functions.
+        _declaracion(sid="PasarRolesDeComputoAFuncionesYMaquina", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": ["lambda.amazonaws.com",
+                                                                         "states.amazonaws.com"]}}),
+    ]
+
+
 def politica_ejecucion_datos() -> list[iam.PolicyStatement]:
     """Second execution policy (6144-character limit per managed policy): what CloudFormation calls for stack datos."""
     return [
@@ -399,6 +443,11 @@ class Control(Stack):
                                          statements=politica_ejecucion_ia(),
                                          description="Third CloudFormation execution policy: stacks semana19-ia (prompts, guardrail creator), split from semana19-cfn-exec.")
 
+        ejecucion_computo = iam.ManagedPolicy(
+            self, "EjecucionCfnComputo", managed_policy_name=EJECUCION_CFN_COMPUTO,
+            statements=politica_ejecucion_computo(),
+            description="Fourth CloudFormation execution policy: stack semana19-computo (approval workflow, Cognito, HTTP API).")
+
         despliegue = iam.Role(
             self, "Despliegue", role_name=DESPLIEGUE,
             assumed_by=iam.ArnPrincipal(arn_iam(f"user/{OPERADOR}")),
@@ -419,7 +468,8 @@ class Control(Stack):
             sid="NoModificarLaPoliticaDelLimiteNiDeLaCongelacion", effect=iam.Effect.DENY, actions=[
                 "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:DeletePolicyVersion",
                 "iam:SetDefaultPolicyVersion"],
-            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS, ARN_EJECUCION_CFN_IA]))
+            resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS, ARN_EJECUCION_CFN_IA,
+                                                   ARN_EJECUCION_CFN_COMPUTO]))
         despliegue.add_to_principal_policy(_declaracion(
             sid="NoModificarseASiMismo", effect=iam.Effect.DENY, actions=[
                 "iam:UpdateAssumeRolePolicy", "iam:PutRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
@@ -489,6 +539,8 @@ class Control(Stack):
             "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
         suprimir_iam5(ejecucion_ia, ["PromptsDelAgentePorCfn", "LlaveDeLosPromptsPorCfn", "PasarRolDelCreadorDeGuardrail",
                                      "PoliticasYAdjuntosDelRolDeIa", "BorrarRolDeIa"])
+        suprimir_iam5(ejecucion_computo, ["ApiHttpPorCfn", "CognitoPorCfn", "TablaDeTokensPorCfn", "LlaveDeLaTablaPorCfn",
+                                          "MaquinaDeAprobacionPorCfn", "PasarRolesDeComputoAFuncionesYMaquina"])
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
@@ -497,6 +549,7 @@ class Control(Stack):
         cdk.CfnOutput(self, "ArnEjecucionCfn", value=ejecucion.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfnDatos", value=ejecucion_datos.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfnIa", value=ejecucion_ia.managed_policy_arn)
+        cdk.CfnOutput(self, "ArnEjecucionCfnComputo", value=ejecucion_computo.managed_policy_arn)
 
 
 class Base(Stack):

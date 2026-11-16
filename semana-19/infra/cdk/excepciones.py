@@ -64,6 +64,12 @@ EXCEPCIONES = {
     "EscribirSoloEnSuGrupo": "Los flow logs escriben en los streams del grupo: AWS exige la forma <grupo>:* .",
     "DescribirGruposParaFlowLogs": "logs:DescribeLogGroups no acepta ARN de recurso.",
     "-": "Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
+    "ApiHttpPorCfn": "API Gateway v2 (HTTP API) de semana19-api: la llamada de creación no tiene ARN previo; /apis/* cubre solo las APIs que el stack crea y /tags/* sus etiquetas.",
+    "CognitoPorCfn": "Cognito no admite ARN de recurso en las acciones de creación del pool, cliente, servidores y grupos: CloudFormation las llama antes de que exista el pool. Solo las acciones de este stack, en esta cuenta.",
+    "TablaDeTokensPorCfn": "Tabla DynamoDB del stack computo: su nombre lo genera CloudFormation desde el nombre del stack, así que el patrón es table/semana19-*.",
+    "LlaveDeLaTablaPorCfn": "kms:CreateGrant, ListGrants y DescribeKey sobre '*', limitados a llamadas vía DynamoDB en esta Región: la tabla cifrada con llave del stack necesita el grant; la llave no tiene ARN previo.",
+    "MaquinaDeAprobacionPorCfn": "Step Functions: la máquina de aprobación semana19-aprobacion; el patrón stateMachine:semana19-* cubre solo las máquinas de este proyecto.",
+    "PasarRolesDeComputoAFuncionesYMaquina": "iam:PassRole sobre role/semana19-* solo hacia lambda.amazonaws.com y states.amazonaws.com: CloudFormation asigna los roles con límite que crea el stack a sus funciones y a la máquina de aprobación.",
 }
 
 # Roles that may create IAM roles besides the deploy role. Decided by Manuel on 2026-11-14 (documented exception).
