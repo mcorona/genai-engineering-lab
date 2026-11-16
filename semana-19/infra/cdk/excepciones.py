@@ -71,6 +71,7 @@ EXCEPCIONES = {
     "MaquinaDeAprobacionPorCfn": "Step Functions: la máquina de aprobación semana19-aprobacion; el patrón stateMachine:semana19-* cubre solo las máquinas de este proyecto.",
     "PasarRolesDeComputoAFuncionesYMaquina": "iam:PassRole sobre role/semana19-* solo hacia lambda.amazonaws.com y states.amazonaws.com: CloudFormation asigna los roles con límite que crea el stack a sus funciones y a la máquina de aprobación.",
     "EntregaDeLogsDeApiPorCfn": "Acciones de entrega de logs de API Gateway (CreateLogDelivery y similares) sobre '*': no admiten ARN de recurso; API Gateway las usa para los logs de acceso de la HTTP API del stack computo.",
+    "RolesDeComputoPorCfn": "Leer y modificar las políticas y etiquetas de los roles del stack computo, solo sobre role/semana19-computo-*: CloudFormation los lee y actualiza al crearlos. Sin la condición del límite porque estas llamadas no la llevan; la creación sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite.",
 }
 
 # Roles that may create IAM roles besides the deploy role. Decided by Manuel on 2026-11-14 (documented exception).

@@ -292,6 +292,14 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
         _declaracion(sid="LlaveDeLaTablaPorCfn", actions=["kms:CreateGrant", "kms:ListGrants", "kms:DescribeKey"],
                      resources=["*"],
                      conditions={"StringEquals": {"kms:ViaService": f"dynamodb.{REGION}.amazonaws.com"}}),
+        # Roles of computo (names start with semana19-computo-): CloudFormation reads and writes their inline and attached
+        # policies. Creation still needs the boundary (RolesConLimite); these calls carry no boundary key, so they are
+        # listed here, limited to this stack's role names. They cannot change the boundary.
+        _declaracion(sid="RolesDeComputoPorCfn", actions=[
+            "iam:GetRole", "iam:GetRolePolicy", "iam:ListRolePolicies", "iam:ListAttachedRolePolicies", "iam:ListRoleTags",
+            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
+            "iam:DeleteRole", "iam:UpdateAssumeRolePolicy", "iam:TagRole", "iam:UntagRole"],
+            resources=[arn_iam("role/semana19-computo-*")]),
         # Access logs of the HTTP API: API Gateway enables delivery to the log group. Delivery actions have no ARN.
         _declaracion(sid="EntregaDeLogsDeApiPorCfn", actions=[
             "logs:CreateLogDelivery", "logs:DeleteLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery",
@@ -546,6 +554,7 @@ class Control(Stack):
         suprimir_iam5(ejecucion_ia, ["PromptsDelAgentePorCfn", "LlaveDeLosPromptsPorCfn", "PasarRolDelCreadorDeGuardrail",
                                      "PoliticasYAdjuntosDelRolDeIa", "BorrarRolDeIa"])
         suprimir_iam5(ejecucion_computo, ["ApiHttpPorCfn", "CognitoPorCfn", "TablaDeTokensPorCfn", "LlaveDeLaTablaPorCfn",
+                                          "RolesDeComputoPorCfn",
                                           "EntregaDeLogsDeApiPorCfn",
                                           "MaquinaDeAprobacionPorCfn", "PasarRolesDeComputoAFuncionesYMaquina"])
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
