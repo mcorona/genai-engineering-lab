@@ -36,7 +36,7 @@ jobs:
           python-version: "3.13"
       - name: Dependencias (los pines del grupo semana19 de pyproject.toml)
         run: |
-          pip install "boto3==1.43.122" "botocore==1.43.122" "moto==5.2.5" "pytest==9.2.0" "awscrt==0.38.0" "sqlglot==30.26.0" "jsonschema==4.26.0" "pydantic==2.14.1" "mcp==2.3.0" "pyyaml==6.0.2" "pyjwt[crypto]==2.15.1" "psycopg[binary]==3.3.6"
+          pip install "boto3==1.43.122" "botocore==1.43.122" "moto==5.2.5" "pytest==9.2.0" "awscrt==0.38.0" "sqlglot==30.26.0" "jsonschema==4.26.0" "pydantic==2.14.1" "mcp==2.3.0" "pyyaml==6.0.2" "pyjwt[crypto]==2.15.1" "psycopg[binary]==3.3.6" "joserfc==1.6.4"
       - name: Preparación en modo CI (sin AWS)
         run: python semana-19/preparar/verificar_entorno.py --ci
       - name: Pruebas sin AWS

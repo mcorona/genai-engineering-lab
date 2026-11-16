@@ -15,7 +15,8 @@ from agente import construccion as K  # noqa: E402
 from agente import handler as H  # noqa: E402
 from agente.presupuesto import Precios  # noqa: E402
 
-ENTORNO = {"FUNCION_HERRAMIENTAS": "fn-herramientas", "GUARDRAIL_ID": "gid-prueba", "GUARDRAIL_VERSION": "1"}
+ENTORNO = {"FUNCION_HERRAMIENTAS": "fn-herramientas", "GUARDRAIL_ID": "gid-prueba", "GUARDRAIL_VERSION": "1",
+            "GRUPO_SPANS": "/semana19/agente/spans"}
 CLAIMS = {"sub": "usuario-prueba-1", "tenant": "lab",
           "scope": "legado/leer legado/proveedores legado/ventas legado/compras_proponer"}
 PREGUNTA = "¿Cuántos proveedores hay?"

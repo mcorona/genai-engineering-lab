@@ -129,3 +129,8 @@ def test_maquina_escribe_la_orden_solo_despues_de_la_aprobacion():
     texto = json.dumps(_definicion_maquina())
     assert "EscribirOrden" in texto and "FuncionEscritor" in texto
     assert "RechazadaPorAprobador" in texto and "Rechazada" in texto and "Succeed" in texto
+
+
+def test_grupos_del_trigger_existen_en_el_pool():
+    grupos = {r["Properties"]["GroupName"] for r in recursos("AWS::Cognito::UserPoolGroup").values()}
+    assert {"analistas", "aprobadores"} <= grupos
