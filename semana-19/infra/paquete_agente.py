@@ -41,6 +41,12 @@ def construir(sin_dependencias: bool = False) -> Path:
         if not origen.is_dir():
             raise FileNotFoundError(f"falta el paquete {origen}")
         shutil.copytree(origen, DESTINO / nombre, ignore=IGNORAR)
+    # The week 13 loop and the budget module read semana-07/prices.json from the package root (/var/task/semana-07).
+    precios = RAIZ / "semana-07" / "prices.json"
+    if not precios.is_file():
+        raise FileNotFoundError(f"falta el archivo de precios {precios}")
+    (DESTINO / "semana-07").mkdir()
+    shutil.copy2(precios, DESTINO / "semana-07" / "prices.json")
     if not sin_dependencias:
         subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--target", str(DESTINO),
                         "--only-binary=:all:", "--platform", "manylinux2014_x86_64", "--platform", "manylinux_2_28_x86_64",
