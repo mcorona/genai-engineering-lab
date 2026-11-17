@@ -119,6 +119,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="EntregaDeLogsDelLimite", actions=[
             "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery",
             "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies"], resources=["*"]),
+        # KMS only through DynamoDB in this Region: the stack key encrypts the project's tables (activity 6).
+        _declaracion(sid="KmsParaDynamoDelLimite", actions=[
+            "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey"],
+            resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+            conditions={"StringEquals": {"kms:ViaService": f"dynamodb.{REGION}.amazonaws.com"}}),
         # DynamoDB for the project's tables only (the tables' own roles get their exact table in their identity policy).
         _declaracion(sid="DynamoDBDelLimite", actions=[
             "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem"],
@@ -1148,6 +1153,7 @@ class Computo(Stack):
             description="Approver's decision: sends success or failure to the approval state machine (activity 6).")
         # Only what the handler does: get_item to read the token, delete_item after the decision (no scan, query or stream).
         tabla.grant(aprobar, "dynamodb:GetItem", "dynamodb:DeleteItem")
+        llave.grant(aprobar.role, "kms:Decrypt", "kms:DescribeKey")
         aprobar.add_to_role_policy(iam.PolicyStatement(
             sid="DecisionAlFlujo", actions=["states:SendTaskSuccess", "states:SendTaskFailure"],
             resources=[maquina.state_machine_arn]))
