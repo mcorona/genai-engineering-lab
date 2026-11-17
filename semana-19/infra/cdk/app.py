@@ -114,6 +114,14 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}*"]),
         _declaracion(sid="LogsDescribir", actions=["logs:DescribeLogGroups", "logs:DescribeLogStreams"],
                      resources=["*"]),
+        # Step Functions validates its log destination and traces with the state machine's role (activity 6). These
+        # actions do not take a narrower resource, and the identity policies still grant only what each role needs.
+        _declaracion(sid="EntregaDeLogsDelLimite", actions=[
+            "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery",
+            "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies"], resources=["*"]),
+        _declaracion(sid="XrayDelLimite", actions=[
+            "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules", "xray:GetSamplingTargets"],
+            resources=["*"]),
         _declaracion(sid="CdkAssumeRoles", actions=["sts:AssumeRole"],
                      resources=[arn_iam(f"role/{PREFIJO_ROLES_CDK}*")]),
         # Key use by the guardrail creator, only when the call comes through Bedrock in this Region (kms:ViaService).
