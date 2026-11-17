@@ -78,6 +78,7 @@ EXCEPCIONES = {
     "XrayDelLimite": "Acciones de X-Ray sobre '*' en el límite de permisos: la máquina de estados traza con X-Ray y estas acciones no admiten recurso más estrecho.",
     "DynamoDBDelLimite": "Acciones de lectura y escritura de elementos sobre las tablas del proyecto (prefijo semana19-) en el límite de permisos: el techo de los roles de cómputo; cada rol recibe en su política solo su tabla exacta.",
     "KmsParaDynamoDelLimite": "Uso de llaves KMS de la cuenta solo cuando la llamada llega por DynamoDB en us-east-1 (kms:ViaService): la llave del stack cifra las tablas del proyecto; los roles reciben en su política solo la llave exacta.",
+    "InvocarFuncionesDelLimite": "lambda:InvokeFunction sobre las funciones del proyecto (prefijo semana19-) en el límite de permisos: el techo de los roles de cómputo; cada rol recibe en su política solo la función exacta que invoca.",
     "DeliveryDeLogsDescifra": "kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
 }
 

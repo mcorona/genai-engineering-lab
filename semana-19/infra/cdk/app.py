@@ -124,6 +124,9 @@ def politica_limite() -> list[iam.PolicyStatement]:
             "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey"],
             resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
             conditions={"StringEquals": {"kms:ViaService": f"dynamodb.{REGION}.amazonaws.com"}}),
+        # Invoking the project's functions (the questions function starts the agent asynchronously, activity 6).
+        _declaracion(sid="InvocarFuncionesDelLimite", actions=["lambda:InvokeFunction"],
+                     resources=[f"arn:{Aws.PARTITION}:lambda:{REGION}:{Aws.ACCOUNT_ID}:function:semana19-*"]),
         # DynamoDB for the project's tables only (the tables' own roles get their exact table in their identity policy).
         _declaracion(sid="DynamoDBDelLimite", actions=[
             "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem"],
@@ -1204,7 +1207,8 @@ class Computo(Stack):
             environment={"TABLA_CONSULTAS": tabla_consultas.table_name, "FUNCION_AGENTE": agente.function_name},
             description="HTTP handler for POST /consultas and GET /consultas/{id} (activity 6b).")
         consultas_api.add_to_role_policy(_declaracion(
-            sid="LeerEscribirConsultas", actions=["dynamodb:PutItem", "dynamodb:GetItem"], resources=[tabla_consultas.table_arn]))
+            sid="LeerEscribirConsultas", actions=["dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:UpdateItem"],
+            resources=[tabla_consultas.table_arn]))
         llave.grant(consultas_api.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:DescribeKey")
         consultas_api.add_to_role_policy(iam.PolicyStatement(
             sid="IniciarAgente", actions=["lambda:InvokeFunction"], resources=[agente.function_arn]))
