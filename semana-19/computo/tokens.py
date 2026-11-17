@@ -17,6 +17,9 @@ GRUPOS_A_SCOPES = {
 }
 
 
+TENANT = "legacybridge-lab"
+
+
 def scopes_de_grupos(grupos: list[str]) -> list[str]:
     """Unknown groups add nothing (fail closed). Sorted and unique, as the scope claim expects."""
     return sorted({s for g in grupos for s in GRUPOS_A_SCOPES.get(g, [])})
@@ -29,6 +32,7 @@ def handler(event, context):
     scopes = scopes_de_grupos(grupos)
     event.setdefault("response", {})
     event["response"]["claimsAndScopeOverrideDetails"] = {
-        "accessTokenGeneration": {"scopesToAdd": scopes} if scopes else {},
+        # The agent needs a tenant claim (agente/handler.py refuses tokens without one). The lab has one tenant.
+        "accessTokenGeneration": {"scopesToAdd": scopes, "claimsToAddOrOverride": {"tenant": TENANT}},
     }
     return event
