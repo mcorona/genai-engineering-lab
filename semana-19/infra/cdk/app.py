@@ -991,7 +991,9 @@ class Computo(Stack):
             allowed_o_auth_scopes=["openid", "email", "profile", "legacybridge/consultas", "legacybridge/aprobaciones",
                                    "legado/leer", "legado/proveedores", "legado/ventas", "legado/compras_proponer"],
             callback_ur_ls=["http://localhost:8080/callback"],  # GAP: managed login steps not verified (ADR 0010)
-            supported_identity_providers=["COGNITO"], prevent_user_existence_errors="ENABLED")
+            supported_identity_providers=["COGNITO"], prevent_user_existence_errors="ENABLED",
+            # Lab tests (activity 6): admin password login from the terminal, for the two test users only. Revert by removing it.
+            explicit_auth_flows=["ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"])
         cliente.node.add_dependency(servidor)
         cliente.node.add_dependency(servidor_legado)
 
