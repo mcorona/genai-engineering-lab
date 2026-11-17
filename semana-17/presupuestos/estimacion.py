@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 
-S13 = Path(__file__).resolve().parents[2] / "semana-13"
+# Week 19 (Lambda) sets S19_RUTA_SEMANA13 to the package folder of the week 13 code, so the price file is found next to it.
+S13 = Path(os.environ.get("S19_RUTA_SEMANA13", Path(__file__).resolve().parents[2] / "semana-13"))
 PRECIOS = json.loads((S13.parent / "semana-07" / "prices.json").read_text(encoding="utf-8"))
 
 # Characters per input token used for the upper estimate. The real ratio of the loop's requests is about 2.7 characters per
