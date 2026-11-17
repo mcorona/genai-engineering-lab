@@ -50,7 +50,13 @@ def handler_aprobar(event, context):
     import boto3
     tabla = boto3.resource("dynamodb").Table(os.environ["TABLA_TOKENS"])
     sfn = boto3.client("stepfunctions")
-    cuerpo = json.loads(event.get("body") or "{}")
+    try:
+        cuerpo = json.loads(event.get("body") or "{}")
+    except ValueError:
+        return {"statusCode": 400, "body": json.dumps({"error": "cuerpo_invalido"})}
     id_solicitud = (event.get("pathParameters") or {}).get("id", "")
-    res = aprobar(id_solicitud, cuerpo.get("decision", ""), tabla, sfn)
+    try:
+        res = aprobar(id_solicitud, cuerpo.get("decision", "") if isinstance(cuerpo, dict) else "", tabla, sfn)
+    except ValueError:
+        return {"statusCode": 400, "body": json.dumps({"error": "decision_invalida"})}
     return {"statusCode": 200, "body": json.dumps(res)}

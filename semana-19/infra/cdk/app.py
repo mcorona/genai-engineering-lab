@@ -119,6 +119,10 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="EntregaDeLogsDelLimite", actions=[
             "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery",
             "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies"], resources=["*"]),
+        # DynamoDB for the project's tables only (the tables' own roles get their exact table in their identity policy).
+        _declaracion(sid="DynamoDBDelLimite", actions=[
+            "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem"],
+            resources=[f"arn:{Aws.PARTITION}:dynamodb:{REGION}:{Aws.ACCOUNT_ID}:table/semana19-*"]),
         _declaracion(sid="XrayDelLimite", actions=[
             "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules", "xray:GetSamplingTargets"],
             resources=["*"]),

@@ -76,6 +76,7 @@ EXCEPCIONES = {
     "EscribirSpansDelAgente": "CreateLogStream y PutLogEvents sobre el grupo de spans del agente y sus flujos (/semana19/computo/spans): el flujo lo crea el SDK.",
     "EntregaDeLogsDelLimite": "Acciones de entrega de logs y política de recursos de CloudWatch Logs sobre '*' en el límite de permisos: Step Functions valida su destino de logs con el rol de la máquina y estas acciones no admiten un recurso más estrecho. Los roles reciben solo lo que su política de identidad concede.",
     "XrayDelLimite": "Acciones de X-Ray sobre '*' en el límite de permisos: la máquina de estados traza con X-Ray y estas acciones no admiten recurso más estrecho.",
+    "DynamoDBDelLimite": "Acciones de lectura y escritura de elementos sobre las tablas del proyecto (prefijo semana19-) en el límite de permisos: el techo de los roles de cómputo; cada rol recibe en su política solo su tabla exacta.",
     "DeliveryDeLogsDescifra": "kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
 }
 
