@@ -233,7 +233,7 @@ def test_el_worker_pasa_el_token_al_agente():
     worker.procesar({"id": "c-1", "claims": CLAIMS, "pregunta": "hola", "token": "t"},
                     correr=lambda ev: recibido.update(ev) or {"estado": "respondida", "respuesta": "x"},
                     actualizar=lambda *_: None)
-    assert recibido["token"] == "t"
+    assert recibido["token"] == "t" and recibido["id"] == "c-1"
 
 
 @pytest.mark.parametrize("entorno,token", [(ENTORNO, None), (ENTORNO_GW, "gw")])
