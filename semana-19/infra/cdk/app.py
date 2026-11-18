@@ -55,6 +55,7 @@ EJECUCION_CFN = "semana19-cfn-exec"
 EJECUCION_CFN_IA = "semana19-cfn-exec-ia"  # split from semana19-cfn-exec: over the 6,144-character managed policy limit
 EJECUCION_CFN_COMPUTO = "semana19-cfn-exec-computo"  # stack semana19-computo: approval workflow, Cognito and HTTP API
 EJECUCION_CFN_DATOS = "semana19-cfn-exec-datos"
+EJECUCION_CFN_AGENTES = "semana19-cfn-exec-agentes"  # activity 7: stacks semana19-gateway and semana19-agentes-comparacion
 DESPLIEGUE = "semana19-despliegue"
 ROL_PRESUPUESTO = "semana19-accion-presupuesto"
 OPERADOR = "manuel-admin"
@@ -81,6 +82,7 @@ ARN_EJECUCION_CFN = arn_iam(f"policy/{EJECUCION_CFN}")
 ARN_EJECUCION_CFN_IA = arn_iam(f"policy/{EJECUCION_CFN_IA}")
 ARN_EJECUCION_CFN_COMPUTO = arn_iam(f"policy/{EJECUCION_CFN_COMPUTO}")
 ARN_EJECUCION_CFN_DATOS = arn_iam(f"policy/{EJECUCION_CFN_DATOS}")
+ARN_EJECUCION_CFN_AGENTES = arn_iam(f"policy/{EJECUCION_CFN_AGENTES}")
 ARN_DESPLIEGUE = arn_iam(f"role/{DESPLIEGUE}")
 
 # Create and update actions that the freeze denies on the deploy role, the CDK deploy role and the CDK execution
@@ -110,16 +112,29 @@ def _declaracion(**kwargs) -> iam.PolicyStatement:
 
 def politica_limite() -> list[iam.PolicyStatement]:
     """Maximum permissions of any role the stacks create. Roles get only what they need inside this."""
+    # Activity 7: the managed policy limit is 6,144 characters and this one was at 5,975. The statements with the same
+    # actions (log writes) or with resource '*' and no condition are merged: the same permissions in fewer statements.
     return [
-        _declaracion(sid="LogsDelGrupoDelProyecto", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}*"]),
-        _declaracion(sid="LogsDescribir", actions=["logs:DescribeLogGroups", "logs:DescribeLogStreams"],
-                     resources=["*"]),
-        # Step Functions validates its log destination and traces with the state machine's role (activity 6). These
-        # actions do not take a narrower resource, and the identity policies still grant only what each role needs.
-        _declaracion(sid="EntregaDeLogsDelLimite", actions=[
+        # Log writes: the project's groups (/semana19/*, the guardrail creator's /semana19/ia/* among them) and the
+        # loader's group, created by Lambda on its first run.
+        _declaracion(sid="LogsDelLimite", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}*",
+                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*",
+                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}ia/*:*"]),
+        # Actions AWS does not authorize on a narrower resource (one statement; the reasons per group are in EXCEPCIONES):
+        # describing log groups; log delivery, which Step Functions validates with the machine's role (activity 6);
+        # X-Ray traces; reading CloudFormation; the default security group's rules (CDK's custom resource empties them);
+        # the network interfaces of a Lambda in the VPC; and the answer to a task token (no resource type).
+        _declaracion(sid="SinArnDelLimite", actions=[
+            "logs:DescribeLogGroups", "logs:DescribeLogStreams",
             "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery",
-            "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies"], resources=["*"]),
+            "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies",
+            "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules", "xray:GetSamplingTargets",
+            "cloudformation:Describe*", "cloudformation:Get*", "cloudformation:List*",
+            "ec2:DescribeSecurityGroups", "ec2:RevokeSecurityGroupIngress", "ec2:RevokeSecurityGroupEgress",
+            "ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces", "ec2:DeleteNetworkInterface",
+            "ec2:AssignPrivateIpAddresses", "ec2:UnassignPrivateIpAddresses",
+            "states:SendTaskSuccess", "states:SendTaskFailure"], resources=["*"]),
         # KMS only through DynamoDB in this Region: the stack key encrypts the project's tables (activity 6).
         _declaracion(sid="KmsParaDynamoDelLimite", actions=[
             "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey"],
@@ -132,29 +147,23 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="DynamoDBDelLimite", actions=[
             "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem"],
             resources=[f"arn:{Aws.PARTITION}:dynamodb:{REGION}:{Aws.ACCOUNT_ID}:table/semana19-*"]),
-        _declaracion(sid="XrayDelLimite", actions=[
-            "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules", "xray:GetSamplingTargets"],
-            resources=["*"]),
         _declaracion(sid="CdkAssumeRoles", actions=["sts:AssumeRole"],
                      resources=[arn_iam(f"role/{PREFIJO_ROLES_CDK}*")]),
-        # Key use by the guardrail creator, only when the call comes through Bedrock in this Region (kms:ViaService).
+        # Key use only when the call comes through Bedrock or AgentCore in this Region (kms:ViaService): the guardrail
+        # creator and the comparison agent (bedrock), the gateway encrypted with the base key (activity 7, bedrock-agentcore).
         _declaracion(sid="KmsParaBedrockDelLimite", actions=[
             "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey", "kms:CreateGrant"],
             resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
-            conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
+            conditions={"StringEquals": {"kms:ViaService": [f"bedrock.{REGION}.amazonaws.com",
+                                                            f"bedrock-agentcore.{REGION}.amazonaws.com"]}}),
         # Ceiling for the guardrail creator's role (stack semana19-ia): Guardrail actions only, in this account and Region.
         _declaracion(sid="GuardrailDelLimite", actions=[
             "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:GetGuardrail",
             "bedrock:CreateGuardrailVersion", "bedrock:TagResource"],
             resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
                        f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/us.guardrail.v1:0"]),
-        _declaracion(sid="CloudFormationLeer", actions=["cloudformation:Describe*", "cloudformation:Get*",
-                                                        "cloudformation:List*"], resources=["*"]),
         _declaracion(sid="AdjuntarPoliticasAlRolDeDespliegue", actions=["iam:AttachRolePolicy", "iam:DetachRolePolicy"],
                      resources=[ARN_DESPLIEGUE]),
-        _declaracion(sid="RestringirSgPorDefecto", actions=["ec2:DescribeSecurityGroups",
-                                                            "ec2:RevokeSecurityGroupIngress",
-                                                            "ec2:RevokeSecurityGroupEgress"], resources=["*"]),
         # Techo de los roles de datos: lo que la KB (semana19-kb) y el cargador necesitan. Cada statement
         # se acota por prefijo o por servicio; la política propia del rol decide el resto.
         _declaracion(sid="DocsDatosLeer", actions=["s3:GetObject"],
@@ -179,19 +188,14 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # the function's errors are invisible. Scoped to the functions of the datos stack.
         _declaracion(sid="LogsDeLaLambdaDatos", actions=["logs:CreateLogGroup"],
                      resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*"]),
-        _declaracion(sid="EscribirLogsDeLaLambdaDatos", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*"]),
-        # The guardrail creator writes to its own group (/semana19/ia/*: the only prefix the base key lets logs encrypt).
-        _declaracion(sid="EscribirLogsDelCreadorDeGuardrail", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
-                     resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}ia/*:*"]),
-        _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
-                                                      "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
-                                                      "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
         # Ceiling of the computo roles (activity 6): what the agent, the tools, the writer and the approval flow call.
         # Without these the boundary denies the call even though the role's own policy allows it (verified with
         # iam simulate-principal-policy on the deployed roles: implicitDeny, AllowedByPermissionsBoundary=False).
-        _declaracion(sid="ModeloDelAgenteDelLimite", actions=["bedrock:InvokeModel"],
-                     resources=arns_modelo_del_agente()),
+        # The comparison agent (Bedrock Agents, activity 7) also streams and reads the profile and the model
+        # (bedrock/latest/userguide/agents-permissions.html, inference profiles).
+        _declaracion(sid="ModeloDelAgenteDelLimite", actions=[
+            "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:GetInferenceProfile",
+            "bedrock:GetFoundationModel"], resources=arns_modelo_del_agente()),
         _declaracion(sid="GuardrailDelAgenteDelLimite", actions=["bedrock:ApplyGuardrail"],
                      resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
                                 *arns_perfil_guardrail()]),
@@ -200,8 +204,13 @@ def politica_limite() -> list[iam.PolicyStatement]:
                                 for u in USUARIOS_BD_COMPUTO]),
         _declaracion(sid="ArrancarAprobacionDelLimite", actions=["states:StartExecution"],
                      resources=[f"arn:{Aws.PARTITION}:states:{REGION}:{Aws.ACCOUNT_ID}:stateMachine:semana19-*"]),
-        _declaracion(sid="RespuestaDeTareaDelLimite", actions=["states:SendTaskSuccess", "states:SendTaskFailure"],
-                     resources=["*"]),
+        # The gateway's role evaluates the Cedar policies (activity 7): both actions need the engine and the gateway
+        # (bedrock-agentcore/latest/devguide/policy-permissions.html).
+        _declaracion(sid="PolicyDelGatewayDelLimite", actions=[
+            "bedrock-agentcore:AuthorizeAction", "bedrock-agentcore:PartiallyAuthorizeActions",
+            "bedrock-agentcore:GetPolicyEngine"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}:policy-engine/semana19*",
+                       f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}:gateway/semana19-*"]),
     ]
 
 
@@ -379,6 +388,61 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
     ]
 
 
+def politica_ejecucion_agentes() -> list[iam.PolicyStatement]:
+    """Fifth execution policy of the bootstrap (activity 7): the AgentCore Gateway with its Policy engine (stack
+    semana19-gateway) and the Bedrock Agents comparison (stack semana19-agentes-comparacion). The roles of both stacks
+    are created with the boundary by RolesConLimite (first policy); the Lambda permission for the agent by
+    FuncionesDeCustomResourceDelProyecto. Actions from bedrock-agentcore/latest/devguide/policy-permissions.html and
+    gateway-prerequisites-permissions.html; Bedrock Agents resource types from the Service Authorization Reference."""
+    agentcore = f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}"
+    bedrock = f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}"
+    return [
+        # The gateway, its target and its workload identity (named after the gateway). InvokeGateway: CreatePolicy
+        # validates the Cedar actions against the gateway's tools with the caller's identity.
+        _declaracion(sid="GatewayPorCfn", actions=[
+            "bedrock-agentcore:CreateGateway", "bedrock-agentcore:UpdateGateway", "bedrock-agentcore:GetGateway",
+            "bedrock-agentcore:DeleteGateway", "bedrock-agentcore:InvokeGateway",
+            "bedrock-agentcore:CreateGatewayTarget", "bedrock-agentcore:UpdateGatewayTarget",
+            "bedrock-agentcore:GetGatewayTarget", "bedrock-agentcore:DeleteGatewayTarget",
+            "bedrock-agentcore:ListGatewayTargets", "bedrock-agentcore:SynchronizeGatewayTargets",
+            "bedrock-agentcore:ManageResourceScopedPolicy", "bedrock-agentcore:ManageAdminPolicy",
+            "bedrock-agentcore:CreateWorkloadIdentity", "bedrock-agentcore:GetWorkloadIdentity",
+            "bedrock-agentcore:UpdateWorkloadIdentity", "bedrock-agentcore:DeleteWorkloadIdentity",
+            "bedrock-agentcore:TagResource", "bedrock-agentcore:UntagResource",
+            "bedrock-agentcore:ListTagsForResource"],
+            resources=[f"{agentcore}:*gateway*"]),
+        _declaracion(sid="MotorDePoliticasPorCfn", actions=[
+            "bedrock-agentcore:CreatePolicyEngine", "bedrock-agentcore:UpdatePolicyEngine",
+            "bedrock-agentcore:GetPolicyEngine", "bedrock-agentcore:DeletePolicyEngine",
+            "bedrock-agentcore:GetPolicyEngineSummary",
+            "bedrock-agentcore:CreatePolicy", "bedrock-agentcore:UpdatePolicy", "bedrock-agentcore:GetPolicy",
+            "bedrock-agentcore:DeletePolicy", "bedrock-agentcore:ListPolicies", "bedrock-agentcore:GetPolicySummary",
+            "bedrock-agentcore:ListPolicySummaries",
+            "bedrock-agentcore:TagResource", "bedrock-agentcore:UntagResource",
+            "bedrock-agentcore:ListTagsForResource"],
+            resources=[f"{agentcore}:policy-engine/*"]),
+        # Bedrock Agents: CreateAgent has no resource type (Service Authorization Reference); the rest take the agent.
+        _declaracion(sid="CrearAgentePorCfn", actions=["bedrock:CreateAgent"], resources=["*"]),
+        _declaracion(sid="AgentePorCfn", actions=[
+            "bedrock:UpdateAgent", "bedrock:GetAgent", "bedrock:DeleteAgent", "bedrock:PrepareAgent",
+            "bedrock:CreateAgentActionGroup", "bedrock:UpdateAgentActionGroup", "bedrock:GetAgentActionGroup",
+            "bedrock:DeleteAgentActionGroup", "bedrock:ListAgentActionGroups",
+            "bedrock:CreateAgentAlias", "bedrock:UpdateAgentAlias", "bedrock:GetAgentAlias", "bedrock:DeleteAgentAlias",
+            "bedrock:ListAgentAliases", "bedrock:ListAgentVersions", "bedrock:GetAgentVersion",
+            "bedrock:DeleteAgentVersion", "bedrock:TagResource", "bedrock:UntagResource",
+            "bedrock:ListTagsForResource"],
+            resources=[f"{bedrock}:agent/*", f"{bedrock}:agent-alias/*"]),
+        # The agent's model and guardrail are read when the agent is created and prepared.
+        _declaracion(sid="ModeloYGuardrailDelAgentePorCfn", actions=[
+            "bedrock:GetInferenceProfile", "bedrock:GetFoundationModel", "bedrock:GetGuardrail"],
+            resources=[*arns_modelo_del_agente(), f"{bedrock}:guardrail/*"]),
+        _declaracion(sid="PasarRolesAAgentCoreYBedrock", actions=["iam:PassRole"],
+                     resources=[arn_iam("role/semana19-*")],
+                     conditions={"StringEquals": {"iam:PassedToService": ["bedrock-agentcore.amazonaws.com",
+                                                                         "bedrock.amazonaws.com"]}}),
+    ]
+
+
 def politica_ejecucion_datos() -> list[iam.PolicyStatement]:
     """Second execution policy (6144-character limit per managed policy): what CloudFormation calls for stack datos."""
     return [
@@ -522,6 +586,11 @@ class Control(Stack):
             statements=politica_ejecucion_computo(),
             description="Fourth CloudFormation execution policy: stack semana19-computo (approval workflow, Cognito, HTTP API).")
 
+        ejecucion_agentes = iam.ManagedPolicy(
+            self, "EjecucionCfnAgentes", managed_policy_name=EJECUCION_CFN_AGENTES,
+            statements=politica_ejecucion_agentes(),
+            description="Fifth CloudFormation execution policy: stacks semana19-gateway and semana19-agentes-comparacion (activity 7).")
+
         despliegue = iam.Role(
             self, "Despliegue", role_name=DESPLIEGUE,
             assumed_by=iam.ArnPrincipal(arn_iam(f"user/{OPERADOR}")),
@@ -543,7 +612,7 @@ class Control(Stack):
                 "iam:CreatePolicyVersion", "iam:DeletePolicy", "iam:DeletePolicyVersion",
                 "iam:SetDefaultPolicyVersion"],
             resources=[ARN_LIMITE, ARN_CONGELAR, ARN_EJECUCION_CFN, ARN_EJECUCION_CFN_DATOS, ARN_EJECUCION_CFN_IA,
-                                                   ARN_EJECUCION_CFN_COMPUTO]))
+                       ARN_EJECUCION_CFN_COMPUTO, ARN_EJECUCION_CFN_AGENTES]))
         despliegue.add_to_principal_policy(_declaracion(
             sid="NoModificarseASiMismo", effect=iam.Effect.DENY, actions=[
                 "iam:UpdateAssumeRolePolicy", "iam:PutRolePolicy", "iam:AttachRolePolicy", "iam:DetachRolePolicy",
@@ -593,10 +662,10 @@ class Control(Stack):
                                                                      type="EMAIL")])
         presupuesto.add_dependency(rol_presupuesto.node.default_child)
 
-        suprimir_iam5(limite, ["LogsDelGrupoDelProyecto", "LogsDescribir", "CdkAssumeRoles", "CloudFormationLeer",
-                               "RestringirSgPorDefecto", "DocsDatosLeer", "DocsDatosListar", "DocsDatosEscribir",
-                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos", "RedDeLambdaEnVpc",
-                               "LogsDeLaLambdaDatos", "EscribirLogsDeLaLambdaDatos"])
+        suprimir_iam5(limite, ["LogsDelLimite", "SinArnDelLimite", "CdkAssumeRoles",
+                               "DocsDatosLeer", "DocsDatosListar", "DocsDatosEscribir",
+                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos",
+                               "LogsDeLaLambdaDatos"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
@@ -621,6 +690,10 @@ class Control(Stack):
             "CKV_AWS_111": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), "
                            "entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB "
                            "(LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES."})
+        suprimir_iam5(ejecucion_agentes, ["GatewayPorCfn", "MotorDePoliticasPorCfn", "CrearAgentePorCfn", "AgentePorCfn",
+                                          "ModeloYGuardrailDelAgentePorCfn", "PasarRolesAAgentCoreYBedrock"])
+        saltar_checkov(ejecucion_agentes, {
+            "CKV_AWS_111": "CreateAgent sin tipo de recurso (Service Authorization Reference) y recursos de AgentCore sin ID previo; ver EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
@@ -630,6 +703,7 @@ class Control(Stack):
         cdk.CfnOutput(self, "ArnEjecucionCfnDatos", value=ejecucion_datos.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfnIa", value=ejecucion_ia.managed_policy_arn)
         cdk.CfnOutput(self, "ArnEjecucionCfnComputo", value=ejecucion_computo.managed_policy_arn)
+        cdk.CfnOutput(self, "ArnEjecucionCfnAgentes", value=ejecucion_agentes.managed_policy_arn)
 
 
 class Base(Stack):
