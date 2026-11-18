@@ -1482,6 +1482,100 @@ class Gateway(Stack):
         cdk.CfnOutput(self, "IdGateway", value=gateway.attr_gateway_identifier)
 
 
+NOMBRE_AGENTE_COMPARACION = "semana19-agentes-comparacion"
+
+
+def funciones_del_agente() -> list[dict]:
+    """The action group's function details from the one schema source (gateway/herramientas.json), without the
+    proposal's requester: on this path it comes from the session attributes the caller sets, never from the model."""
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from gateway import esquemas
+    from herramientas import contrato
+    salida = []
+    for d in esquemas.leer():
+        props = {n: e for n, e in d["inputSchema"].get("properties", {}).items() if n != contrato.SOLICITANTE}
+        requeridos = set(d["inputSchema"].get("required", []))
+        salida.append({"name": d["name"], "description": d["description"], "parameters": {
+            n: {"type": e["type"], "description": e.get("description") or n, "required": n in requeridos}
+            for n, e in props.items()}})
+    return salida
+
+
+def instruccion_del_agente(idioma: str = "es") -> str:
+    """The system prompt of the pinned Prompt Management version (the same text semana19-ia publishes), rendered."""
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from ia.config import NOMBRE_EMPRESA
+    from ia.peticion import renderizar
+    return renderizar(_cargar_hoja("prompts_sistema.py").PROMPTS[idioma], {"nombre_empresa": NOMBRE_EMPRESA[idioma]})
+
+
+class AgentesComparacion(Stack):
+    """Activity 7, path (c): a Bedrock Agent over the SAME tools function, for the comparison only. Disposable:
+    deployed for the run and destroyed first.
+
+    The instruction is the Spanish system prompt of its pinned version; the guardrail is semana19-ia's at its fixed
+    version; the model is config.MODELO_ID. One action group, executor = the tools function (its Bedrock Agents
+    adapter). The role (with the boundary) may use the model, the guardrail and the base key through Bedrock; the
+    function is reached through its resource policy, for this agent only. Prepared by CloudFormation (AutoPrepare)
+    and published as an alias.
+    """
+
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, herramientas: lambda_.IFunction,
+                 guardrail_id: str, guardrail_version: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from herramientas import contrato
+        from ia.config import MODELO_ID
+
+        arn_agentes = f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:agent/*"
+        rol = iam.Role(
+            self, "RolAgente", description="Service role of the comparison agent: model, guardrail and key only.",
+            assumed_by=iam.ServicePrincipal("bedrock.amazonaws.com", conditions={
+                "StringEquals": {"aws:SourceAccount": Aws.ACCOUNT_ID}, "ArnLike": {"aws:SourceArn": arn_agentes}}))
+        rol.add_to_policy(_declaracion(
+            sid="ModeloDelAgente", actions=["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream",
+                                            "bedrock:GetInferenceProfile", "bedrock:GetFoundationModel"],
+            resources=arns_modelo_del_agente()))
+        rol.add_to_policy(_declaracion(
+            sid="GuardrailDelAgente", actions=["bedrock:ApplyGuardrail"],
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/{guardrail_id}",
+                       *arns_perfil_guardrail()]))
+        rol.add_to_policy(_declaracion(
+            sid="LlaveBaseViaBedrock", actions=["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"],
+            resources=[llave.key_arn], conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}))
+
+        agente = bedrock.CfnAgent(
+            self, "Agente", agent_name=NOMBRE_AGENTE_COMPARACION, agent_resource_role_arn=rol.role_arn,
+            foundation_model=MODELO_ID, instruction=instruccion_del_agente("es"), auto_prepare=True,
+            customer_encryption_key_arn=llave.key_arn, idle_session_ttl_in_seconds=600,
+            skip_resource_in_use_check_on_delete=True,
+            description="Week 19, activity 7: path (c) of the tools comparison, disposable.",
+            guardrail_configuration=bedrock.CfnAgent.GuardrailConfigurationProperty(
+                guardrail_identifier=guardrail_id, guardrail_version=guardrail_version),
+            action_groups=[bedrock.CfnAgent.AgentActionGroupProperty(
+                action_group_name=contrato.TARGET, action_group_state="ENABLED",
+                description="The tools function (describir_esquema, ejecutar_sql, proponer_orden_compra).",
+                action_group_executor=bedrock.CfnAgent.ActionGroupExecutorProperty(lambda_=herramientas.function_arn),
+                function_schema=bedrock.CfnAgent.FunctionSchemaProperty(functions=[
+                    bedrock.CfnAgent.FunctionProperty(
+                        name=f["name"], description=f["description"], require_confirmation="DISABLED",
+                        parameters={n: bedrock.CfnAgent.ParameterDetailProperty(**p) for n, p in f["parameters"].items()})
+                    for f in funciones_del_agente()]))])
+        agente.node.add_dependency(rol)
+        # The function's resource policy for this agent only (Bedrock invokes the executor as the service).
+        permiso = lambda_.CfnPermission(
+            self, "AgenteInvocaHerramientas", action="lambda:InvokeFunction", function_name=herramientas.function_arn,
+            principal="bedrock.amazonaws.com", source_account=Aws.ACCOUNT_ID, source_arn=agente.attr_agent_arn)
+        alias = bedrock.CfnAgentAlias(self, "Alias", agent_id=agente.attr_agent_id, agent_alias_name="comparacion",
+                                      description="The prepared agent, as invoked by agentes/comparar.py.")
+        alias.node.add_dependency(permiso)
+        cdk.CfnOutput(self, "IdAgente", value=agente.attr_agent_id)
+        cdk.CfnOutput(self, "IdAlias", value=alias.attr_agent_alias_id)
+
+
 def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
@@ -1499,7 +1593,11 @@ def construir(app: cdk.App) -> None:
         gateway = Gateway(app, "semana19-gateway", llave=base.llave, herramientas=computo.herramientas,
                           id_usuarios=computo.id_usuarios, id_cliente=computo.id_cliente,
                           env=cdk.Environment(region=REGION), synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
-        pilas += [computo, gateway]
+        agentes = AgentesComparacion(app, NOMBRE_AGENTE_COMPARACION, llave=base.llave, herramientas=computo.herramientas,
+                                     guardrail_id=ia.guardrail_id, guardrail_version=ia.guardrail_version,
+                                     env=cdk.Environment(region=REGION),
+                                     synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+        pilas += [computo, gateway, agentes]
     for pila in pilas:
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())

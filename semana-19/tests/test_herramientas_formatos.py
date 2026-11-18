@@ -133,6 +133,22 @@ def test_bedrock_agents_convierte_los_tipos_de_sus_parametros():
     assert interno["entrada"]["cantidad"] == 40 and interno["entrada"]["cedis"] == 1
 
 
+@pytest.mark.parametrize("valor", ['["prvmst", "artmst"]', "[prvmst, artmst]", "['prvmst','artmst']"])
+def test_bedrock_agents_arreglo_como_texto_llega_como_lista(valor):
+    ev = evento_agentes("describir_esquema", {})
+    ev["parameters"] = [{"name": "tablas", "type": "array", "value": valor}]
+    assert A.desde_agentes(ev) == lo_que_envia_lambda_invoke("describir_esquema", {"tablas": ["prvmst", "artmst"]}, None)
+
+
+@pytest.mark.parametrize("valor", ["prvmst", '{"a": 1}', "[1, 2]"])
+def test_bedrock_agents_arreglo_mal_formado_se_rechaza_sin_conectar(valor):
+    ev = evento_agentes("describir_esquema", {})
+    ev["parameters"] = [{"name": "tablas", "type": "array", "value": valor}]
+    res = H.handler(ev, None, conectar=lambda: pytest.fail("no debe conectar"))
+    cuerpo = json.loads(res["response"]["functionResponse"]["responseBody"]["TEXT"]["body"])
+    assert cuerpo == {"error": "entrada_invalida", "mensaje": "llamada mal formada"}
+
+
 # ---------------------------------------------------------------- the gateway's schemas: one source
 
 def test_el_json_del_gateway_es_la_proyeccion_del_bucle():

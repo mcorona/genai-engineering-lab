@@ -1,0 +1,189 @@
+{
+  "Agente": {
+    "Properties": {
+      "ActionGroups": [
+        {
+          "ActionGroupExecutor": {
+            "Lambda": "{import:semana19-computo:ExportsOutputFnGetAttFuncionHerramientas10B13045Arn6057EE96}"
+          },
+          "ActionGroupName": "herramientas",
+          "ActionGroupState": "ENABLED",
+          "Description": "The tools function (describir_esquema, ejecutar_sql, proponer_orden_compra).",
+          "FunctionSchema": {
+            "Functions": [
+              {
+                "Description": "Describe the legacy tables and columns available to the current user, with the data dictionary (meaning of each cryptic name and value formats). Call it before writing SQL.",
+                "Name": "describir_esquema",
+                "Parameters": {
+                  "tablas": {
+                    "Description": "Tables to describe. Omit to list every table available to the user.",
+                    "Required": false,
+                    "Type": "array"
+                  }
+                },
+                "RequireConfirmation": "DISABLED"
+              },
+              {
+                "Description": "Validate and run one SELECT over the legacy tables in a read-only transaction, with time and row limits. Returns columns, rows (up to max_filas) and the total row count.",
+                "Name": "ejecutar_sql",
+                "Parameters": {
+                  "max_filas": {
+                    "Description": "Maximum rows to return; the total is always reported.",
+                    "Required": false,
+                    "Type": "integer"
+                  },
+                  "sql": {
+                    "Description": "One PostgreSQL SELECT over the legacy tables.",
+                    "Required": true,
+                    "Type": "string"
+                  }
+                },
+                "RequireConfirmation": "DISABLED"
+              },
+              {
+                "Description": "Register a purchase order PROPOSAL for human approval. It never creates, approves or executes an order: a person with the authorization level of the amount must approve it. Only for users with the purchasing role. Every field is required: if the user did not give the delivery CEDIS or the required date, ask for them (pregunta_aclaracion) instead of choosing one. cedis is legado.almmst.alm_id (look it up with ejecutar_sql when the user names a city or a CEDIS by name).",
+                "Name": "proponer_orden_compra",
+                "Parameters": {
+                  "cantidad": {
+                    "Description": "cantidad",
+                    "Required": true,
+                    "Type": "integer"
+                  },
+                  "cedis": {
+                    "Description": "Delivery CEDIS: legado.almmst.alm_id.",
+                    "Required": true,
+                    "Type": "integer"
+                  },
+                  "fecha_requerida": {
+                    "Description": "Required date, AAAA-MM-DD, as the user gave it.",
+                    "Required": true,
+                    "Type": "string"
+                  },
+                  "motivo": {
+                    "Description": "Reason: reorden automático, compra urgente o proyecto especial, with a short note.",
+                    "Required": true,
+                    "Type": "string"
+                  },
+                  "sku": {
+                    "Description": "Item code, e.g. SKU-0009.",
+                    "Required": true,
+                    "Type": "string"
+                  }
+                },
+                "RequireConfirmation": "DISABLED"
+              }
+            ]
+          }
+        }
+      ],
+      "AgentName": "semana19-agentes-comparacion",
+      "AgentResourceRoleArn": "{RolAgente30A392D6.Arn}",
+      "AutoPrepare": true,
+      "CustomerEncryptionKeyArn": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
+      "Description": "Week 19, activity 7: path (c) of the tools comparison, disposable.",
+      "FoundationModel": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "GuardrailConfiguration": {
+        "GuardrailIdentifier": "{import:semana19-ia:ExportsOutputFnGetAttGuardrailGuardrailId78EA463E}",
+        "GuardrailVersion": "{import:semana19-ia:ExportsOutputFnGetAttGuardrailVersion3C4AE8E4}"
+      },
+      "IdleSessionTTLInSeconds": 600,
+      "Instruction": "<1626 caracteres>",
+      "SkipResourceInUseCheckOnDelete": true
+    },
+    "Type": "AWS::Bedrock::Agent"
+  },
+  "AgenteInvocaHerramientas": {
+    "Properties": {
+      "Action": "lambda:InvokeFunction",
+      "FunctionName": "{import:semana19-computo:ExportsOutputFnGetAttFuncionHerramientas10B13045Arn6057EE96}",
+      "Principal": "bedrock.amazonaws.com",
+      "SourceAccount": "{AWS::AccountId}",
+      "SourceArn": "{Agente.AgentArn}"
+    },
+    "Type": "AWS::Lambda::Permission"
+  },
+  "Alias": {
+    "Properties": {
+      "AgentAliasName": "comparacion",
+      "AgentId": "{Agente.AgentId}",
+      "Description": "The prepared agent, as invoked by agentes/comparar.py."
+    },
+    "Type": "AWS::Bedrock::AgentAlias"
+  },
+  "RolAgente30A392D6": {
+    "Properties": {
+      "AssumeRolePolicyDocument": {
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Condition": {
+              "ArnLike": {
+                "aws:SourceArn": "arn:{AWS::Partition}:bedrock:us-east-1:{AWS::AccountId}:agent/*"
+              },
+              "StringEquals": {
+                "aws:SourceAccount": "{AWS::AccountId}"
+              }
+            },
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "bedrock.amazonaws.com"
+            }
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "Description": "Service role of the comparison agent: model, guardrail and key only.",
+      "PermissionsBoundary": "arn:{AWS::Partition}:iam::{AWS::AccountId}:policy/semana19-limite"
+    },
+    "Type": "AWS::IAM::Role"
+  },
+  "RolAgenteDefaultPolicy8012EF3D": {
+    "Properties": {
+      "Statement": [
+        {
+          "Action": [
+            "bedrock:InvokeModel",
+            "bedrock:InvokeModelWithResponseStream",
+            "bedrock:GetInferenceProfile",
+            "bedrock:GetFoundationModel"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "arn:{AWS::Partition}:bedrock:us-east-1:{AWS::AccountId}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0",
+            "arn:{AWS::Partition}:bedrock:us-east-1::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0",
+            "arn:{AWS::Partition}:bedrock:us-east-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0",
+            "arn:{AWS::Partition}:bedrock:us-west-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0"
+          ],
+          "Sid": "ModeloDelAgente"
+        },
+        {
+          "Action": "bedrock:ApplyGuardrail",
+          "Effect": "Allow",
+          "Resource": [
+            "arn:{AWS::Partition}:bedrock:us-east-1:{AWS::AccountId}:guardrail/{import:semana19-ia:ExportsOutputFnGetAttGuardrailGuardrailId78EA463E}",
+            "arn:{AWS::Partition}:bedrock:us-east-1:{AWS::AccountId}:guardrail-profile/us.guardrail.v1:0",
+            "arn:{AWS::Partition}:bedrock:us-east-2:{AWS::AccountId}:guardrail-profile/us.guardrail.v1:0",
+            "arn:{AWS::Partition}:bedrock:us-west-2:{AWS::AccountId}:guardrail-profile/us.guardrail.v1:0"
+          ],
+          "Sid": "GuardrailDelAgente"
+        },
+        {
+          "Action": [
+            "kms:Decrypt",
+            "kms:GenerateDataKey",
+            "kms:DescribeKey"
+          ],
+          "Condition": {
+            "StringEquals": {
+              "kms:ViaService": "bedrock.us-east-1.amazonaws.com"
+            }
+          },
+          "Effect": "Allow",
+          "Resource": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
+          "Sid": "LlaveBaseViaBedrock"
+        }
+      ]
+    },
+    "Type": "AWS::IAM::Policy"
+  }
+}
