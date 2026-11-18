@@ -143,3 +143,102 @@ def test_maquina_escribe_la_orden_solo_despues_de_la_aprobacion():
 def test_grupos_del_trigger_existen_en_el_pool():
     grupos = {r["Properties"]["GroupName"] for r in recursos("AWS::Cognito::UserPoolGroup").values()}
     assert {"analistas", "aprobadores"} <= grupos
+
+
+def _limite_desplegado() -> list[dict]:
+    """The boundary's Allow statements, from the control template synthesized next to the computo one."""
+    import glob
+    salida = Path(tempfile.mkdtemp(prefix="s19-limite-"))
+    entorno = {**os.environ, "PERFIL": "lab", "CDK_OUTDIR": str(salida), "COMPUTO": "1"}
+    r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-2000:]
+    for ruta in glob.glob(str(salida / "*.template.json")):
+        pl = json.loads(Path(ruta).read_text(encoding="utf-8"))
+        for res in pl["Resources"].values():
+            if res["Type"] == "AWS::IAM::ManagedPolicy" and res["Properties"].get("ManagedPolicyName") == "semana19-limite":
+                return [s for s in res["Properties"]["PolicyDocument"]["Statement"] if s["Effect"] == "Allow"]
+    raise AssertionError("no se encontró la política semana19-limite")
+
+
+def _lista(valor) -> list:
+    return valor if isinstance(valor, list) else [valor]
+
+
+def test_cada_accion_de_los_roles_de_computo_cabe_en_el_limite():
+    # A role's own policy is not enough: the boundary must allow the action too, or AWS answers implicitDeny
+    # (the agent's model call failed live for this reason). Every action granted inline must match a boundary action.
+    from fnmatch import fnmatchcase
+    permitidas = [a for s in _limite_desplegado() for a in _lista(s["Action"])]
+    faltan = []
+    for n, pol in recursos("AWS::IAM::Policy").items():
+        for st in pol["Properties"]["PolicyDocument"]["Statement"]:
+            if st["Effect"] != "Allow":
+                continue
+            for accion in _lista(st["Action"]):
+                if not any(fnmatchcase(accion, p) or fnmatchcase(p, accion) for p in permitidas):
+                    faltan.append(f"{n}/{st.get('Sid', '-')}: {accion}")
+    assert not faltan, faltan
+
+
+def test_el_guardrail_del_agente_incluye_su_perfil_entre_regiones_y_la_decision_va_sobre_comodin():
+    # ApplyGuardrail with us.guardrail.v1:0 is authorized against the profile in each destination Region, and
+    # SendTaskSuccess/Failure take no resource type (AWS evaluates them against '*').
+    declaraciones = {st.get("Sid"): st for pol in recursos("AWS::IAM::Policy").values()
+                     for st in pol["Properties"]["PolicyDocument"]["Statement"]}
+    guardrail = json.dumps(declaraciones["GuardrailDelAgente"]["Resource"])
+    for region in ("us-east-1", "us-east-2", "us-west-2"):
+        assert f"bedrock:{region}:" in guardrail and "guardrail-profile/us.guardrail.v1:0" in guardrail
+    assert declaraciones["DecisionAlFlujo"]["Resource"] == "*"
+
+
+@lru_cache(maxsize=None)
+def _con_activos() -> tuple[Path, dict]:
+    """Synthesis with asset metadata on (what the CDK CLI does), so each function names its asset folder."""
+    salida = Path(tempfile.mkdtemp(prefix="s19-activos-"))
+    entorno = {**os.environ, "PERFIL": "lab", "CDK_OUTDIR": str(salida), "COMPUTO": "1",
+               "CDK_CONTEXT_JSON": json.dumps({"aws:cdk:enable-asset-metadata": True})}
+    r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-2000:]
+    plantilla = json.loads((salida / f"{COMPUTO}.template.json").read_text(encoding="utf-8"))
+    return salida, {n: r for n, r in plantilla["Resources"].items() if r["Type"] == "AWS::Lambda::Function"}
+
+
+def test_el_handler_de_cada_funcion_existe_en_su_propio_activo():
+    # The tools function once pointed at app.herramientas... while its asset was semana-19/ (no app/): ImportModuleError
+    # live. Every function's handler module must exist inside the asset folder CloudFormation deploys for it.
+    salida, funciones = _con_activos()
+    sin_activo = []
+    for n, f in funciones.items():
+        ruta = f.get("Metadata", {}).get("aws:asset:path")
+        if ruta is None:
+            sin_activo.append(n)
+            continue
+        modulo = f["Properties"]["Handler"].rsplit(".", 1)[0].replace(".", "/")
+        base = salida / ruta
+        assert any((base / f"{modulo}{ext}").is_file() for ext in (".py", ".js", ".mjs")), f"{n}: {modulo} no está en {ruta}"
+    assert not sin_activo, sin_activo
+
+
+def test_la_funcion_de_herramientas_lleva_su_guardia_su_driver_y_su_entorno():
+    salida, funciones = _con_activos()
+    (f,) = [f for n, f in funciones.items() if n.startswith("FuncionHerramientas")]
+    base = salida / f["Metadata"]["aws:asset:path"]
+    for pieza in ("semana-16/legacy-schema-audit/servidor/sql_lectura.py", "app/infra/loader/vendor/pg8000",
+                  "app/herramientas/rds-ca.pem"):
+        assert (base / pieza).exists(), pieza
+    entorno = f["Properties"]["Environment"]["Variables"]
+    assert {"HOST_BD", "ARN_APROBACION"} <= set(entorno)   # herramientas/construccion.REQUERIDAS (AWS_REGION is the runtime's)
+
+
+def test_todo_rol_con_acceso_a_elementos_de_dynamodb_puede_descifrar_con_la_llave():
+    # The tables are encrypted with the stack key: DynamoDB calls kms:Decrypt for item reads AND writes (live: the
+    # token registrar's PutItem was denied when its grant lacked Decrypt). Every role with item access needs it.
+    por_rol: dict[str, set] = {}
+    for pol in recursos("AWS::IAM::Policy").values():
+        acciones = {a for st in pol["Properties"]["PolicyDocument"]["Statement"] if st["Effect"] == "Allow"
+                    for a in _lista(st["Action"])}
+        for rol in pol["Properties"]["Roles"]:
+            por_rol.setdefault(json.dumps(rol, sort_keys=True), set()).update(acciones)
+    items = {"dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem"}
+    sin_decrypt = [r for r, acciones in por_rol.items() if acciones & items and "kms:Decrypt" not in acciones]
+    assert not sin_decrypt, sin_decrypt

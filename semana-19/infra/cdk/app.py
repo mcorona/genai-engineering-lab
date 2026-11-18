@@ -186,7 +186,46 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="RedDeLambdaEnVpc", actions=["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces",
                                                       "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses",
                                                       "ec2:UnassignPrivateIpAddresses"], resources=["*"]),
+        # Ceiling of the computo roles (activity 6): what the agent, the tools, the writer and the approval flow call.
+        # Without these the boundary denies the call even though the role's own policy allows it (verified with
+        # iam simulate-principal-policy on the deployed roles: implicitDeny, AllowedByPermissionsBoundary=False).
+        _declaracion(sid="ModeloDelAgenteDelLimite", actions=["bedrock:InvokeModel"],
+                     resources=arns_modelo_del_agente()),
+        _declaracion(sid="GuardrailDelAgenteDelLimite", actions=["bedrock:ApplyGuardrail"],
+                     resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
+                                *arns_perfil_guardrail()]),
+        _declaracion(sid="ConectarBdDelLimite", actions=["rds-db:connect"],
+                     resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:*/{u}"
+                                for u in USUARIOS_BD_COMPUTO]),
+        _declaracion(sid="ArrancarAprobacionDelLimite", actions=["states:StartExecution"],
+                     resources=[f"arn:{Aws.PARTITION}:states:{REGION}:{Aws.ACCOUNT_ID}:stateMachine:semana19-*"]),
+        _declaracion(sid="RespuestaDeTareaDelLimite", actions=["states:SendTaskSuccess", "states:SendTaskFailure"],
+                     resources=["*"]),
     ]
+
+
+# Destination Regions of the US cross-Region profiles (model and guardrail), as `aws bedrock get-inference-profile`
+# lists them for the agent's model and as the guardrail-profile permissions page lists them for us.guardrail.v1:0.
+REGIONES_PERFIL_US = ("us-east-1", "us-east-2", "us-west-2")
+# The database users the computo functions connect as (IAM auth): the tools read, the writer writes purchase_orders.
+USUARIOS_BD_COMPUTO = ("copilot_ro", "order_writer")
+
+
+def arns_modelo_del_agente() -> list[str]:
+    """The agent's inference profile in this account and its foundation model in each destination Region."""
+    import sys as _sys
+    if str(Path(__file__).resolve().parents[2]) not in _sys.path:
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from ia.config import MODELO_ID  # the one place the model id lives (ia/config.py)
+    fundacion = MODELO_ID.split(".", 1)[1]
+    return [f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{MODELO_ID}",
+            *[f"arn:{Aws.PARTITION}:bedrock:{r}::foundation-model/{fundacion}" for r in REGIONES_PERFIL_US]]
+
+
+def arns_perfil_guardrail() -> list[str]:
+    """ApplyGuardrail with a cross-Region guardrail is also authorized against the profile in each destination Region."""
+    return [f"arn:{Aws.PARTITION}:bedrock:{r}:{Aws.ACCOUNT_ID}:guardrail-profile/us.guardrail.v1:0"
+            for r in REGIONES_PERFIL_US]
 
 
 def politica_congelar() -> list[iam.PolicyStatement]:
@@ -577,6 +616,10 @@ class Control(Stack):
                                           "RolesDeComputoPorCfn",
                                           "EntregaDeLogsDeApiPorCfn",
                                           "MaquinaDeAprobacionPorCfn", "PasarRolesDeComputoAFuncionesYMaquina"])
+        saltar_checkov(ejecucion_computo, {
+            "CKV_AWS_111": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), "
+                           "entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB "
+                           "(LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
@@ -1024,7 +1067,10 @@ class Computo(Stack):
             code=codigo, timeout=Duration.seconds(10), memory_size=128, log_group=grupo("registrar-token"),
             environment={"TABLA_TOKENS": tabla.table_name},
             description="Stores the approval task token in DynamoDB (activity 6). The token is never logged.")
-        tabla.grant_write_data(registrar)
+        # Only what the handler does: put_item of the token row (no batch writes, no describe, no re-encrypt).
+        tabla.grant(registrar, "dynamodb:PutItem")
+        # DynamoDB calls kms:Decrypt on the table key for any item write too (live: PutItem denied without it).
+        llave.grant(registrar.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:DescribeKey")
 
         # Order writer (activity 6): the only step that writes purchase_orders, as order_writer, inside the VPC.
         sg_escritor = ec2.SecurityGroup(
@@ -1041,7 +1087,7 @@ class Computo(Stack):
             to_port=443, source_security_group_id=sg_escritor.security_group_id, description="HTTPS desde el escritor")
         codigo_escritor = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2]), exclude=[
             "infra/cdk", "cdk.out", "**/cdk.out", "tests", "**/tests", "**/__pycache__", "**/*.gz", "resultados", "video", "**/.secretos.env",
-            ".venv", "**/.venv"])
+            ".venv", "**/.venv", ".build"])  # .build holds the agent package (its own asset)
         escritor = lambda_.Function(
             self, "FuncionEscritor", runtime=lambda_.Runtime.PYTHON_3_13, handler="computo.escritor.handler_escritor",
             code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("escritor"),
@@ -1070,9 +1116,14 @@ class Computo(Stack):
         ec2.CfnSecurityGroupIngress(
             self, "EndpointsDesdeHerramientas", group_id=sg_endpoints.security_group_id, ip_protocol="tcp", from_port=443,
             to_port=443, source_security_group_id=sg_herramientas.security_group_id, description="HTTPS desde la funcion de herramientas")
+        # The tools run from the agent package (infra/paquete_agente.py): it carries the week 16 read-only guard
+        # (semana-16/legacy-schema-audit), sqlglot, pg8000 and the RDS bundle at the paths the code computes.
+        ruta_agente = Path(__file__).resolve().parents[2] / ".build" / "agente"
+        if not (ruta_agente / "pydantic").is_dir() and os.environ.get("S19_SIN_DEPENDENCIAS") != "1":
+            raise RuntimeError("falta el paquete del agente: ejecuta python3 semana-19/infra/paquete_agente.py antes de desplegar")
         herramientas = lambda_.Function(
             self, "FuncionHerramientas", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.herramientas.construccion.handler_lambda",
-            code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("herramientas"),
+            code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(30), memory_size=256, log_group=grupo("herramientas"),
             vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
             security_groups=[sg_herramientas], reserved_concurrent_executions=2,
             environment={"HOST_BD": bd.db_instance_endpoint_address},
@@ -1087,9 +1138,6 @@ class Computo(Stack):
 
         # Agent (activity 6b): the week 13 loop with the guardrail, the budget and the spans of week 17. Outside the VPC:
         # it calls Bedrock and the tools function through their public endpoints. Not behind any route yet.
-        ruta_agente = Path(__file__).resolve().parents[2] / ".build" / "agente"
-        if not (ruta_agente / "pydantic").is_dir() and os.environ.get("S19_SIN_DEPENDENCIAS") != "1":
-            raise RuntimeError("falta el paquete del agente: ejecuta python3 semana-19/infra/paquete_agente.py antes de desplegar")
         grupo_spans = grupo("spans")
         # Questions and answers (activity 6b): encrypted with the stack key, owner as a hash, expired by TTL after 7 days.
         tabla_consultas = dynamodb.Table(
@@ -1115,9 +1163,12 @@ class Computo(Stack):
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
             resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil_modelo}",
                        f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{modelo_fundacion}"]))
+        # The guardrail uses the cross-Region profile us.guardrail.v1:0: ApplyGuardrail needs the guardrail and the
+        # profile in each destination Region (Bedrock guide, guardrail profile permissions).
         agente.add_to_role_policy(_declaracion(
             sid="GuardrailDelAgente", actions=["bedrock:ApplyGuardrail"],
-            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/{guardrail_id}"]))
+            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/{guardrail_id}",
+                       *arns_perfil_guardrail()]))
         agente.add_to_role_policy(_declaracion(
             sid="EscribirSpansDelAgente", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
             resources=[grupo_spans.log_group_arn, f"{grupo_spans.log_group_arn}:*"]))
@@ -1157,9 +1208,10 @@ class Computo(Stack):
         # Only what the handler does: get_item to read the token, delete_item after the decision (no scan, query or stream).
         tabla.grant(aprobar, "dynamodb:GetItem", "dynamodb:DeleteItem")
         llave.grant(aprobar.role, "kms:Decrypt", "kms:DescribeKey")
+        # SendTaskSuccess and SendTaskFailure take no resource type (Service Authorization Reference): AWS evaluates them
+        # against '*', so a state machine ARN here never matches. The task token itself names the execution.
         aprobar.add_to_role_policy(iam.PolicyStatement(
-            sid="DecisionAlFlujo", actions=["states:SendTaskSuccess", "states:SendTaskFailure"],
-            resources=[maquina.state_machine_arn]))
+            sid="DecisionAlFlujo", actions=["states:SendTaskSuccess", "states:SendTaskFailure"], resources=["*"]))
 
         autorizador = apigwv2_auth.HttpJwtAuthorizer(
             "AutorizadorJwt", jwt_issuer=f"https://cognito-idp.{REGION}.amazonaws.com/{pool.ref}",
@@ -1188,9 +1240,9 @@ class Computo(Stack):
             NagSuppressions.add_resource_suppressions(funcion.role, [NagPackSuppression(
                 id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.")])
         NagSuppressions.add_resource_suppressions(registrar.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="Acceso de escritura a la tabla de tokens y a su llave KMS (grant de CDK: la tabla y sus índices, no otra tabla).")], apply_to_children=True)
+            id="AwsSolutions-IAM5", reason="PutItem en la tabla de tokens (y sus índices, grant de CDK) y uso de su llave KMS; ninguna otra tabla.")], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(aprobar.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="Lectura y borrado en la tabla de tokens (y sus índices) y envío de decisión a esta sola máquina de estados.")], apply_to_children=True)
+            id="AwsSolutions-IAM5", reason="Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: " + EXCEPCIONES["DecisionAlFlujo"])], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(maquina.role, [NagPackSuppression(
             id="AwsSolutions-IAM5", reason="Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.")], apply_to_children=True)
         # The approval state machine writes to its log group, which is encrypted with the stack key. The key policy does
@@ -1198,6 +1250,7 @@ class Computo(Stack):
         llave.grant(maquina.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey")
         herramientas.add_to_role_policy(iam.PolicyStatement(
             sid="ArrancarAprobacion", actions=["states:StartExecution"], resources=[maquina.state_machine_arn]))
+        herramientas.add_environment("ARN_APROBACION", maquina.state_machine_arn)  # herramientas/construccion.REQUERIDAS
 
         # Questions (activity 6b): POST /consultas starts the agent asynchronously; GET /consultas/{id} reads the owner's answer.
         consultas_api = lambda_.Function(

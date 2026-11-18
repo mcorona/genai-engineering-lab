@@ -153,5 +153,21 @@ def handler(event: dict, context, deps: dict | None = None) -> dict:
     """event = {"claims": {...}, "pregunta": str}. The claims come from the API's authorizer (verified there)."""
     alcance = alcance_desde_claims(event.get("claims", {}))
     d = deps or construir_deps()
-    res = tratar_pregunta(event["pregunta"], alcance, **d)
+    try:
+        res = tratar_pregunta(event["pregunta"], alcance, **d)
+    finally:
+        _vaciar_spans(d.get("exportar"))
     return {"estado": res.estado, "respuesta": res.respuesta, "decisiones": res.decisiones}
+
+
+def _vaciar_spans(exportar) -> None:
+    """The CloudWatch sink sends in batches; what is pending goes out before the invocation ends (the Lambda may be frozen
+    or recycled right after). A failure to send is logged by type only and never changes the answer."""
+    vaciar = getattr(exportar, "vaciar", None)
+    if vaciar is None:
+        return
+    try:
+        vaciar()
+    except Exception as error:  # noqa: BLE001 — observability must not fail the question
+        import logging
+        logging.getLogger(__name__).error("spans no enviados: %s", type(error).__name__)

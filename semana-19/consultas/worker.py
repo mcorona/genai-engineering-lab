@@ -1,11 +1,16 @@
 """Week 19, activity 6b: the agent Lambda's entry point. Runs the agent (agente.handler) for one question and stores the
-answer in the table of consultas. A failure stores only the state 'error': no trace, prompt or exception text is written.
+answer in the table of consultas. A failure stores only the state 'error' in the table. For operators, the log gets the exception type and the trace
+positions (file, line, function) only: never the exception message, the prompt or the answer.
 """
 from __future__ import annotations
 
 import json
+import logging
 import os
+import traceback
 from typing import Any, Callable
+
+log = logging.getLogger(__name__)
 
 
 def procesar(event: dict, *, correr: Callable, actualizar: Callable) -> dict:
@@ -14,8 +19,10 @@ def procesar(event: dict, *, correr: Callable, actualizar: Callable) -> dict:
         res = correr({"claims": event["claims"], "pregunta": event["pregunta"]})
         campos = {"estado": str(res["estado"]), "respuesta": str(res.get("respuesta") or ""),
                   "decisiones_json": json.dumps(res.get("decisiones") or [], ensure_ascii=False, default=str)}
-    except Exception:  # noqa: BLE001 — every failure ends as 'error', without detail
+    except Exception as error:  # noqa: BLE001 — every failure ends as 'error'
         campos = {"estado": "error", "respuesta": "", "decisiones_json": "[]"}
+        posiciones = [f"{f.filename}:{f.lineno}:{f.name}" for f in traceback.extract_tb(error.__traceback__)]
+        log.error("consulta %s fallida: %s en %s", id_consulta, type(error).__name__, " > ".join(posiciones[-6:]))
     actualizar(id_consulta, campos)
     return {"id": id_consulta, "estado": campos["estado"]}
 

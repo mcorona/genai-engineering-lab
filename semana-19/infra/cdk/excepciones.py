@@ -79,7 +79,12 @@ EXCEPCIONES = {
     "DynamoDBDelLimite": "Acciones de lectura y escritura de elementos sobre las tablas del proyecto (prefijo semana19-) en el límite de permisos: el techo de los roles de cómputo; cada rol recibe en su política solo su tabla exacta.",
     "KmsParaDynamoDelLimite": "Uso de llaves KMS de la cuenta solo cuando la llamada llega por DynamoDB en us-east-1 (kms:ViaService): la llave del stack cifra las tablas del proyecto; los roles reciben en su política solo la llave exacta.",
     "InvocarFuncionesDelLimite": "lambda:InvokeFunction sobre las funciones del proyecto (prefijo semana19-) en el límite de permisos: el techo de los roles de cómputo; cada rol recibe en su política solo la función exacta que invoca.",
-    "DeliveryDeLogsDescifra": "kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
+    "GuardrailDelAgenteDelLimite": "bedrock:ApplyGuardrail sobre guardrail/* de esta cuenta y Región en el límite de permisos (el ID lo asigna Bedrock al crear el guardrail en el stack ia), más el perfil us.guardrail.v1:0 en cada Región de destino; el rol del agente recibe solo su guardrail.",
+    "ConectarBdDelLimite": "rds-db:connect sobre dbuser:*/copilot_ro y dbuser:*/order_writer en el límite de permisos: el identificador de recurso de la base lo asigna RDS; cada función recibe en su política solo su usuario y su base.",
+    "ArrancarAprobacionDelLimite": "states:StartExecution sobre stateMachine:semana19-* en el límite de permisos: las herramientas arrancan la máquina de aprobación; su política nombra la máquina exacta.",
+    "RespuestaDeTareaDelLimite": "states:SendTaskSuccess y SendTaskFailure sobre '*' en el límite de permisos: AWS no define tipo de recurso para estas acciones; el token de tarea identifica la ejecución.",
+    "DecisionAlFlujo": "states:SendTaskSuccess y SendTaskFailure sobre '*': AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
+    "DeliveryDeLogsDescifra":"kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
 }
 
 # Roles that may create IAM roles besides the deploy role. Decided by Manuel on 2026-11-14 (documented exception).

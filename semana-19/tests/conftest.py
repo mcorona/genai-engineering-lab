@@ -14,9 +14,11 @@ def _preparar_paquete_agente() -> None:
 
     S19 = Path(__file__).resolve().parents[1]
     os.environ.setdefault("S19_SIN_DEPENDENCIAS", "1")
-    if not (S19 / ".build" / "agente" / "agente").is_dir():
-        sys.path.insert(0, str(S19 / "infra"))
-        import paquete_agente
+    # The package layout puts the code under app/ (paquete_agente.CODIGO). Checking the old top-level folder made every
+    # test run rebuild the layout without dependencies and wipe a deployable package.
+    sys.path.insert(0, str(S19 / "infra"))
+    import paquete_agente
+    if not paquete_agente.disposicion_presente():
         paquete_agente.construir(sin_dependencias=True)
 
 
