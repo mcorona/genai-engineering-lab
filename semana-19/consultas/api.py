@@ -86,6 +86,8 @@ def leer(event: dict, *, obtener: Callable) -> dict:
         return _respuesta(404, {"error": "no_encontrada"})
     publico = {k: item[k] for k in CAMPOS_PUBLICOS if k in item}
     publico["decisiones"] = json.loads(item.get("decisiones_json") or "[]")
+    # The answer's keys (clave, sql, valor): what week 13's verifier checks (activity 7, comparison).
+    publico["resultados"] = json.loads(item.get("resultados_json") or "[]")
     return _respuesta(200, publico)
 
 

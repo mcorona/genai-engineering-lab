@@ -99,7 +99,8 @@ def test_si_no_arranca_el_agente_la_consulta_queda_en_error_sin_detalle():
 def test_solo_el_dueno_lee_su_respuesta_y_otro_recibe_404_igual_que_si_no_existiera():
     a = Almacen()
     _llamar(a, evento("POST /consultas", sub="usuario-a", cuerpo={"pregunta": "hola"}))
-    a.items["c-1"].update({"estado": "completada", "respuesta": "Stock: 4", "decisiones_json": '[{"tool":"x"}]'})
+    a.items["c-1"].update({"estado": "completada", "respuesta": "Stock: 4", "decisiones_json": '[{"tool":"x"}]',
+                           "resultados_json": '[{"clave": "stock", "sql": "SELECT 4", "valor": 4}]'})
     ajeno = api.manejar(evento("GET /consultas/{id}", sub="usuario-b", id_consulta="c-1"),
                         guardar=a.guardar, obtener=a.obtener, invocar=a.invocar, actualizar=a.actualizar)
     inexistente = api.manejar(evento("GET /consultas/{id}", sub="usuario-b", id_consulta="no-existe"),
@@ -109,7 +110,8 @@ def test_solo_el_dueno_lee_su_respuesta_y_otro_recibe_404_igual_que_si_no_existi
                          guardar=a.guardar, obtener=a.obtener, invocar=a.invocar, actualizar=a.actualizar)
     cuerpo = json.loads(propia["body"])
     assert propia["statusCode"] == 200
-    assert cuerpo == {"id": "c-1", "estado": "completada", "respuesta": "Stock: 4", "decisiones": [{"tool": "x"}]}
+    assert cuerpo == {"id": "c-1", "estado": "completada", "respuesta": "Stock: 4", "decisiones": [{"tool": "x"}],
+                      "resultados": [{"clave": "stock", "sql": "SELECT 4", "valor": 4}]}
     assert "dueno" not in propia["body"] and "expira" not in propia["body"]
 
 
@@ -123,10 +125,12 @@ def test_sin_sujeto_en_el_token_no_hay_acceso():
 def test_el_trabajador_guarda_la_respuesta_del_agente():
     guardados = {}
     res = worker.procesar({"id": "c-1", "claims": {"sub": "u"}, "pregunta": "hola"},
-                          correr=lambda ev: {"estado": "completada", "respuesta": "Hola", "decisiones": [{"a": 1}]},
+                          correr=lambda ev: {"estado": "completada", "respuesta": "Hola", "decisiones": [{"a": 1}],
+                                             "resultados": [{"clave": "k", "sql": "SELECT 1", "valor": 1}]},
                           actualizar=lambda i, c: guardados.update({i: c}))
     assert res == {"id": "c-1", "estado": "completada"}
-    assert guardados["c-1"] == {"estado": "completada", "respuesta": "Hola", "decisiones_json": '[{"a": 1}]'}
+    assert guardados["c-1"] == {"estado": "completada", "respuesta": "Hola", "decisiones_json": '[{"a": 1}]',
+                                "resultados_json": '[{"clave": "k", "sql": "SELECT 1", "valor": 1}]'}
 
 
 def test_el_trabajador_ante_un_fallo_guarda_solo_el_estado_sin_detalle():
@@ -137,7 +141,7 @@ def test_el_trabajador_ante_un_fallo_guarda_solo_el_estado_sin_detalle():
 
     worker.procesar({"id": "c-2", "claims": {"sub": "u"}, "pregunta": "hola"}, correr=fallar,
                     actualizar=lambda i, c: guardados.update({i: c}))
-    assert guardados["c-2"] == {"estado": "error", "respuesta": "", "decisiones_json": "[]"}
+    assert guardados["c-2"] == {"estado": "error", "respuesta": "", "decisiones_json": "[]", "resultados_json": "[]"}
 
 
 def test_el_log_de_operador_no_lleva_la_pregunta_ni_el_mensaje_de_la_excepcion(caplog):

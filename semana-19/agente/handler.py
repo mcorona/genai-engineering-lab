@@ -13,8 +13,9 @@ Everything here is pure orchestration and is tested offline with fakes.
 """
 from __future__ import annotations
 
+import re
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from types import SimpleNamespace
 from typing import Callable
 
@@ -58,6 +59,14 @@ class Resultado:
     respuesta: str
     decisiones: list
     spans: list
+    resultados: list = field(default_factory=list)   # the answer's keys: clave, sql, valor (after the final checks)
+
+
+def run_id_de(id_consulta: str | None) -> str | None:
+    """The spans' lab.run.id for a question: the first 12 hex digits of its id (a UUID), so a question's spans can be
+    found from its id (activity 7, comparison). Anything else gets a random run id, as before."""
+    digitos = re.sub(r"[^0-9a-f]", "", str(id_consulta or "").lower())
+    return digitos[:12] if len(digitos) >= 12 else None
 
 
 def _decision(d) -> dict:
@@ -153,11 +162,13 @@ def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definicion
     motivo_fin = r.motivo
     if presupuesto.motivo is not None:
         estado, motivo_fin = "limite_alcanzado", MOTIVO_PRESUPUESTO[presupuesto.motivo]
+    resultados = list((final or {}).get("resultados") or []) if estado == "respondida" else []
     return _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo_fin,
-                   herramientas=herramientas)
+                   herramientas=herramientas, resultados=resultados)
 
 
-def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo, herramientas=None):
+def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo, herramientas=None,
+            resultados=None):
     atributos = {
         "gen_ai.operation.name": "invoke_agent",
         "gen_ai.agent.name": AGENTE,
@@ -182,7 +193,7 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
              {"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",
               "attrs": {k: v for k, v in atributos.items() if v is not None}}]
     ExportadorSpans(escribir=exportar).exportar(spans)
-    return Resultado(estado, texto, [_decision(d) for d in decisiones], spans)
+    return Resultado(estado, texto, [_decision(d) for d in decisiones], spans, resultados or [])
 
 
 def construir_deps(token: str | None = None):
@@ -203,10 +214,10 @@ def handler(event: dict, context, deps: dict | None = None) -> dict:
     alcance = alcance_desde_claims(event.get("claims", {}))
     d = deps or construir_deps(event.get("token"))
     try:
-        res = tratar_pregunta(event["pregunta"], alcance, **d)
+        res = tratar_pregunta(event["pregunta"], alcance, run_id=run_id_de(event.get("id")), **d)
     finally:
         _vaciar_spans(d.get("exportar"))
-    return {"estado": res.estado, "respuesta": res.respuesta, "decisiones": res.decisiones}
+    return {"estado": res.estado, "respuesta": res.respuesta, "decisiones": res.decisiones, "resultados": res.resultados}
 
 
 def _vaciar_spans(exportar) -> None:

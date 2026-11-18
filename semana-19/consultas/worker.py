@@ -16,11 +16,13 @@ log = logging.getLogger(__name__)
 def procesar(event: dict, *, correr: Callable, actualizar: Callable) -> dict:
     id_consulta = event["id"]
     try:
-        res = correr({"claims": event["claims"], "pregunta": event["pregunta"], "token": event.get("token")})
+        res = correr({"id": id_consulta, "claims": event["claims"], "pregunta": event["pregunta"],
+                      "token": event.get("token")})
         campos = {"estado": str(res["estado"]), "respuesta": str(res.get("respuesta") or ""),
-                  "decisiones_json": json.dumps(res.get("decisiones") or [], ensure_ascii=False, default=str)}
+                  "decisiones_json": json.dumps(res.get("decisiones") or [], ensure_ascii=False, default=str),
+                  "resultados_json": json.dumps(res.get("resultados") or [], ensure_ascii=False, default=str)}
     except Exception as error:  # noqa: BLE001 — every failure ends as 'error'
-        campos = {"estado": "error", "respuesta": "", "decisiones_json": "[]"}
+        campos = {"estado": "error", "respuesta": "", "decisiones_json": "[]", "resultados_json": "[]"}
         posiciones = [f"{f.filename}:{f.lineno}:{f.name}" for f in traceback.extract_tb(error.__traceback__)]
         log.error("consulta %s fallida: %s en %s", id_consulta, type(error).__name__, " > ".join(posiciones[-6:]))
     actualizar(id_consulta, campos)
@@ -37,7 +39,8 @@ def handler_lambda(event: dict, context: Any) -> dict:
     def actualizar(id_consulta: str, campos: dict) -> None:
         tabla.update_item(
             Key={"id": id_consulta},
-            UpdateExpression="SET estado = :e, respuesta = :r, decisiones_json = :d",
-            ExpressionAttributeValues={":e": campos["estado"], ":r": campos["respuesta"], ":d": campos["decisiones_json"]})
+            UpdateExpression="SET estado = :e, respuesta = :r, decisiones_json = :d, resultados_json = :s",
+            ExpressionAttributeValues={":e": campos["estado"], ":r": campos["respuesta"], ":d": campos["decisiones_json"],
+                                       ":s": campos["resultados_json"]})
 
     return procesar(event, correr=lambda ev: agente_handler.handler(ev, context), actualizar=actualizar)

@@ -186,3 +186,30 @@ def test_el_agente_desplegado_ve_el_contrato_de_la_propuesta_de_la_semana_19():
     deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=lambda _: None)
     (prop,) = [d for d in deps["definiciones"] if d["name"] == "proponer_orden_compra"]
     assert "cedis" in prop["input_schema"]["required"] and "fecha_requerida" in prop["input_schema"]["required"]
+
+
+def test_la_respuesta_lleva_sus_resultados_y_los_spans_el_id_de_la_consulta():
+    """Activity 7: week 13's verifier needs the answer's keys (clave, sql, valor), and a question's spans are found by
+    its id: lab.run.id is the first 12 hex digits of the question's UUID."""
+    capturados = []
+    id_consulta = "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    clave = {"clave": "proveedores", "sql": "SELECT COUNT(*) FROM legado.prvmst", "valor": 12}
+
+    class ConverseConClave(Converse):
+        def converse(self, **req):
+            r = super().converse(**req)
+            bloque = r["output"]["message"]["content"][0]["toolUse"]
+            if bloque["name"] == "responder":
+                bloque["input"]["resultados"] = [clave]
+            return r
+
+    deps = K.construir(cliente_converse=ConverseConClave(), cliente_lambda=Lambda(), entorno=ENTORNO,
+                       exportar=capturados.append)
+    res = H.handler({"id": id_consulta, "claims": CLAIMS, "pregunta": PREGUNTA}, None, deps=deps)
+    assert res["estado"] == "respondida" and res["resultados"] == [clave]
+    assert {json.loads(l)["attrs"]["lab.run.id"] for l in capturados if '"invoke_agent' in l} == {"0f1e2d3c4b5a"}
+
+
+def test_run_id_de_solo_acepta_un_id_con_12_digitos_hex():
+    assert H.run_id_de("0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0") == "0f1e2d3c4b5a"
+    assert H.run_id_de("c-1") is None and H.run_id_de(None) is None
