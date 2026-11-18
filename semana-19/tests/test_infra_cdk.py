@@ -463,6 +463,9 @@ def test_solo_control_despliega_control_y_bootstrap_y_nada_mas(tmp_path):
     for nombre in ("aws", "cdk"):
         (tmp_path / "bin" / nombre).write_text(
             f'#!/usr/bin/env bash\necho "{nombre} $*" >> "{marcas}"\necho falso\nexit 0\n', encoding="utf-8")
+    (tmp_path / "bin" / "cdk").write_text(   # cdk prints the account in its ARNs (seen in the real run of 2026-11-18)
+        f'#!/usr/bin/env bash\necho "cdk $*" >> "{marcas}"\necho "Trusted: arn:aws:iam::falso:role/x"\nexit 0\n',
+        encoding="utf-8")
     entorno["ALERTA_EMAIL"] = "alertas" + chr(64) + "ejemplo.invalid"  # built, so the repo holds no address
     registro = S19 / "resultados" / "tiempos_despliegue.jsonl"
     antes = registro.read_bytes() if registro.exists() else None
@@ -480,6 +483,7 @@ def test_solo_control_despliega_control_y_bootstrap_y_nada_mas(tmp_path):
     assert any(l.startswith("cdk bootstrap") for l in llamadas)
     assert not any(l.startswith("cdk deploy") or "lambda invoke" in l or "start-ingestion-job" in l for l in llamadas)
     assert any("--s3-bucket falso" in l for l in llamadas if "cloudformation deploy" in l)  # the bootstrap's bucket
+    assert "arn:aws:iam::<account>:role/x" in r.stdout and "iam::falso" not in r.stdout   # the account never prints
 
 
 def test_argumentos_desconocidos_salen_con_2(tmp_path):
