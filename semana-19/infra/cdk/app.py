@@ -21,6 +21,7 @@ import aws_cdk as cdk
 import jsii
 from aws_cdk import Aspects, Aws, CfnParameter, Duration, IAspect, RemovalPolicy, Stack, Tags
 from aws_cdk import aws_bedrock as bedrock
+from aws_cdk import aws_bedrockagentcore as agentcore
 from aws_cdk import aws_budgets as budgets
 from aws_cdk import aws_apigatewayv2 as apigwv2
 from aws_cdk import aws_apigatewayv2_authorizers as apigwv2_auth
@@ -1236,7 +1237,8 @@ class Computo(Stack):
             log_group=grupo("agente"), reserved_concurrent_executions=2,
             environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
-                         "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name},
+                         "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name,
+                         **entorno_del_camino()},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
         agente.add_to_role_policy(_declaracion(
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
@@ -1370,6 +1372,111 @@ class Computo(Stack):
         cdk.CfnOutput(self, "UrlApi", value=api.api_endpoint)
         cdk.CfnOutput(self, "ArnAprobacion", value=maquina.state_machine_arn)
         cdk.CfnOutput(self, "ArnAgente", value=agente.function_arn)
+        # What the gateway stack (activity 7) needs: its target and its inbound authorizer.
+        self.herramientas, self.id_usuarios, self.id_cliente = herramientas, pool.ref, cliente.ref
+
+
+def entorno_del_camino() -> dict:
+    """The agent's tools path (activity 7), chosen at synth time: CAMINO_HERRAMIENTAS=directo (default) | gateway.
+    The gateway's URL comes from the deployed semana19-gateway stack (S19_GATEWAY_URL, its output UrlGateway): the
+    gateway depends on the tools function of this stack, so a reference the other way would be a cycle."""
+    via = os.environ.get("CAMINO_HERRAMIENTAS") or "directo"
+    if via not in ("directo", "gateway"):
+        raise RuntimeError(f"CAMINO_HERRAMIENTAS desconocido: {via}")
+    if via == "directo":
+        return {"CAMINO_HERRAMIENTAS": "directo"}
+    url = os.environ.get("S19_GATEWAY_URL", "")
+    if not url.startswith("https://") or not url.endswith("/mcp"):
+        raise RuntimeError("CAMINO_HERRAMIENTAS=gateway necesita S19_GATEWAY_URL (salida UrlGateway de semana19-gateway)")
+    return {"CAMINO_HERRAMIENTAS": "gateway", "GATEWAY_URL": url}
+
+
+NOMBRE_GATEWAY = "semana19-gateway"
+
+
+def _esquema_cfn(e: dict):
+    """A projected JSON schema (gateway/herramientas.json) as the target's SchemaDefinitionProperty."""
+    return agentcore.CfnGatewayTarget.SchemaDefinitionProperty(
+        type=e["type"], description=e.get("description"), required=e.get("required"),
+        items=_esquema_cfn(e["items"]) if "items" in e else None,
+        properties={n: _esquema_cfn(p) for n, p in e["properties"].items()} if "properties" in e else None)
+
+
+class Gateway(Stack):
+    """Activity 7: the AgentCore Gateway (MCP) in front of the SAME tools function, with its Cedar policy engine in
+    ENFORCE mode. Its own stack, deployed and destroyed apart from computo.
+
+    Inbound: CUSTOM_JWT with the pool's discovery URL, the app client (Cognito access tokens carry client_id, not aud)
+    and the scope legado/leer. Outbound: GATEWAY_IAM_ROLE, the only option for a Lambda target; the role may invoke
+    the tools function and nothing else, evaluate this engine's policies and use the base key through AgentCore.
+    The gateway and the engine are encrypted with the base key. No search (no Search-API or Tool-Indexing charges).
+    """
+
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, herramientas: lambda_.IFunction,
+                 id_usuarios: str, id_cliente: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from gateway import esquemas, politicas
+        from herramientas import contrato
+
+        motor = agentcore.CfnPolicyEngine(
+            self, "MotorDePoliticas", name="semana19_politicas", encryption_key_arn=llave.key_arn,
+            description="Week 19, activity 7: the gateway's Cedar policies (gateway/politicas/*.cedar).")
+        rol = iam.Role(
+            self, "RolGateway", description="Execution role of semana19-gateway: invokes the tools function only.",
+            assumed_by=iam.ServicePrincipal("bedrock-agentcore.amazonaws.com", conditions={
+                "StringEquals": {"aws:SourceAccount": Aws.ACCOUNT_ID},
+                "ArnLike": {"aws:SourceArn": f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}:gateway/{NOMBRE_GATEWAY}-*"}}))
+        rol.add_to_policy(_declaracion(sid="InvocarSoloHerramientas", actions=["lambda:InvokeFunction"],
+                                       resources=[herramientas.function_arn]))
+        rol.add_to_policy(_declaracion(sid="LeerSuMotorDePoliticas", actions=["bedrock-agentcore:GetPolicyEngine"],
+                                       resources=[motor.attr_policy_engine_arn]))
+        rol.add_to_policy(_declaracion(
+            sid="LlaveBaseViaAgentCore", actions=["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"],
+            resources=[llave.key_arn],
+            conditions={"StringEquals": {"kms:ViaService": f"bedrock-agentcore.{REGION}.amazonaws.com"}}))
+
+        gateway = agentcore.CfnGateway(
+            self, "Gateway", name=NOMBRE_GATEWAY, protocol_type="MCP", role_arn=rol.role_arn,
+            authorizer_type="CUSTOM_JWT", kms_key_arn=llave.key_arn,
+            description="Week 19, activity 7: MCP gateway to the tools function, Cedar policies in ENFORCE.",
+            authorizer_configuration=agentcore.CfnGateway.AuthorizerConfigurationProperty(
+                custom_jwt_authorizer=agentcore.CfnGateway.CustomJWTAuthorizerConfigurationProperty(
+                    discovery_url=f"https://cognito-idp.{REGION}.amazonaws.com/{id_usuarios}/.well-known/openid-configuration",
+                    allowed_clients=[id_cliente], allowed_scopes=["legado/leer"])),
+            policy_engine_configuration=agentcore.CfnGateway.GatewayPolicyEngineConfigurationProperty(
+                arn=motor.attr_policy_engine_arn, mode="ENFORCE"))
+        gateway.node.add_dependency(rol)
+        # Policy evaluation needs both the engine and the gateway (policy-permissions.html): attached after the gateway.
+        evaluar = iam.Policy(self, "EvaluarPoliticas", roles=[rol], statements=[_declaracion(
+            sid="EvaluarSusPoliticas",
+            actions=["bedrock-agentcore:AuthorizeAction", "bedrock-agentcore:PartiallyAuthorizeActions"],
+            resources=[motor.attr_policy_engine_arn, gateway.attr_gateway_arn])])
+
+        objetivo = agentcore.CfnGatewayTarget(
+            self, "Herramientas", name=contrato.TARGET, gateway_identifier=gateway.attr_gateway_identifier,
+            description="The tools function (describir_esquema, ejecutar_sql, proponer_orden_compra), its gateway adapter.",
+            credential_provider_configurations=[agentcore.CfnGatewayTarget.CredentialProviderConfigurationProperty(
+                credential_provider_type="GATEWAY_IAM_ROLE")],
+            target_configuration=agentcore.CfnGatewayTarget.TargetConfigurationProperty(
+                mcp=agentcore.CfnGatewayTarget.McpTargetConfigurationProperty(
+                    lambda_=agentcore.CfnGatewayTarget.McpLambdaTargetConfigurationProperty(
+                        lambda_arn=herramientas.function_arn,
+                        tool_schema=agentcore.CfnGatewayTarget.ToolSchemaProperty(inline_payload=[
+                            agentcore.CfnGatewayTarget.ToolDefinitionProperty(
+                                name=d["name"], description=d["description"], input_schema=_esquema_cfn(d["inputSchema"]))
+                            for d in esquemas.leer()])))))
+        objetivo.node.add_dependency(evaluar)
+        for nombre, texto in politicas.politicas().items():
+            politica = agentcore.CfnPolicy(
+                self, f"Politica{nombre.capitalize()}", name=nombre, policy_engine_id=motor.attr_policy_engine_id,
+                validation_mode="FAIL_ON_ANY_FINDINGS", description=f"gateway/politicas/{nombre}.cedar",
+                definition=agentcore.CfnPolicy.PolicyDefinitionProperty(cedar=agentcore.CfnPolicy.CedarPolicyProperty(
+                    statement=politicas.con_gateway(texto, gateway.attr_gateway_arn))))
+            politica.node.add_dependency(objetivo)   # validation checks the actions against the target's tools
+        cdk.CfnOutput(self, "UrlGateway", value=gateway.attr_gateway_url)
+        cdk.CfnOutput(self, "IdGateway", value=gateway.attr_gateway_identifier)
 
 
 def construir(app: cdk.App) -> None:
@@ -1382,10 +1489,14 @@ def construir(app: cdk.App) -> None:
             synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
     pilas = [control, base, datos, ia]
     if os.environ.get("COMPUTO") == "1":
-        pilas.append(Computo(app, "semana19-computo", llave=base.llave, red=base.red, bd=datos.bd, sg_bd=datos.sg_bd,
-                             sg_endpoints=base.sg_endpoints, guardrail_id=ia.guardrail_id,
-                             guardrail_version=ia.guardrail_version, env=cdk.Environment(region=REGION),
-                             synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19")))
+        computo = Computo(app, "semana19-computo", llave=base.llave, red=base.red, bd=datos.bd, sg_bd=datos.sg_bd,
+                          sg_endpoints=base.sg_endpoints, guardrail_id=ia.guardrail_id,
+                          guardrail_version=ia.guardrail_version, env=cdk.Environment(region=REGION),
+                          synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+        gateway = Gateway(app, "semana19-gateway", llave=base.llave, herramientas=computo.herramientas,
+                          id_usuarios=computo.id_usuarios, id_cliente=computo.id_cliente,
+                          env=cdk.Environment(region=REGION), synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+        pilas += [computo, gateway]
     for pila in pilas:
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())
