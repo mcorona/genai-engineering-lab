@@ -263,3 +263,20 @@ def test_camino_gateway_lleva_la_url_al_agente():
     assert r.returncode == 0, r.stderr[-2000:]
     variables = _entorno_del_agente(r.salida)
     assert variables["CAMINO_HERRAMIENTAS"] == "gateway" and variables["GATEWAY_URL"] == url
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_el_rol_ya_evalua_el_motor_antes_de_crear_el_gateway(perfil):
+    """CreateGateway checks AuthorizeAction on the engine with the role (first deploy, 2026-11-18): that statement is in
+    the role's default policy, which the gateway depends on; the gateway's own ARN is added after it exists."""
+    (gw_id,) = recursos(perfil, "AWS::BedrockAgentCore::Gateway")
+    (motor_id,) = recursos(perfil, "AWS::BedrockAgentCore::PolicyEngine")
+    pl = sintetizar(perfil)["plantilla"]["Resources"]
+    (defecto_id,) = [k for k in pl if k.startswith("RolGatewayDefaultPolicy")]
+    assert defecto_id in pl[gw_id]["DependsOn"]
+    (motor,) = [s for s in pl[defecto_id]["Properties"]["PolicyDocument"]["Statement"] if s["Sid"] == "EvaluarSuMotorDePoliticas"]
+    assert {"bedrock-agentcore:AuthorizeAction", "bedrock-agentcore:PartiallyAuthorizeActions"} <= set(motor["Action"])
+    assert motor["Resource"] == {"Fn::GetAtt": [motor_id, "PolicyEngineArn"]}
+    (despues,) = [k for k in pl if k.startswith("EvaluarPoliticas")]
+    (st,) = pl[despues]["Properties"]["PolicyDocument"]["Statement"]
+    assert st["Resource"] == {"Fn::GetAtt": [gw_id, "GatewayArn"]}

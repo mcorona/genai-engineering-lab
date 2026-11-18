@@ -8,11 +8,8 @@
             "bedrock-agentcore:PartiallyAuthorizeActions"
           ],
           "Effect": "Allow",
-          "Resource": [
-            "{MotorDePoliticas.PolicyEngineArn}",
-            "{Gateway.GatewayArn}"
-          ],
-          "Sid": "EvaluarSusPoliticas"
+          "Resource": "{Gateway.GatewayArn}",
+          "Sid": "EvaluarSusPoliticasEnElGateway"
         }
       ]
     },
@@ -116,10 +113,14 @@
           "Sid": "InvocarSoloHerramientas"
         },
         {
-          "Action": "bedrock-agentcore:GetPolicyEngine",
+          "Action": [
+            "bedrock-agentcore:GetPolicyEngine",
+            "bedrock-agentcore:AuthorizeAction",
+            "bedrock-agentcore:PartiallyAuthorizeActions"
+          ],
           "Effect": "Allow",
           "Resource": "{MotorDePoliticas.PolicyEngineArn}",
-          "Sid": "LeerSuMotorDePoliticas"
+          "Sid": "EvaluarSuMotorDePoliticas"
         },
         {
           "Action": [
