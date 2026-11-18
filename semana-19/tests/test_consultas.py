@@ -125,3 +125,22 @@ def test_el_trabajador_ante_un_fallo_guarda_solo_el_estado_sin_detalle():
     worker.procesar({"id": "c-2", "claims": {"sub": "u"}, "pregunta": "hola"}, correr=fallar,
                     actualizar=lambda i, c: guardados.update({i: c}))
     assert guardados["c-2"] == {"estado": "error", "respuesta": "", "decisiones_json": "[]"}
+
+
+def test_el_log_de_operador_no_lleva_la_pregunta_ni_el_mensaje_de_la_excepcion(caplog):
+    import logging
+
+    from consultas import worker
+
+    secreto = "PREGUNTA-SECRETA-7731"
+
+    def correr_que_falla(_):
+        raise ValueError("mensaje con " + secreto)
+
+    guardado = {}
+    with caplog.at_level(logging.ERROR):
+        worker.procesar({"id": "c1", "claims": {}, "pregunta": secreto},
+                        correr=correr_que_falla, actualizar=lambda i, c: guardado.update(c))
+    assert guardado["estado"] == "error"
+    assert "ValueError" in caplog.text
+    assert secreto not in caplog.text
