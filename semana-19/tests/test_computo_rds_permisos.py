@@ -19,9 +19,9 @@ APP = S19 / "infra" / "cdk" / "app.py"
 
 def preparar_paquete() -> None:
     """Layout of the agent asset without dependencies, only when missing (never replaces a full build)."""
-    if not (S19 / ".build" / "agente" / "agente").is_dir():
-        sys.path.insert(0, str(S19 / "infra"))
-        import paquete_agente
+    sys.path.insert(0, str(S19 / "infra"))
+    import paquete_agente
+    if not paquete_agente.disposicion_presente():   # the same check as conftest.py: one place decides
         paquete_agente.construir(sin_dependencias=True)
 
 

@@ -35,6 +35,9 @@ DATOS = {
     "semana-17/guardrails": RAIZ / "semana-17" / "guardrails",
     "semana-16/legacy-schema-audit": RAIZ / "semana-16" / "legacy-schema-audit",
     "semana-10/legado": RAIZ / "semana-10" / "legado",
+    # pg8000 (pure Python), vendored with the loader: the tools function (same package) connects as copilot_ro with it.
+    # app/herramientas/construccion.py adds <its parent>/infra/loader/vendor to sys.path, hence this place.
+    "app/infra/loader/vendor": S19 / "infra" / "loader" / "vendor",
 }
 # Locked in uv.lock (the lab's lock). Pure Python or manylinux wheels only.
 DEPENDENCIAS = [
@@ -82,6 +85,11 @@ SHIM_APP = (
     "if _aqui not in _sys.path:\n"
     "    _sys.path.insert(0, _aqui)\n"
 )
+
+
+def disposicion_presente() -> bool:
+    """True when a package (with or without dependencies) is already in place: tests must never replace a full build."""
+    return (DESTINO / "app" / "agente").is_dir()
 
 
 def construir(sin_dependencias: bool = False) -> Path:

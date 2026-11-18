@@ -81,8 +81,22 @@ def llamador_de_herramientas(cliente_lambda, nombre_funcion: str):
     def llamar(nombre: str, args: dict) -> dict:
         carga = json.dumps(_entrada_de_herramienta(nombre, args), ensure_ascii=False).encode("utf-8")
         resp = cliente_lambda.invoke(FunctionName=nombre_funcion, Payload=carga)
-        return json.loads(resp["Payload"].read())
+        cuerpo = json.loads(resp["Payload"].read())
+        return _al_contrato_semana13(cuerpo, fallo=bool(resp.get("FunctionError")))
     return llamar
+
+
+def _al_contrato_semana13(cuerpo, *, fallo: bool) -> dict:
+    """The tools Lambda answers {"filas": ...} or {"error": kind, "mensaje": ...}; the week 13 loop reads `ok` (a result
+    without it counts as a tool error and, three in a row, stops the run). A failed function (import, timeout, unhandled
+    error) becomes a closed error: the runtime's message and trace never reach the model; operators read them in the
+    tools function's own log group."""
+    if fallo or not isinstance(cuerpo, dict):
+        return {"ok": False, "error": {"tipo": "herramienta_no_disponible", "mensaje": "La herramienta no respondió.",
+                                       "sugerencia": "Responde con lo que ya tengas o indica que no fue posible."}}
+    if "error" in cuerpo:
+        return {"ok": False, "error": {"tipo": str(cuerpo["error"]), "mensaje": str(cuerpo.get("mensaje", ""))[:800]}}
+    return {"ok": True, **cuerpo}
 
 
 def politica_de_la_tarea() -> Politica:

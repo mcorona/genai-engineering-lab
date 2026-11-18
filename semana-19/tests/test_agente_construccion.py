@@ -93,3 +93,75 @@ def test_herramienta_sin_binding_no_se_llama():
 def test_precios_de_4_5_son_los_verificados():
     deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=lambda _: None)
     assert deps["precios"] == Precios(entrada_1m=1.1, salida_1m=5.5)
+
+
+def test_si_la_funcion_de_herramientas_falla_el_modelo_recibe_un_error_cerrado():
+    # A failed invoke (ImportModuleError, timeout) carries the runtime's message and trace: it never reaches the model.
+    class LambdaQueFalla:
+        def invoke(self, FunctionName, Payload):
+            cuerpo = {"errorMessage": "Unable to import module 'x': /var/task/secreto.py", "errorType": "Runtime.ImportModuleError",
+                      "stackTrace": ["File /var/task/app/x.py"]}
+            return {"FunctionError": "Unhandled", "Payload": io.BytesIO(json.dumps(cuerpo).encode())}
+
+    llamar = K.llamador_de_herramientas(LambdaQueFalla(), "fn-herramientas")
+    salida = llamar("describir_esquema", {})
+    assert salida["ok"] is False and salida["error"]["tipo"] == "herramienta_no_disponible"
+    assert "/var/task" not in json.dumps(salida) and "Unable to import" not in json.dumps(salida)
+
+
+def test_el_resultado_de_la_funcion_de_herramientas_llega_al_bucle_con_ok():
+    # Live: every good result lacked `ok`, so week 13 marked it is_error and counted it toward MAX_ERRORES_SEGUIDOS.
+    class LambdaFija:
+        def __init__(self, cuerpo):
+            self.cuerpo = cuerpo
+
+        def invoke(self, FunctionName, Payload):
+            return {"Payload": io.BytesIO(json.dumps(self.cuerpo).encode())}
+
+    bien = K.llamador_de_herramientas(LambdaFija({"filas": [[12]], "truncado": False}), "fn")("ejecutar_sql", {"sql": "SELECT 1"})
+    assert bien == {"ok": True, "filas": [[12]], "truncado": False}
+    mal = K.llamador_de_herramientas(LambdaFija({"error": "write_blocked", "mensaje": "Only SELECT"}), "fn")(
+        "ejecutar_sql", {"sql": "DELETE FROM x"})
+    assert mal == {"ok": False, "error": {"tipo": "write_blocked", "mensaje": "Only SELECT"}}
+
+
+def test_extremo_a_extremo_la_consulta_correcta_no_cuenta_como_error_de_herramienta():
+    deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=lambda _: None)
+    alcance = H.alcance_desde_claims(CLAIMS)
+    res = H.tratar_pregunta(PREGUNTA, alcance, **deps)
+    (span,) = res.spans
+    assert span["attrs"]["lab.run.tool_errors"] == 0 and span["attrs"]["lab.run.tool_calls"] == 1
+
+
+class SumideroFalso:
+    """Stands in for SumideroCloudWatch: lines are kept until vaciar(), as the real one batches them."""
+
+    def __init__(self, falla: bool = False):
+        self.pendientes, self.enviadas, self.falla = [], [], falla
+
+    def __call__(self, linea: str) -> None:
+        self.pendientes.append(linea)
+
+    def vaciar(self) -> int:
+        if self.falla:
+            raise RuntimeError("AccessDenied")
+        self.enviadas += self.pendientes
+        self.pendientes = []
+        return len(self.enviadas)
+
+
+def test_el_handler_envia_los_spans_pendientes_antes_de_terminar():
+    # Live, the spans group stayed empty: the sink batches and nothing called vaciar() before the invocation ended.
+    sumidero = SumideroFalso()
+    deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=sumidero)
+    res = H.handler({"claims": CLAIMS, "pregunta": PREGUNTA}, None, deps=deps)
+    assert res["estado"] == "respondida"
+    assert sumidero.pendientes == [] and len(sumidero.enviadas) == 1
+    assert json.loads(sumidero.enviadas[0])["span"] == "invoke_agent legadobridge"
+
+
+def test_si_los_spans_no_se_pueden_enviar_la_respuesta_no_cambia():
+    deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO,
+                       exportar=SumideroFalso(falla=True))
+    res = H.handler({"claims": CLAIMS, "pregunta": PREGUNTA}, None, deps=deps)
+    assert res["estado"] == "respondida" and res["respuesta"] == "Hay 12 proveedores"
