@@ -1405,6 +1405,14 @@ def entorno_del_camino() -> dict:
 NOMBRE_GATEWAY = "semana19-gateway"
 
 
+def fase_del_gateway() -> str:
+    """S19_GATEWAY_FASE=1 for the first creation only (see Gateway); empty or 2 is the final state."""
+    fase = os.environ.get("S19_GATEWAY_FASE") or "2"
+    if fase not in ("1", "2"):
+        raise RuntimeError(f"S19_GATEWAY_FASE desconocida: {fase}")
+    return fase
+
+
 def _esquema_cfn(e: dict):
     """A projected JSON schema (gateway/herramientas.json) as the target's SchemaDefinitionProperty."""
     return agentcore.CfnGatewayTarget.SchemaDefinitionProperty(
@@ -1421,10 +1429,15 @@ class Gateway(Stack):
     and the scope legado/leer. Outbound: GATEWAY_IAM_ROLE, the only option for a Lambda target; the role may invoke
     the tools function and nothing else, evaluate this engine's policies and use the base key through AgentCore.
     The gateway and the engine are encrypted with the base key. No search (no Search-API or Tool-Indexing charges).
+
+    Two phases on the FIRST deploy only (S19_GATEWAY_FASE=1, then the default): creating a gateway with an engine
+    checks that the role may already call AuthorizeAction on the engine AND on the new gateway's ARN, which ends in a
+    random suffix (2026-11-18). Phase 1 creates the gateway without the engine and gives the role its exact ARN;
+    the default phase attaches the engine in ENFORCE, and that update passes the same check. No wildcard.
     """
 
     def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, herramientas: lambda_.IFunction,
-                 id_usuarios: str, id_cliente: str, **kwargs) -> None:
+                 id_usuarios: str, id_cliente: str, con_motor: bool = True, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         import sys as _sys
         _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -1462,7 +1475,7 @@ class Gateway(Stack):
                     discovery_url=f"https://cognito-idp.{REGION}.amazonaws.com/{id_usuarios}/.well-known/openid-configuration",
                     allowed_clients=[id_cliente], allowed_scopes=["legado/leer"])),
             policy_engine_configuration=agentcore.CfnGateway.GatewayPolicyEngineConfigurationProperty(
-                arn=motor.attr_policy_engine_arn, mode="ENFORCE"))
+                arn=motor.attr_policy_engine_arn, mode="ENFORCE") if con_motor else None)
         gateway.node.add_dependency(rol)
         # Policy evaluation needs both the engine and the gateway (policy-permissions.html): the gateway's part is
         # attached after the gateway exists (its ARN is not known before).
@@ -1606,6 +1619,7 @@ def construir(app: cdk.App) -> None:
                           synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
         gateway = Gateway(app, "semana19-gateway", llave=base.llave, herramientas=computo.herramientas,
                           id_usuarios=computo.id_usuarios, id_cliente=computo.id_cliente,
+                          con_motor=fase_del_gateway() != "1",
                           env=cdk.Environment(region=REGION), synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
         agentes = AgentesComparacion(app, NOMBRE_AGENTE_COMPARACION, llave=base.llave, herramientas=computo.herramientas,
                                      guardrail_id=ia.guardrail_id, guardrail_version=ia.guardrail_version,
