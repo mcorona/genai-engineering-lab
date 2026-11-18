@@ -1,0 +1,144 @@
+{
+  "EvaluarPoliticasEC02BA8D": {
+    "Properties": {
+      "Statement": [
+        {
+          "Action": [
+            "bedrock-agentcore:AuthorizeAction",
+            "bedrock-agentcore:PartiallyAuthorizeActions"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "{MotorDePoliticas.PolicyEngineArn}",
+            "{Gateway.GatewayArn}"
+          ],
+          "Sid": "EvaluarSusPoliticas"
+        }
+      ]
+    },
+    "Type": "AWS::IAM::Policy"
+  },
+  "Gateway": {
+    "Properties": {
+      "AuthorizerConfiguration": {
+        "CustomJWTAuthorizer": {
+          "AllowedClients": [
+            "{import:semana19-computo:ExportsOutputRefClienteAppB95C7569}"
+          ],
+          "AllowedScopes": [
+            "legado/leer"
+          ],
+          "DiscoveryUrl": "https://cognito-idp.us-east-1.amazonaws.com/{import:semana19-computo:ExportsOutputRefUsuarios0A4EA8E4}/.well-known/openid-configuration"
+        }
+      },
+      "AuthorizerType": "CUSTOM_JWT",
+      "KmsKeyArn": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
+      "Name": "semana19-gateway",
+      "PolicyEngineConfiguration": {
+        "Arn": "{MotorDePoliticas.PolicyEngineArn}",
+        "Mode": "ENFORCE"
+      },
+      "ProtocolType": "MCP"
+    },
+    "Type": "AWS::BedrockAgentCore::Gateway"
+  },
+  "Herramientas": {
+    "Properties": {
+      "Credenciales": [
+        {
+          "CredentialProviderType": "GATEWAY_IAM_ROLE"
+        }
+      ],
+      "Herramientas": [
+        "describir_esquema",
+        "ejecutar_sql",
+        "proponer_orden_compra"
+      ],
+      "Name": "herramientas"
+    },
+    "Type": "AWS::BedrockAgentCore::GatewayTarget"
+  },
+  "MotorDePoliticas": {
+    "Properties": {
+      "Description": "Week 19, activity 7: the gateway's Cedar policies (gateway/politicas/*.cedar).",
+      "EncryptionKeyArn": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
+      "Name": "semana19_politicas"
+    },
+    "Type": "AWS::BedrockAgentCore::PolicyEngine"
+  },
+  "PoliticaLeer": {
+    "Properties": {
+      "Name": "leer",
+      "ValidationMode": "FAIL_ON_ANY_FINDINGS"
+    },
+    "Type": "AWS::BedrockAgentCore::Policy"
+  },
+  "PoliticaProponer": {
+    "Properties": {
+      "Name": "proponer",
+      "ValidationMode": "FAIL_ON_ANY_FINDINGS"
+    },
+    "Type": "AWS::BedrockAgentCore::Policy"
+  },
+  "RolGatewayC1EA120C": {
+    "Properties": {
+      "AssumeRolePolicyDocument": {
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Condition": {
+              "ArnLike": {
+                "aws:SourceArn": "arn:{AWS::Partition}:bedrock-agentcore:us-east-1:{AWS::AccountId}:gateway/semana19-gateway-*"
+              },
+              "StringEquals": {
+                "aws:SourceAccount": "{AWS::AccountId}"
+              }
+            },
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "bedrock-agentcore.amazonaws.com"
+            }
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "PermissionsBoundary": "arn:{AWS::Partition}:iam::{AWS::AccountId}:policy/semana19-limite"
+    },
+    "Type": "AWS::IAM::Role"
+  },
+  "RolGatewayDefaultPolicy3115C70E": {
+    "Properties": {
+      "Statement": [
+        {
+          "Action": "lambda:InvokeFunction",
+          "Effect": "Allow",
+          "Resource": "{import:semana19-computo:ExportsOutputFnGetAttFuncionHerramientas10B13045Arn6057EE96}",
+          "Sid": "InvocarSoloHerramientas"
+        },
+        {
+          "Action": "bedrock-agentcore:GetPolicyEngine",
+          "Effect": "Allow",
+          "Resource": "{MotorDePoliticas.PolicyEngineArn}",
+          "Sid": "LeerSuMotorDePoliticas"
+        },
+        {
+          "Action": [
+            "kms:Decrypt",
+            "kms:GenerateDataKey",
+            "kms:DescribeKey",
+            "kms:CreateGrant"
+          ],
+          "Condition": {
+            "StringEquals": {
+              "kms:ViaService": "bedrock-agentcore.us-east-1.amazonaws.com"
+            }
+          },
+          "Effect": "Allow",
+          "Resource": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
+          "Sid": "LlaveBaseViaAgentCore"
+        }
+      ]
+    },
+    "Type": "AWS::IAM::Policy"
+  }
+}
