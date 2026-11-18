@@ -35,6 +35,14 @@ def _claims(event: dict) -> dict:
     return event["requestContext"]["authorizer"]["jwt"]["claims"]
 
 
+def _token(event: dict) -> str | None:
+    """The user's access token, already verified by the HTTP API's JWT authorizer. It goes to the agent in the
+    asynchronous event (ADR 0007) for the gateway path; it is not stored in the table."""
+    valor = (event.get("headers") or {}).get("authorization") or ""
+    esquema_, _, token = valor.partition(" ")
+    return token if esquema_.lower() == "bearer" and token else None
+
+
 def _cuerpo(event: dict) -> Any:
     crudo = event.get("body") or ""
     if event.get("isBase64Encoded"):
@@ -60,7 +68,7 @@ def crear(event: dict, *, guardar: Callable, invocar: Callable, actualizar: Call
     marca = int(ahora())
     guardar({"id": id_consulta, "dueno": dueno, "estado": "en_curso", "creada": marca, "expira": marca + VIGENCIA_SEGUNDOS})
     try:
-        invocar({"id": id_consulta, "claims": claims, "pregunta": pregunta.strip()})
+        invocar({"id": id_consulta, "claims": claims, "pregunta": pregunta.strip(), "token": _token(event)})
     except Exception:  # noqa: BLE001 — the start failed: the question ends as 'error', with no detail stored
         actualizar(id_consulta, "error")
         return _respuesta(503, {"error": "no_disponible"})

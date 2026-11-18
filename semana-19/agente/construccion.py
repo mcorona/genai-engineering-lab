@@ -32,6 +32,9 @@ FUNCION_HERRAMIENTAS = "FUNCION_HERRAMIENTAS"     # environment variable names (
 GUARDRAIL_ID = "GUARDRAIL_ID"
 GUARDRAIL_VERSION = "GUARDRAIL_VERSION"
 GRUPO_SPANS = "GRUPO_SPANS"      # CloudWatch Logs group of the span lines (set by the stack)
+CAMINO_HERRAMIENTAS = "CAMINO_HERRAMIENTAS"   # activity 7: directo (lambda.invoke, default) | gateway (MCP)
+GATEWAY_URL = "GATEWAY_URL"      # the gateway's MCP endpoint, required when the path is gateway
+CAMINOS = ("directo", "gateway")
 
 _PRESUPUESTO_TAREA_HAIKU55 = {"usd": 0.0063, "tokens": 46000}   # week 17 calibration (semana-17/presupuestos/politica_calibrada.json)
 _RAZON_PRECIO = 1.1 / 0.1     # Haiku 4.5 over Haiku 5.5 in week 7's table, input and output alike
@@ -95,17 +98,30 @@ def politica_de_la_tarea() -> Politica:
     return Politica(tarea=Limite(usd=round(tope["usd"] * _RAZON_PRECIO, 6), tokens=tope["tokens"]))
 
 
+def camino(entorno) -> str:
+    """The tools path. Unknown values are an error, never a silent fall back to the default."""
+    valor = entorno.get(CAMINO_HERRAMIENTAS) or "directo"
+    if valor not in CAMINOS:
+        raise RuntimeError(f"{CAMINO_HERRAMIENTAS} desconocido: {valor}")
+    return valor
+
+
 def exigir_entorno(entorno) -> None:
-    faltan = [n for n in (FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION, GRUPO_SPANS) if not entorno.get(n)]
+    requeridas = [FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION, GRUPO_SPANS]
+    if camino(entorno) == "gateway":
+        requeridas.append(GATEWAY_URL)
+    faltan = [n for n in requeridas if not entorno.get(n)]
     if faltan:
         raise RuntimeError(f"faltan variables de entorno: {', '.join(faltan)}")
 
 
 def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, cliente_logs=None,
-              flujo_spans: str = "agente") -> dict:
-    """The collaborators of agente.handler.tratar_pregunta. Missing environment is an error, not a default."""
+              flujo_spans: str = "agente", token: str | None = None, abrir_mcp=None) -> dict:
+    """The collaborators of agente.handler.tratar_pregunta. Missing environment is an error, not a default.
+    `token` is the user's access token (only the gateway path uses it); `abrir_mcp` replaces the MCP session in tests."""
     entorno = os.environ if entorno is None else entorno
     exigir_entorno(entorno)
+    via = camino(entorno)
     guardrail = {"guardrailIdentifier": entorno[GUARDRAIL_ID], "guardrailVersion": entorno[GUARDRAIL_VERSION]}
     Agente, _ = cargar_bucle_semana13()
 
@@ -113,7 +129,13 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         return cliente_converse.converse(**req)
 
     api = api_converse(llamar_converse, modelo_id=MODELO_ID, guardrail=guardrail)
-    llamar_real = llamador_de_herramientas(cliente_lambda, entorno[FUNCION_HERRAMIENTAS])
+    cerrar = None
+    if via == "gateway":
+        from agente.cliente_gateway import LlamadorGateway
+        llamar_real = LlamadorGateway(entorno[GATEWAY_URL], token, al_contrato=_al_contrato_semana13, abrir=abrir_mcp)
+        cerrar = llamar_real.cerrar
+    else:
+        llamar_real = llamador_de_herramientas(cliente_lambda, entorno[FUNCION_HERRAMIENTAS])
     definiciones = C.definiciones_semana19()
     return {
         "agente_factory": lambda api_envuelta, herramientas: Agente(herramientas, modelo="claude-haiku-4-5-20251001",
@@ -124,4 +146,6 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         "politica": politica_de_la_tarea(),
         "precios": Precios(entrada_1m=1.1, salida_1m=5.5),
         "exportar": exportar or SumideroCloudWatch(cliente_logs, entorno[GRUPO_SPANS], flujo_spans),
+        "camino": via,
+        "cerrar": cerrar,
     }

@@ -24,6 +24,38 @@ week 17 wall-clock budget is below that timeout. The API never waits on the loop
   `presupuesto_agotado`).
 - Costs: DynamoDB on-demand is not priced in `precios.json`; it is **not quoted** yet.
 
+### Activity 7: the token on the asynchronous path
+
+With `CAMINO_HERRAMIENTAS=gateway` the agent Lambda calls the tools through the AgentCore Gateway as an MCP client,
+and the gateway authorizes each call with the USER's token (CUSTOM_JWT inbound, Cedar policies on its claims). The
+asynchronous design means the token must travel with the work:
+
+1. `POST /consultas`: the HTTP API's JWT authorizer verifies the access token (issuer, client, scope).
+2. The questions function (`consultas/api.py`) puts the token, unchanged, in the asynchronous event of the agent
+   Lambda (`InvocationType=Event`) next to the claims. It is **not** written to the results table: the item keeps
+   the owner's keyed hash, the state and the expiry only (test: `test_crear_guarda_por_hash_del_sujeto_y_arranca_el_agente`).
+3. The worker (`consultas/worker.py`) passes it to the agent (`agente/handler.py`), which opens one MCP session per
+   question with `Authorization: Bearer <token>` (`agente/cliente_gateway.py`).
+4. The gateway verifies the token again (the pool's discovery URL, the app client, `legado/leer`) and evaluates the
+   Cedar policies with its claims as tags (`gateway/politicas/*.cedar`). The tools Lambda never receives the token:
+   the gateway calls it with its own role (GATEWAY_IAM_ROLE). The requester of a proposal reaches it as the
+   argument `solicitante`, which Cedar allows only when it equals the token's `sub`.
+
+The token is never logged (the worker logs the exception type and trace positions only), never stored and never
+returned. While the asynchronous invocation waits in Lambda's internal queue the token is in AWS-managed storage;
+the access token's validity (Cognito's default is 60 minutes) bounds that exposure.
+
+**Expiry in the middle of the loop fails closed.** Before each tool call the client reads the token's `exp`
+(without verifying: the gateway does that) and does not send a token that expires within 5 seconds; a 401 from the
+gateway counts the same. Either way the loop stops at that call and the question ends with week 17's state `error`
+and the text "Tu sesión venció…": no retry, no further model turn, the `execute_tool` span records
+`error.type=token_vencido` and the `invoke_agent` span is exported as usual (test:
+`test_un_token_que_vence_a_mitad_del_bucle_cierra_con_error_y_no_sigue`). With the week 17 wall-clock budget under
+30 seconds this only happens to a request that arrived with a token about to expire.
+
+The direct path (`CAMINO_HERRAMIENTAS=directo`, the default) does not use the token: the agent invokes the tools
+Lambda with its own role, as in activity 6.
+
 ## Costs
 
 - DynamoDB on-demand for the results: **N**, not priced in `precios.json`.

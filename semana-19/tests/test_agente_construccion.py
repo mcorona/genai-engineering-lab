@@ -130,8 +130,9 @@ def test_extremo_a_extremo_la_consulta_correcta_no_cuenta_como_error_de_herramie
     deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=lambda _: None)
     alcance = H.alcance_desde_claims(CLAIMS)
     res = H.tratar_pregunta(PREGUNTA, alcance, **deps)
-    (span,) = res.spans
+    herramienta, span = res.spans   # activity 7: one execute_tool span per call, then invoke_agent
     assert span["attrs"]["lab.run.tool_errors"] == 0 and span["attrs"]["lab.run.tool_calls"] == 1
+    assert herramienta["tipo"] == "execute_tool" and herramienta["attrs"]["lab.tool.status"] == "ok"
 
 
 class SumideroFalso:
@@ -157,8 +158,8 @@ def test_el_handler_envia_los_spans_pendientes_antes_de_terminar():
     deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=sumidero)
     res = H.handler({"claims": CLAIMS, "pregunta": PREGUNTA}, None, deps=deps)
     assert res["estado"] == "respondida"
-    assert sumidero.pendientes == [] and len(sumidero.enviadas) == 1
-    assert json.loads(sumidero.enviadas[0])["span"] == "invoke_agent legadobridge"
+    assert sumidero.pendientes == [] and len(sumidero.enviadas) == 2
+    assert [json.loads(l)["span"] for l in sumidero.enviadas] == ["execute_tool ejecutar_sql", "invoke_agent legadobridge"]
 
 
 def test_si_los_spans_no_se_pueden_enviar_la_respuesta_no_cambia():

@@ -19,6 +19,7 @@ from types import SimpleNamespace
 from typing import Callable
 
 from agente import capa_determinista as C
+from agente.cliente_gateway import TokenVencido
 from agente.exportador import ExportadorSpans
 from agente.presupuesto import Politica, Precios, Presupuesto
 from instrumentacion import esquema
@@ -27,6 +28,11 @@ N = C.N
 MODELO = "claude-haiku-4-5-20251001"
 AGENTE = "legadobridge"
 MOTIVO_PRESUPUESTO = {"presupuesto_usd": "presupuesto_tarea", "presupuesto_tokens": "presupuesto_tarea"}
+# The tools path in the execute_tool span, with week 17's locked attribute and values (no new key): OpenTelemetry's
+# gen_ai.tool.type "function" for the direct call, "extension" for a tool reached through the gateway (agent side,
+# bridging to an external API). Activity 7.
+TIPO_DE_HERRAMIENTA = {"directo": "function", "gateway": "extension"}
+TEXTO_TOKEN_VENCIDO = "Tu sesión venció antes de terminar la consulta. Vuelve a iniciar sesión y repite la pregunta."
 
 
 # The token's data scopes (resource server `legado`, see computo/tokens.py) to the week 17 vocabulary.
@@ -61,10 +67,12 @@ def _decision(d) -> dict:
 class HerramientasCapadas:
     """What the loop sees as its tools: each call passes the deterministic layer before it runs."""
 
-    def __init__(self, llamar, definiciones, alcance, pregunta, decisiones):
+    def __init__(self, llamar, definiciones, alcance, pregunta, decisiones, camino: str = "directo"):
         self._llamar, self._defs, self.alcance, self.pregunta = llamar, definiciones, alcance, pregunta
         self.decisiones = decisiones
         self.llamadas = 0
+        self.tipo = TIPO_DE_HERRAMIENTA[camino]
+        self.spans: list[dict] = []
 
     def definiciones(self):
         return self._defs
@@ -75,16 +83,49 @@ class HerramientasCapadas:
                                                   definiciones=self._defs)
         self.decisiones.extend(decisiones)
         if error is not None:
-            return error
-        if nombre == "proponer_orden_compra":   # the requester comes from the verified token, never from the model
-            return self._llamar(nombre, args, solicitante=self.alcance.usuario)
-        return self._llamar(nombre, args)
+            return self._span(nombre, args, error)
+        try:
+            if nombre == "proponer_orden_compra":   # the requester comes from the verified token, never from the model
+                res = self._llamar(nombre, args, solicitante=self.alcance.usuario)
+            else:
+                res = self._llamar(nombre, args)
+        except TokenVencido:
+            self._span(nombre, args, {"ok": False, "error": {"tipo": "token_vencido"}})
+            raise
+        return self._span(nombre, args, res)
+
+    def _span(self, nombre: str, args: dict, res: dict) -> dict:
+        """One execute_tool span per call in week 17's locked shape: arguments as size and keyed hash, never text."""
+        import json
+        conocida = nombre in C.HERRAMIENTAS
+        ok = bool(res.get("ok", False))
+        canon = esquema.canonico(args or {})
+        atributos = {"gen_ai.operation.name": "execute_tool", "gen_ai.tool.name": nombre if conocida else None,
+                     "gen_ai.tool.type": self.tipo, "lab.step": self.llamadas, "lab.tool.known": conocida,
+                     "lab.tool.args.chars": len(canon), "lab.tool.args.hmac": esquema.seudonimo(canon),
+                     "lab.tool.result.chars": len(json.dumps(res, ensure_ascii=False, default=str)),
+                     "lab.tool.status": "ok" if ok else "error",
+                     "error.type": None if ok else esquema.tipo_error((res.get("error") or {}).get("tipo"))}
+        self.spans.append({"name": f"execute_tool {nombre if conocida else '_unknown'}", "tipo": "execute_tool",
+                           "attrs": {k: v for k, v in atributos.items() if v is not None}})
+        return res
 
 
 def tratar_pregunta(pregunta: str, alcance, *, agente_factory: Callable, llamar_herramienta: Callable, definiciones: list,
                     api_modelo: Callable, politica: Politica, precios: Precios, exportar: Callable[[str], None],
-                    run_id: str | None = None) -> Resultado:
-    run_id = run_id or uuid.uuid4().hex[:12]
+                    run_id: str | None = None, camino: str = "directo", cerrar: Callable | None = None) -> Resultado:
+    """`cerrar` ends the tools session (the gateway's MCP session) when the question ends, whatever the outcome."""
+    try:
+        return _tratar(pregunta, alcance, agente_factory=agente_factory, llamar_herramienta=llamar_herramienta,
+                       definiciones=definiciones, api_modelo=api_modelo, politica=politica, precios=precios,
+                       exportar=exportar, run_id=run_id or uuid.uuid4().hex[:12], camino=camino)
+    finally:
+        if cerrar is not None:
+            cerrar()
+
+
+def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definiciones, api_modelo, politica, precios,
+            exportar, run_id, camino) -> Resultado:
     decisiones: list = []
     motivo, de_entrada = C.revisar_entrada(pregunta)
     decisiones.extend(de_entrada)
@@ -93,10 +134,14 @@ def tratar_pregunta(pregunta: str, alcance, *, agente_factory: Callable, llamar_
         return _cerrar(run_id, alcance, "abstenida", texto, decisiones, None, None, exportar, politica, "guardrail_entrada")
 
     presupuesto = Presupuesto(politica, MODELO, precios)
-    herramientas = HerramientasCapadas(llamar_herramienta, definiciones, alcance, pregunta, decisiones)
+    herramientas = HerramientasCapadas(llamar_herramienta, definiciones, alcance, pregunta, decisiones, camino)
     agente = agente_factory(presupuesto.envolver(api_modelo), herramientas)
     tarea = {"id": f"consulta-{run_id}", "tarea": pregunta}
-    r = agente.resolver(tarea)
+    try:
+        r = agente.resolver(tarea)
+    except TokenVencido:   # fail closed: the loop stops here, with week 17's state for a run that could not finish
+        return _cerrar(run_id, alcance, "error", TEXTO_TOKEN_VENCIDO, decisiones, None, presupuesto, exportar, politica,
+                       "otro", herramientas=herramientas)
 
     final = r.final
     if final is not None:
@@ -133,13 +178,14 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
         "lab.run.tokens.output": getattr(r, "tokens_out", None),
         "lab.run.cost_usd": getattr(r, "costo_usd", None),
     }
-    spans = [{"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",
+    spans = [*(herramientas.spans if herramientas else []),
+             {"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",
               "attrs": {k: v for k, v in atributos.items() if v is not None}}]
     ExportadorSpans(escribir=exportar).exportar(spans)
     return Resultado(estado, texto, [_decision(d) for d in decisiones], spans)
 
 
-def construir_deps():
+def construir_deps(token: str | None = None):
     """The Lambda's real collaborators (agente/construccion.py). The environment is checked before any client exists."""
     import os
 
@@ -148,13 +194,14 @@ def construir_deps():
     from agente import construccion
     construccion.exigir_entorno(os.environ)
     return construccion.construir(cliente_converse=boto3.client("bedrock-runtime"), cliente_lambda=boto3.client("lambda"),
-                                  cliente_logs=boto3.client("logs"))
+                                  cliente_logs=boto3.client("logs"), token=token)
 
 
 def handler(event: dict, context, deps: dict | None = None) -> dict:
-    """event = {"claims": {...}, "pregunta": str}. The claims come from the API's authorizer (verified there)."""
+    """event = {"claims": {...}, "pregunta": str, "token": str}. The claims come from the API's authorizer (verified
+    there); the token is the user's access token, used only on the gateway path and never logged or stored."""
     alcance = alcance_desde_claims(event.get("claims", {}))
-    d = deps or construir_deps()
+    d = deps or construir_deps(event.get("token"))
     try:
         res = tratar_pregunta(event["pregunta"], alcance, **d)
     finally:
