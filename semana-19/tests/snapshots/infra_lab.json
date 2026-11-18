@@ -21,6 +21,10 @@
       "AWS::IAM::ManagedPolicy"
     ],
     [
+      "EjecucionCfnAgentes",
+      "AWS::IAM::ManagedPolicy"
+    ],
+    [
       "EjecucionCfnComputo",
       "AWS::IAM::ManagedPolicy"
     ],

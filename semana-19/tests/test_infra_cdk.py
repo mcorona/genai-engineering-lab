@@ -722,3 +722,82 @@ def test_perfil_entre_regiones_autorizado_en_la_politica_del_creador_y_en_el_lim
     assert "guardrail-profile/us.guardrail.v1:0" in _json.dumps(ia)
     ctl = _json.loads((Path(out) / "semana19-control.template.json").read_text(encoding="utf-8"))
     assert "guardrail-profile/us.guardrail.v1:0" in _json.dumps(ctl)
+
+
+# ---------------------------------------------------------------- activity 7: boundary size and AgentCore
+
+def _resuelto(x):
+    """A policy document with the intrinsics replaced by values of their real length (12-digit account)."""
+    if isinstance(x, dict):
+        if "Fn::Join" in x:
+            return x["Fn::Join"][0].join(_resuelto(p) for p in x["Fn::Join"][1])
+        if "Ref" in x:
+            return {"AWS::AccountId": "1" * 12, "AWS::Partition": "aws", "AWS::Region": "us-east-1",
+                    "AWS::URLSuffix": "amazonaws.com"}.get(x["Ref"], "x" * 40)
+        if "Fn::GetAtt" in x:
+            return "x" * 80
+        return {k: _resuelto(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_resuelto(v) for v in x]
+    return x
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_politicas_administradas_caben_en_el_limite_de_iam(perfil):
+    """IAM counts the managed policy document without whitespace: 6,144 characters at most."""
+    for lid, r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").items():
+        tam = len(json.dumps(_resuelto(r["Properties"]["PolicyDocument"]), separators=(",", ":")))
+        assert tam <= 6144, f"{lid}: {tam} caracteres"
+
+
+def _acciones_del_limite(perfil) -> dict:
+    (limite,) = [r for lid, r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").items()
+                 if r["Properties"].get("ManagedPolicyName") == "semana19-limite"]
+    salida = {}
+    for st in limite["Properties"]["PolicyDocument"]["Statement"]:
+        acciones = st["Action"] if isinstance(st["Action"], list) else [st["Action"]]
+        salida[st["Sid"]] = (set(acciones), st)
+    return salida
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_limite_compactado_conserva_las_acciones_sin_arn(perfil):
+    """The ten statements merged in activity 7 keep every action they had, on the same resources."""
+    lim = _acciones_del_limite(perfil)
+    sin_arn, st = lim["SinArnDelLimite"]
+    assert st["Resource"] == "*" and "Condition" not in st
+    assert sin_arn == {
+        "logs:DescribeLogGroups", "logs:DescribeLogStreams", "logs:CreateLogDelivery", "logs:GetLogDelivery",
+        "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:PutResourcePolicy",
+        "logs:DescribeResourcePolicies", "xray:PutTraceSegments", "xray:PutTelemetryRecords", "xray:GetSamplingRules",
+        "xray:GetSamplingTargets", "cloudformation:Describe*", "cloudformation:Get*", "cloudformation:List*",
+        "ec2:DescribeSecurityGroups", "ec2:RevokeSecurityGroupIngress", "ec2:RevokeSecurityGroupEgress",
+        "ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces", "ec2:DeleteNetworkInterface",
+        "ec2:AssignPrivateIpAddresses", "ec2:UnassignPrivateIpAddresses",
+        "states:SendTaskSuccess", "states:SendTaskFailure"}
+    logs, st = lim["LogsDelLimite"]
+    assert logs == {"logs:CreateLogStream", "logs:PutLogEvents"}
+    destinos = sorted(texto(r) for r in st["Resource"])
+    assert [d.split("log-group:")[1] for d in destinos] == ["/aws/lambda/semana19-datos*:*", "/semana19/*", "/semana19/ia/*:*"]
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_limite_deja_al_gateway_evaluar_politicas_y_usar_la_llave(perfil):
+    lim = _acciones_del_limite(perfil)
+    acciones, st = lim["PolicyDelGatewayDelLimite"]
+    assert acciones == {"bedrock-agentcore:AuthorizeAction", "bedrock-agentcore:PartiallyAuthorizeActions",
+                        "bedrock-agentcore:GetPolicyEngine"}
+    assert sorted(texto(r).rsplit(":", 1)[1] for r in st["Resource"]) == ["gateway/semana19-*", "policy-engine/semana19*"]
+    _, kms = lim["KmsParaBedrockDelLimite"]
+    servicios = kms["Condition"]["StringEquals"]["kms:ViaService"]
+    assert sorted(texto(v).split(".")[0] for v in servicios) == ["bedrock", "bedrock-agentcore"]
+    modelo, _ = lim["ModeloDelAgenteDelLimite"]
+    assert modelo == {"bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:GetInferenceProfile",
+                      "bedrock:GetFoundationModel"}
+
+
+def test_bootstrap_pasa_las_cinco_politicas_de_ejecucion():
+    script = (SCRIPTS / "desplegar.sh").read_text(encoding="utf-8")
+    linea = next(l for l in script.splitlines() if "--cloudformation-execution-policies" in l)
+    assert linea.count("$ARN_EJECUCION") == 5 and "$ARN_EJECUCION_AGENTES" in linea
+    assert "OutputKey=='ArnEjecucionCfnAgentes'" in script
