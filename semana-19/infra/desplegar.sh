@@ -98,8 +98,9 @@ import json, sys
 viejo = json.load(open(sys.argv[1], encoding="utf-8"))
 nuevo = json.load(open(sys.argv[2], encoding="utf-8"))
 vr, nr = set(viejo.get("Resources", {})), set(nuevo.get("Resources", {}))
+sin_metadata = lambda r: {k: v for k, v in r.items() if k != "Metadata"}  # synth notes (cdk-nag, paths), not a change
 print(f"-- semana19-control: crear {sorted(nr - vr)}, quitar {sorted(vr - nr)}, "
-      f"cambiar {sorted(k for k in vr & nr if viejo['Resources'][k] != nuevo['Resources'][k])}")
+      f"cambiar {sorted(k for k in vr & nr if sin_metadata(viejo['Resources'][k]) != sin_metadata(nuevo['Resources'][k]))}")
 PY
   else
     echo "-- semana19-control: no existe; se crearía con $(grep -o '"Type": "AWS::[A-Za-z0-9:]*"' "$OUT/semana19-control.template.json" | wc -l | tr -d ' ') recursos"
@@ -187,7 +188,7 @@ fi
 cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 \
   --toolkit-stack-name semana19-cdktoolkit \
   --cloudformation-execution-policies "$ARN_EJECUCION,$ARN_EJECUCION_DATOS,$ARN_EJECUCION_IA,$ARN_EJECUCION_COMPUTO,$ARN_EJECUCION_AGENTES" \
-  --trust "$ARN_DESPLIEGUE"
+  --trust "$ARN_DESPLIEGUE" 2>&1 | sed "s/$CUENTA/<account>/g"  # cdk prints the account in its ARNs
 registrar "bootstrap" $(( $(date +%s) - inicio ))
 if [[ "$SOLO_CONTROL" == 1 ]]; then
   echo "== Listo (--solo-control): semana19-control y bootstrap. Base, datos e ia no se tocaron."
