@@ -5,6 +5,12 @@
 #   semana-19/infra/destruir.sh --inventario    read-only: runs the inventory with the read-only profile.
 #   semana-19/infra/destruir.sh --si            acts: destroys semana19-base, then the bootstrap, then checks.
 #   semana-19/infra/destruir.sh --si --todo     also deletes semana19-control (budget, action, roles, policies).
+#   semana-19/infra/destruir.sh --si --solo-actividad7
+#                                               activity 7 only: the comparison agent, then the gateway, then the
+#                                               inventory of their categories (they must be empty). The rest stays.
+#
+# Order with --si: semana19-agentes-comparacion, semana19-gateway and semana19-computo (activities 6 and 7, they
+# import the base, datos and ia exports), then datos, ia, base and the bootstrap.
 #
 # Without --todo the control stack stays (it is $0/h) and the inventory allows it explicitly.
 # The bootstrap KMS key is scheduled for deletion by its stack (CloudFormation default window, 30 days; D,
@@ -22,17 +28,23 @@ REGISTRO="$RAIZ/semana-19/resultados/tiempos_despliegue.jsonl"
 REGION="us-east-1"
 MODO="simulacion"
 TODO=0
+SOLO_A7=0
 
 for argumento in "$@"; do
   case "$argumento" in
     --si) MODO="si" ;;
     --inventario) MODO="inventario" ;;
     --todo) TODO=1 ;;
+    --solo-actividad7) SOLO_A7=1 ;;
     *) echo "argumento no reconocido: $argumento" >&2; exit 2 ;;
   esac
 done
 if [[ "$TODO" == "1" && "$MODO" != "si" ]]; then
   echo "--todo solo tiene efecto con --si." >&2
+  exit 2
+fi
+if [[ "$SOLO_A7" == "1" && "$TODO" == "1" ]]; then
+  echo "--solo-actividad7 y --todo no se combinan." >&2
   exit 2
 fi
 
@@ -51,6 +63,13 @@ inventario() {
 
 if [[ "$MODO" == "simulacion" ]]; then
   echo "== Simulación. No se llamó a AWS."
+  echo "00a) cdk destroy semana19-agentes-comparacion  (actividad 7, desechable: primero)"
+  echo "00b) cdk destroy semana19-gateway              (actividad 7: gateway, target, políticas y motor)"
+  if [[ "$SOLO_A7" == "1" ]]; then
+    echo "00z) inventario de las categorías de la actividad 7 (deben quedar en cero); el resto se queda"
+    exit 0
+  fi
+  echo "00c) cdk destroy semana19-computo              (actividad 6: agente, API, aprobación, usuarios)"
   echo "0b) cdk destroy semana19-ia              (Guardrail y prompts; antes que la red porque importa la llave)"
   echo "1) cdk destroy semana19-base            (perfil de despliegue; borrar sigue permitido con la congelación)"
   echo "2) vaciar el bucket y el ECR del bootstrap  (vaciar_bootstrap.py --si, perfil admin)"
@@ -75,6 +94,29 @@ existe_stack() {
   aws cloudformation describe-stacks --stack-name "$1" --region "$REGION" --profile "$PERFIL_ADMIN" \
     --query "Stacks[0].StackStatus" --output text >/dev/null 2>&1
 }
+
+# The stacks of activities 6 and 7 exist in the app only with COMPUTO=1; the destroy needs no agent package.
+destruir_pila_computo() {
+  local pila="$1" paso="$2" inicio
+  if existe_stack "$pila"; then
+    inicio=$(date +%s)
+    echo "== $paso: cdk destroy $pila"
+    COMPUTO=1 S19_SIN_DEPENDENCIAS=1 cdk destroy "$pila" --exclusively --force --app "$PYTHON_CDK $APP" \
+      --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
+    registrar "destruir-${pila#semana19-}" $(( $(date +%s) - inicio ))
+  else
+    echo "== $paso: $pila no existe"
+  fi
+}
+
+destruir_pila_computo semana19-agentes-comparacion "Paso 00a"
+destruir_pila_computo semana19-gateway "Paso 00b"
+if [[ "$SOLO_A7" == "1" ]]; then
+  echo "== Paso 00z: inventario de la actividad 7 (solo lectura)"
+  "$PYTHON_BOTO" "$RAIZ/semana-19/infra/inventario.py" --perfil "$PERFIL_LECTURA" --region "$REGION" --solo-actividad7
+  exit $?
+fi
+destruir_pila_computo semana19-computo "Paso 00c"
 
 if existe_stack semana19-datos; then
   inicio=$(date +%s)

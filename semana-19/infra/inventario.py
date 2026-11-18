@@ -170,6 +170,21 @@ def categorias(sesion, region: str) -> dict:
         return [g["name"] for p in cli.get_paginator("list_gateways").paginate()
                 for g in p["items"] if g["name"].startswith(PREFIJO)]
 
+    def motores_de_politicas():   # activity 7: the gateway's Cedar policy engine (its name uses _ : semana19_politicas)
+        cli = sesion.client("bedrock-agentcore-control", region_name=region)
+        out, token = [], None
+        while True:
+            r = cli.list_policy_engines(**({"nextToken": token} if token else {}))
+            out += [m["name"] for m in r.get("policyEngines", []) if m["name"].startswith(PREFIJO)]
+            token = r.get("nextToken")
+            if not token:
+                return out
+
+    def agentes_bedrock():        # activity 7: the comparison agent (semana19-agentes-comparacion)
+        cli = sesion.client("bedrock-agent", region_name=region)
+        return [a["agentName"] for p in cli.get_paginator("list_agents").paginate()
+                for a in p["agentSummaries"] if a["agentName"].startswith(PREFIJO)]
+
     def runtimes():
         cli = sesion.client("bedrock-agentcore-control", region_name=region)
         return [r["agentRuntimeName"] for p in cli.get_paginator("list_agent_runtimes").paginate()
@@ -252,6 +267,7 @@ def categorias(sesion, region: str) -> dict:
         "lambdas": lambdas, "state_machines": state_machines, "apis_http": apis_http, "apis_rest": apis_rest,
         "user_pools": user_pools, "rds": rds, "buckets_s3": buckets, "vector_buckets_s3vectors": vector_buckets,
         "knowledge_bases": kbs, "guardrails": guardrails, "prompts": prompts, "gateways_agentcore": gateways,
+        "motores_de_politicas_agentcore": motores_de_politicas, "agentes_bedrock": agentes_bedrock,
         "runtimes_agentcore": runtimes, "log_groups": log_groups,
         "etiquetados_tagging_api": etiquetados,
         "presupuestos": presupuestos, "acciones_presupuesto": acciones_presupuesto,
@@ -281,7 +297,7 @@ def permitidos(con_control: bool, con_base: bool = False) -> dict:
             "acciones_presupuesto": {"semana19"},
             "politicas_iam_locales": {"semana19-limite", "semana19-congelar", "semana19-cfn-exec",
                                    "semana19-cfn-exec-datos", "semana19-cfn-exec-ia",
-                                   "semana19-cfn-exec-computo"},  # owned by semana19-control (its ArnEjecucionCfn*Datos/Ia/Computo outputs)
+                                   "semana19-cfn-exec-computo", "semana19-cfn-exec-agentes"},  # owned by semana19-control (its ArnEjecucionCfn* outputs)
             "roles_iam": {"semana19-lectura", "semana19-despliegue", "semana19-accion-presupuesto", "semana19-flow-logs"},
             # With the control kept, the tag search also finds the control's own resources: reported, not judged.
             "etiquetados_tagging_api": None,
@@ -298,9 +314,16 @@ def permitidos(con_control: bool, con_base: bool = False) -> dict:
     return base
 
 
-def inventario(sesion, region: str, con_control: bool = False, con_base: bool = False) -> dict:
+# Activity 7's disposable stacks: after destruir.sh --solo-actividad7 these categories must be empty.
+CATEGORIAS_ACTIVIDAD7 = ("gateways_agentcore", "motores_de_politicas_agentcore", "agentes_bedrock")
+
+
+def inventario(sesion, region: str, con_control: bool = False, con_base: bool = False,
+               solo: tuple[str, ...] | None = None) -> dict:
     resultado, no_medido = {}, []
     for nombre, fn in categorias(sesion, region).items():
+        if solo is not None and nombre not in solo:
+            continue
         try:
             valor = fn()
             resultado[nombre] = {"conteo": contar(valor), "nombres": valor}
@@ -325,7 +348,7 @@ def inventario(sesion, region: str, con_control: bool = False, con_base: bool = 
             inesperados[cat] = datos["nombres"]
     quedan = "nada" if not inesperados and not no_medido else "revisar"
     total = sum(v["conteo"] for v in resultado.values())
-    return {"fecha": date.today().isoformat(), "region": region, "con_control": con_control,
+    return {"fecha": date.today().isoformat(), "region": region, "con_control": con_control, "solo": list(solo or []),
             "por_categoria": {k: v["conteo"] for k, v in resultado.items()}, "total": total,
             "esperados": esperados, "inesperados": inesperados,
             "no_medido": no_medido, "quedan": quedan}
@@ -337,10 +360,13 @@ def main() -> int:
     ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--con-control", action="store_true", help="el stack de control se queda (no fue --todo)")
     ap.add_argument("--con-base", action="store_true", help="antes del teardown: el stack base está arriba a propósito")
+    ap.add_argument("--solo-actividad7", action="store_true",
+                    help="solo las categorías de los stacks desechables de la actividad 7 (deben quedar en cero)")
     a = ap.parse_args()
     import boto3
     sesion = boto3.Session(profile_name=a.perfil, region_name=a.region)
-    informe = inventario(sesion, a.region, con_control=a.con_control, con_base=a.con_base)
+    informe = inventario(sesion, a.region, con_control=a.con_control, con_base=a.con_base,
+                         solo=CATEGORIAS_ACTIVIDAD7 if a.solo_actividad7 else None)
     print(json.dumps(informe, indent=2, ensure_ascii=False))
     return 0 if informe["quedan"] == "nada" else 1
 

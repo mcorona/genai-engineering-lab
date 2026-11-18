@@ -820,3 +820,117 @@ def test_cloudformation_usa_la_llave_base_via_bedrock_y_agentcore(perfil):
     acciones, _ = _acciones_del_limite(perfil)["KmsParaBedrockDelLimite"]
     assert {"kms:CreateGrant", "kms:Decrypt", "kms:DescribeKey"} <= acciones and \
         any(a.startswith("kms:GenerateDataKey") for a in acciones)
+
+
+# ---------------------------------------------------------------- activity 7: teardown of the disposable stacks
+
+def test_destruir_simula_la_actividad7_sin_llamar_a_aws(tmp_path):
+    entorno, marcas = _entorno_falso(tmp_path)
+    r = subprocess.run(["bash", str(SCRIPTS / "destruir.sh"), "--solo-actividad7"], env=entorno, capture_output=True,
+                       text=True)
+    assert r.returncode == 0, r.stderr[-800:]
+    assert not marcas.exists() and "No se llamó a AWS" in r.stdout
+    assert r.stdout.index("semana19-agentes-comparacion") < r.stdout.index("semana19-gateway")
+    assert "semana19-computo" not in r.stdout and "semana19-base" not in r.stdout
+
+
+def test_solo_actividad7_y_todo_no_se_combinan(tmp_path):
+    entorno, marcas = _entorno_falso(tmp_path)
+    r = subprocess.run(["bash", str(SCRIPTS / "destruir.sh"), "--si", "--solo-actividad7", "--todo"], env=entorno,
+                       capture_output=True, text=True)
+    assert r.returncode == 2 and not marcas.exists()
+
+
+def test_destruir_actividad7_borra_la_comparacion_luego_el_gateway_y_nada_mas(tmp_path):
+    entorno, marcas = _entorno_falso(tmp_path)
+    (tmp_path / "bin" / "aws").write_text(f'#!/usr/bin/env bash\necho "aws $*" >> "{marcas}"\necho CREATE_COMPLETE\nexit 0\n',
+                                          encoding="utf-8")
+    (tmp_path / "bin" / "cdk").write_text(
+        f'#!/usr/bin/env bash\necho "cdk COMPUTO=$COMPUTO SIN=$S19_SIN_DEPENDENCIAS $*" >> "{marcas}"\nexit 0\n', encoding="utf-8")
+    boto = tmp_path / "bin" / "python-boto"
+    boto.write_text(f'#!/usr/bin/env bash\necho "inventario $*" >> "{marcas}"\nexit 0\n', encoding="utf-8")
+    boto.chmod(0o755)
+    entorno["S19_PYTHON_BOTO"] = str(boto)
+    registro = S19 / "resultados" / "tiempos_despliegue.jsonl"
+    antes = registro.read_bytes() if registro.exists() else None
+    try:
+        r = subprocess.run(["bash", str(SCRIPTS / "destruir.sh"), "--si", "--solo-actividad7"], env=entorno,
+                           capture_output=True, text=True)
+    finally:
+        if antes is None:
+            registro.unlink(missing_ok=True)
+        else:
+            registro.write_bytes(antes)
+    assert r.returncode == 0, r.stderr[-800:]
+    destroy = [l for l in marcas.read_text().splitlines() if l.startswith("cdk")]
+    assert [l.split(" destroy ")[1].split()[0] for l in destroy] == ["semana19-agentes-comparacion", "semana19-gateway"]
+    assert all("COMPUTO=1 SIN=1" in l and "--exclusively" in l and "--profile semana19-despliegue" in l for l in destroy)
+    inventario = [l for l in marcas.read_text().splitlines() if l.startswith("inventario")]
+    assert len(inventario) == 1 and "--solo-actividad7" in inventario[0] and "--perfil semana19-lectura" in inventario[0]
+
+
+def test_destruir_completo_baja_computo_y_la_actividad7_antes_que_datos():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    orden = [texto.index(f"destruir_pila_computo {p} ") for p in
+             ("semana19-agentes-comparacion", "semana19-gateway", "semana19-computo")]
+    assert orden == sorted(orden) and orden[-1] < texto.index("cdk destroy semana19-datos")
+
+
+def _inventario_modulo():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("inv7", SCRIPTS / "inventario.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+class _SesionInventario:
+    """Only the AgentCore control plane and Bedrock Agents answer; any other client fails the test."""
+
+    def __init__(self, motores=(), agentes=(), gateways=()):
+        self.datos = {"motores": motores, "agentes": agentes, "gateways": gateways}
+
+    def client(self, servicio, region_name=None):
+        datos = self.datos
+
+        class Paginador:
+            def __init__(self, clave, nombres, campo):
+                self.r = [{clave: [{campo: n} for n in nombres]}]
+
+            def paginate(self):
+                return self.r
+
+        class AgentCore:
+            def list_policy_engines(self, **kw):
+                return {"policyEngines": [{"name": n} for n in datos["motores"]]}
+
+            def get_paginator(self, op):
+                assert op == "list_gateways"
+                return Paginador("items", datos["gateways"], "name")
+
+        class Agentes:
+            def get_paginator(self, op):
+                assert op == "list_agents"
+                return Paginador("agentSummaries", datos["agentes"], "agentName")
+
+        if servicio == "bedrock-agentcore-control":
+            return AgentCore()
+        if servicio == "bedrock-agent":
+            return Agentes()
+        raise AssertionError(f"--solo-actividad7 no consulta {servicio}")
+
+
+def test_inventario_de_la_actividad7_solo_mira_sus_categorias():
+    inv = _inventario_modulo()
+    assert set(inv.CATEGORIAS_ACTIVIDAD7) == {"gateways_agentcore", "motores_de_politicas_agentcore", "agentes_bedrock"}
+    limpio = inv.inventario(_SesionInventario(motores=["otro_motor"]), "us-east-1", solo=inv.CATEGORIAS_ACTIVIDAD7)
+    assert limpio["quedan"] == "nada" and limpio["total"] == 0 and limpio["no_medido"] == []
+    sucio = inv.inventario(_SesionInventario(motores=["semana19_politicas"], agentes=["semana19-agentes-comparacion"]),
+                           "us-east-1", solo=inv.CATEGORIAS_ACTIVIDAD7)
+    assert sucio["quedan"] == "revisar"
+    assert sucio["inesperados"] == {"motores_de_politicas_agentcore": ["semana19_politicas"],
+                                    "agentes_bedrock": ["semana19-agentes-comparacion"]}
+
+
+def test_con_control_se_permite_la_quinta_politica_de_ejecucion():
+    assert "semana19-cfn-exec-agentes" in _inventario_modulo().permitidos(True)["politicas_iam_locales"]
