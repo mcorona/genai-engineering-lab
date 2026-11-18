@@ -314,10 +314,13 @@ def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
             "bedrock:CreatePrompt", "bedrock:CreatePromptVersion", "bedrock:GetPrompt", "bedrock:UpdatePrompt",
             "bedrock:DeletePrompt", "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
             resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:prompt/*"]),
+        # Through Bedrock (prompts, the comparison agent) and AgentCore (the gateway and its policy engine, activity 7):
+        # creating a resource encrypted with the base key needs the caller's grant and data key (gateway-encryption).
         _declaracion(sid="LlaveDeLosPromptsPorCfn", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
                                                              "kms:DescribeKey", "kms:CreateGrant"],
                      resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
-                     conditions={"StringEquals": {"kms:ViaService": f"bedrock.{REGION}.amazonaws.com"}}),
+                     conditions={"StringEquals": {"kms:ViaService": [f"bedrock.{REGION}.amazonaws.com",
+                                                                     f"bedrock-agentcore.{REGION}.amazonaws.com"]}}),
         # The guardrail creator's function runs with its role (stack semana19-ia): CloudFormation passes it to Lambda.
         _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-ia-*")],
