@@ -37,7 +37,9 @@ DATOS = {
     "semana-10/legado": RAIZ / "semana-10" / "legado",
 }
 # Locked in uv.lock (the lab's lock). Pure Python or manylinux wheels only.
-DEPENDENCIAS = ["pydantic==2.14.1", "pydantic-core==2.50.1", "psycopg==3.3.6", "psycopg-binary==3.3.6", "sqlglot==30.26.0"]
+DEPENDENCIAS = ["pydantic==2.14.1", "pydantic-core==2.50.1", "psycopg==3.3.6", "psycopg-binary==3.3.6", "sqlglot==30.26.0",
+                "jsonschema==4.26.0", "jsonschema-specifications==2025.9.1", "referencing==0.37.0", "rpds-py==2026.9.1",
+                "attrs==26.1.0"]  # jsonschema and its dependencies: the week 17 guardrails import it
 IGNORAR = shutil.ignore_patterns("__pycache__", "tests", "*.pyc", "resultados", ".pytest_cache", "*.log")
 SHIM_APP = (
     '"""Lambda layout (week 19, activity 6): this folder holds the lab\'s code so that RAIZ resolves to the package root.\n\n'
