@@ -41,12 +41,21 @@ class TokenVencido(Exception):
     """The user's token expired before or during the loop: the question ends, nothing more is sent."""
 
 
-def expiracion(token: str) -> int | None:
-    """The token's `exp`, read without verifying (the gateway verifies the signature): only to fail before sending."""
+def claims(token: str) -> dict:
+    """The token's claims, read without verifying (the gateway verifies the signature); {} if it is not a JWT."""
     try:
         carga = token.split(".")[1]
-        return int(json.loads(base64.urlsafe_b64decode(carga + "=" * (-len(carga) % 4)))["exp"])
-    except (IndexError, ValueError, KeyError, TypeError):
+        datos = json.loads(base64.urlsafe_b64decode(carga + "=" * (-len(carga) % 4)))
+        return datos if isinstance(datos, dict) else {}
+    except (AttributeError, IndexError, ValueError, TypeError):
+        return {}
+
+
+def expiracion(token: str) -> int | None:
+    """The token's `exp`: only to fail before sending."""
+    try:
+        return int(claims(token)["exp"])
+    except (KeyError, ValueError, TypeError):
         return None
 
 
@@ -142,3 +151,55 @@ class LlamadorGateway:
         if pila is not None:
             with contextlib.suppress(Exception):
                 pila.close()
+
+
+# ---------------------------------------------------------------- the live Policy test (agentes/comparar.py)
+
+def _en_sesion(url: str, token: str, accion: Callable, abrir: Callable | None = None):
+    import anyio
+    abrir = abrir or _abrir_mcp(url, token)
+
+    async def correr():
+        async with abrir() as sesion:
+            return await accion(sesion)
+    return anyio.run(correr)
+
+
+def probar_como(url: str, token: str, argumentos: dict, *, abrir: Callable | None = None) -> dict:
+    """One proposal through the gateway as this user. Whether the Policy let it through: a JSON-RPC error or an
+    error result that is not the tool's own JSON means it did not; the tool's answer (even its error) means it did.
+    Only the code and the tool's error kind are returned, never a message."""
+    async def accion(sesion):
+        return await sesion.call_tool(contrato.nombre_en_gateway("proponer_orden_compra"), argumentos)
+    try:
+        r = _en_sesion(url, token, accion, abrir)
+    except BaseException as error:  # noqa: BLE001 - JSON-RPC errors may arrive inside an exception group
+        codigo = _codigo_jsonrpc(error)
+        if codigo is None and isinstance(error, BaseExceptionGroup):
+            codigo = next((c for c in map(_codigo_jsonrpc, error.exceptions) if c is not None), None)
+        if codigo is None:
+            raise
+        return {"paso": False, "forma": "jsonrpc", "codigo": codigo, "error_herramienta": None}
+    cuerpo = _texto_json(r)
+    if cuerpo is None:
+        return {"paso": False, "forma": "resultado_sin_json", "codigo": None, "error_herramienta": None,
+                "is_error": bool(getattr(r, "is_error", False))}
+    return {"paso": True, "forma": "resultado", "codigo": None, "error_herramienta": cuerpo.get("error")}
+
+
+def listar_como(url: str, token: str, *, abrir: Callable | None = None) -> list[str]:
+    """The tools this user sees (the Policy filters tools/list by what the principal may call)."""
+    async def accion(sesion):
+        return [t.name for t in (await sesion.list_tools()).tools]
+    return _en_sesion(url, token, accion, abrir)
+
+
+def _texto_json(resultado: Any) -> dict | None:
+    for c in getattr(resultado, "content", None) or []:
+        try:
+            datos = json.loads(getattr(c, "text", "") or "")
+        except (TypeError, ValueError):
+            continue
+        if isinstance(datos, dict):
+            return datos
+    return None
