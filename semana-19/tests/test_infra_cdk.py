@@ -805,3 +805,18 @@ def test_bootstrap_pasa_las_cinco_politicas_de_ejecucion():
     linea = next(l for l in script.splitlines() if "--cloudformation-execution-policies" in l)
     assert linea.count("$ARN_EJECUCION") == 5 and "$ARN_EJECUCION_AGENTES" in linea
     assert "OutputKey=='ArnEjecucionCfnAgentes'" in script
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_cloudformation_usa_la_llave_base_via_bedrock_y_agentcore(perfil):
+    """Creating the gateway and its policy engine encrypted with the base key needs the caller's grant through
+    AgentCore (activity 7); the boundary lets the gateway's role do the same."""
+    (ia,) = [r for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+             if any(s.get("Sid") == "LlaveDeLosPromptsPorCfn" for s in r["Properties"]["PolicyDocument"]["Statement"])]
+    (st,) = [s for s in ia["Properties"]["PolicyDocument"]["Statement"] if s["Sid"] == "LlaveDeLosPromptsPorCfn"]
+    assert sorted(texto(v).split(".")[0] for v in st["Condition"]["StringEquals"]["kms:ViaService"]) == \
+        ["bedrock", "bedrock-agentcore"]
+    assert {"kms:CreateGrant", "kms:GenerateDataKey*", "kms:Decrypt", "kms:DescribeKey"} <= set(st["Action"])
+    acciones, _ = _acciones_del_limite(perfil)["KmsParaBedrockDelLimite"]
+    assert {"kms:CreateGrant", "kms:Decrypt", "kms:DescribeKey"} <= acciones and \
+        any(a.startswith("kms:GenerateDataKey") for a in acciones)
