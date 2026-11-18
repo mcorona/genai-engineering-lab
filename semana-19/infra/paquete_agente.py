@@ -19,34 +19,48 @@ from pathlib import Path
 S19 = Path(__file__).resolve().parents[1]
 RAIZ = S19.parent
 DESTINO = S19 / ".build" / "agente"
-COPIAS = {
-    "agente": S19 / "agente",
-    "herramientas": S19 / "herramientas",
-    "consultas": S19 / "consultas",
-    "presupuestos": RAIZ / "semana-17" / "presupuestos",
-    "instrumentacion": RAIZ / "semana-17" / "instrumentacion",
-    "s13/agente": RAIZ / "semana-13" / "agente",
-    "s13/herramientas": RAIZ / "semana-13" / "herramientas",
+# Lambda layout: the code lives under app/, so every RAIZ computed from a file (parents[2]) resolves to /var/task, and the
+# data of each week sits at the package root under the repository's own name (semana-13, semana-17, ...).
+CODIGO = {
+    "app/agente": S19 / "agente",
+    "app/herramientas": S19 / "herramientas",
+    "app/consultas": S19 / "consultas",
+}
+DATOS = {
+    "semana-07": RAIZ / "semana-07",
+    "semana-13": RAIZ / "semana-13",
+    "semana-14": RAIZ / "semana-14",
+    "semana-17/presupuestos": RAIZ / "semana-17" / "presupuestos",
+    "semana-17/instrumentacion": RAIZ / "semana-17" / "instrumentacion",
+    "semana-17/guardrails": RAIZ / "semana-17" / "guardrails",
+    "semana-16/legacy-schema-audit": RAIZ / "semana-16" / "legacy-schema-audit",
+    "semana-10/legado": RAIZ / "semana-10" / "legado",
 }
 # Locked in uv.lock (the lab's lock). Pure Python or manylinux wheels only.
 DEPENDENCIAS = ["pydantic==2.14.1", "pydantic-core==2.50.1", "psycopg==3.3.6", "psycopg-binary==3.3.6", "sqlglot==30.26.0"]
-IGNORAR = shutil.ignore_patterns("__pycache__", "tests", "*.pyc", "resultados")
+IGNORAR = shutil.ignore_patterns("__pycache__", "tests", "*.pyc", "resultados", ".pytest_cache", "*.log")
+SHIM_APP = (
+    '"""Lambda layout (week 19, activity 6): this folder holds the lab\'s code so that RAIZ resolves to the package root.\n\n'
+    'Importing app.<package> puts this folder on sys.path, so `from agente import ...` works inside it."""\n'
+    "import sys as _sys\n"
+    "from pathlib import Path as _Path\n\n"
+    "_aqui = str(_Path(__file__).resolve().parent)\n"
+    "if _aqui not in _sys.path:\n"
+    "    _sys.path.insert(0, _aqui)\n"
+)
 
 
 def construir(sin_dependencias: bool = False) -> Path:
     if DESTINO.exists():
         shutil.rmtree(DESTINO)
     DESTINO.mkdir(parents=True)
-    for nombre, origen in COPIAS.items():
+    for nombre, origen in {**CODIGO, **DATOS}.items():
         if not origen.is_dir():
-            raise FileNotFoundError(f"falta el paquete {origen}")
+            raise FileNotFoundError(f"falta {origen}")
         shutil.copytree(origen, DESTINO / nombre, ignore=IGNORAR)
-    # The week 13 loop and the budget module read semana-07/prices.json from the package root (/var/task/semana-07).
-    precios = RAIZ / "semana-07" / "prices.json"
-    if not precios.is_file():
-        raise FileNotFoundError(f"falta el archivo de precios {precios}")
-    (DESTINO / "semana-07").mkdir()
-    shutil.copy2(precios, DESTINO / "semana-07" / "prices.json")
+    (DESTINO / "app" / "__init__.py").write_text(SHIM_APP, encoding="utf-8")
+    if not (DESTINO / "semana-07" / "prices.json").is_file():
+        raise FileNotFoundError("falta semana-07/prices.json en el paquete")
     if not sin_dependencias:
         subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--target", str(DESTINO),
                         "--only-binary=:all:", "--platform", "manylinux2014_x86_64", "--platform", "manylinux_2_28_x86_64",
