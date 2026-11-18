@@ -59,7 +59,8 @@ DESPLIEGUE = "semana19-despliegue"
 ROL_PRESUPUESTO = "semana19-accion-presupuesto"
 OPERADOR = "manuel-admin"
 PRESUPUESTO = "semana19"
-PRESUPUESTO_USD = 5.0
+# Monthly (AWS Budgets has no weekly period). USD 10 since 2026-11-18, Manuel's weekly cap for week 19; it was 5.0.
+PRESUPUESTO_USD = 10.0
 PREFIJO_ROLES_CDK = "cdk-s19-"
 ETIQUETA_COSTO = "user:proyecto$semana19"
 GRUPO_FLOW_LOGS = "/semana19/base/flowlogs"

@@ -4,6 +4,8 @@
 #   semana-19/infra/desplegar.sh            simulation: synthesizes locally and prints the plan. No AWS calls.
 #   semana-19/infra/desplegar.sh --diff     read-only: compares with what is deployed. No changes.
 #   semana-19/infra/desplegar.sh --si       acts. Only after Manuel's OK for the exact plan shown by --diff.
+#   add --solo-control to --diff or --si: only semana19-control and the bootstrap (steps 1 and 2); base, datos, ia, the
+#   loader and the ingestion are not touched. For changes to the budget, the boundary or the execution policies.
 #
 # Environment:
 #   PERFIL=lab|prod                  profile in semana-19/spike/perfiles.json (default lab; only lab is deployed)
@@ -26,11 +28,13 @@ PYTHON_CDK="${S19_PYTHON:-$RAIZ/.venv-cdk/bin/python}"
 REGION="us-east-1"
 PERFIL="${PERFIL:-lab}"
 MODO="simulacion"
+SOLO_CONTROL=0
 
 for argumento in "$@"; do
   case "$argumento" in
     --si) MODO="si" ;;
     --diff) MODO="diff" ;;
+    --solo-control) SOLO_CONTROL=1 ;;
     *) echo "argumento no reconocido: $argumento (usa --diff o --si; sin nada simula)" >&2; exit 2 ;;
   esac
 done
@@ -105,6 +109,7 @@ PY
   else
     echo "-- bootstrap s19: no existe; se crearía (17 tipos de recurso, llave KMS 1.00 USD/mes)"
   fi
+  if [[ "$SOLO_CONTROL" == 1 ]]; then exit 0; fi
   echo "-- semana19-base: diff de CDK"
   if aws configure list-profiles 2>/dev/null | grep -qx "$PERFIL_DESPLIEGUE"; then
     cdk diff semana19-base --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
@@ -136,7 +141,13 @@ echo "== Cuenta: <account> (resuelta en ejecución, no se imprime)"
 desplegar_control() {
   local bootstrap_creado="$1"
   local bucket=()
-  if [ -n "${S19_BUCKET_PLANTILLAS:-}" ]; then bucket=(--s3-bucket "$S19_BUCKET_PLANTILLAS"); fi
+  if [ -n "${S19_BUCKET_PLANTILLAS:-}" ]; then
+    bucket=(--s3-bucket "$S19_BUCKET_PLANTILLAS")
+  elif [[ "$bootstrap_creado" == "true" ]]; then
+    # Once the bootstrap exists, its staging bucket holds the template (CloudFormation reads it from there).
+    bucket=(--s3-bucket "$(aws cloudformation describe-stacks --stack-name semana19-cdktoolkit --region "$REGION" \
+      --profile "$PERFIL_ADMIN" --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)")
+  fi
   aws cloudformation deploy --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN" \
     --template-file "$OUT/semana19-control.template.json" --capabilities CAPABILITY_NAMED_IAM \
     --parameter-overrides "CorreoAlerta=$ALERTA_EMAIL" "BootstrapCreado=$bootstrap_creado" \
@@ -175,6 +186,10 @@ cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 
   --cloudformation-execution-policies "$ARN_EJECUCION,$ARN_EJECUCION_DATOS,$ARN_EJECUCION_IA,$ARN_EJECUCION_COMPUTO" \
   --trust "$ARN_DESPLIEGUE"
 registrar "bootstrap" $(( $(date +%s) - inicio ))
+if [[ "$SOLO_CONTROL" == 1 ]]; then
+  echo "== Listo (--solo-control): semana19-control y bootstrap. Base, datos e ia no se tocaron."
+  exit 0
+fi
 
 inicio=$(date +%s)
 echo "== Paso 3: semana19-base (CREATE_COMPLETE medido)"
