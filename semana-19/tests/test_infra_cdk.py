@@ -308,6 +308,15 @@ def test_presupuesto_con_tres_alertas(perfil):
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
+def test_presupuesto_mensual_de_10_usd(perfil):
+    """Manuel's cap for week 19 is USD 10 (2026-11-18). AWS Budgets has no weekly period, so the limit is monthly."""
+    (presupuesto,) = recursos(de_control(perfil), "AWS::Budgets::Budget").values()
+    datos = presupuesto["Properties"]["Budget"]
+    assert datos["TimeUnit"] == "MONTHLY" and datos["BudgetType"] == "COST"
+    assert float(datos["BudgetLimit"]["Amount"]) == 10.0 and datos["BudgetLimit"]["Unit"] == "USD"
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
 def test_la_congelacion_no_bloquea_borrar(perfil):
     congelacion = [st for _, _, st in declaraciones(de_control(perfil))
                    if st.get("Sid") == "NoCrearNiActualizarMientrasEsteActiva"]
@@ -446,6 +455,31 @@ def test_desplegar_si_sin_correo_se_detiene_antes_de_aws(tmp_path):
     assert r.returncode == 2
     assert "ALERTA_EMAIL" in r.stderr
     assert not marcas.exists()
+
+
+def test_solo_control_despliega_control_y_bootstrap_y_nada_mas(tmp_path):
+    """--solo-control --si: semana19-control and the bootstrap only. The fakes answer OK and record every call."""
+    entorno, marcas = _entorno_falso(tmp_path)
+    for nombre in ("aws", "cdk"):
+        (tmp_path / "bin" / nombre).write_text(
+            f'#!/usr/bin/env bash\necho "{nombre} $*" >> "{marcas}"\necho falso\nexit 0\n', encoding="utf-8")
+    entorno["ALERTA_EMAIL"] = "alertas" + chr(64) + "ejemplo.invalid"  # built, so the repo holds no address
+    registro = S19 / "resultados" / "tiempos_despliegue.jsonl"
+    antes = registro.read_bytes() if registro.exists() else None
+    try:
+        r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh"), "--solo-control", "--si"], env=entorno,
+                           capture_output=True, text=True)
+    finally:  # the fake run must not leave timing lines in the repo's log
+        if antes is None:
+            registro.unlink(missing_ok=True)
+        else:
+            registro.write_bytes(antes)
+    assert r.returncode == 0, r.stderr[-800:]
+    llamadas = marcas.read_text().splitlines()
+    assert any("cloudformation deploy --stack-name semana19-control" in l for l in llamadas)
+    assert any(l.startswith("cdk bootstrap") for l in llamadas)
+    assert not any(l.startswith("cdk deploy") or "lambda invoke" in l or "start-ingestion-job" in l for l in llamadas)
+    assert any("--s3-bucket falso" in l for l in llamadas if "cloudformation deploy" in l)  # the bootstrap's bucket
 
 
 def test_argumentos_desconocidos_salen_con_2(tmp_path):
