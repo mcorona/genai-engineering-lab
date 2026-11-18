@@ -35,6 +35,7 @@ def sintetizar(perfil: str) -> dict:
     entorno = {**os.environ, "PERFIL": perfil, "CDK_OUTDIR": str(salida), "COMPUTO": "1", "S19_SIN_DEPENDENCIAS": "1",
                "JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION": "1"}
     entorno.pop("CAMINO_HERRAMIENTAS", None)
+    entorno.pop("S19_GATEWAY_FASE", None)
     r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-2000:]
     plantilla = json.loads((salida / f"{PILA}.template.json").read_text(encoding="utf-8"))
@@ -280,3 +281,23 @@ def test_el_rol_ya_evalua_el_motor_antes_de_crear_el_gateway(perfil):
     (despues,) = [k for k in pl if k.startswith("EvaluarPoliticas")]
     (st,) = pl[despues]["Properties"]["PolicyDocument"]["Statement"]
     assert st["Resource"] == {"Fn::GetAtt": [gw_id, "GatewayArn"]}
+
+
+
+def test_la_fase_1_crea_el_gateway_sin_motor_con_su_arn_exacto_y_nag_en_cero():
+    """First creation: no engine yet, so CreateGateway does not check AuthorizeAction; the role gets the gateway's
+    exact ARN. The final phase (the default, every other test) attaches the engine in ENFORCE."""
+    r = _sintetizar_computo(S19_GATEWAY_FASE="1")
+    assert r.returncode == 0, r.stderr[-2000:]
+    pl = json.loads((r.salida / f"{PILA}.template.json").read_text(encoding="utf-8"))["Resources"]
+    (gw_id,) = [k for k, v in pl.items() if v["Type"] == "AWS::BedrockAgentCore::Gateway"]
+    assert "PolicyEngineConfiguration" not in pl[gw_id]["Properties"]
+    (evaluar,) = [v for k, v in pl.items() if k.startswith("EvaluarPoliticas")]
+    assert evaluar["Properties"]["PolicyDocument"]["Statement"][0]["Resource"] == {"Fn::GetAtt": [gw_id, "GatewayArn"]}
+    informe = list(csv.DictReader((r.salida / f"AwsSolutions--{PILA}-NagReport.csv").open(encoding="utf-8")))
+    assert [x for x in informe if x["Compliance"] != "Compliant"] == []
+
+
+def test_una_fase_desconocida_no_sintetiza():
+    r = _sintetizar_computo(S19_GATEWAY_FASE="3")
+    assert r.returncode != 0 and "S19_GATEWAY_FASE" in r.stderr
