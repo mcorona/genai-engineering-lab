@@ -1,0 +1,78 @@
+[
+  {
+    "name": "describir_esquema",
+    "description": "Describe the legacy tables and columns available to the current user, with the data dictionary (meaning of each cryptic name and value formats). Call it before writing SQL.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "tablas": {
+          "type": "array",
+          "description": "Tables to describe. Omit to list every table available to the user.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "ejecutar_sql",
+    "description": "Validate and run one SELECT over the legacy tables in a read-only transaction, with time and row limits. Returns columns, rows (up to max_filas) and the total row count.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "sql": {
+          "type": "string",
+          "description": "One PostgreSQL SELECT over the legacy tables."
+        },
+        "max_filas": {
+          "type": "integer",
+          "description": "Maximum rows to return; the total is always reported."
+        }
+      },
+      "required": [
+        "sql"
+      ]
+    }
+  },
+  {
+    "name": "proponer_orden_compra",
+    "description": "Register a purchase order PROPOSAL for human approval. It never creates, approves or executes an order: a person with the authorization level of the amount must approve it. Only for users with the purchasing role. Every field is required: if the user did not give the delivery CEDIS or the required date, ask for them (pregunta_aclaracion) instead of choosing one. cedis is legado.almmst.alm_id (look it up with ejecutar_sql when the user names a city or a CEDIS by name).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "sku": {
+          "type": "string",
+          "description": "Item code, e.g. SKU-0009."
+        },
+        "cantidad": {
+          "type": "integer"
+        },
+        "motivo": {
+          "type": "string",
+          "description": "Reason: reorden automático, compra urgente o proyecto especial, with a short note."
+        },
+        "cedis": {
+          "type": "integer",
+          "description": "Delivery CEDIS: legado.almmst.alm_id."
+        },
+        "fecha_requerida": {
+          "type": "string",
+          "description": "Required date, AAAA-MM-DD, as the user gave it."
+        },
+        "solicitante": {
+          "type": "string",
+          "description": "Requester: the subject (sub) of the verified token, set by the agent Lambda, never by the model. The gateway's policy allows the call only when it is the caller's own sub."
+        }
+      },
+      "required": [
+        "sku",
+        "cantidad",
+        "motivo",
+        "cedis",
+        "fecha_requerida",
+        "solicitante"
+      ]
+    }
+  }
+]

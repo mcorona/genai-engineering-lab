@@ -21,6 +21,7 @@ from agente import capa_determinista as C
 from agente.converse_adaptador import api_converse
 from agente.presupuesto import Precios
 from agente.sumidero_logs import SumideroCloudWatch
+from herramientas import contrato  # the internal call of the tools Lambda (one contract for its three callers)
 from presupuestos.politica import Limite, Politica
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -67,20 +68,9 @@ def cargar_bucle_semana13():
     return modulo.Agente, modulo
 
 
-def _entrada_de_herramienta(nombre: str, args: dict, solicitante: str | None = None) -> dict:
-    if nombre == "describir_esquema":
-        return {"herramienta": nombre}
-    if nombre == "ejecutar_sql":
-        return {"herramienta": nombre, "sql": args["sql"]}
-    if nombre == "proponer_orden_compra":
-        # The requester is the token's subject (agente/handler.py), outside the model's arguments.
-        return {"herramienta": nombre, "entrada": args, "solicitante": solicitante}
-    raise ValueError(f"herramienta sin binding: {nombre}")
-
-
 def llamador_de_herramientas(cliente_lambda, nombre_funcion: str):
     def llamar(nombre: str, args: dict, solicitante: str | None = None) -> dict:
-        carga = json.dumps(_entrada_de_herramienta(nombre, args, solicitante), ensure_ascii=False).encode("utf-8")
+        carga = json.dumps(contrato.entrada_de_herramienta(nombre, args, solicitante), ensure_ascii=False).encode("utf-8")
         resp = cliente_lambda.invoke(FunctionName=nombre_funcion, Payload=carga)
         cuerpo = json.loads(resp["Payload"].read())
         return _al_contrato_semana13(cuerpo, fallo=bool(resp.get("FunctionError")))

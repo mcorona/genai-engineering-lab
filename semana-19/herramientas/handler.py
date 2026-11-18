@@ -1,6 +1,7 @@
 """Week 19, activity 6: the tools Lambda (in the VPC, outside nothing: it is the only one that talks to the database).
 
-Tools (called by the agent Lambda, ADR 0004):
+Tools (called by the agent Lambda, ADR 0004; since activity 7 also by the AgentCore Gateway and by Bedrock Agents,
+each format through its adapter in herramientas/adaptadores.py):
   describir_esquema   the legacy schema's tables and columns (copilot_ro, read-only)
   ejecutar_sql        one read-only SELECT, checked by the week 16 guard BEFORE any connection
   proponer_orden_compra  starts the approval state machine; writes nothing itself
@@ -20,6 +21,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from agente.escritor_orden import validar_propuesta  # the writer's own checks: one contract on both sides
+from herramientas import adaptadores as A
 from herramientas.guardia_sql import ToolError, guard
 
 ESQUEMA = "legado"
@@ -131,6 +133,20 @@ def token_iam(host: str, generar: Callable[..., str], region: str) -> str:
 
 def handler(event: dict, context: Any, *, conectar: Callable[[], Any] | None = None,
             iniciar: Callable[[str], str] | None = None) -> dict:
+    """One entry for the three callers (herramientas/adaptadores.py): each format becomes the same internal call."""
+    fmt = A.formato(event, context)
+    if fmt == "directo":
+        return _ejecutar(event, conectar, iniciar)
+    try:
+        interno = A.desde_gateway(event, context) if fmt == "gateway" else A.desde_agentes(event)
+    except (ValueError, KeyError, TypeError):
+        resultado = {"error": "entrada_invalida", "mensaje": "llamada mal formada"}
+    else:
+        resultado = _ejecutar(interno, conectar, iniciar)
+    return A.respuesta_agentes(event, resultado) if fmt == "agentes" else resultado
+
+
+def _ejecutar(event: dict, conectar: Callable[[], Any] | None, iniciar: Callable[[str], str] | None) -> dict:
     herramienta = event.get("herramienta")
     try:
         if herramienta == "describir_esquema":
