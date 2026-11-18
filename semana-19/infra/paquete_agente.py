@@ -37,9 +37,41 @@ DATOS = {
     "semana-10/legado": RAIZ / "semana-10" / "legado",
 }
 # Locked in uv.lock (the lab's lock). Pure Python or manylinux wheels only.
-DEPENDENCIAS = ["pydantic==2.14.1", "pydantic-core==2.50.1", "psycopg==3.3.6", "psycopg-binary==3.3.6", "sqlglot==30.26.0",
-                "jsonschema==4.26.0", "jsonschema-specifications==2025.9.1", "referencing==0.37.0", "rpds-py==2026.9.1",
-                "attrs==26.1.0"]  # jsonschema and its dependencies: the week 17 guardrails import it
+DEPENDENCIAS = [
+    "annotated-types==0.8.0",
+    "anyio==4.15.1",
+    "attrs==26.1.0",
+    "cffi==2.1.1",
+    "click==8.5.0",
+    "cryptography==50.0.2",
+    "h11==0.16.0",
+    "httpcore2==2.15.1",
+    "httpx2==2.15.1",
+    "httpx2-jsfetch==1.0",
+    "idna==3.20",
+    "jsonschema==4.26.0",
+    "jsonschema-specifications==2025.9.1",
+    "mcp==2.3.0",
+    "mcp-types==2.3.0",
+    "opentelemetry-api==1.45.2",
+    "pycparser==3.12",
+    "pydantic==2.14.1",
+    "pydantic-core==2.50.1",
+    "pyjwt==2.15.1",
+    "python-multipart==0.0.32",
+    "referencing==0.37.0",
+    "rpds-py==2026.9.1",
+    "sse-starlette==3.6.0",
+    "starlette==1.10.0",
+    "truststore==0.10.5",
+    "typing-extensions==4.16.0",
+    "typing-inspection==0.4.4",
+    "uvicorn==0.54.0",
+    "psycopg==3.3.6",
+    "psycopg-binary==3.3.6",
+    "sqlglot==30.26.0",
+]  # locked in uv.lock: the closure of mcp, anyio and PyJWT (week 14 servers, imported by the week 17 guardrails),
+# plus jsonschema and the week 19 database and SQL packages. pywin32 is Windows-only and is left out.  # jsonschema and its dependencies: the week 17 guardrails import it
 IGNORAR = shutil.ignore_patterns("__pycache__", "tests", "*.pyc", "resultados", ".pytest_cache", "*.log")
 SHIM_APP = (
     '"""Lambda layout (week 19, activity 6): this folder holds the lab\'s code so that RAIZ resolves to the package root.\n\n'
