@@ -616,6 +616,10 @@ class Control(Stack):
                                           "RolesDeComputoPorCfn",
                                           "EntregaDeLogsDeApiPorCfn",
                                           "MaquinaDeAprobacionPorCfn", "PasarRolesDeComputoAFuncionesYMaquina"])
+        saltar_checkov(ejecucion_computo, {
+            "CKV_AWS_111": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), "
+                           "entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB "
+                           "(LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
