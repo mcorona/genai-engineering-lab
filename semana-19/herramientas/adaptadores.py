@@ -53,6 +53,17 @@ def _valor(parametro: dict):
         return str(valor).lower() == "true"
     if tipo in _TIPOS:
         return _TIPOS[tipo](valor)
+    if tipo == "array":   # Bedrock Agents sends an array as text: JSON, or the model's bare "[a, b]"
+        texto = str(valor).strip()
+        try:
+            lista = json.loads(texto)
+        except json.JSONDecodeError:
+            if not (texto.startswith("[") and texto.endswith("]")):
+                raise ValueError("arreglo mal formado") from None
+            lista = [x.strip().strip("'\"") for x in texto[1:-1].split(",") if x.strip()]
+        if not isinstance(lista, list) or not all(isinstance(x, str) for x in lista):
+            raise ValueError("arreglo mal formado")
+        return lista
     raise ValueError(f"tipo de parámetro no admitido: {tipo}")
 
 
