@@ -1071,7 +1071,7 @@ class Computo(Stack):
             self, "EndpointsDesdeHerramientas", group_id=sg_endpoints.security_group_id, ip_protocol="tcp", from_port=443,
             to_port=443, source_security_group_id=sg_herramientas.security_group_id, description="HTTPS desde la funcion de herramientas")
         herramientas = lambda_.Function(
-            self, "FuncionHerramientas", runtime=lambda_.Runtime.PYTHON_3_13, handler="herramientas.construccion.handler_lambda",
+            self, "FuncionHerramientas", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.herramientas.construccion.handler_lambda",
             code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("herramientas"),
             vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
             security_groups=[sg_herramientas], reserved_concurrent_executions=2,
@@ -1104,12 +1104,12 @@ class Computo(Stack):
         perfil_modelo = modelo_con_perfil                       # us.<family>...
         modelo_fundacion = modelo_con_perfil.split(".", 1)[1]    # the foundation model id behind the profile
         agente = lambda_.Function(
-            self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="consultas.worker.handler_lambda",
+            self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.consultas.worker.handler_lambda",
             code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(120), memory_size=512,
             log_group=grupo("agente"), reserved_concurrent_executions=2,
             environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
-                         "S19_RUTA_SEMANA13": "/var/task/s13", "TABLA_CONSULTAS": tabla_consultas.table_name},
+                         "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
         agente.add_to_role_policy(_declaracion(
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
@@ -1201,7 +1201,7 @@ class Computo(Stack):
 
         # Questions (activity 6b): POST /consultas starts the agent asynchronously; GET /consultas/{id} reads the owner's answer.
         consultas_api = lambda_.Function(
-            self, "FuncionConsultas", runtime=lambda_.Runtime.PYTHON_3_13, handler="consultas.api.handler_lambda",
+            self, "FuncionConsultas", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.consultas.api.handler_lambda",
             code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(10), memory_size=128,
             log_group=grupo("consultas"), reserved_concurrent_executions=5,
             environment={"TABLA_CONSULTAS": tabla_consultas.table_name, "FUNCION_AGENTE": agente.function_name},
