@@ -934,3 +934,15 @@ def test_inventario_de_la_actividad7_solo_mira_sus_categorias():
 
 def test_con_control_se_permite_la_quinta_politica_de_ejecucion():
     assert "semana19-cfn-exec-agentes" in _inventario_modulo().permitidos(True)["politicas_iam_locales"]
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_cloudformation_administra_las_politicas_de_los_roles_de_la_actividad7(perfil):
+    """CreateRole carries the boundary key; GetRolePolicy and PutRolePolicy do not (the first deploy of the comparison
+    stack failed on iam:GetRolePolicy, 2026-11-18), so they are allowed on the two stacks' role names only."""
+    (pol,) = [r for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+              if any(s.get("Sid") == "RolesDeActividad7PorCfn" for s in r["Properties"]["PolicyDocument"]["Statement"])]
+    (st,) = [s for s in pol["Properties"]["PolicyDocument"]["Statement"] if s["Sid"] == "RolesDeActividad7PorCfn"]
+    assert {"iam:GetRolePolicy", "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:DeleteRole"} <= set(st["Action"])
+    assert "iam:CreateRole" not in st["Action"] and "iam:PutRolePermissionsBoundary" not in st["Action"]
+    assert "iam:DeleteRolePermissionsBoundary" not in st["Action"] and "Condition" not in st
+    assert sorted(texto(r).split(":role/")[1] for r in st["Resource"]) == ["semana19-agentes-comparacion-*",
+                                                                         "semana19-gateway-*"]

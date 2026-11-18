@@ -440,6 +440,13 @@ def politica_ejecucion_agentes() -> list[iam.PolicyStatement]:
         _declaracion(sid="ModeloYGuardrailDelAgentePorCfn", actions=[
             "bedrock:GetInferenceProfile", "bedrock:GetFoundationModel", "bedrock:GetGuardrail"],
             resources=[*arns_modelo_del_agente(), f"{bedrock}:guardrail/*"]),
+        # The roles of both stacks: their inline policies and deletion. These calls carry no boundary key, so they
+        # are listed here, limited to the two stacks' role names (creation still needs the boundary: RolesConLimite).
+        _declaracion(sid="RolesDeActividad7PorCfn", actions=[
+            "iam:GetRole", "iam:GetRolePolicy", "iam:ListRolePolicies", "iam:ListAttachedRolePolicies", "iam:ListRoleTags",
+            "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:DeleteRole", "iam:UpdateAssumeRolePolicy", "iam:TagRole",
+            "iam:UntagRole"],
+            resources=[arn_iam("role/semana19-gateway-*"), arn_iam("role/semana19-agentes-comparacion-*")]),
         _declaracion(sid="PasarRolesAAgentCoreYBedrock", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-*")],
                      conditions={"StringEquals": {"iam:PassedToService": ["bedrock-agentcore.amazonaws.com",
@@ -695,7 +702,8 @@ class Control(Stack):
                            "entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB "
                            "(LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES."})
         suprimir_iam5(ejecucion_agentes, ["GatewayPorCfn", "MotorDePoliticasPorCfn", "CrearAgentePorCfn", "AgentePorCfn",
-                                          "ModeloYGuardrailDelAgentePorCfn", "PasarRolesAAgentCoreYBedrock"])
+                                          "ModeloYGuardrailDelAgentePorCfn", "PasarRolesAAgentCoreYBedrock",
+                                          "RolesDeActividad7PorCfn"])
         saltar_checkov(ejecucion_agentes, {
             "CKV_AWS_111": "CreateAgent sin tipo de recurso (Service Authorization Reference) y recursos de AgentCore sin ID previo; ver EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
