@@ -14,6 +14,7 @@ sys.path.insert(0, str(S19))
 from agente import construccion as K  # noqa: E402
 from agente import handler as H  # noqa: E402
 from agente.presupuesto import Precios  # noqa: E402
+from herramientas import contrato  # noqa: E402
 
 ENTORNO = {"FUNCION_HERRAMIENTAS": "fn-herramientas", "GUARDRAIL_ID": "gid-prueba", "GUARDRAIL_VERSION": "1",
             "GRUPO_SPANS": "/semana19/agente/spans"}
@@ -87,7 +88,7 @@ def test_presupuesto_de_la_tarea_usa_el_tope_calibrado_convertido_a_precio_de_4_
 
 def test_herramienta_sin_binding_no_se_llama():
     with pytest.raises(ValueError):
-        K._entrada_de_herramienta("borrar_todo", {})
+        contrato.entrada_de_herramienta("borrar_todo", {})
 
 
 def test_precios_de_4_5_son_los_verificados():
