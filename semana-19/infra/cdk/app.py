@@ -1441,8 +1441,13 @@ class Gateway(Stack):
                 "ArnLike": {"aws:SourceArn": f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}:gateway/{NOMBRE_GATEWAY}-*"}}))
         rol.add_to_policy(_declaracion(sid="InvocarSoloHerramientas", actions=["lambda:InvokeFunction"],
                                        resources=[herramientas.function_arn]))
-        rol.add_to_policy(_declaracion(sid="LeerSuMotorDePoliticas", actions=["bedrock-agentcore:GetPolicyEngine"],
-                                       resources=[motor.attr_policy_engine_arn]))
+        # CreateGateway checks that the role may already evaluate the engine's policies (GenesisPolicyEngineCheck,
+        # 2026-11-18): the engine's part goes in the default policy, which exists before the gateway.
+        rol.add_to_policy(_declaracion(
+            sid="EvaluarSuMotorDePoliticas", actions=["bedrock-agentcore:GetPolicyEngine",
+                                                      "bedrock-agentcore:AuthorizeAction",
+                                                      "bedrock-agentcore:PartiallyAuthorizeActions"],
+            resources=[motor.attr_policy_engine_arn]))
         rol.add_to_policy(_declaracion(
             sid="LlaveBaseViaAgentCore", actions=["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"],
             resources=[llave.key_arn],
@@ -1459,11 +1464,12 @@ class Gateway(Stack):
             policy_engine_configuration=agentcore.CfnGateway.GatewayPolicyEngineConfigurationProperty(
                 arn=motor.attr_policy_engine_arn, mode="ENFORCE"))
         gateway.node.add_dependency(rol)
-        # Policy evaluation needs both the engine and the gateway (policy-permissions.html): attached after the gateway.
+        # Policy evaluation needs both the engine and the gateway (policy-permissions.html): the gateway's part is
+        # attached after the gateway exists (its ARN is not known before).
         evaluar = iam.Policy(self, "EvaluarPoliticas", roles=[rol], statements=[_declaracion(
-            sid="EvaluarSusPoliticas",
+            sid="EvaluarSusPoliticasEnElGateway",
             actions=["bedrock-agentcore:AuthorizeAction", "bedrock-agentcore:PartiallyAuthorizeActions"],
-            resources=[motor.attr_policy_engine_arn, gateway.attr_gateway_arn])])
+            resources=[gateway.attr_gateway_arn])])
 
         objetivo = agentcore.CfnGatewayTarget(
             self, "Herramientas", name=contrato.TARGET, gateway_identifier=gateway.attr_gateway_identifier,
