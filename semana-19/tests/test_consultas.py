@@ -6,6 +6,8 @@ ends as 'error', and the worker stores only the state on failure (no detail, no 
 from __future__ import annotations
 
 import json
+
+import pytest
 import sys
 from pathlib import Path
 
@@ -15,8 +17,11 @@ sys.path.insert(0, str(S19))
 from consultas import api, worker  # noqa: E402
 
 
-def evento(ruta: str, sub: str = "usuario-a", cuerpo: dict | None = None, id_consulta: str | None = None) -> dict:
+def evento(ruta: str, sub: str = "usuario-a", cuerpo: dict | None = None, id_consulta: str | None = None,
+           autorizacion: str | None = "Bearer tok.en.firmado") -> dict:
     e = {"routeKey": ruta, "requestContext": {"authorizer": {"jwt": {"claims": {"sub": sub, "tenant": "t1", "scope": "x"}}}}}
+    if autorizacion is not None:
+        e["headers"] = {"authorization": autorizacion}
     if cuerpo is not None:
         e["body"] = json.dumps(cuerpo)
     if id_consulta is not None:
@@ -59,7 +64,15 @@ def test_crear_guarda_por_hash_del_sujeto_y_arranca_el_agente():
     assert item["dueno"] == api.dueno_de({"sub": "usuario-a"}) and item["dueno"] != "usuario-a"
     assert item["expira"] == 1000 + api.VIGENCIA_SEGUNDOS
     assert a.invocaciones == [{"id": "c-1", "claims": {"sub": "usuario-a", "tenant": "t1", "scope": "x"},
-                               "pregunta": "¿Stock de SKU-0001?"}]
+                               "pregunta": "¿Stock de SKU-0001?", "token": "tok.en.firmado"}]
+    assert "tok.en.firmado" not in json.dumps(a.items)   # ADR 0007: the token travels to the agent, never to the table
+
+
+@pytest.mark.parametrize("autorizacion", [None, "", "Basic abc", "Bearer"])
+def test_sin_bearer_el_agente_recibe_token_nulo(autorizacion):
+    a = Almacen()
+    _llamar(a, evento("POST /consultas", cuerpo={"pregunta": "hola"}, autorizacion=autorizacion))
+    assert a.invocaciones[0]["token"] is None
 
 
 def test_pregunta_invalida_no_escribe_nada():

@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 def procesar(event: dict, *, correr: Callable, actualizar: Callable) -> dict:
     id_consulta = event["id"]
     try:
-        res = correr({"claims": event["claims"], "pregunta": event["pregunta"]})
+        res = correr({"claims": event["claims"], "pregunta": event["pregunta"], "token": event.get("token")})
         campos = {"estado": str(res["estado"]), "respuesta": str(res.get("respuesta") or ""),
                   "decisiones_json": json.dumps(res.get("decisiones") or [], ensure_ascii=False, default=str)}
     except Exception as error:  # noqa: BLE001 — every failure ends as 'error'
