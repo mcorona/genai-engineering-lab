@@ -56,6 +56,40 @@ N = _cargar_nucleo()
 
 HERRAMIENTAS = ("describir_esquema", "ejecutar_sql", "proponer_orden_compra")
 
+# Week 19's contract for the proposal: week 13's fields plus the CEDIS and the required date, which the policy
+# (semana-08/corpus/ordenes_de_compra.md, "Datos obligatorios") and the database (po_require_delivery) require. The
+# requester is not a field: the agent Lambda adds the token's subject (agente/handler.py). The tools Lambda and the
+# writer check the same contract (agente/escritor_orden.validar_propuesta).
+DEFINICION_PROPONER = {
+    "name": "proponer_orden_compra",
+    "description": (
+        "Register a purchase order PROPOSAL for human approval. It never creates, approves or executes an order: a person "
+        "with the authorization level of the amount must approve it. Only for users with the purchasing role. Every field "
+        "is required: if the user did not give the delivery CEDIS or the required date, ask for them (pregunta_aclaracion) "
+        "instead of choosing one. cedis is legado.almmst.alm_id (look it up with ejecutar_sql when the user names a city "
+        "or a CEDIS by name)."),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "sku": {"type": "string", "pattern": r"^SKU-\d{4}$", "description": "Item code, e.g. SKU-0009."},
+            "cantidad": {"type": "integer", "minimum": 1, "maximum": 100000},
+            "motivo": {"type": "string", "minLength": 1, "maxLength": 200,
+                       "description": "Reason: reorden automático, compra urgente o proyecto especial, with a short note."},
+            "cedis": {"type": "integer", "minimum": 1, "description": "Delivery CEDIS: legado.almmst.alm_id."},
+            "fecha_requerida": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$",
+                                "description": "Required date, AAAA-MM-DD, as the user gave it."},
+        },
+        "required": ["sku", "cantidad", "motivo", "cedis", "fecha_requerida"],
+        "additionalProperties": False,
+    },
+}
+
+
+def definiciones_semana19() -> list[dict]:
+    """The agent's tools: week 13's catalog for the read tools, week 19's contract for the proposal."""
+    defs = [d for d in DEFINICIONES_SEMANA13 if d["name"] in HERRAMIENTAS and d["name"] != DEFINICION_PROPONER["name"]]
+    return [*defs, DEFINICION_PROPONER]
+
 
 def revisar_entrada(texto: str) -> tuple[str | None, list]:
     """(motive of the first block or None, decisions). A block means: do not call the model."""

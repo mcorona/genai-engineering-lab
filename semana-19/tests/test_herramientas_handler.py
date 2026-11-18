@@ -58,7 +58,7 @@ def test_seleccion_fija_timeout_solo_lectura_y_limite():
     assert sql[0] == f"SET statement_timeout = {H.TIMEOUT_MS}"
     assert sql[1] == "SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY"
     assert sql[2].startswith("SELECT * FROM (") and f"LIMIT {H.LIMITE_FILAS + 1}" in sql[2]
-    assert res["filas"] == [(1, "x")] and res["truncado"] is False
+    assert res["filas"] == [[1, "x"]] and res["truncado"] is False   # lists: what JSON carries
     assert fabrica.conexion.cerrada
 
 
@@ -83,27 +83,83 @@ def test_describir_esquema_agrupa_columnas_por_tabla():
     assert con.cerrada
 
 
-def test_orden_de_compra_solo_inicia_la_maquina_y_no_escribe():
-    inicios = []
-    res = H.proponer_orden_compra({"sku": "SKU-0009", "cantidad": 3, "motivo": "stock bajo"},
-                                  lambda entrada: inicios.append(entrada) or "sol-1")
-    assert res == {"solicitud_id": "sol-1"}
-    assert len(inicios) == 1 and '"sku": "SKU-0009"' in inicios[0]
+PROPUESTA = {"sku": "SKU-0009", "cantidad": 3, "motivo": "stock bajo", "cedis": 2, "fecha_requerida": "2026-12-05"}
 
 
-@pytest.mark.parametrize("entrada", [
-    {"sku": "SKU-0009", "cantidad": 0, "motivo": "x"},
-    {"sku": "SKU-0009", "cantidad": "3", "motivo": "x"},
-    {"sku": "SKU-0009", "cantidad": True, "motivo": "x"},
-    {"sku": "A1", "cantidad": 3, "motivo": "x"},
-    {"sku": "SKU-0009", "cantidad": 3, "motivo": ""},
-    {"sku": "SKU-0009", "cantidad": 3, "motivo": "x" * 201},
-    {"sku": "SKU-0009", "cantidad": 3},
-    {"sku": "SKU-0009", "cantidad": 3, "motivo": "x", "proveedor_id": 7},
+class Lecturas:
+    """copilot_ro's read-only pre-checks: which of the three lookups find a row."""
+
+    def __init__(self, sku=True, cedis=True, pendiente=False):
+        self.respuestas = {"artmst": sku, "almmst": cedis, "ocpcab": pendiente}
+        self.sql = []
+        self.cerrada = False
+
+    def run(self, sql, **kw):
+        self.sql.append((sql, kw))
+        for vista, hay in self.respuestas.items():
+            if f"legado.{vista}" in sql:
+                return [[1]] if hay else []
+        return []
+
+    def close(self):
+        self.cerrada = True
+
+
+def test_orden_de_compra_solo_inicia_la_maquina_con_el_solicitante_del_token():
+    import json
+    inicios, con = [], Lecturas()
+    res = H.proponer_orden_compra(PROPUESTA, lambda entrada: inicios.append(entrada) or "sol-1",
+                                  solicitante="sub-comprador", conectar=lambda: con)
+    assert res["solicitud_id"] == "sol-1" and res["estado"] == "PENDING_APPROVAL"
+    assert json.loads(inicios[0]) == {**PROPUESTA, "solicitante": "sub-comprador"}
+    assert all(s.startswith(("SET statement_timeout", "SELECT 1 FROM legado.")) for s, _ in con.sql) and con.cerrada
+    assert {kw.get("sku") or kw.get("cedis") for _, kw in con.sql[1:]} == {"SKU-0009", 2}   # bound parameters
+
+
+@pytest.mark.parametrize("lecturas,tipo", [
+    (Lecturas(sku=False), "sku_desconocido"),
+    (Lecturas(cedis=False), "cedis_desconocido"),
+    (Lecturas(pendiente=True), "orden_pendiente_existente"),
 ])
-def test_orden_invalida_se_rechaza_sin_iniciar(entrada):
+def test_lo_que_la_base_rechazaria_se_dice_antes_de_iniciar(lecturas, tipo):
+    with pytest.raises(ToolError) as e:
+        H.proponer_orden_compra(PROPUESTA, lambda x: pytest.fail("no debe iniciar"), solicitante="s", conectar=lambda: lecturas)
+    assert e.value.kind == tipo and lecturas.cerrada
+
+
+@pytest.mark.parametrize("cambio", [
+    {"cantidad": 0}, {"cantidad": "3"}, {"cantidad": True}, {"sku": "A1"}, {"motivo": ""}, {"motivo": "x" * 201},
+    {"cedis": "2"}, {"cedis": 0}, {"fecha_requerida": "5 de diciembre"}, {"fecha_requerida": "2026-13-01"},
+    {"proveedor_id": 7}, {"solicitante": "otro"},
+])
+def test_orden_invalida_se_rechaza_sin_conectar_ni_iniciar(cambio):
     with pytest.raises(ToolError):
-        H.proponer_orden_compra(entrada, lambda e: pytest.fail("no debe iniciar"))
+        H.proponer_orden_compra({**PROPUESTA, **cambio}, lambda e: pytest.fail("no debe iniciar"), solicitante="s",
+                                conectar=lambda: pytest.fail("no debe conectar"))
+
+
+@pytest.mark.parametrize("campo", ["cedis", "fecha_requerida", "motivo"])
+def test_cada_dato_obligatorio_de_la_politica_falta_y_se_rechaza(campo):
+    entrada = {k: v for k, v in PROPUESTA.items() if k != campo}
+    with pytest.raises(ToolError):
+        H.proponer_orden_compra(entrada, lambda e: pytest.fail("no debe iniciar"), solicitante="s")
+
+
+@pytest.mark.parametrize("solicitante", [None, "", "x" * 129])
+def test_sin_solicitante_no_inicia(solicitante):
+    with pytest.raises(ToolError) as e:
+        H.proponer_orden_compra(PROPUESTA, lambda e: pytest.fail("no debe iniciar"), solicitante=solicitante)
+    assert e.value.kind == "sin_solicitante"
+
+
+def test_el_handler_pasa_el_solicitante_del_evento_y_no_de_la_entrada():
+    import json
+    inicios = []
+    evento = {"herramienta": "proponer_orden_compra", "entrada": PROPUESTA, "solicitante": "sub-del-token"}
+    res = H.handler(evento, None, conectar=lambda: Lecturas(), iniciar=lambda e: inicios.append(e) or "sol-9")
+    assert res["solicitud_id"] == "sol-9" and json.loads(inicios[0])["solicitante"] == "sub-del-token"
+    sin = H.handler({**evento, "solicitante": None}, None, conectar=lambda: Lecturas(), iniciar=lambda e: "x")
+    assert sin["error"] == "sin_solicitante"
 
 
 def test_token_iam_es_solo_para_copilot_ro():
@@ -137,3 +193,15 @@ def test_herramienta_desconocida_responde_sin_ejecutar_nada():
     fabrica = Fabrica()
     assert H.handler({"herramienta": "borrar_todo"}, None, conectar=fabrica) == {"error": "herramienta_desconocida"}
     assert fabrica.llamadas == 0
+
+
+def test_numeric_y_fechas_salen_como_json():
+    # Live: the agent asking for costs got herramienta_no_disponible (Decimal cannot leave a Lambda as JSON).
+    import datetime as dt
+    import json
+    from decimal import Decimal
+    fabrica = Fabrica([["SKU-0009", Decimal("12.50"), dt.date(2026, 12, 5), dt.datetime(2026, 1, 1, 8, 0), "x" * 300]])
+    res = H.ejecutar_sql("SELECT art_cd, art_cst FROM legado.artmst", fabrica)
+    json.dumps(res)
+    assert res["filas"][0][:4] == ["SKU-0009", 12.5, "2026-12-05", "2026-01-01T08:00:00"]
+    assert len(res["filas"][0][4]) == 201

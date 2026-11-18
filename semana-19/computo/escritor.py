@@ -1,9 +1,9 @@
 """Week 19, activity 6: the order writer. It runs as `order_writer` (rds_iam, granted by the loader), inside the VPC.
 
-The approval workflow invokes it only after an approval (ADR 0011: this is the only step that writes purchase_orders).
+The approval workflow invokes it twice (ADR 0011: this is the only step that writes purchase_orders): first to write the
+proposal as PENDING_APPROVAL, then, after the approver's decision, to record it (APPROVED or REJECTED).
 Connection: IAM token generated locally (never logged or returned), TLS verified against the RDS bundle in the asset.
-The input is the request the agent proposed: {"sku": "SKU-dddd", "cantidad": int, "motivo": str}, or the same as a JSON
-string. The validation lives in agente/escritor_orden.py.
+The validation and the SQL live in agente/escritor_orden.py.
 """
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "infra" / "loader" / "vendor"))  # pg8000, vendored with the loader (pure Python)
 sys.path.insert(0, str(RAIZ))
 
-from agente.escritor_orden import escribir_orden  # noqa: E402
+from agente.escritor_orden import decidir_orden, proponer_orden, validar_propuesta  # noqa: E402
 
 USUARIO = "order_writer"
 BASE = "postgres"
@@ -37,13 +37,28 @@ def _conectar_real(host: str):
     return pg.Connection(USUARIO, host=host, port=PUERTO, database=BASE, password=token, ssl_context=contexto)
 
 
+def _objeto(valor, nombre: str) -> dict:
+    if isinstance(valor, str):
+        valor = json.loads(valor)
+    if not isinstance(valor, dict):
+        raise ValueError(f"{nombre} ausente o inválida")
+    return valor
+
+
 def handler_escritor(event, context, *, conectar=None):
-    solicitud = event.get("solicitud") if isinstance(event, dict) else None
-    if isinstance(solicitud, str):
-        solicitud = json.loads(solicitud)
-    if not isinstance(solicitud, dict):
-        raise ValueError("solicitud ausente o inválida")
+    """event = {"operacion": "proponer", "solicitud": {...}} (first state of the workflow) or
+    {"operacion": "decidir", "po_id": int, "decision": {...}} (after the approver's decision). Invalid input raises before
+    any connection; the workflow then fails and nothing was written."""
+    if not isinstance(event, dict) or event.get("operacion") not in ("proponer", "decidir"):
+        raise ValueError("operacion debe ser proponer o decidir")
+    if event["operacion"] == "proponer":
+        solicitud = _objeto(event.get("solicitud"), "solicitud")
+        validar_propuesta(solicitud)
+    else:
+        decision = _objeto(event.get("decision"), "decision")
     if conectar is None:
         host = os.environ["HOST_BD"]
         conectar = lambda: _conectar_real(host)  # noqa: E731
-    return escribir_orden(solicitud, conectar)
+    if event["operacion"] == "proponer":
+        return proponer_orden(solicitud, conectar)
+    return decidir_orden(event.get("po_id"), decision, conectar)

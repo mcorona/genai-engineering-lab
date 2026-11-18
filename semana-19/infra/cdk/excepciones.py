@@ -83,7 +83,7 @@ EXCEPCIONES = {
     "ConectarBdDelLimite": "rds-db:connect sobre dbuser:*/copilot_ro y dbuser:*/order_writer en el límite de permisos: el identificador de recurso de la base lo asigna RDS; cada función recibe en su política solo su usuario y su base.",
     "ArrancarAprobacionDelLimite": "states:StartExecution sobre stateMachine:semana19-* en el límite de permisos: las herramientas arrancan la máquina de aprobación; su política nombra la máquina exacta.",
     "RespuestaDeTareaDelLimite": "states:SendTaskSuccess y SendTaskFailure sobre '*' en el límite de permisos: AWS no define tipo de recurso para estas acciones; el token de tarea identifica la ejecución.",
-    "DecisionAlFlujo": "states:SendTaskSuccess y SendTaskFailure sobre '*': AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
+    "DecisionAlFlujo": "states:SendTaskSuccess sobre '*' (aprobar y rechazar van por SendTaskSuccess): AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
     "DeliveryDeLogsDescifra":"kms:Decrypt sobre la llave del stack para delivery.logs.amazonaws.com (entrega de logs de Step Functions a grupos cifrados): la política de llave no admite ARN de recurso en el principal de servicio; se limita a esta llave.",
 }
 

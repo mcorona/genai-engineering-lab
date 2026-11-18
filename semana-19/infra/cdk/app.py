@@ -1026,8 +1026,12 @@ class Computo(Stack):
             policies=cognito.CfnUserPool.PoliciesProperty(password_policy=cognito.CfnUserPool.PasswordPolicyProperty(
                 minimum_length=12, require_lowercase=True, require_uppercase=True, require_numbers=True, require_symbols=True)))
         # Groups read by the pre-token trigger (computo/tokens.py); the test users are added to them by usuarios.py.
-        for nombre_grupo in ("analistas", "aprobadores"):
-            cognito.CfnUserPoolGroup(self, f"Grupo{nombre_grupo.capitalize()}", user_pool_id=pool.ref, group_name=nombre_grupo,
+        # Separation of duties (Manuel's decision): compradores propose, the three approval groups decide up to their level.
+        for id_grupo, nombre_grupo in (("GrupoAnalistas", "analistas"), ("GrupoCompradores", "compradores"),
+                                       ("GrupoAprobadoresComprador", "aprobadores-comprador"),
+                                       ("GrupoAprobadoresGerente", "aprobadores-gerente"),
+                                       ("GrupoAprobadoresDirector", "aprobadores-director")):
+            cognito.CfnUserPoolGroup(self, id_grupo, user_pool_id=pool.ref, group_name=nombre_grupo,
                                      description=f"Grupo {nombre_grupo} de LegacyBridge (activity 6)")
         servidor = cognito.CfnUserPoolResourceServer(
             self, "ServidorLegacyBridge", user_pool_id=pool.ref, identifier="legacybridge", name="LegacyBridge",
@@ -1093,7 +1097,7 @@ class Computo(Stack):
             code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("escritor"),
             vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
             security_groups=[sg_escritor], environment={"HOST_BD": bd.db_instance_endpoint_address},
-            description="Order writer (activity 6): inserts an approved order as order_writer, after the approval.")
+            description="Order writer (activity 6): writes the pending order and then the decision, as order_writer.")
         escritor.add_to_role_policy(_declaracion(
             sid="ConectarComoOrderWriter", actions=["rds-db:connect"],
             resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:{bd.instance_resource_id}/order_writer"]))
@@ -1183,20 +1187,28 @@ class Computo(Stack):
             id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
         suprimir_iam5(agente.role, ["ModeloDeHaikuPorConverse", "EscribirSpansDelAgente"])
 
+        # The workflow (spec: "writes the PENDING_APPROVAL request; waits for the task token"): the writer inserts the
+        # pending order, the token is stored with the order's required level and requester, and after the approver's
+        # decision the writer records it (APPROVED or REJECTED). Both writes run as order_writer.
+        proponer = tasks.LambdaInvoke(
+            self, "EscribirPropuesta", lambda_function=escritor,
+            payload=sfn.TaskInput.from_object({"operacion": "proponer", "solicitud.$": "$.solicitud"}),
+            payload_response_only=True, result_path="$.orden")
         espera = tasks.LambdaInvoke(
             self, "RegistrarToken", lambda_function=registrar,
             integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
             payload=sfn.TaskInput.from_object({"id.$": "$.id", "token": sfn.JsonPath.task_token,
-                                               "solicitud.$": "$.solicitud"}),
+                                               "orden.$": "$.orden", "solicitud.$": "$.solicitud"}),
             result_path="$.decision", timeout=Duration.hours(24))
-        espera.add_catch(sfn.Succeed(self, "Rechazada"), errors=["RechazadaPorAprobador"], result_path="$.rechazo")
-        escribir = tasks.LambdaInvoke(
-            self, "EscribirOrden", lambda_function=escritor,
-            payload=sfn.TaskInput.from_object({"solicitud.$": "$.solicitud"}), result_path="$.orden")
+        decidir = tasks.LambdaInvoke(
+            self, "EscribirDecision", lambda_function=escritor,
+            payload=sfn.TaskInput.from_object({"operacion": "decidir", "po_id.$": "$.orden.po_id",
+                                               "decision.$": "$.decision"}),
+            payload_response_only=True, result_path="$.resultado")
 
         maquina = sfn.StateMachine(
             self, "Aprobacion", state_machine_name="semana19-aprobacion",
-            definition_body=sfn.DefinitionBody.from_chainable(espera.next(escribir)),
+            definition_body=sfn.DefinitionBody.from_chainable(proponer.next(espera).next(decidir)),
             logs=sfn.LogOptions(destination=grupo("aprobacion"), level=sfn.LogLevel.ALL, include_execution_data=False),
             tracing_enabled=True, timeout=Duration.hours(24))
 
@@ -1208,10 +1220,11 @@ class Computo(Stack):
         # Only what the handler does: get_item to read the token, delete_item after the decision (no scan, query or stream).
         tabla.grant(aprobar, "dynamodb:GetItem", "dynamodb:DeleteItem")
         llave.grant(aprobar.role, "kms:Decrypt", "kms:DescribeKey")
-        # SendTaskSuccess and SendTaskFailure take no resource type (Service Authorization Reference): AWS evaluates them
-        # against '*', so a state machine ARN here never matches. The task token itself names the execution.
+        # SendTaskSuccess takes no resource type (Service Authorization Reference): AWS evaluates it against '*', so a
+        # state machine ARN here never matches. The task token itself names the execution. Approval and rejection both
+        # go as SendTaskSuccess (the workflow's next state writes the decision), so SendTaskFailure is not granted.
         aprobar.add_to_role_policy(iam.PolicyStatement(
-            sid="DecisionAlFlujo", actions=["states:SendTaskSuccess", "states:SendTaskFailure"], resources=["*"]))
+            sid="DecisionAlFlujo", actions=["states:SendTaskSuccess"], resources=["*"]))
 
         autorizador = apigwv2_auth.HttpJwtAuthorizer(
             "AutorizadorJwt", jwt_issuer=f"https://cognito-idp.{REGION}.amazonaws.com/{pool.ref}",

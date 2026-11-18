@@ -165,3 +165,22 @@ def test_si_los_spans_no_se_pueden_enviar_la_respuesta_no_cambia():
                        exportar=SumideroFalso(falla=True))
     res = H.handler({"claims": CLAIMS, "pregunta": PREGUNTA}, None, deps=deps)
     assert res["estado"] == "respondida" and res["respuesta"] == "Hay 12 proveedores"
+
+
+def test_la_propuesta_viaja_con_el_solicitante_fuera_de_los_argumentos_del_modelo():
+    class LambdaEco:
+        def invoke(self, FunctionName, Payload):
+            self.carga = json.loads(Payload)
+            return {"Payload": io.BytesIO(json.dumps({"solicitud_id": "sol-1"}).encode())}
+
+    lam = LambdaEco()
+    args = {"sku": "SKU-0009", "cantidad": 3, "motivo": "m", "cedis": 2, "fecha_requerida": "2026-12-05"}
+    res = K.llamador_de_herramientas(lam, "fn")("proponer_orden_compra", args, solicitante="sub-1")
+    assert res == {"ok": True, "solicitud_id": "sol-1"}
+    assert lam.carga == {"herramienta": "proponer_orden_compra", "entrada": args, "solicitante": "sub-1"}
+
+
+def test_el_agente_desplegado_ve_el_contrato_de_la_propuesta_de_la_semana_19():
+    deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(), entorno=ENTORNO, exportar=lambda _: None)
+    (prop,) = [d for d in deps["definiciones"] if d["name"] == "proponer_orden_compra"]
+    assert "cedis" in prop["input_schema"]["required"] and "fecha_requerida" in prop["input_schema"]["required"]

@@ -23,7 +23,7 @@ ALCANCE = H.alcance_desde_claims(CLAIMS)
 PREGUNTA = "¿Cuántos SKU hay en el catálogo?"
 POL = Politica(tarea=Limite(usd=1.0, tokens=10_000_000))
 PRECIOS = Precios(entrada_1m=1.1, salida_1m=5.5)
-DEFS = [d for d in C.DEFINICIONES_SEMANA13 if d["name"] in C.HERRAMIENTAS]
+DEFS = C.definiciones_semana19()
 
 
 def _final(respuesta="Hay 12 SKU", estado="respondida"):
@@ -153,3 +153,19 @@ def test_handler_sin_entorno_falla_antes_de_crear_clientes(monkeypatch):
         monkeypatch.delenv(n, raising=False)
     with pytest.raises(RuntimeError, match="faltan variables de entorno"):
         H.handler({"claims": CLAIMS, "pregunta": PREGUNTA}, None)
+
+
+def test_la_propuesta_lleva_el_sujeto_del_token_como_solicitante_y_las_lecturas_no():
+    llamadas = []
+
+    def llamar(nombre, args, **extra):
+        llamadas.append((nombre, args, extra))
+        return {"ok": True}
+
+    pedido = "Propón una orden de compra del SKU-0009, 3 piezas, al CEDIS 2 para el 2026-12-05 por stock bajo"
+    capa = H.HerramientasCapadas(llamar, DEFS, ALCANCE, pedido, [])
+    capa.llamar("proponer_orden_compra", {"sku": "SKU-0009", "cantidad": 3, "motivo": "stock bajo", "cedis": 2,
+                                          "fecha_requerida": "2026-12-05"})
+    capa.llamar("ejecutar_sql", {"sql": "SELECT prv_nm FROM legado.prvmst"})
+    assert llamadas[0][2] == {"solicitante": ALCANCE.usuario} and "solicitante" not in llamadas[0][1]
+    assert llamadas[1][2] == {}

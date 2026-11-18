@@ -134,7 +134,10 @@ ROLES_PERMISOS = """
 GRANT USAGE ON SCHEMA public TO order_writer;
 GRANT SELECT ON suppliers, warehouses, products, stock, sales_daily TO order_writer;
 GRANT SELECT, INSERT, UPDATE ON purchase_orders TO order_writer;
+GRANT USAGE ON SEQUENCE purchase_orders_po_id_seq TO order_writer;
 """
+# The INSERT of a pending order takes its po_id from the SERIAL sequence: without USAGE it is refused (live, activity 6:
+# "permission denied for sequence purchase_orders_po_id_seq"). No SELECT or UPDATE on the sequence (no setval).
 
 
 def documentos_del_diccionario() -> dict[str, str]:
@@ -198,6 +201,14 @@ def handler(event, context):
     try:
         if event.get("modo") == "pruebas_permisos":
             return _pruebas_permisos(con)
+        if event.get("modo") == "permisos":
+            # Only the roles and their grants, on a database already loaded: no TRUNCATE, no seed, no legado reload.
+            if not _existe_esquema_copilot(con):
+                raise RuntimeError("la base no tiene el esquema copilot: corre el cargador completo primero")
+            con.run(ROLES_CREAR)
+            con.run(ROLES_PERMISOS)
+            _paso("permisos aplicados")
+            return {"modo": "permisos", "ok": True}
         resumen = {"esquema_creado": False}
         _paso("conectado; revisando esquema")
         if not _existe_esquema_copilot(con):
