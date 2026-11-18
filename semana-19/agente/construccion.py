@@ -38,6 +38,7 @@ CAMINOS = ("directo", "gateway")
 
 _PRESUPUESTO_TAREA_HAIKU55 = {"usd": 0.0063, "tokens": 46000}   # week 17 calibration (semana-17/presupuestos/politica_calibrada.json)
 _RAZON_PRECIO = 1.1 / 0.1     # Haiku 4.5 over Haiku 5.5 in week 7's table, input and output alike
+PRECIOS = Precios(entrada_1m=1.1, salida_1m=5.5)   # Haiku 4.5, USD per million tokens (week 7's table)
 
 
 def _es_del_nombre(nombre: str, prefijos: tuple[str, ...]) -> bool:
@@ -61,13 +62,19 @@ def _aislado(prefijos=("agente", "herramientas")):
         sys.modules.update(guardados)
 
 
+def cargar_de_semana13(relativo: str, nombre: str):
+    """A week 13 module, from its file, with its own imports resolved inside the isolation."""
+    with _aislado():
+        spec = importlib.util.spec_from_file_location(nombre, S13 / relativo)
+        modulo = importlib.util.module_from_spec(spec)
+        sys.modules[nombre] = modulo
+        spec.loader.exec_module(modulo)
+    return modulo
+
+
 def cargar_bucle_semana13():
     """The week 13 Agente class, from its file, with its own imports resolved inside the isolation."""
-    with _aislado():
-        spec = importlib.util.spec_from_file_location("bucle_semana13", S13 / "agente" / "loop.py")
-        modulo = importlib.util.module_from_spec(spec)
-        sys.modules["bucle_semana13"] = modulo
-        spec.loader.exec_module(modulo)
+    modulo = cargar_de_semana13("agente/loop.py", "bucle_semana13")
     return modulo.Agente, modulo
 
 
@@ -144,7 +151,7 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         "definiciones": definiciones,
         "api_modelo": api,
         "politica": politica_de_la_tarea(),
-        "precios": Precios(entrada_1m=1.1, salida_1m=5.5),
+        "precios": PRECIOS,
         "exportar": exportar or SumideroCloudWatch(cliente_logs, entorno[GRUPO_SPANS], flujo_spans),
         "camino": via,
         "cerrar": cerrar,
