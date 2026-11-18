@@ -67,19 +67,20 @@ def cargar_bucle_semana13():
     return modulo.Agente, modulo
 
 
-def _entrada_de_herramienta(nombre: str, args: dict) -> dict:
+def _entrada_de_herramienta(nombre: str, args: dict, solicitante: str | None = None) -> dict:
     if nombre == "describir_esquema":
         return {"herramienta": nombre}
     if nombre == "ejecutar_sql":
         return {"herramienta": nombre, "sql": args["sql"]}
     if nombre == "proponer_orden_compra":
-        return {"herramienta": nombre, "entrada": args}
+        # The requester is the token's subject (agente/handler.py), outside the model's arguments.
+        return {"herramienta": nombre, "entrada": args, "solicitante": solicitante}
     raise ValueError(f"herramienta sin binding: {nombre}")
 
 
 def llamador_de_herramientas(cliente_lambda, nombre_funcion: str):
-    def llamar(nombre: str, args: dict) -> dict:
-        carga = json.dumps(_entrada_de_herramienta(nombre, args), ensure_ascii=False).encode("utf-8")
+    def llamar(nombre: str, args: dict, solicitante: str | None = None) -> dict:
+        carga = json.dumps(_entrada_de_herramienta(nombre, args, solicitante), ensure_ascii=False).encode("utf-8")
         resp = cliente_lambda.invoke(FunctionName=nombre_funcion, Payload=carga)
         cuerpo = json.loads(resp["Payload"].read())
         return _al_contrato_semana13(cuerpo, fallo=bool(resp.get("FunctionError")))
@@ -123,7 +124,7 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
 
     api = api_converse(llamar_converse, modelo_id=MODELO_ID, guardrail=guardrail)
     llamar_real = llamador_de_herramientas(cliente_lambda, entorno[FUNCION_HERRAMIENTAS])
-    definiciones = [d for d in C.DEFINICIONES_SEMANA13 if d["name"] in C.HERRAMIENTAS]
+    definiciones = C.definiciones_semana19()
     return {
         "agente_factory": lambda api_envuelta, herramientas: Agente(herramientas, modelo="claude-haiku-4-5-20251001",
                                                                     esfuerzo="low", api=api_envuelta),

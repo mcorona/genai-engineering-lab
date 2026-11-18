@@ -10,11 +10,21 @@ are not verified; `compras_proponer` is chosen to avoid `:`. Check it before the
 from __future__ import annotations
 
 # Data scopes come from the resource server `legado` (week 17 vocabulary: legado:leer, ... ; see agente/handler.py).
+# Separation of duties (Manuel's decision, activity 6): `compradores` propose orders and cannot approve; each approval
+# group decides up to its level of the policy (semana-08/corpus/ordenes_de_compra.md) and cannot propose.
+_LECTURA = ["legacybridge/consultas", "legado/leer", "legado/proveedores", "legado/ventas"]
+_APROBAR = [*_LECTURA, "legacybridge/aprobaciones"]
 GRUPOS_A_SCOPES = {
-    "analistas": ["legacybridge/consultas", "legado/leer", "legado/proveedores", "legado/ventas"],
-    "aprobadores": ["legacybridge/consultas", "legacybridge/aprobaciones", "legado/leer", "legado/proveedores",
-                    "legado/ventas", "legado/compras_proponer"],
+    "analistas": _LECTURA,
+    "compradores": [*_LECTURA, "legado/compras_proponer"],
+    "aprobadores-comprador": _APROBAR,
+    "aprobadores-gerente": _APROBAR,
+    "aprobadores-director": _APROBAR,
 }
+# Approval level of each approval group: the values of po_level_rank in the database (comprador 1, gerente 2, director 3).
+GRUPOS_A_NIVEL = {"aprobadores-comprador": "comprador", "aprobadores-gerente": "gerente", "aprobadores-director": "director"}
+RANGO = {"comprador": 1, "gerente": 2, "director": 3}
+CLAIM_NIVEL = "nivel_aprobacion"   # read by computo/aprobacion.py from the authorizer's claims, never from the request
 
 
 TENANT = "legacybridge-lab"
@@ -25,14 +35,24 @@ def scopes_de_grupos(grupos: list[str]) -> list[str]:
     return sorted({s for g in grupos for s in GRUPOS_A_SCOPES.get(g, [])})
 
 
+def nivel_de_grupos(grupos: list[str]) -> str | None:
+    """The highest approval level among the groups, or None (no approval group: the claim is not added)."""
+    niveles = [GRUPOS_A_NIVEL[g] for g in grupos if g in GRUPOS_A_NIVEL]
+    return max(niveles, key=RANGO.__getitem__) if niveles else None
+
+
 def handler(event, context):
     if event.get("version") != "2":
         raise ValueError("el trigger espera el evento de versión 2")
     grupos = event.get("request", {}).get("groupConfiguration", {}).get("groupsToOverride", [])
     scopes = scopes_de_grupos(grupos)
+    # The agent needs a tenant claim (agente/handler.py refuses tokens without one). The lab has one tenant.
+    claims = {"tenant": TENANT}
+    nivel = nivel_de_grupos(grupos)
+    if nivel is not None:
+        claims[CLAIM_NIVEL] = nivel
     event.setdefault("response", {})
     event["response"]["claimsAndScopeOverrideDetails"] = {
-        # The agent needs a tenant claim (agente/handler.py refuses tokens without one). The lab has one tenant.
-        "accessTokenGeneration": {"scopesToAdd": scopes, "claimsToAddOrOverride": {"tenant": TENANT}},
+        "accessTokenGeneration": {"scopesToAdd": scopes, "claimsToAddOrOverride": claims},
     }
     return event

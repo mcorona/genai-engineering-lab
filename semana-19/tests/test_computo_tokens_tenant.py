@@ -21,5 +21,5 @@ def test_el_token_trae_el_tenant_del_laboratorio_aunque_no_tenga_grupos():
 
 
 def test_el_tenant_viaja_junto_con_los_scopes_de_los_grupos():
-    out = tokens.handler(_evento(["aprobadores"]), None)["response"]["claimsAndScopeOverrideDetails"]["accessTokenGeneration"]
+    out = tokens.handler(_evento(["aprobadores-gerente"]), None)["response"]["claimsAndScopeOverrideDetails"]["accessTokenGeneration"]
     assert out["claimsToAddOrOverride"]["tenant"] == tokens.TENANT and out["scopesToAdd"]

@@ -76,6 +76,8 @@ class HerramientasCapadas:
         self.decisiones.extend(decisiones)
         if error is not None:
             return error
+        if nombre == "proponer_orden_compra":   # the requester comes from the verified token, never from the model
+            return self._llamar(nombre, args, solicitante=self.alcance.usuario)
         return self._llamar(nombre, args)
 
 

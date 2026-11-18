@@ -114,12 +114,6 @@ def test_ninguna_supresion_de_cdk_nag_queda_vacia():
             assert len(r["Exception Reason"].strip()) > 40, r["Rule ID"]
 
 
-def _definicion_maquina() -> dict:
-    (sm,) = recursos("AWS::StepFunctions::StateMachine").values()
-    cuerpo = sm["Properties"]["DefinitionString"]
-    return json.loads(json.dumps(cuerpo)) if isinstance(cuerpo, dict) else cuerpo
-
-
 def test_escritor_esta_en_la_vpc_y_solo_abre_5432_y_443():
     (sg,) = [r for n, r in recursos("AWS::EC2::SecurityGroup").items() if "escritor" in n.lower() or "Escritor" in n]
     puertos = {(e.get("FromPort"), e.get("ToPort")) for e in sg["Properties"]["SecurityGroupEgress"]}
@@ -134,15 +128,53 @@ def test_escritor_corre_como_funcion_con_vpc_y_handler_del_paquete():
     assert "VpcConfig" in f and f["VpcConfig"]["SecurityGroupIds"]
 
 
-def test_maquina_escribe_la_orden_solo_despues_de_la_aprobacion():
-    texto = json.dumps(_definicion_maquina())
-    assert "EscribirOrden" in texto and "FuncionEscritor" in texto
-    assert "RechazadaPorAprobador" in texto and "Rechazada" in texto and "Succeed" in texto
+def _estados_en_orden(definicion: dict) -> list[tuple[str, dict]]:
+    orden, actual = [], definicion["StartAt"]
+    while actual:
+        estado = definicion["States"][actual]
+        orden.append((actual, estado))
+        actual = None if estado.get("End") else estado.get("Next")
+    return orden
+
+
+def _definicion_resuelta() -> dict:
+    """The state machine definition with each Fn::GetAtt/Ref of the template replaced by the logical id it names."""
+    def texto(parte):
+        if isinstance(parte, str):
+            return parte
+        if "Fn::GetAtt" in parte:
+            return f"<{parte['Fn::GetAtt'][0]}>"
+        if "Ref" in parte:
+            return f"<{parte['Ref']}>"
+        raise AssertionError(parte)
+    (maquina,) = recursos("AWS::StepFunctions::StateMachine").values()
+    cuerpo = maquina["Properties"]["DefinitionString"]
+    if isinstance(cuerpo, dict):
+        cuerpo = "".join(texto(p) for p in cuerpo["Fn::Join"][1])
+    return json.loads(cuerpo)
+
+
+def test_maquina_escribe_pendiente_espera_la_decision_y_la_registra():
+    # Spec: the workflow writes the PENDING_APPROVAL request, waits for the task token, then the writer records the
+    # decision. Approval and rejection both continue to the decision write (no Succeed or Catch that skips it).
+    d = _definicion_resuelta()
+    estados = _estados_en_orden(d)
+    assert [n for n, _ in estados] == ["EscribirPropuesta", "RegistrarToken", "EscribirDecision"]
+    proponer, espera, decidir = (e for _, e in estados)
+    # payload_response_only: the writer's states pass the payload as their Parameters and keep only its result
+    assert proponer["Parameters"]["operacion"] == "proponer" and "FuncionEscritor" in proponer["Resource"]
+    assert espera["Resource"].endswith("waitForTaskToken") and espera["TimeoutSeconds"] == 24 * 3600
+    assert espera["Parameters"]["Payload"]["orden.$"] == "$.orden"
+    assert decidir["Parameters"] == {"operacion": "decidir", "po_id.$": "$.orden.po_id", "decision.$": "$.decision"}
+    assert "FuncionEscritor" in decidir["Resource"] and decidir.get("End") is True
+    assert not any(e.get("Catch") for _, e in estados) and set(d["States"]) == {n for n, _ in estados}
 
 
 def test_grupos_del_trigger_existen_en_el_pool():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    import computo.tokens as T
     grupos = {r["Properties"]["GroupName"] for r in recursos("AWS::Cognito::UserPoolGroup").values()}
-    assert {"analistas", "aprobadores"} <= grupos
+    assert grupos == set(T.GRUPOS_A_SCOPES), grupos   # every group the trigger knows, and no other (no old `aprobadores`)
 
 
 def _limite_desplegado() -> list[dict]:

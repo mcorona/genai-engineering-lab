@@ -12,12 +12,12 @@ sys.path.insert(0, str(S19))
 from agente import capa_determinista as C  # noqa: E402
 
 N = C.N
-DEFS = [d for d in C.DEFINICIONES_SEMANA13 if d["name"] in C.HERRAMIENTAS]
+DEFS = C.definiciones_semana19()
 ANALISTA = N.Alcance("analista", "lab", N.SCOPES_DE["analista"], "es")
 ALMACENISTA = N.Alcance("almacenista", "lab", N.SCOPES_DE["almacenista"], "es")
 PREGUNTA = "¿Cuántos SKU hay en el catálogo?"
-PIDE_ORDEN = "Propón una orden de compra para el SKU-0009, 3 piezas, por stock bajo"
-ORDEN = {"sku": "SKU-0009", "cantidad": 3, "motivo": "stock bajo"}
+PIDE_ORDEN = "Propón una orden de compra para el SKU-0009, 3 piezas, por stock bajo, al CEDIS 2 para el 2026-12-05"
+ORDEN = {"sku": "SKU-0009", "cantidad": 3, "motivo": "stock bajo", "cedis": 2, "fecha_requerida": "2026-12-05"}
 
 
 def _final(respuesta, resultados=None):
@@ -63,6 +63,30 @@ def test_orden_con_pedido_explicito_pasa():
     error, _ = C.revisar_herramienta("proponer_orden_compra", ORDEN,
                                      alcance=ANALISTA, peticion=PIDE_ORDEN, definiciones=DEFS)
     assert error is None
+
+
+@pytest.mark.parametrize("cambio", [
+    {"cedis": None}, {"fecha_requerida": None}, {"fecha_requerida": "5 de diciembre"},
+    {"solicitante": "otro-usuario"}, {"proveedor_id": 7},
+])
+def test_orden_sin_un_dato_obligatorio_o_con_un_campo_de_mas_no_corre(cambio):
+    # The model cannot leave out the CEDIS or the date (the policy's required data), nor name the requester.
+    orden = {k: v for k, v in {**ORDEN, **cambio}.items() if v is not None}
+    error, decisiones = C.revisar_herramienta("proponer_orden_compra", orden, alcance=ANALISTA, peticion=PIDE_ORDEN,
+                                              definiciones=DEFS)
+    assert error is not None and error["ok"] is False
+    assert any(not d.permite for d in decisiones)
+
+
+def test_el_contrato_de_la_propuesta_es_el_de_la_semana_19_y_las_lecturas_las_de_la_13():
+    nombres = [d["name"] for d in DEFS]
+    assert sorted(nombres) == sorted(C.HERRAMIENTAS) and len(nombres) == len(set(nombres))
+    (prop,) = [d for d in DEFS if d["name"] == "proponer_orden_compra"]
+    assert prop is C.DEFINICION_PROPONER and prop["input_schema"]["additionalProperties"] is False
+    assert set(prop["input_schema"]["required"]) == {"sku", "cantidad", "motivo", "cedis", "fecha_requerida"}
+    sys.path.insert(0, str(S19))
+    from herramientas import handler as Hh   # the tools Lambda accepts exactly these fields
+    assert set(prop["input_schema"]["properties"]) == Hh.CAMPOS_PROPUESTA
 
 
 def test_datos_personales_en_la_respuesta_se_redactan():
