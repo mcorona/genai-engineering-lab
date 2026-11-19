@@ -1,0 +1,17 @@
+{
+  "nota": "Activity 8: Cost Explorer calls, at most 3, each with Manuel's OK. USD 0.01 per request (Cost Explorer pricing page).",
+  "llamadas": [
+    {
+      "n": 1,
+      "operacion": "ListCostAllocationTags",
+      "parametros": {"TagKeys": ["proyecto"], "MaxResults": 10},
+      "perfil": "semana19-lectura",
+      "hora_utc": "2026-11-19T16:16:25+00:00",
+      "paginas": 1,
+      "resultado": [{"TagKey": "proyecto", "Type": "UserDefined", "Status": "Active",
+                     "LastUpdatedDate": "2026-11-14T00:08:28Z", "LastUsedDate": "2026-11-01T00:00:00Z"}],
+      "conclusion": "Active since 2026-11-14, before the run: the step 4 query by tag proyecto=semana19 covers the run's window."
+    }
+  ],
+  "quedan": 2
+}
