@@ -532,7 +532,7 @@ def test_argumentos_desconocidos_salen_con_2(tmp_path):
     assert not marcas.exists()
 
 
-@pytest.mark.parametrize("script", ["desplegar.sh", "destruir.sh", "vaciar_bootstrap.py", "inventario.py", "vaciar_eval.py"])
+@pytest.mark.parametrize("script", ["desplegar.sh", "destruir.sh", "vaciar_bootstrap.py", "inventario.py", "vaciar_eval.py", "vaciar_datos.py"])
 def test_scripts_sin_cuenta_ni_correo_ni_llaves(script):
     texto_script = (SCRIPTS / script).read_text(encoding="utf-8")
     assert not re.search(r"\b\d{12}\b", texto_script)
@@ -725,6 +725,41 @@ def test_desplegar_crea_datos_despues_de_la_base():
 def test_destruir_borra_datos_antes_que_la_red():
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     assert texto.index("cdk destroy semana19-datos") < texto.index("cdk destroy semana19-base --force")
+
+
+def test_destruir_vacia_el_bucket_versionado_de_documentos_antes_de_borrar_datos():
+    """2026-11-19: semana19-datos ended DELETE_FAILED on DocsKb (versioned, no auto-delete, S3 409)."""
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    vaciado = texto.index('vaciar_datos.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si')
+    assert texto.index("if existe_stack semana19-datos") < vaciado < texto.index("cdk destroy semana19-datos --force")
+
+
+def test_vaciar_datos_encuentra_solo_el_bucket_de_documentos_que_queda():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vaciar_datos", SCRIPTS / "vaciar_datos.py")
+    V = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(V)
+
+    class Cfn:
+        def __init__(self, recursos=None, error=None):
+            self.recursos, self.error = recursos, error
+
+        def describe_stack_resources(self, StackName):
+            assert StackName == "semana19-datos"
+            if self.error:
+                raise self.error
+            return {"StackResources": self.recursos}
+
+    def r(logico, tipo="AWS::S3::Bucket", estado="DELETE_FAILED", fisico="b-docs"):
+        return {"LogicalResourceId": logico, "ResourceType": tipo, "ResourceStatus": estado, "PhysicalResourceId": fisico}
+
+    assert V.bucket_de_documentos(Cfn([r("DocsKb68D14A8C"), r("BaseDeDatos", "AWS::RDS::DBInstance")])) == "b-docs"
+    assert V.bucket_de_documentos(Cfn([r("DocsKb68D14A8C", estado="DELETE_COMPLETE")])) is None
+    assert V.bucket_de_documentos(Cfn([r("OtroBucket")])) is None
+    assert V.bucket_de_documentos(Cfn(error=Exception("Stack with id semana19-datos does not exist"))) is None
+    with pytest.raises(RuntimeError):
+        V.bucket_de_documentos(Cfn([r("DocsKbA", fisico="a"), r("DocsKbB", fisico="b")]))
+    assert V.vaciar.__code__.co_filename == str(SCRIPTS / "vaciar_bootstrap.py")   # reused, not copied
 
 
 def test_stack_ia_guardrail_por_custom_resource_sin_roles_extra_ni_recurso_de_guardrail():
