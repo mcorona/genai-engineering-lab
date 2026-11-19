@@ -1,0 +1,238 @@
+{
+  "dias": "UTC calendar days; every day was still marked Estimated; 2026-11-19 is partial",
+  "fecha_consulta": "2026-11-19",
+  "fuente": "Cost Explorer GetCostAndUsage, 2 calls (0.01 USD each), us-east-1",
+  "llamada_1": {
+    "agrupado": [
+      "SERVICE",
+      "RECORD_TYPE"
+    ],
+    "creditos": "every Usage line had an equal Credit line; net 0",
+    "granularidad": "DAILY",
+    "periodo": [
+      "2026-11-17",
+      "2026-11-20"
+    ],
+    "uso_usd_por_dia": {
+      "2026-11-17": "1.2283949590",
+      "2026-11-18": "1.6147437574",
+      "2026-11-19": "0.7860385019"
+    },
+    "uso_usd_por_servicio": {
+      "2026-11-17": {
+        "AWS Key Management Service": "0.0333333336",
+        "AWS Secrets Manager": "0.0133333344",
+        "Amazon API Gateway": "0.000111",
+        "Amazon DynamoDB": "0.0000095",
+        "Amazon Relational Database Service": "0.4606666656",
+        "Amazon Simple Storage Service": "0.0009411254",
+        "Amazon Virtual Private Cloud": "0.72"
+      },
+      "2026-11-18": {
+        "AWS Cost Explorer": "0.05",
+        "AWS Key Management Service": "0.0333333336",
+        "AWS Secrets Manager": "0.0133483344",
+        "Amazon API Gateway": "0.000224",
+        "Amazon Bedrock": "0.048",
+        "Amazon DynamoDB": "0.00006225",
+        "Amazon Relational Database Service": "0.4606666656",
+        "Amazon Simple Storage Service": "0.0017400765",
+        "Amazon Virtual Private Cloud": "0.7200006973",
+        "Claude Haiku 4.5 (Amazon Bedrock Edition)": "0.2873684"
+      },
+      "2026-11-19": {
+        "AWS Key Management Service": "0.0055555556",
+        "AWS Secrets Manager": "0.002777778",
+        "Amazon API Gateway": "0.000268",
+        "Amazon Bedrock": "0.0944",
+        "Amazon Bedrock AgentCore": "0.001655",
+        "Amazon DynamoDB": "0.00006425",
+        "Amazon Relational Database Service": "0.0495502183",
+        "Amazon Simple Storage Service": "0.0002295",
+        "Amazon Virtual Private Cloud": "0.15",
+        "Claude Haiku 4.5 (Amazon Bedrock Edition)": "0.4815382"
+      }
+    }
+  },
+  "llamada_2": {
+    "agrupado": [
+      "SERVICE",
+      "USAGE_TYPE"
+    ],
+    "filas": [
+      {
+        "cantidad": "120",
+        "dia": "2026-11-18",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-ContentPolicyUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0.018"
+      },
+      {
+        "cantidad": "120",
+        "dia": "2026-11-18",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-SensitiveInformationPolicyFreeUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0"
+      },
+      {
+        "cantidad": "120",
+        "dia": "2026-11-18",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-SensitiveInformationPolicyPaidUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0.012"
+      },
+      {
+        "cantidad": "120",
+        "dia": "2026-11-18",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-TopicPolicyUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0.018"
+      },
+      {
+        "cantidad": "120",
+        "dia": "2026-11-18",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-WordPolicyUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0"
+      },
+      {
+        "cantidad": "0.184239",
+        "dia": "2026-11-18",
+        "servicio": "Claude Haiku 4.5 (Amazon Bedrock Edition)",
+        "tipo_de_uso": "USE1-MP:USE1_InputTokenCount-Units",
+        "unidad": "1M tokens",
+        "usd": "0.2026629"
+      },
+      {
+        "cantidad": "0.015401",
+        "dia": "2026-11-18",
+        "servicio": "Claude Haiku 4.5 (Amazon Bedrock Edition)",
+        "tipo_de_uso": "USE1-MP:USE1_OutputTokenCount-Units",
+        "unidad": "1M tokens",
+        "usd": "0.0847055"
+      },
+      {
+        "cantidad": "236",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-ContentPolicyUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0.0354"
+      },
+      {
+        "cantidad": "236",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-SensitiveInformationPolicyFreeUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0"
+      },
+      {
+        "cantidad": "236",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-SensitiveInformationPolicyPaidUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0.0236"
+      },
+      {
+        "cantidad": "236",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-TopicPolicyUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0.0354"
+      },
+      {
+        "cantidad": "236",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock",
+        "tipo_de_uso": "USE1-Guardrail-WordPolicyUnitsConsumed",
+        "unidad": "TextUnit",
+        "usd": "0"
+      },
+      {
+        "cantidad": "0.0000168253",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock AgentCore",
+        "tipo_de_uso": "DataTransfer-In-Bytes",
+        "unidad": "GB",
+        "usd": "0"
+      },
+      {
+        "cantidad": "0.00000023",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock AgentCore",
+        "tipo_de_uso": "DataTransfer-Out-Bytes",
+        "unidad": "GB",
+        "usd": "0"
+      },
+      {
+        "cantidad": "0.00012607",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock AgentCore",
+        "tipo_de_uso": "DataTransfer-Regional-Bytes",
+        "unidad": "GB",
+        "usd": "0"
+      },
+      {
+        "cantidad": "56",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock AgentCore",
+        "tipo_de_uso": "USE1-Gateway:Consumption-based:API-Invocations",
+        "unidad": "Invocations",
+        "usd": "0.00028"
+      },
+      {
+        "cantidad": "55",
+        "dia": "2026-11-19",
+        "servicio": "Amazon Bedrock AgentCore",
+        "tipo_de_uso": "USE1-Policy:Consumption-based:Authorization-API-Invocations",
+        "unidad": "Invocations",
+        "usd": "0.001375"
+      },
+      {
+        "cantidad": "0.320057",
+        "dia": "2026-11-19",
+        "servicio": "Claude Haiku 4.5 (Amazon Bedrock Edition)",
+        "tipo_de_uso": "USE1-MP:USE1_InputTokenCount-Units",
+        "unidad": "1M tokens",
+        "usd": "0.3520627"
+      },
+      {
+        "cantidad": "0.023541",
+        "dia": "2026-11-19",
+        "servicio": "Claude Haiku 4.5 (Amazon Bedrock Edition)",
+        "tipo_de_uso": "USE1-MP:USE1_OutputTokenCount-Units",
+        "unidad": "1M tokens",
+        "usd": "0.1294755"
+      }
+    ],
+    "filtro": {
+      "RECORD_TYPE": [
+        "Usage"
+      ],
+      "SERVICE": [
+        "Amazon Bedrock AgentCore",
+        "Amazon Bedrock",
+        "Claude Haiku 4.5 (Amazon Bedrock Edition)"
+      ]
+    },
+    "granularidad": "DAILY",
+    "periodo": [
+      "2026-11-18",
+      "2026-11-20"
+    ]
+  },
+  "sumas": {
+    "agentcore_usd": "0.001655",
+    "guardrail_usd": "0.1424",
+    "haiku_millones_de_tokens": "0.543238",
+    "haiku_usd": "0.7689066"
+  }
+}
