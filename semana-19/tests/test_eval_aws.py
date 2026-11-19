@@ -119,7 +119,7 @@ def test_wilson_es_el_de_la_semana_3():
 
 
 def test_los_topes_estan_en_el_codigo():
-    assert (E.TOPE_USD, E.TOPE_TOKENS) == (1.20, 800_000)
+    assert (E.TOPE_USD, E.TOPE_TOKENS) == (1.90, 1_300_000)  # raised with Manuel's OK, 2026-11-19
 
 
 # ---------------------------------------------------------------- expected rows recomputed
