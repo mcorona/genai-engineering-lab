@@ -73,6 +73,8 @@ if [[ "$MODO" == "simulacion" ]]; then
   echo "00c1) vaciar el bucket del juez y borrar sus trabajos  (vaciar_eval.py --si, perfil admin; actividad 8)"
   echo "00c2) cdk destroy semana19-eval              (actividad 8: bucket y rol del juez)"
   echo "00c) cdk destroy semana19-computo              (actividad 6: agente, API, aprobación, usuarios)"
+  echo "0a) vaciar el bucket de documentos de la KB  (vaciar_datos.py --si, perfil admin; versionado, actividad 8)"
+  echo "0) semana19-datos: cdk destroy          (base PostgreSQL y KB, antes que la red)"
   echo "0b) cdk destroy semana19-ia              (Guardrail y prompts; antes que la red porque importa la llave)"
   echo "1) cdk destroy semana19-base            (perfil de despliegue; borrar sigue permitido con la congelación)"
   echo "2) vaciar el bucket y el ECR del bootstrap  (vaciar_bootstrap.py --si, perfil admin)"
@@ -125,6 +127,9 @@ destruir_pila_computo semana19-eval "Paso 00c2"
 destruir_pila_computo semana19-computo "Paso 00c"
 
 if existe_stack semana19-datos; then
+  # Activity 8: the documents bucket is versioned without auto-delete; CloudFormation cannot delete it with versions.
+  echo "== Paso 0a: vaciar el bucket de documentos de la KB (vaciar_datos.py --si, perfil admin)"
+  "$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_datos.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
   inicio=$(date +%s)
   echo "== Paso 0: cdk destroy semana19-datos (base PostgreSQL) antes que la red"
   cdk destroy semana19-datos --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
