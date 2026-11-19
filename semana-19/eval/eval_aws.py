@@ -365,6 +365,75 @@ def linea_detalle(f: dict, fase: str, veredicto_juez: dict | None = None) -> dic
             "bloqueos_politica": f.get("bloqueos_politica"), "veredicto_juez": veredicto_juez}
 
 
+# The schema of resultados/eval_aws_detalle.jsonl, documented in resultados/eval_aws.md and checked by the tests:
+# field -> (accepted JSON types, meaning). One line per task; week 20 reads it as its baseline.
+_N = type(None)
+ESQUEMA_DETALLE = {
+    "id": ((str,), "task id, week 13's id plus the language (s03-es)"),
+    "idioma": ((str,), "es or en"),
+    "fase": ((str,), "principal (the 20 CI tasks) or calentamiento (the cold warm-up, reported apart)"),
+    "exito": ((bool,), "week 13's execution verifier against the rows recomputed on RDS; an aborted task is false"),
+    "estado": ((str,), "the API's final state, or no_corrida when the script's cap stopped it"),
+    "estado_esperado": ((str, _N), "week 13's expected state"),
+    "arranque": ((str, _N), "frio, caliente or desconocido, from the REPORT lines of the task's window"),
+    "latencia_s": ((int, float, _N), "POST /consultas to the final GET, seconds"),
+    "pasos": ((int, _N), "model turns (lab.run.steps of the agent span)"),
+    "herramientas": ((int, _N), "tool calls (execute_tool spans)"),
+    "tokens_entrada": ((int, _N), "input tokens of the run"),
+    "tokens_salida": ((int, _N), "output tokens of the run"),
+    "tokens_cache_lectura": ((int, _N), "prompt-cache read tokens"),
+    "tokens_cache_escritura": ((int, _N), "prompt-cache write tokens"),
+    "costo_usd": ((int, float, _N), "model cost of the run from the agent span (lab.run.cost_usd)"),
+    "trayectoria_ok": ((bool, _N), "week 17's trajectory graders against the frozen reference"),
+    "bloqueos_capa": ((int, _N), "decisions of the policy layer that were not allow"),
+    "bloqueos_guardrail": ((int, _N), "1 when the run ended on a guardrail intervention"),
+    "bloqueos_politica": ((int, _N), "tool calls refused by the gateway's Cedar policies (path b only)"),
+    "veredicto_juez": ((dict, _N), "the Bedrock judge's verdict (comparar_jueces.veredicto plus the scores); null "
+                                    "for the warm-up and for tasks not judged"),
+}
+assert tuple(ESQUEMA_DETALLE) == CAMPOS_DETALLE
+
+
+def validar_detalle(linea: dict) -> list[str]:
+    """The problems of one detail line (empty: valid)."""
+    if tuple(linea) != CAMPOS_DETALLE:
+        return [f"campos {list(linea)}"]
+    errores = [f"{k}: {type(linea[k]).__name__}" for k, (tipos, _) in ESQUEMA_DETALLE.items()
+               if not isinstance(linea[k], tipos) or (isinstance(linea[k], bool) and bool not in tipos)]
+    if linea["fase"] not in ("principal", "calentamiento"):
+        errores.append(f"fase {linea['fase']}")
+    if linea["arranque"] not in (None, "frio", "caliente", "desconocido"):
+        errores.append(f"arranque {linea['arranque']}")
+    return errores
+
+
+def detalle(crudo: dict, juez: dict | None = None) -> list[dict]:
+    """The detail lines from the raw run and, when it exists, the judge's output (juez_bedrock.json). The verdict
+    uses comparar_jueces' thresholds, fixed before the run."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("comparar_jueces_para_detalle", Path(__file__).with_name("comparar_jueces.py"))
+    cj = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cj)
+    por_tarea = (juez or {}).get("por_tarea") or {}
+
+    def veredicto(id_):
+        if id_ not in por_tarea:
+            return None
+        v = cj.veredicto(por_tarea[id_]["puntajes"])
+        return {**v, "puntajes": por_tarea[id_]["puntajes"]}
+
+    return ([linea_detalle(f, "calentamiento") for f in crudo.get("calentamiento", [])]
+            + [linea_detalle(f, "principal", veredicto(f["id_tarea"])) for f in crudo["filas"]])
+
+
+def escribir_detalle(lineas: list[dict], archivo: Path) -> Path:
+    errores = {l["id"]: validar_detalle(l) for l in lineas if validar_detalle(l)}
+    if errores:
+        raise ValueError(f"líneas fuera del esquema: {errores}")
+    archivo.write_text("".join(json.dumps(l, ensure_ascii=False) + "\n" for l in lineas), encoding="utf-8")
+    return archivo
+
+
 # ---------------------------------------------------------------- files
 
 def escribir(nombre: str, datos: Any, cuentas=(), carpeta: Path = SALIDA) -> Path:
@@ -476,6 +545,9 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     tareas, calentamiento = tareas_ci(), tareas_de_calentamiento()
     if a.informe:
         datos = json.loads((SALIDA / CRUDO).read_text(encoding="utf-8"))
+        juez = SALIDA / "juez_bedrock.json"
+        juez = json.loads(juez.read_text(encoding="utf-8")) if juez.exists() else None
+        print(escribir_detalle(detalle(datos, juez), S19 / "resultados" / "eval_aws_detalle.jsonl"))
         print(json.dumps({k: datos[k] for k in ("resumen", "gasto", "acceso")}, ensure_ascii=False, indent=2))
         return 0
     if not a.si:

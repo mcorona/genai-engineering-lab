@@ -293,3 +293,43 @@ def test_la_simulacion_no_crea_clientes_de_aws(monkeypatch, capsys):
     monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
     assert E.main([]) == 0
     assert "Simulación" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------- resultados/eval_aws_detalle.jsonl (week 20's baseline)
+
+def _crudo_falso():
+    comun = dict(medir=medir_con(), ejecutar_sql=ejecutar_ok,
+                 reportes=lambda a, b: {"agente": [REPORTE_CALIENTE], "consultas": [REPORTE_CALIENTE]})
+    tope = C.Tope(usd=E.TOPE_USD, tokens=E.TOPE_TOKENS)
+    frio = E.correr([tarea("s01-es")], tope=tope, **comun)
+    principal = E.correr([tarea("s03-es"), tarea("s03-en", "en")], tope=tope, **comun)
+    principal.append({"id_tarea": "c02-es", "idioma": "es", "estado": "no_corrida", "motivo": "tope_del_script",
+                      "estado_esperado": "respondida"})
+    return {"calentamiento": frio, "filas": principal}
+
+
+def test_el_detalle_cumple_el_esquema_y_se_escribe_una_linea_por_tarea(tmp_path):
+    juez = {"por_tarea": {"s03-es": {"puntajes": {"Builtin.Correctness": 1.0, "Builtin.Faithfulness": 1.0}}}}
+    lineas = E.detalle(_crudo_falso(), juez)
+    assert [(l["id"], l["fase"]) for l in lineas] == [("s01-es", "calentamiento"), ("s03-es", "principal"),
+                                                      ("s03-en", "principal"), ("c02-es", "principal")]
+    assert all(E.validar_detalle(l) == [] for l in lineas)
+    assert lineas[1]["veredicto_juez"]["aprobado"] is True and lineas[2]["veredicto_juez"] is None
+    assert lineas[3]["estado"] == "no_corrida" and lineas[3]["exito"] is False and lineas[3]["arranque"] is None
+    archivo = E.escribir_detalle(lineas, tmp_path / "eval_aws_detalle.jsonl")
+    leidas = [json.loads(x) for x in archivo.read_text().splitlines()]
+    assert leidas == lineas and all(tuple(l) == E.CAMPOS_DETALLE for l in leidas)
+
+
+def test_una_linea_fuera_del_esquema_no_se_escribe(tmp_path):
+    (l, *_) = E.detalle(_crudo_falso())
+    assert E.validar_detalle({**l, "exito": 1}) == ["exito: int"]
+    assert E.validar_detalle({**l, "arranque": "tibio"}) == ["arranque tibio"]
+    assert E.validar_detalle({k: v for k, v in l.items() if k != "pasos"})
+    with pytest.raises(ValueError, match="fuera del esquema"):
+        E.escribir_detalle([{**l, "fase": "otra"}], tmp_path / "x.jsonl")
+    assert not (tmp_path / "x.jsonl").exists()
+
+
+def test_el_esquema_documenta_cada_campo():
+    assert tuple(E.ESQUEMA_DETALLE) == E.CAMPOS_DETALLE and all(d for _, d in E.ESQUEMA_DETALLE.values())
