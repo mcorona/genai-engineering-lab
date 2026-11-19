@@ -268,9 +268,16 @@ def _esperados(con: pg.Connection, consultas) -> dict:
     return {"modo": "esperados", "solo_lectura": True, "esperados": salida}
 
 
+MODOS = ("pruebas_permisos", "leer_ordenes", "esperados", "permisos")
+
+
 def handler(event, context):
     """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config.
-    Activity 8 modes, both read-only: "leer_ordenes" takes "po_ids"; "esperados" takes "consultas" {clave: sql}."""
+    Activity 8 modes, both read-only: "leer_ordenes" takes "po_ids"; "esperados" takes "consultas" {clave: sql}.
+    No "modo" is the full load. Any other "modo" is refused before the secret is read: in activity 8 a loader older
+    than the caller took "esperados" for a full load and reloaded the seed (TRUNCATE included)."""
+    if event.get("modo") is not None and event["modo"] not in MODOS:
+        raise ValueError(f"modo desconocido: {event['modo']!r}; modos: {', '.join(MODOS)} o ninguno (carga completa)")
     secreto = _secreto(event["secret_arn"])
     con = _conectar(event["db_host"], secreto["username"], secreto["password"])
     try:
