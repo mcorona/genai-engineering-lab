@@ -190,9 +190,11 @@ def _spans_de_la_tarea(lineas: list[dict], run_id: str | None) -> dict:
 
 
 def medir_api(tarea: dict, camino: str, *, token: str, http: Callable, spans_entre: Callable, reloj=time.time,
-              dormir=time.sleep) -> dict:
+              dormir=time.sleep, largo_respuesta: int = 300) -> dict:
     """One task through POST /consultas and its polling. Tasks run one at a time, so the spans written between the
-    POST and the answer are this task's; the agent span is matched by its run id too."""
+    POST and the answer are this task's; the agent span is matched by its run id too.
+    Activity 8 reads more of the same measurement: the window (`inicio`, `fin`, epoch seconds), the run id, the cache
+    tokens, the tool spans' attributes (for week 17's trajectory graders) and a longer answer (for the judge)."""
     inicio = reloj()
     st, r = http("POST", "/consultas", token, {"pregunta": texto_de_la_tarea(tarea)})
     if st != 202:
@@ -224,7 +226,10 @@ def medir_api(tarea: dict, camino: str, *, token: str, http: Callable, spans_ent
         "bloqueos_guardrail": int(str(a.get("lab.outcome.reason", "")).startswith("guardrail")),
         "bloqueos_politica": sum(1 for h in herr if h.get("error.type") == "rechazada_por_el_gateway"),
         "spans_completos": s["agente"] is not None and s["ajenos"] == 0,
-        "resultados": r.get("resultados") or [], "respuesta": (r.get("respuesta") or "")[:300],
+        "resultados": r.get("resultados") or [], "respuesta": (r.get("respuesta") or "")[:largo_respuesta],
+        "inicio": round(inicio, 3), "fin": round(fin, 3), "run_id": run_id_de(id_consulta),
+        "tokens_cache_lectura": a.get("lab.run.tokens.cache_read"), "tokens_cache_escritura": a.get("lab.run.tokens.cache_creation"),
+        "spans_herramientas": herr,
     }
 
 
