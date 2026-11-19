@@ -308,12 +308,13 @@ def test_presupuesto_con_tres_alertas(perfil):
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
-def test_presupuesto_mensual_de_10_usd(perfil):
-    """Manuel's cap for week 19 is USD 10 (2026-11-18). AWS Budgets has no weekly period, so the limit is monthly."""
+def test_presupuesto_mensual_de_50_usd(perfil):
+    """Manuel's cap for week 19 is USD 10 per week (2026-11-18). AWS Budgets has no weekly period, so the limit is
+    monthly: USD 50, his choice (above the weekly cap's 42.86 per month)."""
     (presupuesto,) = recursos(de_control(perfil), "AWS::Budgets::Budget").values()
     datos = presupuesto["Properties"]["Budget"]
     assert datos["TimeUnit"] == "MONTHLY" and datos["BudgetType"] == "COST"
-    assert float(datos["BudgetLimit"]["Amount"]) == 10.0 and datos["BudgetLimit"]["Unit"] == "USD"
+    assert float(datos["BudgetLimit"]["Amount"]) == 50.0 and datos["BudgetLimit"]["Unit"] == "USD"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)

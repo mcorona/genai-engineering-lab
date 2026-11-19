@@ -61,8 +61,10 @@ DESPLIEGUE = "semana19-despliegue"
 ROL_PRESUPUESTO = "semana19-accion-presupuesto"
 OPERADOR = "manuel-admin"
 PRESUPUESTO = "semana19"
-# Monthly (AWS Budgets has no weekly period). USD 10 since 2026-11-18, Manuel's weekly cap for week 19; it was 5.0.
-PRESUPUESTO_USD = 10.0
+# Monthly (AWS Budgets has no weekly period). Manuel's cap is USD 10 per week (2026-11-18); a monthly USD 10 would
+# freeze deploys around the 24th at the base's burn, so the monthly limit is USD 50 (his choice, 2026-11-18; above
+# 10 x 30/7 = 42.86). No AWS setting alerts on one week over USD 10: that is checked by hand. It was 10.0, then 5.0.
+PRESUPUESTO_USD = 50.0
 PREFIJO_ROLES_CDK = "cdk-s19-"
 ETIQUETA_COSTO = "user:proyecto$semana19"
 GRUPO_FLOW_LOGS = "/semana19/base/flowlogs"
