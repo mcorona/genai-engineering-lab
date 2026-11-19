@@ -1,0 +1,66 @@
+{
+  "fecha": "2026-11-18",
+  "filas": [
+    {
+      "codigo_jsonrpc": -32002,
+      "error_herramienta": null,
+      "esperado": "denegada",
+      "obtenido": "denegada",
+      "ok": true,
+      "solicitante": "propio",
+      "usuario": "analista"
+    },
+    {
+      "codigo_jsonrpc": null,
+      "error_herramienta": "cedis_desconocido",
+      "esperado": "permitida",
+      "obtenido": "permitida",
+      "ok": true,
+      "solicitante": "propio",
+      "usuario": "comprador"
+    },
+    {
+      "codigo_jsonrpc": -32002,
+      "error_herramienta": null,
+      "esperado": "denegada",
+      "obtenido": "denegada",
+      "ok": true,
+      "solicitante": "propio",
+      "usuario": "aprobador"
+    },
+    {
+      "codigo_jsonrpc": -32002,
+      "error_herramienta": null,
+      "esperado": "denegada",
+      "obtenido": "denegada",
+      "ok": true,
+      "solicitante": "ajeno",
+      "usuario": "comprador"
+    },
+    {
+      "lista_de_herramientas": [
+        "herramientas___describir_esquema",
+        "herramientas___ejecutar_sql"
+      ],
+      "usuario": "analista",
+      "ve_proponer": false
+    },
+    {
+      "lista_de_herramientas": [
+        "herramientas___describir_esquema",
+        "herramientas___ejecutar_sql",
+        "herramientas___proponer_orden_compra"
+      ],
+      "usuario": "comprador",
+      "ve_proponer": true
+    },
+    {
+      "lista_de_herramientas": [
+        "herramientas___describir_esquema",
+        "herramientas___ejecutar_sql"
+      ],
+      "usuario": "aprobador",
+      "ve_proponer": false
+    }
+  ]
+}
