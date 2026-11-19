@@ -12,7 +12,9 @@
 #   S19_PERFIL_ADMIN                 admin profile, aws login (default manuel-admin)
 #   S19_PERFIL_DESPLIEGUE            profile that assumes semana19-despliegue (default semana19-despliegue)
 #   S19_PYTHON                       python with aws-cdk-lib 2.276.0 (default: .venv-cdk of the worktree)
-#   ALERTA_EMAIL                     alert address, from the environment only; never written to the repo
+#   ALERTA_EMAIL                     alert address, from the environment only; never written to the repo. With
+#                                    --solo-control and semana19-control deployed, it may be left unset: the stack
+#                                    keeps its CorreoAlerta (CloudFormation reuses a parameter that is not overridden)
 #   S19_BUCKET_PLANTILLAS            temporary S3 bucket to stage the control template (> 51,200 bytes); created and
 #                                    deleted by the operator, never written to the repo
 #
@@ -128,9 +130,15 @@ PY
 fi
 
 # --- MODO si: acts. The caller already approved the plan shown by --diff.
+CORREO_PREVIO=0
 if [[ -z "${ALERTA_EMAIL:-}" ]]; then
-  echo "Falta ALERTA_EMAIL en el entorno (el correo no se guarda en el repo)." >&2
-  exit 2
+  if [[ "$SOLO_CONTROL" == 1 ]] && existe_stack semana19-control "$PERFIL_ADMIN"; then
+    CORREO_PREVIO=1
+    echo "== ALERTA_EMAIL no está en el entorno: semana19-control conserva su CorreoAlerta (no se imprime)."
+  else
+    echo "Falta ALERTA_EMAIL en el entorno (el correo no se guarda en el repo)." >&2
+    exit 2
+  fi
 fi
 
 CUENTA="$(aws sts get-caller-identity --profile "$PERFIL_ADMIN" --query Account --output text)"
@@ -142,6 +150,8 @@ echo "== Cuenta: <account> (resuelta en ejecución, no se imprime)"
 desplegar_control() {
   local bootstrap_creado="$1"
   local bucket=()
+  local parametros=("BootstrapCreado=$bootstrap_creado")
+  if [[ "$CORREO_PREVIO" == 0 ]]; then parametros=("CorreoAlerta=$ALERTA_EMAIL" "${parametros[@]}"); fi
   if [ -n "${S19_BUCKET_PLANTILLAS:-}" ]; then
     bucket=(--s3-bucket "$S19_BUCKET_PLANTILLAS")
   elif [[ "$bootstrap_creado" == "true" ]]; then
@@ -151,7 +161,7 @@ desplegar_control() {
   fi
   aws cloudformation deploy --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN" \
     --template-file "$OUT/semana19-control.template.json" --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides "CorreoAlerta=$ALERTA_EMAIL" "BootstrapCreado=$bootstrap_creado" \
+    --parameter-overrides "${parametros[@]}" \
     --no-fail-on-empty-changeset ${bucket[@]+"${bucket[@]}"}
 }
 

@@ -487,6 +487,41 @@ def test_solo_control_despliega_control_y_bootstrap_y_nada_mas(tmp_path):
     assert "arn:aws:iam::<account>:role/x" in r.stdout and "iam::falso" not in r.stdout   # the account never prints
 
 
+def test_solo_control_sin_correo_conserva_el_del_stack(tmp_path):
+    """--solo-control --si without ALERTA_EMAIL, with semana19-control deployed: CorreoAlerta is not overridden, so
+    CloudFormation keeps the stack's value; the address is never needed nor printed (2026-11-18)."""
+    entorno, marcas = _entorno_falso(tmp_path)
+    for nombre in ("aws", "cdk"):
+        (tmp_path / "bin" / nombre).write_text(
+            f'#!/usr/bin/env bash\necho "{nombre} $*" >> "{marcas}"\necho falso\nexit 0\n', encoding="utf-8")
+    entorno.pop("ALERTA_EMAIL", None)
+    registro = S19 / "resultados" / "tiempos_despliegue.jsonl"
+    antes = registro.read_bytes() if registro.exists() else None
+    try:
+        r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh"), "--solo-control", "--si"], env=entorno,
+                           capture_output=True, text=True)
+    finally:
+        if antes is None:
+            registro.unlink(missing_ok=True)
+        else:
+            registro.write_bytes(antes)
+    assert r.returncode == 0, r.stderr[-800:]
+    (deploy,) = [l for l in marcas.read_text().splitlines() if "cloudformation deploy --stack-name semana19-control" in l]
+    assert "CorreoAlerta" not in deploy and "BootstrapCreado=true" in deploy
+    assert "conserva su CorreoAlerta" in r.stdout
+
+
+def test_sin_correo_y_sin_stack_de_control_se_detiene(tmp_path):
+    entorno, marcas = _entorno_falso(tmp_path)
+    (tmp_path / "bin" / "aws").write_text(f'#!/usr/bin/env bash\necho "aws $*" >> "{marcas}"\nexit 254\n',
+                                         encoding="utf-8")
+    entorno.pop("ALERTA_EMAIL", None)
+    r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh"), "--solo-control", "--si"], env=entorno,
+                       capture_output=True, text=True)
+    assert r.returncode == 2 and "ALERTA_EMAIL" in r.stderr
+    assert "cloudformation deploy" not in (marcas.read_text() if marcas.exists() else "")
+
+
 def test_argumentos_desconocidos_salen_con_2(tmp_path):
     entorno, marcas = _entorno_falso(tmp_path)
     for script in ("desplegar.sh", "destruir.sh"):
