@@ -53,8 +53,11 @@ from comun.redaccion import redactar  # noqa: E402
 from trayectorias import construir_referencias as CR  # noqa: E402
 from trayectorias.evaluadores import Llamada, Trayectoria, evaluar  # noqa: E402
 
-TOPE_USD = 1.20
-TOPE_TOKENS = 800_000
+# Cumulative over every run of the activity, discarded ones included (tope_con_lo_previo). Manuel's OK of 2026-11-19
+# raised them from 1.20 USD / 800k: run 1 (no rule tools, 0.61 USD) and run 2 (8 tasks aborted by the cap, 0.45 USD)
+# left 767k tokens spent, too little for a complete run of 20 tasks (~0.65 USD, ~440k tokens).
+TOPE_USD = 1.90
+TOPE_TOKENS = 1_300_000
 FRIO = ("s01-es", "s02-es")          # the warm-up: two tasks outside the CI subset, one per environment
 SALIDA = S19 / "resultados" / "eval_aws"
 CRUDO = "crudo_eval.json"
