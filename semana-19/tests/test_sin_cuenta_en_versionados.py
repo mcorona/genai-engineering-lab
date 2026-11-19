@@ -18,6 +18,7 @@ RAIZ = S19.parent
 ARN_CON_CUENTA = re.compile(r"arn:aws[^:]*:[^:]*:[^:]*:(\d{12}):")
 VENDOR = "semana-19/guardrail/vendor/"
 EJEMPLOS_EN_PRUEBAS = {"123456789012", "111111111111"}
+CUENTA_FALSA = "9876543" + "21098"   # built at run time, so this file does not carry it
 
 
 def _versionados() -> list[str]:
@@ -48,17 +49,18 @@ def test_ningun_archivo_versionado_trae_la_cuenta_en_un_arn():
 
 
 def test_la_prueba_detecta_un_arn_con_cuenta_y_respeta_las_excepciones():
+    c = CUENTA_FALSA
     contenido = {
-        "semana-19/resultados/x.json": b'{"a": "arn:aws:bedrock:us-east-1:987654321098:guardrail/g"}',
+        "semana-19/resultados/x.json": f'{{"a": "arn:aws:bedrock:us-east-1:{c}:guardrail/g"}}'.encode(),
         "semana-19/resultados/ok.json": b'{"a": "arn:aws:bedrock:us-east-1:<account>:guardrail/g"}',
-        "semana-19/guardrail/vendor/botocore/data/x/examples-1.json": b'"arn:aws:iam::987654321098:role/r"',
+        "semana-19/guardrail/vendor/botocore/data/x/examples-1.json": f'"arn:aws:iam::{c}:role/r"'.encode(),
         "semana-19/tests/test_x.py": b'"arn:aws:iam::123456789012:role/r"',
-        "semana-19/tests/test_y.py": b'"arn:aws:iam::987654321098:role/r"',
+        "semana-19/tests/test_y.py": f'"arn:aws:iam::{c}:role/r"'.encode(),
         "semana-19/arquitectura/diagrama.svg": b'\xff\xfe binary',
     }
     malos = hallazgos(list(contenido), leer=lambda f: contenido[f])
     assert [f for f, _ in malos] == ["semana-19/resultados/x.json", "semana-19/tests/test_y.py"]
-    assert all("987654321098" not in arn for _, arn in malos)
+    assert all(c not in arn for _, arn in malos)
 
 
 def test_prueba_viva_redacta_lo_que_escribe():
@@ -66,7 +68,7 @@ def test_prueba_viva_redacta_lo_que_escribe():
     modulo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulo)
     texto = modulo.texto_del_resultado([{"tipo": "golden", "id": "s01-es", "accion": "NONE", "evaluacion": [
-        {"topicPolicy": {"guardrailArn": "arn:aws:bedrock:us-east-1:987654321098:guardrail/teps1un80k04"}}]}])
-    assert "987654321098" not in texto
+        {"topicPolicy": {"guardrailArn": f"arn:aws:bedrock:us-east-1:{CUENTA_FALSA}:guardrail/teps1un80k04"}}]}])
+    assert CUENTA_FALSA not in texto
     assert json.loads(texto)["resultados"][0]["evaluacion"][0]["topicPolicy"]["guardrailArn"].endswith(
         ":<account>:guardrail/teps1un80k04")
