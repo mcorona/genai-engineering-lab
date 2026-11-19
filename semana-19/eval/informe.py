@@ -113,6 +113,24 @@ def seccion_costo(c: dict) -> list[str]:
     return out
 
 
+def seccion_descartadas(descartadas: list[tuple[str, dict]]) -> list[str]:
+    """Runs a rerun replaced (eval_aws.py keeps them as crudo_eval_descartada_<n>.json): their spend still counts."""
+    out = ["### Discarded runs (kept; their spend counts)", ""]
+    if not descartadas:
+        return out + ["None."]
+    filas = []
+    for nombre, c in descartadas:
+        r = c["resumen"]
+        uso = {}
+        for f in c["filas"]:
+            for sp in f.get("spans_herramientas") or []:
+                uso[sp["gen_ai.tool.name"]] = uso.get(sp["gen_ai.tool.name"], 0) + 1
+        filas.append([nombre, c["fecha"], f"{r['exito']['total']['exito']}/{r['exito']['total']['n']}",
+                      r["comparacion"]["regresion"], _n(c["gasto"]["usd"], 6), f"{c['gasto']['tokens']:,}",
+                      ", ".join(f"{k} {v}" for k, v in sorted(uso.items())) or "none"])
+    return out + _tabla(["File", "Date", "Passed", "Regression", "USD", "Tokens", "Tool calls"], filas)
+
+
 def seccion_aprobacion(a: dict | None) -> list[str]:
     out = ["### The approval workflow, step by step", ""]
     if a is None:
@@ -163,7 +181,7 @@ def seccion_esquema() -> list[str]:
 
 
 def render(crudo: dict | None, aprobacion: dict | None = None, juez: dict | None = None,
-           comparacion: dict | None = None) -> str:
+           comparacion: dict | None = None, descartadas: list[tuple[str, dict]] = ()) -> str:
     out = [INICIO, ""]
     if crudo is None:
         out += [NO_CORRIO.format(archivo="eval_aws/crudo_eval.json"), ""]
@@ -172,6 +190,7 @@ def render(crudo: dict | None, aprobacion: dict | None = None, juez: dict | None
         for s in (seccion_corrida(crudo), seccion_exito(r), seccion_regresion(r), seccion_trayectoria(r),
                   seccion_latencia(r), seccion_costo(crudo)):
             out += s + [""]
+    out += seccion_descartadas(list(descartadas)) + [""]
     for s in (seccion_aprobacion(aprobacion), seccion_juez(juez, comparacion), seccion_esquema()):
         out += s + [""]
     return "\n".join(out + [FIN]) + "\n"
@@ -191,8 +210,10 @@ def _leer(nombre: str) -> dict | None:
 
 
 def main() -> int:  # pragma: no cover - reads the run's files
+    descartadas = [(p.name, json.loads(p.read_text(encoding="utf-8")))
+                   for p in sorted(CARPETA.glob("crudo_eval_descartada_*.json"))]
     bloque = render(_leer("crudo_eval.json"), _leer("aprobacion_e2e.json"), _leer("juez_bedrock.json"),
-                    _leer("comparar_jueces.json"))
+                    _leer("comparar_jueces.json"), descartadas)
     previo = DESTINO.read_text(encoding="utf-8") if DESTINO.exists() else "# Week 19, activity 8: the eval against the deployed endpoint\n"
     DESTINO.write_text(con_bloque(previo, bloque), encoding="utf-8")
     print(DESTINO)

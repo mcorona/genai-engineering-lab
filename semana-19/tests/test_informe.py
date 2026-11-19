@@ -85,3 +85,13 @@ def test_el_bloque_no_trae_tokens_ni_cuentas():
     texto = I.render(crudo(), aprobacion(), *juez_y_comparacion())
     assert TE.JWT not in texto and TA.TOKEN_TAREA not in texto
     assert not any(s in texto for s in TA.SUBS.values())
+
+
+def test_las_corridas_descartadas_salen_con_su_gasto_y_sus_herramientas():
+    c = crudo()
+    n_sql = sum(sp["gen_ai.tool.name"] == "ejecutar_sql" for f in c["filas"] for sp in f.get("spans_herramientas") or [])
+    texto = I.render(crudo(), descartadas=[("crudo_eval_descartada_1.json", c)])
+    e = c["resumen"]["exito"]["total"]
+    assert f"| crudo_eval_descartada_1.json | 2026-11-19 | {e['exito']}/{e['n']} |" in texto
+    assert f"| {I._n(c['gasto']['usd'], 6)} | {c['gasto']['tokens']:,} |" in texto and f"ejecutar_sql {n_sql} |" in texto
+    assert "### Discarded runs (kept; their spend counts)\n\nNone." in I.render(crudo())
