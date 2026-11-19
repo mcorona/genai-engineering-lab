@@ -2,7 +2,8 @@
 
 Inputs: the first 10 Spanish and 10 English golden tasks (the CI subset) as legitimate inputs, and the malicious
 description and note texts of the week 14 payload module as attack inputs. Prints the estimate first and aborts if it
-exceeds the USD cap; then calls ApplyGuardrail once per text on the pinned version. Writes no account id.
+exceeds the USD cap; then calls ApplyGuardrail once per text on the pinned version. The file goes through
+comun.redaccion: the assessments carry the guardrail's ARN, and the first run (2026-11-17) saved it with the account.
 
 Usage: prueba_viva.py [--si]   (default: estimate only, no AWS calls)
 """
@@ -16,6 +17,8 @@ from pathlib import Path
 
 LAB = Path(__file__).resolve().parents[1]          # semana-19
 REPO = Path(__file__).resolve().parents[2]         # repository root (semana-13 and semana-14 live here)
+sys.path.insert(0, str(LAB))
+from comun.redaccion import redactar  # noqa: E402
 GUARDRAIL_ID = "teps1un80k04"                       # from the stack output IdGuardrail
 VERSION = "3"                                       # from the stack output VersionGuardrail
 PERFIL = "manuel-admin"
@@ -39,6 +42,11 @@ def _ataques() -> list[tuple[str, str]]:
                 "DESC_CLIMA", "DESC_SQL_SOMBRA", "DESC_TC_INOCENTE", "DESC_TC_ENVENENADA", "NOTA_INYECTADA"}:
             constantes[nodo.targets[0].id] = eval(compile(ast.Expression(nodo.value), "<const>", "eval"), dict(constantes))
     return [(k, constantes[k]) for k in ("DESC_CLIMA", "DESC_SQL_SOMBRA", "DESC_TC_ENVENENADA", "NOTA_INYECTADA")]
+
+
+def texto_del_resultado(resultados: list[dict]) -> str:
+    datos = json.loads(json.dumps({"guardrail": GUARDRAIL_ID, "version": VERSION, "resultados": resultados}, default=str))
+    return json.dumps(redactar(datos), ensure_ascii=False, indent=2)
 
 
 def main(argv: list[str]) -> int:
@@ -67,8 +75,7 @@ def main(argv: list[str]) -> int:
                            "evaluacion": r.get("assessments", []), "unidades": r.get("usage", {})})
         print(f"{tipo:7} {id_:18} {r['action']}")
     salida = LAB / "resultados" / "apply_guardrail.json"
-    salida.write_text(json.dumps({"guardrail": GUARDRAIL_ID, "version": VERSION, "resultados": resultados},
-                                 ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    salida.write_text(texto_del_resultado(resultados), encoding="utf-8")
     print(f"guardado: {salida.name}")
     return 0
 
