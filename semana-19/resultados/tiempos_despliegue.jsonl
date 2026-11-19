@@ -15,3 +15,4 @@
 {"fecha": "2026-11-14", "paso": "destruir-bootstrap", "segundos": 32, "modo": "destruir-si"}
 {"fecha": "2026-11-15", "paso": "destruir-base-retenido", "segundos": 33, "modo": "destruir-si"}
 {"fecha": "2026-11-15", "paso": "destruir-bootstrap", "segundos": 31, "modo": "destruir-si"}
+{"fecha": "2026-11-18", "paso": "destruir-gateway", "segundos": 48, "modo": "destruir-si"}
