@@ -515,6 +515,10 @@ class AwsEval(C.Aws):  # pragma: no cover - live only
         cuerpo = json.loads(r["Payload"].read())
         if r.get("FunctionError"):
             raise RuntimeError(f"el cargador falló: {cuerpo.get('errorType')}")
+        if evento.get("modo") and cuerpo.get("modo") != evento["modo"]:
+            # An older loader ignores the mode and does its full load: deploy semana19-datos before running again.
+            raise RuntimeError(f"el cargador desplegado no conoce el modo {evento['modo']!r} (respondió como carga "
+                               "completa): despliega semana19-datos y vuelve a correr")
         return cuerpo
 
     def reportes(self, desde_s: float, hasta_s: float) -> dict[str, list[str]]:

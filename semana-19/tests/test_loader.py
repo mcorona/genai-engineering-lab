@@ -279,3 +279,14 @@ def test_esperados_revierte_aunque_la_consulta_falle():
     with pytest.raises(RuntimeError):
         H._esperados(con, {"k": "SELECT 1"})
     assert con.sql[-1] == "ROLLBACK"
+
+
+def test_un_modo_desconocido_se_rechaza_antes_de_leer_el_secreto(monkeypatch):
+    """Activity 8: a loader older than the caller took an unknown mode for the full load (TRUNCATE and seed)."""
+    def no_debe(*a, **k):
+        raise AssertionError("tocó el secreto o la base")
+    monkeypatch.setattr(H, "_secreto", no_debe)
+    monkeypatch.setattr(H, "_conectar", no_debe)
+    with pytest.raises(ValueError, match="modo desconocido"):
+        H.handler({"secret_arn": "x", "db_host": "h", "modo": "esperados_v2"}, None)
+    assert set(H.MODOS) == {"pruebas_permisos", "leer_ordenes", "esperados", "permisos"}

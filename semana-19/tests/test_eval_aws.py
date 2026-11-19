@@ -333,3 +333,14 @@ def test_una_linea_fuera_del_esquema_no_se_escribe(tmp_path):
 
 def test_el_esquema_documenta_cada_campo():
     assert tuple(E.ESQUEMA_DETALLE) == E.CAMPOS_DETALLE and all(d for _, d in E.ESQUEMA_DETALLE.values())
+
+
+def test_un_cargador_viejo_que_responde_como_carga_completa_se_detecta():
+    import io
+    class Lam:
+        def invoke(self, **k):
+            return {"Payload": io.BytesIO(b'{"esquema_creado": false, "ok": true}')}
+    aws = E.AwsEval.__new__(E.AwsEval)
+    aws.lam, aws.cargador, aws.datos = Lam(), "f", {"ArnSecretoBd": "s", "HostBd": "h"}
+    with pytest.raises(RuntimeError, match="no conoce el modo 'esperados'"):
+        aws.cargador_invoca({"modo": "esperados", "consultas": {}})
