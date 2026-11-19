@@ -331,6 +331,16 @@ def test_probar_como_distingue_el_rechazo_del_gateway_de_la_respuesta_de_la_herr
     assert G.probar_como("u", "t", {}, abrir=sin_json.abrir)["paso"] is False
 
 
+def test_un_rechazo_anidado_en_dos_grupos_tambien_es_negado():
+    """The live shape (2026-11-18): the MCP client raises the Cedar deny two exception groups deep."""
+    from mcp.shared.exceptions import MCPError
+    anidado = ExceptionGroup("cliente", [ExceptionGroup("sesion", [MCPError(-32002, "Tool Execution Denied")])])
+    negado = G.probar_como("u", "t", {"a": 1}, abrir=SesionPolitica(error=anidado).abrir)
+    assert negado == {"paso": False, "forma": "jsonrpc", "codigo": -32002, "error_herramienta": None}
+    with pytest.raises(BaseExceptionGroup):   # anything without a JSON-RPC code is not taken for a deny
+        G.probar_como("u", "t", {}, abrir=SesionPolitica(error=ExceptionGroup("x", [ExceptionGroup("y", [OSError()])])).abrir)
+
+
 def test_listar_como_devuelve_los_nombres_que_ve_el_usuario():
     s = SesionPolitica(nombres=["herramientas___ejecutar_sql"])
     assert G.listar_como("u", "t", abrir=s.abrir) == ["herramientas___ejecutar_sql"]

@@ -156,6 +156,14 @@ def test_un_rechazo_jsonrpc_del_gateway_llega_cerrado_con_su_codigo():
     assert "detalle interno" not in json.dumps(res)
 
 
+def test_un_rechazo_anidado_en_dos_grupos_llega_cerrado_con_su_codigo():
+    from mcp.shared.exceptions import MCPError
+    anidado = ExceptionGroup("cliente", [ExceptionGroup("sesion", [MCPError(-32002, "detalle interno")])])
+    res = llamador(SesionSimulada(error=anidado))("proponer_orden_compra", {"sku": "SKU-0009"}, solicitante="x")
+    assert res["ok"] is False and res["error"]["tipo"] == G.RECHAZO_DEL_GATEWAY and res["error"]["codigo"] == -32002
+    assert "detalle interno" not in json.dumps(res)
+
+
 def test_otra_falla_del_transporte_es_un_error_cerrado():
     res = llamador(SesionSimulada(error=ConnectionError("dns")))("ejecutar_sql", {"sql": "SELECT 1"})
     assert res["ok"] is False and res["error"]["tipo"] == "herramienta_no_disponible"

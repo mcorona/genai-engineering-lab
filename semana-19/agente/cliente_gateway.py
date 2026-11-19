@@ -31,10 +31,27 @@ MARGEN_S = 5   # seconds before `exp` at which the token counts as expired (the 
 RECHAZO_DEL_GATEWAY = "rechazada_por_el_gateway"
 
 
+def _cadena(error: BaseException):
+    """The exception and everything inside it: exception groups (the MCP client nests the error two groups deep,
+    seen live 2026-11-18), causes and contexts, each once."""
+    vistos, pendientes = set(), [error]
+    while pendientes:
+        e = pendientes.pop()
+        if id(e) in vistos:
+            continue
+        vistos.add(id(e))
+        yield e
+        pendientes += list(getattr(e, "exceptions", ()) or ()) + [x for x in (e.__cause__, e.__context__) if x]
+
+
 def _codigo_jsonrpc(error: BaseException) -> int | None:
-    """The code of an MCP error answer (mcp.shared.exceptions.MCPError carries it in .error.code)."""
-    codigo = getattr(getattr(error, "error", None), "code", None)
-    return codigo if isinstance(codigo, int) else None
+    """The code of an MCP error answer anywhere in the exception (mcp.shared.exceptions.MCPError carries it in
+    .error.code), or None."""
+    for e in _cadena(error):
+        codigo = getattr(getattr(e, "error", None), "code", None)
+        if isinstance(codigo, int):
+            return codigo
+    return None
 
 
 class TokenVencido(Exception):
@@ -61,17 +78,7 @@ def expiracion(token: str) -> int | None:
 
 def _no_autorizado(error: BaseException) -> bool:
     """A 401 anywhere in the exception (httpx's HTTPStatusError, inside an exception group or as a cause)."""
-    vistos, pendientes = set(), [error]
-    while pendientes:
-        e = pendientes.pop()
-        if id(e) in vistos:
-            continue
-        vistos.add(id(e))
-        respuesta = getattr(e, "response", None)
-        if getattr(respuesta, "status_code", None) == 401:
-            return True
-        pendientes += list(getattr(e, "exceptions", ()) or ()) + [x for x in (e.__cause__, e.__context__) if x]
-    return False
+    return any(getattr(getattr(e, "response", None), "status_code", None) == 401 for e in _cadena(error))
 
 
 def _abrir_mcp(url: str, token: str):
@@ -175,8 +182,6 @@ def probar_como(url: str, token: str, argumentos: dict, *, abrir: Callable | Non
         r = _en_sesion(url, token, accion, abrir)
     except BaseException as error:  # noqa: BLE001 - JSON-RPC errors may arrive inside an exception group
         codigo = _codigo_jsonrpc(error)
-        if codigo is None and isinstance(error, BaseExceptionGroup):
-            codigo = next((c for c in map(_codigo_jsonrpc, error.exceptions) if c is not None), None)
         if codigo is None:
             raise
         return {"paso": False, "forma": "jsonrpc", "codigo": codigo, "error_herramienta": None}
