@@ -18,6 +18,9 @@ import sys
 
 STACK = "semana19-eval"
 PREFIJO_TRABAJOS = "semana19-juez-"
+# ListEvaluationJobs' nameContains must match [a-z0-9](-*[a-z0-9]){0,62}: no trailing hyphen (ValidationException in
+# the teardown of 2026-11-19). The service filters by the stem; the exact prefix is checked here.
+FILTRO_NOMBRE = PREFIJO_TRABAJOS.rstrip("-")
 TERMINADOS = ("Completed", "Failed", "Stopped")
 
 
@@ -46,7 +49,7 @@ def vaciar(s3, bucket: str, si: bool) -> dict:
 
 def trabajos(bedrock) -> list[dict]:
     salida = []
-    for p in bedrock.get_paginator("list_evaluation_jobs").paginate(nameContains=PREFIJO_TRABAJOS):
+    for p in bedrock.get_paginator("list_evaluation_jobs").paginate(nameContains=FILTRO_NOMBRE):
         salida += [{"arn": j["jobArn"], "nombre": j["jobName"], "estado": j["status"]}
                    for j in p.get("jobSummaries", []) if j["jobName"].startswith(PREFIJO_TRABAJOS)]
     return salida
