@@ -505,6 +505,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     principal = correr(tareas, **comun)
     filas = principal
     datos = {"fecha": time.strftime("%Y-%m-%d"), "acceso": acceso, "calentamiento": frio, "filas": principal,
+             "esperados": esperados,   # the rows recomputed on RDS: the judge's reference (juez_bedrock.py)
              "gasto": gasto(frio + principal), "tope": {"usd": TOPE_USD, "tokens": TOPE_TOKENS},
              "resumen": {"exito": resumen_exito(filas), "latencia": resumen_latencia(frio + principal),
                          "trayectoria": resumen_trayectoria(filas), "costo": resumen_costo(frio + principal),
