@@ -102,7 +102,9 @@ def test_la_solicitud_pasa_la_validacion_de_botocore_y_sus_patrones():
         "EvaluationJobName": nombre, "EvaluationPrecomputedInferenceSourceIdentifier": J.ID_RESPUESTAS}[forma])
     assert patron("EvaluationJobName") and patron("EvaluationPrecomputedInferenceSourceIdentifier")
     assert re.search(modelo.shape_for("EvaluatorModelIdentifier").metadata["pattern"], J.MODELO_JUEZ)
-    assert J.TIPO_DE_TAREA in modelo.shape_for("EvaluationTaskType").enum
+    # Not in botocore's EvaluationTaskType enum (botocore does not check enums), but the only task type the service
+    # accepts for a model-as-judge job: the ValidationException of 2026-11-19 and AWS's LLM-as-a-judge guide.
+    assert J.TIPO_DE_TAREA == "General" and J.TIPO_DE_TAREA not in modelo.shape_for("EvaluationTaskType").enum
     assert all(re.fullmatch(modelo.shape_for("EvaluationMetricName").metadata["pattern"], m) for m in J.METRICAS)
     assert {"key": "proyecto", "value": "semana19"} in p["jobTags"]
 
