@@ -232,3 +232,50 @@ def test_leer_ordenes_revierte_aunque_falle_la_consulta():
     with pytest.raises(RuntimeError):
         H._leer_ordenes(con, [1])
     assert con.sql[-1][0] == "ROLLBACK"
+
+
+class _FakeEsperados:
+    def __init__(self):
+        self.sql = []
+
+    def run(self, sql, **kw):
+        self.sql.append(sql)
+        if sql.startswith(("SELECT", "WITH")):
+            from decimal import Decimal
+            import datetime as dt
+            return [["SKU-0001", Decimal("12.50"), dt.date(2026, 11, 5), 3]]
+        return []
+
+
+def test_esperados_corre_cada_consulta_en_solo_lectura_con_timeout_y_revierte():
+    con = _FakeEsperados()
+    r = H._esperados(con, {"s03-es/proveedor": "SELECT 1;", "c02-es/x": "WITH a AS (SELECT 1) SELECT * FROM a"})
+    assert r["esperados"]["s03-es/proveedor"] == [["SKU-0001", 12.5, "2026-11-05", 3]]
+    bloques = [con.sql[i:i + 6] for i in range(0, len(con.sql), 6)]
+    for b in bloques:
+        assert b[:4] == ["BEGIN", "SET TRANSACTION READ ONLY", "SET LOCAL statement_timeout = 15000",
+                         "SET LOCAL search_path = public"] and b[5] == "ROLLBACK"
+    assert con.sql[4] == "SELECT 1"
+
+
+@pytest.mark.parametrize("consultas", [None, {}, {"k": "DELETE FROM products"}, {"k": "SELECT 1; DROP TABLE x"},
+                                       {"k": "  "}, {f"k{i}": "SELECT 1" for i in range(41)}])
+def test_esperados_rechaza_lo_que_no_es_una_sola_consulta_antes_de_tocar_la_base(consultas):
+    con = _FakeEsperados()
+    with pytest.raises(ValueError):
+        H._esperados(con, consultas)
+    assert con.sql == []
+
+
+def test_esperados_revierte_aunque_la_consulta_falle():
+    class Falla(_FakeEsperados):
+        def run(self, sql, **kw):
+            self.sql.append(sql)
+            if sql.startswith("SELECT"):
+                raise RuntimeError("timeout")
+            return []
+
+    con = Falla()
+    with pytest.raises(RuntimeError):
+        H._esperados(con, {"k": "SELECT 1"})
+    assert con.sql[-1] == "ROLLBACK"
