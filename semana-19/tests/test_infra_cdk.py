@@ -957,3 +957,16 @@ def test_limite_deja_al_rol_del_gateway_usar_llaves_sin_via_service(perfil):
     assert acciones == {"kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"}
     assert texto(st["Condition"]["ArnLike"]["aws:PrincipalArn"]).endswith(":role/semana19-gateway-*")
     assert list(st["Condition"]) == ["ArnLike"]
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_ejecucion_crea_la_identidad_del_gateway_en_el_directorio_default(perfil):
+    """The first gateway failed on CreateWorkloadIdentity over workload-identity-directory/default (2026-11-18): the
+    directory itself and the gateway's identities only, not other workload identities."""
+    (pol,) = [r for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+              if any(s.get("Sid") == "IdentidadDelGatewayPorCfn" for s in r["Properties"]["PolicyDocument"]["Statement"])]
+    (st,) = [s for s in pol["Properties"]["PolicyDocument"]["Statement"] if s["Sid"] == "IdentidadDelGatewayPorCfn"]
+    assert set(st["Action"]) == {"bedrock-agentcore:CreateWorkloadIdentity", "bedrock-agentcore:GetWorkloadIdentity",
+                                 "bedrock-agentcore:UpdateWorkloadIdentity", "bedrock-agentcore:DeleteWorkloadIdentity"}
+    assert sorted(texto(r).rsplit("}:", 1)[-1] for r in st["Resource"]) == [
+        "workload-identity-directory/default", "workload-identity-directory/default/workload-identity/semana19-gateway-*"]

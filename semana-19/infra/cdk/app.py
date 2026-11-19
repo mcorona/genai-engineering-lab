@@ -423,6 +423,14 @@ def politica_ejecucion_agentes() -> list[iam.PolicyStatement]:
             "bedrock-agentcore:TagResource", "bedrock-agentcore:UntagResource",
             "bedrock-agentcore:ListTagsForResource"],
             resources=[f"{agentcore}:*gateway*"]),
+        # The gateway's workload identity lives under the account's default directory: CreateWorkloadIdentity is
+        # authorized on the directory itself (first gateway, 2026-11-18), the rest on the identity, named after the
+        # gateway's ID (semana19-gateway-<suffix>).
+        _declaracion(sid="IdentidadDelGatewayPorCfn", actions=[
+            "bedrock-agentcore:CreateWorkloadIdentity", "bedrock-agentcore:GetWorkloadIdentity",
+            "bedrock-agentcore:UpdateWorkloadIdentity", "bedrock-agentcore:DeleteWorkloadIdentity"],
+            resources=[f"{agentcore}:workload-identity-directory/default",
+                       f"{agentcore}:workload-identity-directory/default/workload-identity/{NOMBRE_GATEWAY}-*"]),
         _declaracion(sid="MotorDePoliticasPorCfn", actions=[
             "bedrock-agentcore:CreatePolicyEngine", "bedrock-agentcore:UpdatePolicyEngine",
             "bedrock-agentcore:GetPolicyEngine", "bedrock-agentcore:DeletePolicyEngine",
@@ -709,7 +717,7 @@ class Control(Stack):
             "CKV_AWS_111": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), "
                            "entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB "
                            "(LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES."})
-        suprimir_iam5(ejecucion_agentes, ["GatewayPorCfn", "MotorDePoliticasPorCfn", "CrearAgentePorCfn", "AgentePorCfn",
+        suprimir_iam5(ejecucion_agentes, ["GatewayPorCfn", "IdentidadDelGatewayPorCfn", "MotorDePoliticasPorCfn", "CrearAgentePorCfn", "AgentePorCfn",
                                           "ModeloYGuardrailDelAgentePorCfn", "PasarRolesAAgentCoreYBedrock",
                                           "RolesDeActividad7PorCfn"])
         saltar_checkov(ejecucion_agentes, {
