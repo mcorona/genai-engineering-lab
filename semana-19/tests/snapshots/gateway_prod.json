@@ -129,14 +129,9 @@
             "kms:DescribeKey",
             "kms:CreateGrant"
           ],
-          "Condition": {
-            "StringEquals": {
-              "kms:ViaService": "bedrock-agentcore.us-east-1.amazonaws.com"
-            }
-          },
           "Effect": "Allow",
           "Resource": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
-          "Sid": "LlaveBaseViaAgentCore"
+          "Sid": "LlaveBaseDelGateway"
         }
       ]
     },
