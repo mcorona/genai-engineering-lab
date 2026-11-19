@@ -31,7 +31,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -80,7 +80,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -129,7 +129,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -178,7 +178,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -227,7 +227,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -276,7 +276,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -325,7 +325,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -374,7 +374,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -423,7 +423,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -472,7 +472,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -521,7 +521,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -570,7 +570,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -619,7 +619,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -668,7 +668,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -717,7 +717,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -766,7 +766,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -815,7 +815,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -864,7 +864,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -913,7 +913,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -962,7 +962,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -1011,7 +1011,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -1060,7 +1060,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -1109,7 +1109,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
@@ -1179,7 +1179,7 @@
           "appliedGuardrailDetails": {
             "guardrailId": "teps1un80k04",
             "guardrailVersion": "3",
-            "guardrailArn": "arn:aws:bedrock:us-east-1:412575373510:guardrail/teps1un80k04",
+            "guardrailArn": "arn:aws:bedrock:us-east-1:<account>:guardrail/teps1un80k04",
             "guardrailOrigin": [
               "REQUEST"
             ],
