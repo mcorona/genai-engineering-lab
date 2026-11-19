@@ -157,6 +157,12 @@ def politica_limite() -> list[iam.PolicyStatement]:
             resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
             conditions={"StringEquals": {"kms:ViaService": [f"bedrock.{REGION}.amazonaws.com",
                                                             f"bedrock-agentcore.{REGION}.amazonaws.com"]}}),
+        # The gateway's role calls KMS itself (no kms:ViaService) to encrypt its target's configuration: key use for
+        # the roles of semana19-gateway only; their own policy names the base key (activity 7).
+        _declaracion(sid="KmsDelGatewayDelLimite", actions=[
+            "kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"],
+            resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
+            conditions={"ArnLike": {"aws:PrincipalArn": arn_iam("role/semana19-gateway-*")}}),
         # Ceiling for the guardrail creator's role (stack semana19-ia): Guardrail actions only, in this account and Region.
         _declaracion(sid="GuardrailDelLimite", actions=[
             "bedrock:CreateGuardrail", "bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:GetGuardrail",
@@ -1461,10 +1467,12 @@ class Gateway(Stack):
                                                       "bedrock-agentcore:AuthorizeAction",
                                                       "bedrock-agentcore:PartiallyAuthorizeActions"],
             resources=[motor.attr_policy_engine_arn]))
+        # AgentCore encrypts the target's configuration by calling KMS AS this role (session
+        # GenesisMCPTargetTargetEncryption, 2026-11-18), not through the service: kms:ViaService is absent, so the
+        # statement is scoped by the exact key instead.
         rol.add_to_policy(_declaracion(
-            sid="LlaveBaseViaAgentCore", actions=["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"],
-            resources=[llave.key_arn],
-            conditions={"StringEquals": {"kms:ViaService": f"bedrock-agentcore.{REGION}.amazonaws.com"}}))
+            sid="LlaveBaseDelGateway", actions=["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"],
+            resources=[llave.key_arn]))
 
         gateway = agentcore.CfnGateway(
             self, "Gateway", name=NOMBRE_GATEWAY, protocol_type="MCP", role_arn=rol.role_arn,

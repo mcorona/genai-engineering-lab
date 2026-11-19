@@ -18,6 +18,7 @@ EXCEPCIONES = {
     "BorrarRolDeIa": "Borrar y leer el rol del creador de guardrail, solo sobre role/semana19-ia-*: el rol se crea con el límite; el stack lo borra al destruirse.",
     "PasarRolDelCreadorDeGuardrail": "iam:PassRole sobre role/semana19-ia-* solo hacia lambda.amazonaws.com: CloudFormation asigna el rol a la función que crea el guardrail.",
     "GuardrailDelLimite": "Acciones de Guardrail del límite sobre guardrail/* de esta cuenta y Región: el techo del rol del creador de guardrail; sin el límite, sus acciones se niegan aunque el rol las tenga.",
+    "KmsDelGatewayDelLimite": "Uso de llaves KMS de la cuenta (key/*) solo para los roles de semana19-gateway (aws:PrincipalArn role/semana19-gateway-*): AgentCore cifra la configuración del target llamando a KMS como el rol, sin kms:ViaService. Es un techo: la política propia del rol nombra solo la llave base.",
     "KmsParaBedrockDelLimite": "Uso de llaves KMS de la cuenta (key/*) solo cuando la llamada llega por Bedrock en us-east-1 (kms:ViaService): el creador de guardrail cifra con la llave base.",
     "PromptsDelAgentePorCfn": "Acciones de Prompt Management sobre prompt/* de esta cuenta: CloudFormation crea, versiona y lee los prompts del agente (ARN no existe antes de crearlos).",
     "LlaveDeLosPromptsPorCfn": "Uso de llaves KMS de la cuenta solo por Bedrock en us-east-1 (kms:ViaService): los prompts se cifran con la llave base.",

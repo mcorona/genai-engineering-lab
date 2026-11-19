@@ -946,3 +946,13 @@ def test_cloudformation_administra_las_politicas_de_los_roles_de_la_actividad7(p
     assert "iam:DeleteRolePermissionsBoundary" not in st["Action"] and "Condition" not in st
     assert sorted(texto(r).split(":role/")[1] for r in st["Resource"]) == ["semana19-agentes-comparacion-*",
                                                                          "semana19-gateway-*"]
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_limite_deja_al_rol_del_gateway_usar_llaves_sin_via_service(perfil):
+    """AgentCore encrypts the target's configuration calling KMS as the gateway's role (no kms:ViaService, first
+    deploy 2026-11-18): the boundary allows it for the roles of semana19-gateway only."""
+    acciones, st = _acciones_del_limite(perfil)["KmsDelGatewayDelLimite"]
+    assert acciones == {"kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey", "kms:CreateGrant"}
+    assert texto(st["Condition"]["ArnLike"]["aws:PrincipalArn"]).endswith(":role/semana19-gateway-*")
+    assert list(st["Condition"]) == ["ArnLike"]

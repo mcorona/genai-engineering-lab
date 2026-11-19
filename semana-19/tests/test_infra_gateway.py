@@ -147,8 +147,8 @@ def test_el_rol_del_gateway_solo_invoca_la_funcion_de_herramientas(perfil):
                         "bedrock-agentcore:PartiallyAuthorizeActions", "kms:Decrypt", "kms:GenerateDataKey",
                         "kms:DescribeKey", "kms:CreateGrant"}
     assert all(s["Effect"] == "Allow" and "*" not in texto(s["Resource"]) for s in sts)
-    (kms,) = [s for s in sts if s["Sid"] == "LlaveBaseViaAgentCore"]
-    assert kms["Condition"]["StringEquals"]["kms:ViaService"] == "bedrock-agentcore.us-east-1.amazonaws.com"
+    (kms,) = [s for s in sts if s["Sid"] == "LlaveBaseDelGateway"]
+    assert "Llave" in texto(kms["Resource"]) and "Condition" not in kms   # AgentCore calls KMS as the role itself
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
