@@ -179,8 +179,8 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
         t0 = reloj()
         f = medir(tarea_de_propuesta(id_, sku, cedis, motivo))
         tope.sumar(f.get("costo_usd") or 0.0, (f.get("tokens_entrada") or 0) + (f.get("tokens_salida") or 0))
-        tareas.append({k: f.get(k) for k in ("id_tarea", "estado", "latencia_s", "tokens_entrada", "tokens_salida",
-                                             "costo_usd", "pasos", "herramientas")})
+        tareas.append({k: f.get(k) for k in ("id_tarea", "estado", "inicio", "fin", "latencia_s", "tokens_entrada",
+                                             "tokens_salida", "costo_usd", "pasos", "herramientas")})
         return f, ejecucion_nueva(aws.ejecuciones(), t0)
 
     resultado = {"pasos": pasos, "tareas": tareas, "espera_de_prueba_s": espera_s, "skus": [sku_ok, sku_vence]}
