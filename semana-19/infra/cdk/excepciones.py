@@ -4,6 +4,7 @@ no-AWS tests can read it. The tests fail if a wildcard appears under a Sid that 
 # Every wildcard that remains, by statement Sid, with the reason. The test fails if a wildcard appears with a Sid
 # that is not here, or if an entry here no longer exists. The same reasons go to cdk-nag suppressions.
 EXCEPCIONES = {
+    'IdentidadDelGatewayPorCfn': 'Identidad de carga de trabajo del gateway: CreateWorkloadIdentity se autoriza sobre el directorio default de la cuenta, y Get/Update/Delete sobre workload-identity/semana19-gateway-* (el sufijo lo asigna AgentCore al crear el gateway).',
     'GatewayPorCfn': 'Gateway de AgentCore, su target y su identidad de carga de trabajo sobre arn:...:*gateway* de esta cuenta y Región (patrón de gateway-prerequisites-permissions.html): el ID lo asigna AgentCore al crearlo e incluye el nombre semana19-gateway; InvokeGateway lo usa CreatePolicy para validar las acciones Cedar.',
     'MotorDePoliticasPorCfn': 'Motor de políticas de AgentCore y sus políticas sobre policy-engine/* de esta cuenta y Región: el ID lo asigna AgentCore al crearlo (policy-permissions.html, rol de administración).',
     'CrearAgentePorCfn': "bedrock:CreateAgent sobre '*': la Service Authorization Reference no define tipo de recurso para esta acción; el resto de acciones del agente se acotan a agent/* y agent-alias/*.",
