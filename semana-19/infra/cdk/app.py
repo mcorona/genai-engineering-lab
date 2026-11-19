@@ -1303,7 +1303,7 @@ class Computo(Stack):
             integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
             payload=sfn.TaskInput.from_object({"id.$": "$.id", "token": sfn.JsonPath.task_token,
                                                "orden.$": "$.orden", "solicitud.$": "$.solicitud"}),
-            result_path="$.decision", timeout=Duration.hours(24))
+            result_path="$.decision", timeout=Duration.seconds(espera_de_aprobacion()))
         decidir = tasks.LambdaInvoke(
             self, "EscribirDecision", lambda_function=escritor,
             payload=sfn.TaskInput.from_object({"operacion": "decidir", "po_id.$": "$.orden.po_id",
@@ -1419,6 +1419,21 @@ def entorno_del_camino() -> dict:
 
 
 NOMBRE_GATEWAY = "semana19-gateway"
+
+
+ESPERA_APROBACION_S = 24 * 3600
+ESPERA_APROBACION_MINIMA_S = 60
+
+
+def espera_de_aprobacion() -> int:
+    """How long the workflow waits for a decision, in seconds: 24 h by default. Activity 8 deploys a short wait
+    (S19_ESPERA_APROBACION_S, from 60 s) to show that an expired request writes no decision, and deploys back after.
+    The token table's TTL (computo/aprobacion.py) stays 24 h, at least this wait."""
+    crudo = os.environ.get("S19_ESPERA_APROBACION_S") or str(ESPERA_APROBACION_S)
+    if not crudo.isdigit() or not ESPERA_APROBACION_MINIMA_S <= int(crudo) <= ESPERA_APROBACION_S:
+        raise RuntimeError(f"S19_ESPERA_APROBACION_S debe ser un entero de {ESPERA_APROBACION_MINIMA_S} a "
+                           f"{ESPERA_APROBACION_S}: {crudo}")
+    return int(crudo)
 
 
 def fase_del_gateway() -> str:

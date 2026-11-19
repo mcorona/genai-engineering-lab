@@ -194,13 +194,92 @@ def _pruebas_permisos(con: pg.Connection) -> dict:
     return resultado
 
 
+COLUMNAS_ORDEN = ("po_id", "sku", "status", "requested_by", "decided_by", "decided_level", "required_level")
+ROLES_A_REVISAR = ("copilot_ro", "order_writer")
+
+
+def _leer_ordenes(con: pg.Connection, po_ids) -> dict:
+    """Activity 8, approval end to end: the orders of the test, read in a READ ONLY transaction that is always rolled
+    back, plus who may write the table. Only bound parameters; at most 20 ids; no other column leaves the database."""
+    if not isinstance(po_ids, list) or not 1 <= len(po_ids) <= 20 or not all(
+            isinstance(i, int) and not isinstance(i, bool) and i > 0 for i in po_ids):
+        raise ValueError("po_ids debe ser una lista de 1 a 20 enteros positivos")
+    con.run("BEGIN")
+    try:
+        con.run("SET TRANSACTION READ ONLY")
+        filas = con.run(f"SELECT {', '.join(COLUMNAS_ORDEN)} FROM public.purchase_orders "
+                        "WHERE po_id = ANY(CAST(:ids AS int[])) ORDER BY po_id", ids=po_ids)
+        por_estado = con.run("SELECT status, count(*) FROM public.purchase_orders GROUP BY status ORDER BY status")
+        privilegios = {}
+        for rol in ROLES_A_REVISAR:
+            privilegios[rol] = {p: bool(con.run("SELECT has_table_privilege(:r, 'public.purchase_orders', :p)",
+                                                 r=rol, p=p)[0][0]) for p in ("SELECT", "INSERT", "UPDATE", "DELETE")}
+    finally:
+        con.run("ROLLBACK")
+    _paso("órdenes leídas (solo lectura)")
+    return {"modo": "leer_ordenes", "solo_lectura": True,
+            "ordenes": [dict(zip(COLUMNAS_ORDEN, f)) for f in filas],
+            "por_estado": {str(e): int(n) for e, n in por_estado}, "privilegios": privilegios}
+
+
+MAX_CONSULTAS_ESPERADAS = 40
+MAX_FILAS_ESPERADAS = 200
+TIMEOUT_ESPERADOS_MS = 15000
+
+
+def _valor(v):
+    """The tools function's conversion (herramientas/handler._valor): NUMERIC to float, dates to ISO text."""
+    import datetime as dt
+    from decimal import Decimal
+    if isinstance(v, Decimal):
+        return float(v)
+    if isinstance(v, (dt.date, dt.datetime)):
+        return v.isoformat()
+    return v
+
+
+def _es_consulta(sql) -> bool:
+    texto = sql.strip().rstrip(";").strip() if isinstance(sql, str) else ""
+    return bool(texto) and ";" not in texto and texto.split(None, 1)[0].upper() in ("SELECT", "WITH")
+
+
+def _esperados(con: pg.Connection, consultas) -> dict:
+    """Activity 8: the golden keys' expected rows recomputed on this database, as week 13's CI recomputes them on its
+    own (semana-13/ci/eval_ci.py: each key's sql_ref on the copilot schema). copilot_ro cannot read that schema, so the
+    master user runs them here, each in a READ ONLY transaction with a statement timeout that is always rolled back.
+    Only single SELECT or WITH statements; at most 40, and at most 200 rows each."""
+    if not isinstance(consultas, dict) or not 1 <= len(consultas) <= MAX_CONSULTAS_ESPERADAS or not all(
+            isinstance(k, str) and _es_consulta(v) for k, v in consultas.items()):
+        raise ValueError("consultas debe mapear de 1 a 40 claves a una sola sentencia SELECT o WITH")
+    salida = {}
+    for clave, sql in consultas.items():
+        con.run("BEGIN")
+        try:
+            con.run("SET TRANSACTION READ ONLY")
+            con.run(f"SET LOCAL statement_timeout = {TIMEOUT_ESPERADOS_MS}")
+            con.run("SET LOCAL search_path = public")
+            filas = con.run(sql.strip().rstrip(";"))
+        finally:
+            con.run("ROLLBACK")
+        if len(filas) > MAX_FILAS_ESPERADAS:
+            raise ValueError(f"{clave}: más de {MAX_FILAS_ESPERADAS} filas")
+        salida[clave] = [[_valor(v) for v in f] for f in filas]
+    _paso(f"esperados recalculados: {len(salida)}")
+    return {"modo": "esperados", "solo_lectura": True, "esperados": salida}
+
+
 def handler(event, context):
-    """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config."""
+    """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config.
+    Activity 8 modes, both read-only: "leer_ordenes" takes "po_ids"; "esperados" takes "consultas" {clave: sql}."""
     secreto = _secreto(event["secret_arn"])
     con = _conectar(event["db_host"], secreto["username"], secreto["password"])
     try:
         if event.get("modo") == "pruebas_permisos":
             return _pruebas_permisos(con)
+        if event.get("modo") == "leer_ordenes":
+            return _leer_ordenes(con, event.get("po_ids"))
+        if event.get("modo") == "esperados":
+            return _esperados(con, event.get("consultas"))
         if event.get("modo") == "permisos":
             # Only the roles and their grants, on a database already loaded: no TRUNCATE, no seed, no legado reload.
             if not _existe_esquema_copilot(con):

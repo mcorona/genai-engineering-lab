@@ -274,3 +274,29 @@ def test_todo_rol_con_acceso_a_elementos_de_dynamodb_puede_descifrar_con_la_llav
     items = {"dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:DeleteItem"}
     sin_decrypt = [r for r, acciones in por_rol.items() if acciones & items and "kms:Decrypt" not in acciones]
     assert not sin_decrypt, sin_decrypt
+
+
+def _sintetizar_con(**extra) -> subprocess.CompletedProcess:
+    salida = Path(tempfile.mkdtemp(prefix="s19-computo-espera-"))
+    entorno = {**os.environ, "PERFIL": "lab", "CDK_OUTDIR": str(salida), "COMPUTO": "1", **extra}
+    r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
+    r.salida = salida
+    return r
+
+
+def test_la_espera_de_aprobacion_corta_de_la_actividad_8_llega_a_la_maquina():
+    # Activity 8 deploys a short wait to show that an expired request writes no decision; 24 h stays the default.
+    r = _sintetizar_con(S19_ESPERA_APROBACION_S="120")
+    assert r.returncode == 0, r.stderr[-2000:]
+    plantilla = json.loads((r.salida / f"{COMPUTO}.template.json").read_text(encoding="utf-8"))
+    (maquina,) = (x for x in plantilla["Resources"].values() if x["Type"] == "AWS::StepFunctions::StateMachine")
+    cuerpo = maquina["Properties"]["DefinitionString"]
+    texto_cuerpo = cuerpo if isinstance(cuerpo, str) else json.dumps(cuerpo)
+    assert '\\"TimeoutSeconds\\":120' in texto_cuerpo or '"TimeoutSeconds":120' in texto_cuerpo
+    assert "86400" in texto_cuerpo  # the state machine's own timeout stays 24 h
+
+
+@pytest.mark.parametrize("valor", ["30", "86401", "dos", "-5"])
+def test_una_espera_de_aprobacion_fuera_de_rango_detiene_la_sintesis(valor):
+    r = _sintetizar_con(S19_ESPERA_APROBACION_S=valor)
+    assert r.returncode != 0 and "S19_ESPERA_APROBACION_S" in r.stderr
