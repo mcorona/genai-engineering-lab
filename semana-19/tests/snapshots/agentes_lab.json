@@ -24,6 +24,45 @@
                 "RequireConfirmation": "DISABLED"
               },
               {
+                "Description": "Search the company's business rules (coverage, risk, reorder policy, purchase proposals and approvals, surplus between distribution centers, ABC class...). Returns the exact definition to compute. Use it whenever a question mentions a business term.",
+                "Name": "buscar_regla_negocio",
+                "Parameters": {
+                  "consulta": {
+                    "Description": "Words to search for (Spanish or English), or a rule id such as R-COB.",
+                    "Required": true,
+                    "Type": "string"
+                  },
+                  "max_resultados": {
+                    "Description": "max_resultados",
+                    "Required": false,
+                    "Type": "integer"
+                  }
+                },
+                "RequireConfirmation": "DISABLED"
+              },
+              {
+                "Description": "Return the most frequent distinct values of one column, to check how data is stored (country codes, city names, category spelling, status codes) before filtering.",
+                "Name": "muestrear_valores",
+                "Parameters": {
+                  "columna": {
+                    "Description": "columna",
+                    "Required": true,
+                    "Type": "string"
+                  },
+                  "limite": {
+                    "Description": "limite",
+                    "Required": false,
+                    "Type": "integer"
+                  },
+                  "tabla": {
+                    "Description": "tabla",
+                    "Required": true,
+                    "Type": "string"
+                  }
+                },
+                "RequireConfirmation": "DISABLED"
+              },
+              {
                 "Description": "Validate and run one SELECT over the legacy tables in a read-only transaction, with time and row limits. Returns columns, rows (up to max_filas) and the total row count.",
                 "Name": "ejecutar_sql",
                 "Parameters": {

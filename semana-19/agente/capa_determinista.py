@@ -54,7 +54,9 @@ def _cargar_nucleo():
 DEFINICIONES_SEMANA13: list = []
 N = _cargar_nucleo()
 
-HERRAMIENTAS = ("describir_esquema", "ejecutar_sql", "proponer_orden_compra")
+# Activity 8: the same catalog as the tools Lambda (herramientas/contrato.py); the eval found the two week 13 read tools
+# missing while the system prompt asked for them.
+HERRAMIENTAS = ("describir_esquema", "buscar_regla_negocio", "muestrear_valores", "ejecutar_sql", "proponer_orden_compra")
 
 # Week 19's contract for the proposal: week 13's fields plus the CEDIS and the required date, which the policy
 # (semana-08/corpus/ordenes_de_compra.md, "Datos obligatorios") and the database (po_require_delivery) require. The

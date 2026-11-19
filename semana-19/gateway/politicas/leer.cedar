@@ -1,9 +1,10 @@
-// Week 19, activity 7: the read tools. Any caller whose access token carries the scope legado/leer: the analysts,
+// Week 19, activity 7: the read tools (activity 8 adds the two week 13 read tools the port had left out). Any caller whose access token carries the scope legado/leer: the analysts,
 // the buyers and the three approval groups (computo/tokens.py, GRUPOS_A_SCOPES). The scope claim is one string of
 // space-separated values, so the match includes the delimiters: "legado/leerX" does not pass.
 permit(
   principal is AgentCore::OAuthUser,
-  action in [AgentCore::Action::"herramientas___describir_esquema", AgentCore::Action::"herramientas___ejecutar_sql"],
+  action in [AgentCore::Action::"herramientas___describir_esquema", AgentCore::Action::"herramientas___buscar_regla_negocio",
+             AgentCore::Action::"herramientas___muestrear_valores", AgentCore::Action::"herramientas___ejecutar_sql"],
   resource == AgentCore::Gateway::"{{GATEWAY_ARN}}"
 )
 when {
