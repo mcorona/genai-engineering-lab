@@ -1252,7 +1252,10 @@ class Computo(Stack):
             to_port=443, source_security_group_id=sg_escritor.security_group_id, description="HTTPS desde el escritor")
         codigo_escritor = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2]), exclude=[
             "infra/cdk", "cdk.out", "**/cdk.out", "tests", "**/tests", "**/__pycache__", "**/*.gz", "resultados", "video", "**/.secretos.env",
-            ".venv", "**/.venv", ".build"])  # .build holds the agent package (its own asset)
+            ".venv", "**/.venv", ".build",  # .build holds the agent package (its own asset)
+            # Activity 8: the IaC spike is not the writer's code, and a local `terraform init` leaves 729 MB of providers
+            # in spike/terraform/.terraform (ignored by git), which took the asset over Lambda's 250 MB unzipped limit.
+            "spike", "**/.terraform", "eval", "arquitectura"])
         escritor = lambda_.Function(
             self, "FuncionEscritor", runtime=lambda_.Runtime.PYTHON_3_13, handler="computo.escritor.handler_escritor",
             code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("escritor"),

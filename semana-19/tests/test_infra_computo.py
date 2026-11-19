@@ -27,7 +27,7 @@ def sintetizar() -> dict:
     assert r.returncode == 0, r.stderr[-2000:]
     plantilla = json.loads((salida / f"{COMPUTO}.template.json").read_text(encoding="utf-8"))
     informe = list(csv.DictReader((salida / f"AwsSolutions--{COMPUTO}-NagReport.csv").open(encoding="utf-8")))
-    return {"plantilla": plantilla, "nag": informe}
+    return {"plantilla": plantilla, "nag": informe, "salida": salida}
 
 
 def recursos(tipo: str) -> dict:
@@ -118,6 +118,21 @@ def test_escritor_esta_en_la_vpc_y_solo_abre_5432_y_443():
     (sg,) = [r for n, r in recursos("AWS::EC2::SecurityGroup").items() if "escritor" in n.lower() or "Escritor" in n]
     puertos = {(e.get("FromPort"), e.get("ToPort")) for e in sg["Properties"]["SecurityGroupEgress"]}
     assert puertos == {(5432, 5432), (443, 443)}
+
+
+def test_el_paquete_del_escritor_lleva_su_codigo_y_no_el_spike_ni_proveedores_locales():
+    """Activity 8: a local terraform init (spike/terraform/.terraform, 729 MB, ignored by git) took the writer's asset
+    over Lambda's 250 MB unzipped limit. The asset must hold the writer's code and stay far below the limit."""
+    (f,) = [r for n, r in recursos("AWS::Lambda::Function").items() if n.startswith("FuncionEscritor")]
+    clave = f["Properties"]["Code"]["S3Key"]
+    carpeta = sintetizar()["salida"] / f"asset.{clave.removesuffix('.zip')}"
+    assert carpeta.is_dir(), clave
+    assert (carpeta / "computo" / "escritor.py").is_file() and (carpeta / "agente" / "escritor_orden.py").is_file()
+    assert (carpeta / "infra" / "loader" / "rds-ca.pem").is_file()
+    assert not any((carpeta / d).exists() for d in ("spike", "eval", "resultados", "tests", ".build"))
+    assert not list(carpeta.rglob(".terraform"))
+    tam = sum(p.stat().st_size for p in carpeta.rglob("*") if p.is_file())
+    assert tam < 50 * 2**20, f"{tam / 2**20:.1f} MB"
 
 
 def test_escritor_corre_como_funcion_con_vpc_y_handler_del_paquete():
