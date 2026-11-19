@@ -1,0 +1,20 @@
+{
+  "con_control": false,
+  "esperados": {},
+  "fecha": "2026-11-18",
+  "inesperados": {},
+  "no_medido": [],
+  "por_categoria": {
+    "agentes_bedrock": 0,
+    "gateways_agentcore": 0,
+    "motores_de_politicas_agentcore": 0
+  },
+  "quedan": "nada",
+  "region": "us-east-1",
+  "solo": [
+    "gateways_agentcore",
+    "motores_de_politicas_agentcore",
+    "agentes_bedrock"
+  ],
+  "total": 0
+}

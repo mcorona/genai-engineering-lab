@@ -142,7 +142,8 @@ The gateway needed five permission fixes, found one deploy at a time.
 
 Once the permissions were in place, phase 1 took 103 s, phase 2 (the engine in ENFORCE) 43 s, and switching computo
 to the gateway 88 s. The gateway was destroyed the same day (`destruir.sh --si --solo-actividad7`). The inventory of
-the three activity 7 categories (gateways, policy engines, Bedrock agents) reads 0.
+the three activity 7 categories (gateways, policy engines, Bedrock agents) reads 0, with the read-only profile
+(`resultados/agentes/inventario_actividad7.json`).
 
 ## Decision
 
