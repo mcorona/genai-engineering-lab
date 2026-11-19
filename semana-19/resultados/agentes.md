@@ -1,8 +1,8 @@
 # Week 19, activity 7: three tools paths compared (direct loop, AgentCore Gateway with Policy, Bedrock Agents)
 
 Measured 2026-11-18 in us-east-1 with `agentes/comparar.py`. Raw, redacted files are in `resultados/agentes/`.
-Every figure below comes from those files. The AWS charges for the gateway and Policy arrive with Cost Explorer the
-next day, and the cost line will be added then.
+Every figure below comes from those files. The AWS charges come from Cost Explorer on 2026-11-19
+(`costo_cost_explorer.json`; estimated vs real in `resultados/cotizacion.md`).
 
 ## The three paths
 
@@ -59,6 +59,19 @@ Reading:
   On (a), the same task used `art_cst` and was exact. The tools ran without errors on both paths.
 - **Cost.** Tokens and model cost are within 0.5% between the paths, as expected: the loop, the model and the tools
   are the same.
+
+### AWS charges of the gateway and Policy (Cost Explorer)
+
+| Usage type | Quantity | USD |
+|---|---|---|
+| `USE1-Gateway:Consumption-based:API-Invocations` | 56 invocations | 0.00028 |
+| `USE1-Policy:Consumption-based:Authorization-API-Invocations` | 55 authorizations | 0.001375 |
+| AgentCore data transfer | 0.00014 GB | 0 |
+| **AgentCore total** | | **0.001655** |
+
+Those charges cover the 10 tasks of (b) and the live Policy test. Charging all of them to the 10 tasks gives at most
+0.000166 USD per task, 0.7% of the task's model cost (0.0241). At the 100 queries per day in `cotizacion.md`, that is
+at most 0.0166 USD per day. Path (a) adds no AWS charge beyond the Lambda invocations both paths share.
 
 ### Spend of the activity
 
@@ -147,17 +160,17 @@ the three activity 7 categories (gateways, policy engines, Bedrock agents) reads
 
 ## Decision
 
-**Path (b) is the target for production, and path (a) stays the lab default.** Path (c) is discarded. The (b) choice
-is pending one check: the gateway's and Policy's AWS charges from Cost Explorer.
+**Path (b) is the target for production, and path (a) stays the lab default.** Path (c) is discarded.
 
 - **(b) adds authorization the loop cannot give itself.** Per-user tool lists, separation of duties and a requester
   bound to the token are enforced outside the agent, in Cedar. That is the property a write tool such as
   `proponer_orden_compra` needs.
 - **(b) showed no measurable penalty** on 10 tasks: the same tokens and model cost, latency within noise, and every
-  control of (a) still running.
+  control of (a) still running. Its own AWS charge, the gateway and Policy, is at most 0.7% of the model cost per task
+  (Cost Explorer).
 - **(a) remains the lab default**, behind the `CAMINO_HERRAMIENTAS` flag. It needs no extra stack, and with one user
   and read-only tools the gateway adds no protection the Lambda's verified `sub` does not already give.
 - **(c) is out.** New agents are unavailable in this account. Even if they were available, the design loses week
   17's budgets, the deterministic layer, the spans and the token-bound requester.
-- **To revisit:** if Cost Explorer shows the gateway's and Policy's charges are material at the expected volume, or if
-  the two-phase creation proves fragile in another account.
+- **To revisit:** if the two-phase creation proves fragile in another account, or if the volume grows by orders of
+  magnitude. At 25 µUSD per authorization, Policy charges reach 1 USD per day at 40,000 tool calls.

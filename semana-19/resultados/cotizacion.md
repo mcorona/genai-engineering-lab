@@ -88,3 +88,30 @@ Stack base de la actividad 3 (KMS, endpoints de VPC, IAM y presupuesto), con 1 A
 
 **Sesión de N horas = 0.02273973 × N USD** (lab). Ejemplos: 1 h = 0.0227 USD; 4 h = 0.0910 USD; 8 h = 0.1819 USD.
 Prod (3 AZ, 3 llaves): 0.06410959 USD por hora. Multi-AZ de RDS no forma parte del stack base.
+
+## Activity 7: estimated vs real
+
+Real figures come from Cost Explorer on 2026-11-19: 2 calls, saved in `resultados/agentes/costo_cost_explorer.json`.
+Cost Explorer days are UTC, so the runs of the evening of 2026-11-18 (CST) fall on 2026-11-19. Both days were still
+marked Estimated. Every charge was covered by credits, so the net is 0. Cost Explorer does not split charges by
+activity. Where other runs of the same days share a line, the real figure is an upper bound (≤).
+
+| Item | Estimated (USD) | Real (USD) | Source of the real figure |
+|---|---|---|---|
+| Model, paths (a) and (b) | 0.24 | 0.6430 | the spans of the three runs: (a) discarded 0.1614, (a) 0.2405, (b) 0.2410. Cost Explorer bills Haiku 4.5 at the same 1.10 and 5.50 USD per million tokens; its line for both days is 0.7689 for 543,238 tokens, against 453,893 in the spans |
+| Model, path (c) | ≤ 0.36 | 0 | no agent could be created |
+| Gateway invocations and Policy authorizations | 0.0007 | 0.001655 | Cost Explorer: 56 invocations (0.00028) and 55 authorizations (0.001375). Only activity 7 used AgentCore |
+| ApplyGuardrail | ≤ 0.29 | ≤ 0.1424 | Cost Explorer: 356 text units per policy over both days, from every run of those days |
+| Lambda, API and logs | < 0.01 | 0.000492 | Cost Explorer: API Gateway; Lambda and CloudWatch billed 0 |
+| Cost Explorer calls | not estimated | 0.02 | 2 calls at 0.01 USD each |
+| **Total new spend of the activity** | **≈ 0.90** | **≤ 0.8075** | −10% at the upper bound |
+
+The total was close, but the items were not:
+
+- **Model cost per task was about twice the estimate.** A task of (a) used 17,146 tokens, against 7,154 to 8,223 input
+  tokens per query in activity 6. The week 13 task message and the 4.6 steps per task explain it.
+- **The unrun path (c) offset that difference.**
+- **AgentCore was 2.4 times its estimate, and still under 0.002 USD.** The estimate counted 30 invocations and 20
+  authorizations. The bill counts 56 and 55, which include `tools/list` and the live Policy test.
+
+The stack hours (0.16 in the estimate) were not new spend, since the base stack ran all day.
