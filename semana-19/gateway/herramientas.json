@@ -16,6 +16,47 @@
     }
   },
   {
+    "name": "buscar_regla_negocio",
+    "description": "Search the company's business rules (coverage, risk, reorder policy, purchase proposals and approvals, surplus between distribution centers, ABC class...). Returns the exact definition to compute. Use it whenever a question mentions a business term.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "consulta": {
+          "type": "string",
+          "description": "Words to search for (Spanish or English), or a rule id such as R-COB."
+        },
+        "max_resultados": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "consulta"
+      ]
+    }
+  },
+  {
+    "name": "muestrear_valores",
+    "description": "Return the most frequent distinct values of one column, to check how data is stored (country codes, city names, category spelling, status codes) before filtering.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "tabla": {
+          "type": "string"
+        },
+        "columna": {
+          "type": "string"
+        },
+        "limite": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tabla",
+        "columna"
+      ]
+    }
+  },
+  {
     "name": "ejecutar_sql",
     "description": "Validate and run one SELECT over the legacy tables in a read-only transaction, with time and row limits. Returns columns, rows (up to max_filas) and the total row count.",
     "inputSchema": {

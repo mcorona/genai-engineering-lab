@@ -7,7 +7,8 @@ target) and Bedrock Agents (action group). All three end in this same dictionary
 """
 from __future__ import annotations
 
-HERRAMIENTAS = ("describir_esquema", "ejecutar_sql", "proponer_orden_compra")
+# Activity 8: buscar_regla_negocio and muestrear_valores come back from week 13 (herramientas/catalogo13.py).
+HERRAMIENTAS = ("describir_esquema", "buscar_regla_negocio", "muestrear_valores", "ejecutar_sql", "proponer_orden_compra")
 TARGET = "herramientas"     # the gateway target's name: the gateway calls tools as `herramientas___<tool>`
 SEPARADOR = "___"           # bedrock-agentcore/latest/devguide/gateway-tool-naming.html
 SOLICITANTE = "solicitante"  # the requester of a proposal: the token's subject, never the model's choice
@@ -18,6 +19,8 @@ def entrada_de_herramienta(nombre: str, args: dict, solicitante: str | None = No
         return {"herramienta": nombre}
     if nombre == "ejecutar_sql":
         return {"herramienta": nombre, "sql": args["sql"]}
+    if nombre in ("buscar_regla_negocio", "muestrear_valores"):
+        return {"herramienta": nombre, "argumentos": args}  # week 13's contract validates them in the tools Lambda
     if nombre == "proponer_orden_compra":
         # The requester is the token's subject (agente/handler.py), outside the model's arguments.
         return {"herramienta": nombre, "entrada": args, "solicitante": solicitante}

@@ -4,6 +4,8 @@ Tools (called by the agent Lambda, ADR 0004; since activity 7 also by the AgentC
 each format through its adapter in herramientas/adaptadores.py):
   describir_esquema   the legacy schema's tables and columns (copilot_ro, read-only)
   ejecutar_sql        one read-only SELECT, checked by the week 16 guard BEFORE any connection
+  buscar_regla_negocio  week 13's business rules, by keyword or id (activity 8, herramientas/catalogo13.py)
+  muestrear_valores   the most frequent values of one column, through ejecutar_sql (activity 8)
   proponer_orden_compra  starts the approval state machine; writes nothing itself
 
 Database access: the role copilot_ro with an IAM token (rds-db:connect for copilot_ro only), TLS with certificate
@@ -22,6 +24,7 @@ from typing import Any, Callable
 
 from agente.escritor_orden import validar_propuesta  # the writer's own checks: one contract on both sides
 from herramientas import adaptadores as A
+from herramientas import catalogo13
 from herramientas.guardia_sql import ToolError, guard
 
 ESQUEMA = "legado"
@@ -153,6 +156,10 @@ def _ejecutar(event: dict, conectar: Callable[[], Any] | None, iniciar: Callable
             return describir_esquema(conectar)
         if herramienta == "ejecutar_sql":
             return ejecutar_sql(event["sql"], conectar)
+        if herramienta == "buscar_regla_negocio":
+            return catalogo13.buscar_regla_negocio(event.get("argumentos"))
+        if herramienta == "muestrear_valores":
+            return catalogo13.muestrear_valores(event.get("argumentos"), lambda sql: ejecutar_sql(sql, conectar))
         if herramienta == "proponer_orden_compra":
             return proponer_orden_compra(event["entrada"], iniciar, solicitante=event.get("solicitante"),
                                          conectar=conectar)

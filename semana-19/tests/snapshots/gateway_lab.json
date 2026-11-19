@@ -48,6 +48,8 @@
       ],
       "Herramientas": [
         "describir_esquema",
+        "buscar_regla_negocio",
+        "muestrear_valores",
         "ejecutar_sql",
         "proponer_orden_compra"
       ],

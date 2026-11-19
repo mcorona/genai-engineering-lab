@@ -222,7 +222,8 @@ def test_las_politicas_son_los_archivos_cedar_con_el_arn_del_gateway(perfil):
 
 def test_la_fuente_unica_de_esquemas_no_cambio_sin_regenerar():
     """The synth reads gateway/herramientas.json; its comparison with the loop runs in test_herramientas_formatos."""
-    assert [d["name"] for d in esquemas.leer()] == ["describir_esquema", "ejecutar_sql", "proponer_orden_compra"]
+    assert [d["name"] for d in esquemas.leer()] == ["describir_esquema", "buscar_regla_negocio", "muestrear_valores",
+                                                    "ejecutar_sql", "proponer_orden_compra"]
 
 
 def _sintetizar_computo(**extra) -> subprocess.CompletedProcess:
