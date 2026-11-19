@@ -340,19 +340,21 @@ def test_sin_monitor_de_anomalias_hasta_confirmar_su_precio(perfil):
 # ---------------------------------------------------------------- wildcards and naming
 
 
-def _plantilla_computo(perfil: str) -> dict:
-    """The compute stack (COMPUTO=1) is scanned too: its wildcards are in the same register."""
+def _plantilla_computo(perfil: str, pila: str = "semana19-computo") -> dict:
+    """The compute stack (COMPUTO=1) is scanned too: its wildcards are in the same register. So is the judge's
+    stack semana19-eval (activity 8), synthesized with it."""
     salida = Path(tempfile.mkdtemp(prefix=f"s19-computo-{perfil}-"))
     entorno = {**os.environ, "PERFIL": perfil, "CDK_OUTDIR": str(salida), "COMPUTO": "1"}
     r = subprocess.run([sys.executable, str(APP)], env=entorno, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-2000:]
-    return json.loads((salida / "semana19-computo.template.json").read_text(encoding="utf-8"))
+    return json.loads((salida / f"{pila}.template.json").read_text(encoding="utf-8"))
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_comodines_coinciden_con_el_registro(perfil):
     usados = set()
-    plantillas = list(sintetizar(perfil)["plantillas"].values()) + [_plantilla_computo(perfil)]
+    plantillas = list(sintetizar(perfil)["plantillas"].values()) + [_plantilla_computo(perfil),
+                                                                    _plantilla_computo(perfil, "semana19-eval")]
     for pl in plantillas:
         for _, _, st in declaraciones(pl):
             if "*" in texto(st.get("Action", "")) or "*" in texto(st.get("Resource", "")):
@@ -530,7 +532,7 @@ def test_argumentos_desconocidos_salen_con_2(tmp_path):
     assert not marcas.exists()
 
 
-@pytest.mark.parametrize("script", ["desplegar.sh", "destruir.sh", "vaciar_bootstrap.py", "inventario.py"])
+@pytest.mark.parametrize("script", ["desplegar.sh", "destruir.sh", "vaciar_bootstrap.py", "inventario.py", "vaciar_eval.py"])
 def test_scripts_sin_cuenta_ni_correo_ni_llaves(script):
     texto_script = (SCRIPTS / script).read_text(encoding="utf-8")
     assert not re.search(r"\b\d{12}\b", texto_script)
@@ -912,6 +914,46 @@ def test_destruir_completo_baja_computo_y_la_actividad7_antes_que_datos():
     assert orden == sorted(orden) and orden[-1] < texto.index("cdk destroy semana19-datos")
 
 
+def test_destruir_vacia_el_bucket_del_juez_y_borra_sus_trabajos_antes_de_su_stack():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    vaciar = texto.index("vaciar_eval.py\" --perfil \"$PERFIL_ADMIN\" --region \"$REGION\" --si")
+    assert texto.index("destruir_pila_computo semana19-gateway ") < vaciar < texto.index(
+        "destruir_pila_computo semana19-eval ") < texto.index("cdk destroy semana19-datos --force")
+    assert texto.index("if [[ \"$SOLO_A7\" == \"1\" ]]") < vaciar   # --solo-actividad7 does not touch it
+
+
+def test_vaciar_eval_detiene_lo_activo_y_borra_lo_terminado_en_lotes_de_25():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vaciar_eval", SCRIPTS / "vaciar_eval.py")
+    v = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(v)
+
+    class Bedrock:
+        def __init__(self):
+            self.detenidos, self.lotes = [], []
+
+        def stop_evaluation_job(self, jobIdentifier):
+            self.detenidos.append(jobIdentifier)
+
+        def batch_delete_evaluation_job(self, jobIdentifiers):
+            self.lotes.append(len(jobIdentifiers))
+            return {"evaluationJobs": [{"jobIdentifier": j} for j in jobIdentifiers], "errors": []}
+
+    lista = [{"arn": f"a{i}", "nombre": f"semana19-juez-{i}", "estado": "Completed"} for i in range(30)]
+    lista.append({"arn": "corre", "nombre": "semana19-juez-x", "estado": "InProgress"})
+    b = Bedrock()
+    assert v.borrar_trabajos(b, lista, si=False)["borrados"] == 0 and b.lotes == []
+    r = v.borrar_trabajos(b, lista, si=True)
+    assert b.lotes == [25, 5] and b.detenidos == ["corre"] and r["borrados"] == 30 and r["detenidos"] == 1
+    assert r["por_estado"] == {"Completed": 30, "InProgress": 1}
+
+
+def test_el_inventario_cuenta_los_trabajos_del_juez():
+    inv = _inventario_modulo()
+    assert "trabajos_evaluacion_bedrock" in inv.categorias(None, "us-east-1")
+    assert "trabajos_evaluacion_bedrock" not in inv.permitidos(True)   # nothing of the judge may be left
+
+
 def _inventario_modulo():
     import importlib.util
     spec = importlib.util.spec_from_file_location("inv7", SCRIPTS / "inventario.py")
@@ -1005,3 +1047,100 @@ def test_ejecucion_crea_la_identidad_del_gateway_en_el_directorio_default(perfil
                                  "bedrock-agentcore:UpdateWorkloadIdentity", "bedrock-agentcore:DeleteWorkloadIdentity"}
     assert sorted(texto(r).rsplit("}:", 1)[-1] for r in st["Resource"]) == [
         "workload-identity-directory/default", "workload-identity-directory/default/workload-identity/semana19-gateway-*"]
+
+
+# ---------------------------------------------------------------- activity 8: the judge's stack semana19-eval
+
+@lru_cache(maxsize=None)
+def de_eval(perfil):
+    return _plantilla_computo(perfil, "semana19-eval")
+
+
+def _acciones(st) -> set:
+    return set(st["Action"] if isinstance(st["Action"], list) else [st["Action"]])
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_el_bucket_del_juez_esta_cifrado_cerrado_y_caduca(perfil):
+    (b,) = recursos(de_eval(perfil), "AWS::S3::Bucket").values()
+    p = b["Properties"]
+    (cifrado,) = p["BucketEncryption"]["ServerSideEncryptionConfiguration"]
+    assert cifrado["ServerSideEncryptionByDefault"]["SSEAlgorithm"] == "aws:kms" and cifrado["BucketKeyEnabled"] is True
+    assert "semana19-base" in texto(cifrado["ServerSideEncryptionByDefault"]["KMSMasterKeyID"])   # the base key, imported
+    assert all(p["PublicAccessBlockConfiguration"][k] for k in ("BlockPublicAcls", "BlockPublicPolicy", "IgnorePublicAcls",
+                                                                 "RestrictPublicBuckets"))
+    assert "VersioningConfiguration" not in p and b["DeletionPolicy"] == "Delete"
+    (regla,) = p["LifecycleConfiguration"]["Rules"]
+    assert regla["ExpirationInDays"] == 7 and regla["Status"] == "Enabled"
+    (politica,) = recursos(de_eval(perfil), "AWS::S3::BucketPolicy").values()
+    (tls,) = politica["Properties"]["PolicyDocument"]["Statement"]
+    assert tls["Effect"] == "Deny" and tls["Condition"] == {"Bool": {"aws:SecureTransport": "false"}}
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_el_rol_del_juez_lo_asume_bedrock_de_esta_cuenta_solo_para_evaluaciones(perfil):
+    (rol,) = recursos(de_eval(perfil), "AWS::IAM::Role").values()
+    (confianza,) = rol["Properties"]["AssumeRolePolicyDocument"]["Statement"]
+    assert confianza["Principal"] == {"Service": "bedrock.amazonaws.com"} and confianza["Action"] == "sts:AssumeRole"
+    assert "AWS::AccountId" in texto(confianza["Condition"]["StringEquals"]["aws:SourceAccount"])
+    assert texto(confianza["Condition"]["ArnLike"]["aws:SourceArn"]).endswith(":evaluation-job/*")
+    assert "semana19-limite" in texto(rol["Properties"]["PermissionsBoundary"])
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_el_rol_del_juez_solo_puede_el_modelo_juez_su_bucket_y_la_llave_por_s3(perfil):
+    sts = {st["Sid"]: st for _, tipo, st in declaraciones(de_eval(perfil)) if tipo == "AWS::IAM::Policy"}
+    assert set(sts) == {"ModeloDelJuez", "BucketDelJuez", "LlaveDelBucketViaS3"}
+    assert _acciones(sts["ModeloDelJuez"]) == {"bedrock:InvokeModel", "bedrock:CreateModelInvocationJob",
+                                               "bedrock:StopModelInvocationJob"}
+    destinos = [texto(r) for r in sts["ModeloDelJuez"]["Resource"]]
+    assert sum(d.endswith("inference-profile/us.amazon.nova-pro-v1:0") for d in destinos) == 1
+    assert sorted(re.search(r"bedrock:([a-z0-9-]+)::foundation-model/amazon.nova-pro-v1:0$", d).group(1)
+                  for d in destinos if "foundation-model" in d) == ["us-east-1", "us-east-2", "us-west-2"]
+    assert all("anthropic" not in d for d in destinos)        # the judge is not the evaluated model
+    assert all("Juez" in texto(r) and "*" not in texto(r).replace("/*", "") for r in sts["BucketDelJuez"]["Resource"])
+    assert sts["LlaveDelBucketViaS3"]["Condition"]["StringEquals"]["kms:ViaService"].startswith("s3.")
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_lo_que_pide_el_rol_del_juez_cabe_en_el_limite(perfil):
+    """A role's grant outside the boundary is denied at run time: each action of the judge's role is in the boundary."""
+    lim = _acciones_del_limite(perfil)
+    del_limite = set().union(*(a for a, _ in lim.values()))
+    rol = set().union(*(_acciones(st) for _, tipo, st in declaraciones(de_eval(perfil)) if tipo == "AWS::IAM::Policy"))
+    assert rol <= del_limite, sorted(rol - del_limite)
+    _, bucket = lim["BucketDelJuezDelLimite"]
+    assert sorted(texto(r).rsplit(":", 1)[1] for r in bucket["Resource"]) == ["semana19-eval-*", "semana19-eval-*/*"]
+    _, modelo = lim["ModeloDelJuezDelLimite"]
+    assert any(texto(r).endswith("inference-profile/us.amazon.nova-pro-v1:0") for r in modelo["Resource"])
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_las_fusiones_del_limite_conservan_permisos(perfil):
+    lim = _acciones_del_limite(perfil)
+    assert "KmsParaDynamoDelLimite" not in lim and "CifrarSoloViaS3YSecretos" not in lim and "DocsDatosLeer" not in lim
+    acciones, kms = lim["KmsViaServiciosDelLimite"]
+    assert acciones == {"kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey"}
+    assert sorted(texto(v).split(".")[0] for v in kms["Condition"]["StringEquals"]["kms:ViaService"]) == [
+        "dynamodb", "s3", "secretsmanager"]
+    acciones, docs = lim["DocsDatosLeerYListar"]
+    assert acciones == {"s3:GetObject", "s3:ListBucket"}
+    assert sorted(texto(r).rsplit(":", 1)[1] for r in docs["Resource"]) == ["semana19-datos*", "semana19-datos*/*"]
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_la_politica_de_ejecucion_cubre_el_stack_del_juez(perfil):
+    (ia,) = [r for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+             if r["Properties"].get("ManagedPolicyName") == "semana19-cfn-exec-ia"]
+    sts = {s["Sid"]: s for s in ia["Properties"]["PolicyDocument"]["Statement"]}
+    assert {"s3:CreateBucket", "s3:DeleteBucket", "s3:PutLifecycleConfiguration", "s3:PutEncryptionConfiguration",
+            "s3:PutBucketPolicy"} <= _acciones(sts["BucketDelJuezPorCfn"])
+    assert texto(sts["BucketDelJuezPorCfn"]["Resource"]).endswith(":s3:::semana19-eval-*")
+    assert {"iam:PutRolePolicy", "iam:DeleteRole"} <= _acciones(sts["RolDelJuezPorCfn"])
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_el_stack_del_juez_da_lo_que_lee_juez_bedrock(perfil):
+    assert set(de_eval(perfil)["Outputs"]) == {"BucketJuez", "ArnRolJuez", "ArnLlave"}
+    fuente = (S19 / "eval" / "juez_bedrock.py").read_text(encoding="utf-8")
+    assert all(f'"{k}"' in fuente for k in ("BucketJuez", "ArnRolJuez", "ArnLlave"))

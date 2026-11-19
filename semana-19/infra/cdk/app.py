@@ -138,11 +138,14 @@ def politica_limite() -> list[iam.PolicyStatement]:
             "ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces", "ec2:DeleteNetworkInterface",
             "ec2:AssignPrivateIpAddresses", "ec2:UnassignPrivateIpAddresses",
             "states:SendTaskSuccess", "states:SendTaskFailure"], resources=["*"]),
-        # KMS only through DynamoDB in this Region: the stack key encrypts the project's tables (activity 6).
-        _declaracion(sid="KmsParaDynamoDelLimite", actions=[
+        # KMS only through DynamoDB (the project's tables, activity 6), S3 and Secrets Manager (the datos stack and the
+        # judge's bucket) in this Region. Activity 8 merged the two statements with these same actions, to make room:
+        # key/* and '*' are the same resources for these KMS actions, so the permissions do not change.
+        _declaracion(sid="KmsViaServiciosDelLimite", actions=[
             "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey"],
             resources=[f"arn:{Aws.PARTITION}:kms:{REGION}:{Aws.ACCOUNT_ID}:key/*"],
-            conditions={"StringEquals": {"kms:ViaService": f"dynamodb.{REGION}.amazonaws.com"}}),
+            conditions={"StringEquals": {"kms:ViaService": [f"{s}.{REGION}.amazonaws.com"
+                                                            for s in ("dynamodb", "s3", "secretsmanager")]}}),
         # Invoking the project's functions (the questions function starts the agent asynchronously, activity 6).
         _declaracion(sid="InvocarFuncionesDelLimite", actions=["lambda:InvokeFunction"],
                      resources=[f"arn:{Aws.PARTITION}:lambda:{REGION}:{Aws.ACCOUNT_ID}:function:semana19-*"]),
@@ -175,10 +178,10 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=[ARN_DESPLIEGUE]),
         # Techo de los roles de datos: lo que la KB (semana19-kb) y el cargador necesitan. Cada statement
         # se acota por prefijo o por servicio; la política propia del rol decide el resto.
-        _declaracion(sid="DocsDatosLeer", actions=["s3:GetObject"],
-                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/*"]),
-        _declaracion(sid="DocsDatosListar", actions=["s3:ListBucket"],
-                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*"]),
+        # Read and list in one statement (activity 8): GetObject applies only to objects and ListBucket only to the bucket,
+        # so the permissions are the same as the two statements before.
+        _declaracion(sid="DocsDatosLeerYListar", actions=["s3:GetObject", "s3:ListBucket"],
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*", f"arn:{Aws.PARTITION}:s3:::semana19-datos*/*"]),
         _declaracion(sid="DocsDatosEscribir", actions=["s3:PutObject"],
                      resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/docs/*"]),
         _declaracion(sid="IndiceKbDatos", actions=["s3vectors:GetIndex", "s3vectors:PutVectors", "s3vectors:GetVectors",
@@ -189,10 +192,6 @@ def politica_limite() -> list[iam.PolicyStatement]:
                      resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}::foundation-model/amazon.titan-embed-text-v2:0"]),
         _declaracion(sid="SecretoBdLeer", actions=["secretsmanager:GetSecretValue"],
                      resources=[f"arn:{Aws.PARTITION}:secretsmanager:{REGION}:{Aws.ACCOUNT_ID}:secret:semana19datos*"]),
-        _declaracion(sid="CifrarSoloViaS3YSecretos", actions=["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*",
-                                                              "kms:DescribeKey"], resources=["*"],
-                     conditions={"StringEquals": {"kms:ViaService": [f"s3.{REGION}.amazonaws.com",
-                                                                     f"secretsmanager.{REGION}.amazonaws.com"]}}),
         # The loader's log group is created by Lambda on the first run; without this the boundary blocks it and
         # the function's errors are invisible. Scoped to the functions of the datos stack.
         _declaracion(sid="LogsDeLaLambdaDatos", actions=["logs:CreateLogGroup"],
@@ -204,10 +203,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # (bedrock/latest/userguide/agents-permissions.html, inference profiles).
         _declaracion(sid="ModeloDelAgenteDelLimite", actions=[
             "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:GetInferenceProfile",
-            "bedrock:GetFoundationModel"], resources=arns_modelo_del_agente()),
+            "bedrock:GetFoundationModel"], resources=arns_en_el_limite(modelo_agente())),
+        # The profile in any Region (activity 8, for room): a ceiling over the three destinations the role names.
         _declaracion(sid="GuardrailDelAgenteDelLimite", actions=["bedrock:ApplyGuardrail"],
                      resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
-                                *arns_perfil_guardrail()]),
+                                f"arn:{Aws.PARTITION}:bedrock:*:{Aws.ACCOUNT_ID}:guardrail-profile/us.guardrail.v1:0"]),
         _declaracion(sid="ConectarBdDelLimite", actions=["rds-db:connect"],
                      resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:*/{u}"
                                 for u in USUARIOS_BD_COMPUTO]),
@@ -220,7 +220,51 @@ def politica_limite() -> list[iam.PolicyStatement]:
             "bedrock-agentcore:GetPolicyEngine"],
             resources=[f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}:policy-engine/semana19*",
                        f"arn:{Aws.PARTITION}:bedrock-agentcore:{REGION}:{Aws.ACCOUNT_ID}:gateway/semana19-*"]),
+        # Ceiling of the judge's service role (stack semana19-eval, activity 8): the judge model and the bucket. Actions
+        # from bedrock/latest/userguide/judge-service-roles.html; the role's own policy names the exact bucket.
+        _declaracion(sid="ModeloDelJuezDelLimite", actions=[
+            "bedrock:InvokeModel", "bedrock:CreateModelInvocationJob", "bedrock:StopModelInvocationJob"],
+            resources=arns_en_el_limite(modelo_juez())),
+        _declaracion(sid="BucketDelJuezDelLimite", actions=ACCIONES_S3_DEL_JUEZ,
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-eval-*", f"arn:{Aws.PARTITION}:s3:::semana19-eval-*/*"]),
     ]
+
+
+# The judge's S3 actions (judge-service-roles.html, statement FetchAndUpdateOutputBucket).
+ACCIONES_S3_DEL_JUEZ = ["s3:GetObject", "s3:ListBucket", "s3:PutObject", "s3:GetBucketLocation", "s3:AbortMultipartUpload",
+                        "s3:ListBucketMultipartUploads"]
+
+
+def _config():
+    import sys as _sys
+    if str(Path(__file__).resolve().parents[2]) not in _sys.path:
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from ia import config
+    return config
+
+
+def modelo_agente() -> str:
+    return _config().MODELO_ID
+
+
+def modelo_juez() -> str:
+    return _config().MODELO_JUEZ_ID
+
+
+def arns_en_el_limite(perfil: str) -> list[str]:
+    """In the boundary (activity 8, for room under the 6,144-character limit): the profile in this account and its
+    foundation model in any Region, the same form as the agent role's own grant (ModeloDeHaikuPorConverse)."""
+    return [f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil}",
+            f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{perfil.split('.', 1)[1]}"]
+
+
+def arns_modelo_del_juez() -> list[str]:
+    """The judge's inference profile in this account and its foundation model in each destination Region (the
+    judge role's own grant, stack semana19-eval)."""
+    c = _config()
+    fundacion = c.MODELO_JUEZ_ID.split(".", 1)[1]
+    return [f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{c.MODELO_JUEZ_ID}",
+            *[f"arn:{Aws.PARTITION}:bedrock:{r}::foundation-model/{fundacion}" for r in c.REGIONES_DEL_JUEZ]]
 
 
 # Destination Regions of the US cross-Region profiles (model and guardrail), as `aws bedrock get-inference-profile`
@@ -315,8 +359,9 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
 
 
 def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
-    """Second execution policy of the bootstrap, for the stacks semana19-ia (prompts, guardrail creator). Split from
-    semana19-cfn-exec, which exceeded the 6,144-character managed policy limit. Same statements, same permissions."""
+    """Second execution policy of the bootstrap, for the stacks semana19-ia (prompts, guardrail creator) and, since
+    activity 8, semana19-eval (the judge's bucket and role). Split from semana19-cfn-exec, which exceeded the
+    6,144-character managed policy limit."""
     return [
         # Prompt Management for the agent's system prompt (stack semana19-ia): create, version and read prompts of this account.
         _declaracion(sid="PromptsDelAgentePorCfn", actions=[
@@ -341,6 +386,19 @@ def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
             resources=[arn_iam("role/semana19-ia-*")]),
         _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
                      resources=[arn_iam("role/semana19-ia-*")]),
+        # Activity 8, stack semana19-eval: the judge's bucket and its service role. Creating the role needs the
+        # boundary (RolesConLimite); its inline policy and deletion carry no boundary key, so they are listed here.
+        _declaracion(sid="BucketDelJuezPorCfn", actions=[
+            "s3:CreateBucket", "s3:DeleteBucket", "s3:PutEncryptionConfiguration", "s3:GetEncryptionConfiguration",
+            "s3:PutBucketPublicAccessBlock", "s3:GetBucketPublicAccessBlock", "s3:PutBucketPolicy", "s3:GetBucketPolicy",
+            "s3:DeleteBucketPolicy", "s3:PutBucketTagging", "s3:GetBucketTagging", "s3:GetBucketLocation",
+            "s3:PutBucketOwnershipControls", "s3:GetBucketOwnershipControls", "s3:PutLifecycleConfiguration",
+            "s3:GetLifecycleConfiguration", "s3:ListBucket"],
+            resources=[f"arn:{Aws.PARTITION}:s3:::semana19-eval-*"]),
+        _declaracion(sid="RolDelJuezPorCfn", actions=[
+            "iam:GetRole", "iam:DeleteRole", "iam:GetRolePolicy", "iam:PutRolePolicy", "iam:DeleteRolePolicy",
+            "iam:ListRolePolicies", "iam:ListAttachedRolePolicies", "iam:ListRoleTags", "iam:TagRole", "iam:UntagRole"],
+            resources=[arn_iam("role/semana19-eval-*")]),
     ]
 
 
@@ -690,8 +748,8 @@ class Control(Stack):
         presupuesto.add_dependency(rol_presupuesto.node.default_child)
 
         suprimir_iam5(limite, ["LogsDelLimite", "SinArnDelLimite", "CdkAssumeRoles",
-                               "DocsDatosLeer", "DocsDatosListar", "DocsDatosEscribir",
-                               "IndiceKbDatos", "SecretoBdLeer", "CifrarSoloViaS3YSecretos",
+                               "DocsDatosLeerYListar", "DocsDatosEscribir",
+                               "IndiceKbDatos", "SecretoBdLeer", "KmsViaServiciosDelLimite", "BucketDelJuezDelLimite",
                                "LogsDeLaLambdaDatos"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
         suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
@@ -1636,6 +1694,50 @@ class AgentesComparacion(Stack):
         cdk.CfnOutput(self, "IdAlias", value=alias.attr_agent_alias_id)
 
 
+class Eval(Stack):
+    """Activity 8: what the Bedrock model evaluation job (eval/juez_bedrock.py) needs, and nothing else.
+
+    The bucket holds the judge's dataset and its output: SSE-KMS with the base key, public access blocked, TLS only,
+    not versioned, objects expire after 7 days. juez_bedrock.py deletes its objects once it has downloaded the
+    results, so the destroy finds it empty. The service role is assumed by Bedrock for this account's evaluation jobs
+    only (judge-service-roles.html; trust conditions as automatic-service-roles.html shows them). It may invoke the
+    judge model and read and write this bucket; the key only through S3. The job is created by Manuel's admin
+    profile, which passes this role.
+    """
+
+    def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        bucket = s3.Bucket(
+            self, "Juez", encryption=s3.BucketEncryption.KMS, encryption_key=llave, bucket_key_enabled=True,
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL, enforce_ssl=True, versioned=False,
+            removal_policy=RemovalPolicy.DESTROY, auto_delete_objects=False,
+            lifecycle_rules=[s3.LifecycleRule(id="caducan", expiration=Duration.days(7),
+                                              abort_incomplete_multipart_upload_after=Duration.days(1))])
+        NagSuppressions.add_resource_suppressions(bucket, [NagPackSuppression(
+            id="AwsSolutions-S1", reason="Registros de acceso apagados en el laboratorio: el bucket solo guarda el dataset y la salida del juez, redactados, por una corrida; los eventos quedan en CloudTrail.")])
+        saltar_checkov(bucket, {
+            "CKV_AWS_18": "Registros de acceso apagados en el laboratorio, igual que AwsSolutions-S1.",
+            "CKV_AWS_21": "Sin versiones: el bucket se vacía al terminar la corrida y se destruye con el stack."})
+        rol = iam.Role(
+            self, "RolJuez", description="Service role of the Bedrock judge (activity 8): judge model and this bucket only.",
+            assumed_by=iam.ServicePrincipal("bedrock.amazonaws.com", conditions={
+                "StringEquals": {"aws:SourceAccount": Aws.ACCOUNT_ID},
+                "ArnLike": {"aws:SourceArn": f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:evaluation-job/*"}}))
+        rol.add_to_policy(_declaracion(
+            sid="ModeloDelJuez", actions=["bedrock:InvokeModel", "bedrock:CreateModelInvocationJob",
+                                          "bedrock:StopModelInvocationJob"],
+            resources=arns_modelo_del_juez()))
+        rol.add_to_policy(_declaracion(sid="BucketDelJuez", actions=ACCIONES_S3_DEL_JUEZ,
+                                       resources=[bucket.bucket_arn, bucket.arn_for_objects("*")]))
+        rol.add_to_policy(_declaracion(
+            sid="LlaveDelBucketViaS3", actions=["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"],
+            resources=[llave.key_arn], conditions={"StringEquals": {"kms:ViaService": f"s3.{REGION}.amazonaws.com"}}))
+        suprimir_iam5(rol, ["BucketDelJuez"])
+        cdk.CfnOutput(self, "BucketJuez", value=bucket.bucket_name)
+        cdk.CfnOutput(self, "ArnRolJuez", value=rol.role_arn)
+        cdk.CfnOutput(self, "ArnLlave", value=llave.key_arn)
+
+
 def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
@@ -1658,7 +1760,9 @@ def construir(app: cdk.App) -> None:
                                      guardrail_id=ia.guardrail_id, guardrail_version=ia.guardrail_version,
                                      env=cdk.Environment(region=REGION),
                                      synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
-        pilas += [computo, gateway, agentes]
+        evaluacion = Eval(app, "semana19-eval", llave=base.llave, env=cdk.Environment(region=REGION),
+                          synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+        pilas += [computo, gateway, agentes, evaluacion]
     for pila in pilas:
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())

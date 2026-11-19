@@ -185,6 +185,11 @@ def categorias(sesion, region: str) -> dict:
         return [a["agentName"] for p in cli.get_paginator("list_agents").paginate()
                 for a in p["agentSummaries"] if a["agentName"].startswith(PREFIJO)]
 
+    def trabajos_de_evaluacion():   # activity 8: the judge's jobs (juez_bedrock.py), deleted by vaciar_eval.py
+        cli = sesion.client("bedrock", region_name=region)
+        return [j["jobName"] for p in cli.get_paginator("list_evaluation_jobs").paginate(nameContains=PREFIJO)
+                for j in p["jobSummaries"] if j["jobName"].startswith(PREFIJO)]
+
     def runtimes():
         cli = sesion.client("bedrock-agentcore-control", region_name=region)
         return [r["agentRuntimeName"] for p in cli.get_paginator("list_agent_runtimes").paginate()
@@ -268,7 +273,7 @@ def categorias(sesion, region: str) -> dict:
         "user_pools": user_pools, "rds": rds, "buckets_s3": buckets, "vector_buckets_s3vectors": vector_buckets,
         "knowledge_bases": kbs, "guardrails": guardrails, "prompts": prompts, "gateways_agentcore": gateways,
         "motores_de_politicas_agentcore": motores_de_politicas, "agentes_bedrock": agentes_bedrock,
-        "runtimes_agentcore": runtimes, "log_groups": log_groups,
+        "trabajos_evaluacion_bedrock": trabajos_de_evaluacion, "runtimes_agentcore": runtimes, "log_groups": log_groups,
         "etiquetados_tagging_api": etiquetados,
         "presupuestos": presupuestos, "acciones_presupuesto": acciones_presupuesto,
         "politicas_iam_locales": politicas_iam, "flow_logs": flow_logs,

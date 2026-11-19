@@ -9,8 +9,9 @@
 #                                               activity 7 only: the comparison agent, then the gateway, then the
 #                                               inventory of their categories (they must be empty). The rest stays.
 #
-# Order with --si: semana19-agentes-comparacion, semana19-gateway and semana19-computo (activities 6 and 7, they
-# import the base, datos and ia exports), then datos, ia, base and the bootstrap.
+# Order with --si: semana19-agentes-comparacion, semana19-gateway, the judge's semana19-eval (activity 8: first its
+# bucket is emptied and its evaluation jobs deleted, vaciar_eval.py with the admin profile) and semana19-computo
+# (activities 6 to 8, they import the base, datos and ia exports), then datos, ia, base and the bootstrap.
 #
 # Without --todo the control stack stays (it is $0/h) and the inventory allows it explicitly.
 # The bootstrap KMS key is scheduled for deletion by its stack (CloudFormation default window, 30 days; D,
@@ -69,6 +70,8 @@ if [[ "$MODO" == "simulacion" ]]; then
     echo "00z) inventario de las categorías de la actividad 7 (deben quedar en cero); el resto se queda"
     exit 0
   fi
+  echo "00c1) vaciar el bucket del juez y borrar sus trabajos  (vaciar_eval.py --si, perfil admin; actividad 8)"
+  echo "00c2) cdk destroy semana19-eval              (actividad 8: bucket y rol del juez)"
   echo "00c) cdk destroy semana19-computo              (actividad 6: agente, API, aprobación, usuarios)"
   echo "0b) cdk destroy semana19-ia              (Guardrail y prompts; antes que la red porque importa la llave)"
   echo "1) cdk destroy semana19-base            (perfil de despliegue; borrar sigue permitido con la congelación)"
@@ -116,6 +119,9 @@ if [[ "$SOLO_A7" == "1" ]]; then
   "$PYTHON_BOTO" "$RAIZ/semana-19/infra/inventario.py" --perfil "$PERFIL_LECTURA" --region "$REGION" --solo-actividad7
   exit $?
 fi
+echo "== Paso 00c1: vaciar el bucket del juez y borrar sus trabajos de evaluación (actividad 8)"
+"$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_eval.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
+destruir_pila_computo semana19-eval "Paso 00c2"
 destruir_pila_computo semana19-computo "Paso 00c"
 
 if existe_stack semana19-datos; then

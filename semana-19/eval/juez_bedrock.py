@@ -10,12 +10,15 @@ is one JSON line per task of the main run (not the warm-up). The keys are the do
 - `modelResponses`: one response, with the single `modelIdentifier` the job allows.
 At most 1000 prompts per job (the same page); here there are 20.
 
-Metrics: Builtin.Correctness, Builtin.Completeness and Builtin.Faithfulness. The judge is Amazon Nova Pro through
-its US inference profile, a model different from the evaluated one (Claude Haiku 5.5). The verdict thresholds are
-fixed in comparar_jueces.py.
+Metrics: Builtin.Correctness, Builtin.Completeness and Builtin.Faithfulness. The judge is ia/config.py's
+MODELO_JUEZ_ID (Amazon Nova Pro through its US profile), a model different from the evaluated one (MODELO_ID, Claude
+Haiku 4.5). The verdict thresholds are fixed in comparar_jueces.py.
 
 The job runs with the service role and bucket of the stack semana19-eval: SSE-KMS with the base key, public access
-blocked, TLS only. The role trusts bedrock.amazonaws.com from this account only.
+blocked, TLS only, objects expire in 7 days. The role trusts bedrock.amazonaws.com for this account's evaluation jobs
+only. The job itself takes no customer key: the data at rest is the bucket's, encrypted with the base key, and the
+base key's policy needs no change. Once the results are downloaded (and saved redacted in the repo), the script
+deletes its input and output objects, so the bucket is empty for the destroy.
 
 Cap: before the job is created, the judge's tokens are estimated from the dataset (characters/4, times the metrics,
 plus the judge's own instructions and an output allowance). If the estimate in USD at Nova Pro's price exceeds
@@ -41,9 +44,9 @@ if str(S19) not in sys.path:
 
 from agentes import comparar as C  # noqa: E402
 from comun.redaccion import redactar  # noqa: E402
+from ia.config import MODELO_JUEZ_ID as MODELO_JUEZ  # noqa: E402
 
 REGION = "us-east-1"
-MODELO_JUEZ = "us.amazon.nova-pro-v1:0"
 # Price List API, AmazonBedrock, Amazon Nova Pro on demand, us-east-1, read in step 1 of activity 8 (2026-11-19).
 PRECIO_JUEZ_USD_POR_1K = {"entrada": 0.0008, "salida": 0.0032}
 METRICAS = ("Builtin.Correctness", "Builtin.Completeness", "Builtin.Faithfulness")
@@ -152,10 +155,10 @@ def nombre_del_trabajo(ahora: float) -> str:
     return time.strftime("semana19-juez-%Y%m%d-%H%M%S", time.gmtime(ahora))
 
 
-def solicitud(nombre: str, *, rol: str, llave: str, bucket: str) -> dict:
+def solicitud(nombre: str, *, rol: str, bucket: str) -> dict:
     """CreateEvaluationJob's parameters (shape from botocore's bedrock model)."""
     return {
-        "jobName": nombre, "roleArn": rol, "customerEncryptionKeyId": llave, "applicationType": "ModelEvaluation",
+        "jobName": nombre, "roleArn": rol, "applicationType": "ModelEvaluation",
         "jobDescription": "Week 19, activity 8: judge over the deployed agent's answers (BYOIR).",
         "jobTags": [{"key": "proyecto", "value": "semana19"}],
         "evaluationConfig": {"automated": {
@@ -231,6 +234,15 @@ class AwsJuez:  # pragma: no cover - live only
                 raise SystemExit("el trabajo del juez pasó de 3 h; se pidió detenerlo")
             dormir(60)
 
+    def borrar(self, nombre: str) -> int:
+        """The job's input and output objects (the bucket is not versioned: a delete removes them)."""
+        claves = [o["Key"] for prefijo in (f"entrada/{nombre}", f"salida/{nombre}/")
+                  for p in self.s3.get_paginator("list_objects_v2").paginate(Bucket=self.bucket, Prefix=prefijo)
+                  for o in p.get("Contents", [])]
+        for i in range(0, len(claves), 1000):
+            self.s3.delete_objects(Bucket=self.bucket, Delete={"Objects": [{"Key": k} for k in claves[i:i + 1000]]})
+        return len(claves)
+
     def resultados(self, nombre: str) -> list[dict]:
         registros = []
         for pagina in self.s3.get_paginator("list_objects_v2").paginate(Bucket=self.bucket, Prefix=f"salida/{nombre}/"):
@@ -280,7 +292,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     nombre = nombre_del_trabajo(time.time())
     aws.subir(f"entrada/{nombre}.jsonl", jsonl(redactar(lineas, [aws.cuenta])))
     inicio = time.time()
-    arn = aws.crear(solicitud(nombre, rol=aws.rol, llave=aws.llave, bucket=aws.bucket))
+    arn = aws.crear(solicitud(nombre, rol=aws.rol, bucket=aws.bucket))
     final = aws.esperar(arn)
     registros = aws.resultados(nombre) if final["status"] == "Completed" else []
     resultado = {"fecha": time.strftime("%Y-%m-%d"), "trabajo": nombre, "estado": final["status"],
@@ -291,6 +303,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     (SALIDA / ARCHIVO).write_text(json.dumps(redactar(resultado, [aws.cuenta]), ensure_ascii=False, indent=2,
                                              sort_keys=True, default=str) + "\n", encoding="utf-8")
     print(SALIDA / ARCHIVO, final["status"], len(resultado["por_tarea"]), "tareas juzgadas")
+    print("objetos borrados del bucket del juez:", aws.borrar(nombre))
     return 0 if final["status"] == "Completed" and len(resultado["por_tarea"]) == len(lineas) else 1
 
 
