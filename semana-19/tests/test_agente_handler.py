@@ -127,6 +127,25 @@ def test_span_invoke_agent_sale_sin_atributos_omitidos_y_sin_el_sujeto_en_claro(
     assert "usuario-prueba-1" not in lineas[0]
 
 
+def test_span_invoke_agent_lleva_los_tokens_de_cache_del_presupuesto():
+    def api(cuerpo):
+        return {"content": [], "stop_reason": "end_turn",
+                "usage": {"input_tokens": 3, "output_tokens": 1, "cache_read_input_tokens": 120,
+                          "cache_creation_input_tokens": 0}}
+
+    class AgenteQueLlama(AgenteFalso):
+        def resolver(self, tarea):
+            self.api({"messages": []})
+            return super().resolver(tarea)
+
+    deps, _, _, _, lineas = _deps(api=api)
+    deps["agente_factory"] = lambda a, h: AgenteQueLlama(a, h, {"final": _final()})
+    H.tratar_pregunta(PREGUNTA, ALCANCE, **deps)
+    attrs = json.loads(lineas[-1])["attrs"]
+    assert attrs["lab.run.tokens.cache_read"] == 120 and attrs["lab.run.tokens.cache_creation"] == 0
+    assert json.loads(lineas[-1])["omitidos"] == []
+
+
 def test_presupuesto_agotado_termina_como_limite_con_motivo_de_la_lista_fija():
     politica_chica = Politica(tarea=Limite(usd=0.0000001, tokens=10_000_000))
 

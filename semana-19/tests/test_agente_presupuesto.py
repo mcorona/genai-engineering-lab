@@ -67,3 +67,15 @@ def test_parada_por_presupuesto_no_llama_y_deja_el_motivo_para_la_lambda():
     res = envuelta({"messages": ["x" * 3000]})
     assert res["stop_reason"] == "max_tokens" and res["content"] == []
     assert p.motivo in {"presupuesto_usd", "presupuesto_tokens"}
+
+
+def test_tokens_de_cache_se_suman_por_tarea_y_faltantes_cuentan_cero():
+    respuestas = iter([{"content": [], "stop_reason": "end_turn",
+                        "usage": {"input_tokens": 5, "output_tokens": 1, "cache_read_input_tokens": 300,
+                                  "cache_creation_input_tokens": 40}},
+                       _respuesta(5, 1)])
+    p = Presupuesto(_pol(), MODELO, PRECIOS)
+    envuelta = p.envolver(lambda c: next(respuestas))
+    envuelta({"messages": []})
+    envuelta({"messages": []})
+    assert (p.cache_lectura, p.cache_escritura) == (300, 40)

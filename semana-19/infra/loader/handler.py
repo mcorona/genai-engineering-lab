@@ -194,13 +194,44 @@ def _pruebas_permisos(con: pg.Connection) -> dict:
     return resultado
 
 
+COLUMNAS_ORDEN = ("po_id", "sku", "status", "requested_by", "decided_by", "decided_level", "required_level")
+ROLES_A_REVISAR = ("copilot_ro", "order_writer")
+
+
+def _leer_ordenes(con: pg.Connection, po_ids) -> dict:
+    """Activity 8, approval end to end: the orders of the test, read in a READ ONLY transaction that is always rolled
+    back, plus who may write the table. Only bound parameters; at most 20 ids; no other column leaves the database."""
+    if not isinstance(po_ids, list) or not 1 <= len(po_ids) <= 20 or not all(
+            isinstance(i, int) and not isinstance(i, bool) and i > 0 for i in po_ids):
+        raise ValueError("po_ids debe ser una lista de 1 a 20 enteros positivos")
+    con.run("BEGIN")
+    try:
+        con.run("SET TRANSACTION READ ONLY")
+        filas = con.run(f"SELECT {', '.join(COLUMNAS_ORDEN)} FROM public.purchase_orders "
+                        "WHERE po_id = ANY(CAST(:ids AS int[])) ORDER BY po_id", ids=po_ids)
+        por_estado = con.run("SELECT status, count(*) FROM public.purchase_orders GROUP BY status ORDER BY status")
+        privilegios = {}
+        for rol in ROLES_A_REVISAR:
+            privilegios[rol] = {p: bool(con.run("SELECT has_table_privilege(:r, 'public.purchase_orders', :p)",
+                                                 r=rol, p=p)[0][0]) for p in ("SELECT", "INSERT", "UPDATE", "DELETE")}
+    finally:
+        con.run("ROLLBACK")
+    _paso("órdenes leídas (solo lectura)")
+    return {"modo": "leer_ordenes", "solo_lectura": True,
+            "ordenes": [dict(zip(COLUMNAS_ORDEN, f)) for f in filas],
+            "por_estado": {str(e): int(n) for e, n in por_estado}, "privilegios": privilegios}
+
+
 def handler(event, context):
-    """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config."""
+    """event = {"secret_arn", "db_host", optional "docs_bucket"}: stack outputs, no secret in config.
+    modo "leer_ordenes" (activity 8) takes "po_ids" and only reads."""
     secreto = _secreto(event["secret_arn"])
     con = _conectar(event["db_host"], secreto["username"], secreto["password"])
     try:
         if event.get("modo") == "pruebas_permisos":
             return _pruebas_permisos(con)
+        if event.get("modo") == "leer_ordenes":
+            return _leer_ordenes(con, event.get("po_ids"))
         if event.get("modo") == "permisos":
             # Only the roles and their grants, on a database already loaded: no TRUNCATE, no seed, no legado reload.
             if not _existe_esquema_copilot(con):

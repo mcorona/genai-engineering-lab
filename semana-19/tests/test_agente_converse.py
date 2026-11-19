@@ -56,7 +56,15 @@ def test_respuesta_con_herramienta_vuelve_en_formato_del_bucle():
     d = respuesta_a_anthropic(resp)
     assert d["stop_reason"] == "tool_use"
     assert d["content"][1] == {"type": "tool_use", "id": "t2", "name": "ejecutar_sql", "input": {"sql": "SELECT 1"}}
-    assert d["usage"] == {"input_tokens": 120, "output_tokens": 30}
+    assert d["usage"] == {"input_tokens": 120, "output_tokens": 30, "cache_read_input_tokens": 0,
+                          "cache_creation_input_tokens": 0}
+
+
+def test_tokens_de_cache_de_converse_llegan_al_bucle():
+    resp = {"output": {"message": {"role": "assistant", "content": [{"text": "ok"}]}}, "stopReason": "end_turn",
+            "usage": {"inputTokens": 10, "outputTokens": 2, "cacheReadInputTokens": 700, "cacheWriteInputTokens": 90}}
+    assert respuesta_a_anthropic(resp)["usage"] == {"input_tokens": 10, "output_tokens": 2,
+                                                   "cache_read_input_tokens": 700, "cache_creation_input_tokens": 90}
 
 
 def test_max_tokens_y_end_turn_se_mapean():

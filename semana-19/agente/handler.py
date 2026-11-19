@@ -188,6 +188,8 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
         "lab.run.tokens.input": getattr(r, "tokens_in", None),
         "lab.run.tokens.output": getattr(r, "tokens_out", None),
         "lab.run.cost_usd": getattr(r, "costo_usd", None),
+        "lab.run.tokens.cache_read": getattr(presupuesto, "cache_lectura", None),
+        "lab.run.tokens.cache_creation": getattr(presupuesto, "cache_escritura", None),
     }
     spans = [*(herramientas.spans if herramientas else []),
              {"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",

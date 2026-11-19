@@ -63,7 +63,10 @@ def respuesta_a_anthropic(resp: dict) -> dict:
     uso = resp.get("usage", {})
     return {"content": bloques,
             "stop_reason": _STOP.get(resp.get("stopReason"), "end_turn"),
-            "usage": {"input_tokens": uso.get("inputTokens", 0), "output_tokens": uso.get("outputTokens", 0)}}
+            # Cache tokens (activity 8): Converse reports them only when a cachePoint is sent; absent means 0.
+            "usage": {"input_tokens": uso.get("inputTokens", 0), "output_tokens": uso.get("outputTokens", 0),
+                      "cache_read_input_tokens": uso.get("cacheReadInputTokens", 0),
+                      "cache_creation_input_tokens": uso.get("cacheWriteInputTokens", 0)}}
 
 
 def api_converse(llamar: Callable[[dict], dict], *, modelo_id: str, guardrail: dict | None = None) -> Callable[[dict], dict]:

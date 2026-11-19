@@ -38,6 +38,8 @@ class Presupuesto:
         self.gastado = Gasto()
         self.motivo: str | None = None
         self.llamadas = 0
+        self.cache_lectura = 0      # activity 8: Converse's cache tokens, summed over the task (0 without a cachePoint)
+        self.cache_escritura = 0
 
     def _restante(self) -> dict[str, Gasto]:
         return {"tarea": Gasto(usd=self.pol.tarea.usd - self.gastado.usd,
@@ -55,6 +57,8 @@ class Presupuesto:
             self.llamadas += 1
             uso = resp.get("usage", {})
             tin, tout = uso.get("input_tokens", 0), uso.get("output_tokens", 0)
+            self.cache_lectura += int(uso.get("cache_read_input_tokens") or 0)
+            self.cache_escritura += int(uso.get("cache_creation_input_tokens") or 0)
             self.gastado = Gasto(usd=self.gastado.usd + self.precios.usd(tin, tout),
                                  tokens=self.gastado.tokens + tin + tout)
             return resp
