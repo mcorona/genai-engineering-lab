@@ -51,7 +51,10 @@ REGION = "us-east-1"
 PRECIO_JUEZ_USD_POR_1K = {"entrada": 0.0008, "salida": 0.0032}
 METRICAS = ("Builtin.Correctness", "Builtin.Completeness", "Builtin.Faithfulness")
 ID_RESPUESTAS = "semana19-agente"
-TIPO_DE_TAREA = "QuestionAndAnswer"   # the EvaluationTaskType values in botocore 1.43.122's bedrock model
+# Not in botocore's EvaluationTaskType enum, which lists QuestionAndAnswer: the service refuses that for a model-as-judge
+# job ("limit the evaluation task type to 'General'", ValidationException on CreateEvaluationJob, 2026-11-19), and
+# AWS's LLM-as-a-judge guide says the same. botocore does not check enum values, so the request still validates.
+TIPO_DE_TAREA = "General"
 TOPE_USD = 0.45
 MAX_PROMPTS = 1000
 LARGO_PROMPT = 12_000
@@ -292,7 +295,11 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     nombre = nombre_del_trabajo(time.time())
     aws.subir(f"entrada/{nombre}.jsonl", jsonl(redactar(lineas, [aws.cuenta])))
     inicio = time.time()
-    arn = aws.crear(solicitud(nombre, rol=aws.rol, bucket=aws.bucket))
+    try:
+        arn = aws.crear(solicitud(nombre, rol=aws.rol, bucket=aws.bucket))
+    except Exception:
+        print("no se creó el trabajo; objetos borrados del bucket del juez:", aws.borrar(nombre))
+        raise
     final = aws.esperar(arn)
     registros = aws.resultados(nombre) if final["status"] == "Completed" else []
     resultado = {"fecha": time.strftime("%Y-%m-%d"), "trabajo": nombre, "estado": final["status"],
