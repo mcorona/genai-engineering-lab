@@ -95,8 +95,7 @@ def test_la_solicitud_pasa_la_validacion_de_botocore_y_sus_patrones():
     modelo = botocore.session.get_session().get_service_model("bedrock")
     op = modelo.operation_model("CreateEvaluationJob")
     nombre = J.nombre_del_trabajo(1_795_000_000)
-    p = J.solicitud(nombre, rol="arn:aws:iam::123456789012:role/semana19-eval-juez",
-                    llave="arn:aws:kms:us-east-1:123456789012:key/abc", bucket="semana19-eval-juez")
+    p = J.solicitud(nombre, rol="arn:aws:iam::123456789012:role/semana19-eval-juez", bucket="semana19-eval-juez")
     reporte = ParamValidator().validate(p, op.input_shape)
     assert not reporte.has_errors(), reporte.generate_report()
     patron = lambda forma: re.fullmatch(modelo.shape_for(forma).metadata["pattern"], {  # noqa: E731
@@ -108,9 +107,9 @@ def test_la_solicitud_pasa_la_validacion_de_botocore_y_sus_patrones():
     assert {"key": "proyecto", "value": "semana19"} in p["jobTags"]
 
 
-def test_el_juez_no_es_el_modelo_evaluado():
-    from ia.config import MODELO_ID
-    assert "nova" in J.MODELO_JUEZ and "anthropic" in MODELO_ID and J.MODELO_JUEZ != MODELO_ID
+def test_el_juez_no_es_el_modelo_evaluado_y_viene_de_la_configuracion():
+    from ia.config import MODELO_ID, MODELO_JUEZ_ID
+    assert J.MODELO_JUEZ == MODELO_JUEZ_ID and "nova" in MODELO_JUEZ_ID and "anthropic" in MODELO_ID
 
 
 def registro(id_, correcto=1.0, fiel=1.0):
