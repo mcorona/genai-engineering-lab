@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import functools
 import json
 import math
 import sys
@@ -53,6 +54,8 @@ SALIDA = S19 / "resultados" / "agentes"
 REGION = "us-east-1"
 ESPERA_MAX_S = 150
 SONDEO_S = 1.0
+INTENTOS_SPANS = 6     # CloudWatch can index the agent span a few seconds after the answer (first run, 2026-11-18)
+ESPERA_SPANS_S = 5.0
 TIPO_DE_HERRAMIENTA = {"directo": "function", "gateway": "extension"}
 
 
@@ -95,14 +98,37 @@ def costo(tokens_entrada: int, tokens_salida: int) -> float:
 
 
 def tope_con_lo_previo(carpeta: Path = SALIDA, excepto: str | None = None) -> Tope:
-    """The global cap minus what the paths already run spent (their raw files)."""
+    """The global cap minus what every earlier run spent: the other paths' raw files and the discarded runs
+    (crudo_<path>_descartada_<n>.json), which still count. Only the file this run replaces is left out."""
     tope = Tope()
-    for c in CAMINOS:
-        archivo = carpeta / f"crudo_{c}.json"
-        if c != excepto and archivo.exists():
+    for archivo in sorted(carpeta.glob("crudo_*.json")):
+        if excepto is None or archivo.name != f"crudo_{excepto}.json":
             gasto = json.loads(archivo.read_text(encoding="utf-8"))["gasto"]
             tope.sumar(gasto["usd"], gasto["tokens"])
     return tope
+
+
+def descartar_previa(camino: str, carpeta: Path = SALIDA) -> Path | None:
+    """A rerun keeps the run it replaces as crudo_<path>_descartada_<n>.json: its spend stays in the cap and in the
+    record, and the report reads only crudo_<path>.json."""
+    actual = carpeta / f"crudo_{camino}.json"
+    if not actual.exists():
+        return None
+    n = 1 + len(list(carpeta.glob(f"crudo_{camino}_descartada_*.json")))
+    destino = carpeta / f"crudo_{camino}_descartada_{n}.json"
+    actual.rename(destino)
+    return destino
+
+
+@functools.lru_cache(maxsize=1)
+def _bucle_semana13():
+    return K.cargar_bucle_semana13()[1]
+
+
+def texto_de_la_tarea(tarea: dict) -> str:
+    """The task as week 13 hands it to its loop (mensaje_tarea): the question plus its output keys and their shape.
+    The first run sent the bare question, so the agent named its own keys and the verifier found none (2026-11-18)."""
+    return _bucle_semana13().mensaje_tarea(tarea)
 
 
 # ---------------------------------------------------------------- week 13's verifier over the tools function
@@ -168,7 +194,7 @@ def medir_api(tarea: dict, camino: str, *, token: str, http: Callable, spans_ent
     """One task through POST /consultas and its polling. Tasks run one at a time, so the spans written between the
     POST and the answer are this task's; the agent span is matched by its run id too."""
     inicio = reloj()
-    st, r = http("POST", "/consultas", token, {"pregunta": tarea["tarea"]})
+    st, r = http("POST", "/consultas", token, {"pregunta": texto_de_la_tarea(tarea)})
     if st != 202:
         return {"id_tarea": tarea["id"], "camino": camino, "estado": "error_api", "http": st}
     id_consulta = r["id"]
@@ -178,7 +204,11 @@ def medir_api(tarea: dict, camino: str, *, token: str, http: Callable, spans_ent
             break
         dormir(SONDEO_S)
     fin = reloj()
-    s = _spans_de_la_tarea(spans_entre(inicio, fin + 5), run_id_de(id_consulta))
+    for intento in range(INTENTOS_SPANS):
+        s = _spans_de_la_tarea(spans_entre(inicio, fin + 5), run_id_de(id_consulta))
+        if s["agente"] is not None or intento == INTENTOS_SPANS - 1:
+            break
+        dormir(ESPERA_SPANS_S)
     a = s["agente"] or {}
     herr = s["herramientas"]
     ent, sal = int(a.get("lab.run.tokens.input") or 0), int(a.get("lab.run.tokens.output") or 0)
@@ -244,7 +274,7 @@ def leer_traza(eventos, *, limite_tokens: int) -> dict:
 def medir_agentes(tarea: dict, *, invocar: Callable, solicitante: str, reloj=time.time) -> dict:
     inicio = reloj()
     sesion = uuid.uuid4().hex
-    r = invocar(sesion=sesion, texto=tarea["tarea"], atributos={contrato.SOLICITANTE: solicitante})
+    r = invocar(sesion=sesion, texto=texto_de_la_tarea(tarea), atributos={contrato.SOLICITANTE: solicitante})
     tr = leer_traza(r, limite_tokens=limite_de_tarea().tokens)
     fin = reloj()
     (clave,) = tarea["salida"]
@@ -472,6 +502,9 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     else:
         medir = lambda t: medir_api(t, a.camino, token=aws.token("analista"), http=aws.http,  # noqa: E731
                                     spans_entre=aws.spans_entre)
+    previa = descartar_previa(a.camino)
+    if previa:
+        print(f"corrida previa conservada como {previa.name}; su gasto sigue en el tope")
     datos = correr_camino(a.camino, tareas, medir=medir, ejecutar_sql=aws.ejecutar_sql,
                           tope=tope_con_lo_previo(excepto=a.camino))
     datos["fecha"] = time.strftime("%Y-%m-%d")

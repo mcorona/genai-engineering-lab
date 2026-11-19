@@ -21,7 +21,8 @@ SQL_OK = "SELECT art_cd FROM legado.artmst WHERE art_cd = 'SKU-0009'"
 
 def tarea(id_="t1", esperado=(("SKU-0009",),)):
     return {"id": id_, "tarea": "¿Qué SKU?", "estado_esperado": "respondida",
-            "salida": {"filas": {"tipo": "filas", "orden": False, "esperado": [list(f) for f in esperado]}}}
+            "salida": {"filas": {"tipo": "filas", "descripcion": "lo pedido", "orden": False,
+                                 "esperado": [list(f) for f in esperado]}}}
 
 
 # ---------------------------------------------------------------- tasks, caps, simulation
@@ -151,12 +152,44 @@ def test_medir_api_sondea_hasta_la_respuesta_y_lee_sus_spans():
     ventanas = []
     f = C.medir_api(tarea(), "gateway", token="tok", http=http, reloj=lambda: next(reloj), dormir=lambda s: None,
                     spans_entre=lambda a, b: ventanas.append((a, b)) or spans(error="rechazada_por_el_gateway"))
-    assert http.pedidos[0] == ("POST", "/consultas", "tok", {"pregunta": "¿Qué SKU?"}) and http.gets == 3
+    assert http.pedidos[0] == ("POST", "/consultas", "tok", {"pregunta": C.texto_de_la_tarea(tarea())}) and http.gets == 3
     assert f["estado"] == "respondida" and f["latencia_s"] > 0 and f["spans_completos"]
     assert (f["tokens_entrada"], f["tokens_salida"], f["costo_usd"], f["pasos"], f["herramientas"]) == (1000, 100, 0.0016, 3, 1)
     assert f["tipos_de_herramienta"] == ["extension"] and f["bloqueos_politica"] == 1 and f["bloqueos_capa"] == 1
     assert f["resultados"][0]["sql"] == SQL_OK
     assert ventanas[0][1] > ventanas[0][0]
+
+
+def test_la_tarea_va_como_la_arma_la_semana_13_con_sus_claves():
+    texto = C.texto_de_la_tarea(tarea())
+    assert texto.startswith("¿Qué SKU?") and "- filas: lo pedido (filas)" in texto
+    assert all(len(C.texto_de_la_tarea(t)) <= 1000 for t in C.seleccionar_tareas())   # the API's MAX_PREGUNTA
+
+
+def test_los_spans_tardios_se_reintentan_y_la_espera_es_acotada():
+    llamadas, esperas = [], []
+
+    def tardios(a, b):
+        llamadas.append(1)
+        return spans() if len(llamadas) == 3 else []
+
+    f = C.medir_api(tarea(), "directo", token="t", http=Http(), dormir=esperas.append, spans_entre=tardios)
+    assert f["spans_completos"] and f["tokens_entrada"] == 1000 and len(llamadas) == 3
+    nunca = []
+    f = C.medir_api(tarea(), "directo", token="t", http=Http(), dormir=lambda s: None,
+                    spans_entre=lambda a, b: nunca.append(1) or [])
+    assert f["spans_completos"] is False and len(nunca) == C.INTENTOS_SPANS
+
+
+def test_una_corrida_repetida_conserva_la_previa_y_su_gasto_cuenta(tmp_path):
+    (tmp_path / "crudo_directo.json").write_text(json.dumps({"gasto": {"usd": 0.16, "tokens": 110_000}}))
+    (tmp_path / "crudo_gateway.json").write_text(json.dumps({"gasto": {"usd": 0.2, "tokens": 5}}))
+    assert C.descartar_previa("directo", tmp_path).name == "crudo_directo_descartada_1.json"
+    assert not (tmp_path / "crudo_directo.json").exists() and C.descartar_previa("directo", tmp_path) is None
+    t = C.tope_con_lo_previo(tmp_path, excepto="directo")
+    assert (round(t.gastado_usd, 2), t.gastado_tokens) == (0.36, 110_005)
+    (tmp_path / "crudo_directo.json").write_text(json.dumps({"gasto": {"usd": 0.1, "tokens": 1}}))
+    assert C.descartar_previa("directo", tmp_path).name == "crudo_directo_descartada_2.json"
 
 
 def test_spans_de_otra_consulta_no_se_atribuyen():
@@ -214,6 +247,7 @@ def test_medir_agentes_pasa_el_solicitante_en_la_sesion_y_reporta_la_consulta():
 
     f = C.medir_agentes(tarea(), invocar=invocar, solicitante="sub-analista")
     assert vistos["atributos"] == {"solicitante": "sub-analista"} and len(vistos["sesion"]) == 32
+    assert vistos["texto"] == C.texto_de_la_tarea(tarea())
     assert f["estado"] == "respondida" and f["resultados"] == [{"clave": "filas", "sql": SQL_OK, "valor": "Es el SKU-0009."}]
     assert f["herramientas"] == 2 and f["errores_herramienta"] == 1 and f["costo_usd"] == C.costo(800, 50)
 
