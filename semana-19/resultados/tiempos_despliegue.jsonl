@@ -16,3 +16,16 @@
 {"fecha": "2026-11-15", "paso": "destruir-base-retenido", "segundos": 33, "modo": "destruir-si"}
 {"fecha": "2026-11-15", "paso": "destruir-bootstrap", "segundos": 31, "modo": "destruir-si"}
 {"fecha": "2026-11-18", "paso": "destruir-gateway", "segundos": 48, "modo": "destruir-si"}
+{"fecha": "2026-11-19", "paso": "control", "segundos": 44, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "bootstrap", "segundos": 2, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "computo-actividad8-fallido-y-revertido", "segundos": 77, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "eval-actividad8", "segundos": 54, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "computo-actividad8", "segundos": 101, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "datos-cargador-actividad8", "segundos": 44, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "computo-herramientas-actividad8", "segundos": 83, "modo": "si"}
+{"fecha": "2026-11-19", "paso": "destruir-eval", "segundos": 21, "modo": "destruir-si"}
+{"fecha": "2026-11-19", "paso": "destruir-computo", "segundos": 2451, "modo": "destruir-si"}
+{"fecha": "2026-11-19", "paso": "destruir-datos", "segundos": 10, "modo": "destruir-si"}
+{"fecha": "2026-11-19", "paso": "destruir-base-retenido", "segundos": 33, "modo": "destruir-si"}
+{"fecha": "2026-11-19", "paso": "destruir-bootstrap", "segundos": 31, "modo": "destruir-si"}
+{"fecha": "2026-11-19", "paso": "destruir-control", "segundos": 32, "modo": "destruir-si"}

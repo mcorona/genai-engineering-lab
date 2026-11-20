@@ -583,3 +583,35 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   protection off (lab only).
 - 2026-11-15: **CI.** The live loader test is marked `vivo` and deselected in CI; the CI still fails on any
   skipped test.
+- 2026-11-19: **Activity 8 (evaluation against the deployed endpoint), step 3.** Deploy times:
+  - control 44 s;
+  - bootstrap 2 s;
+  - eval 54 s;
+  - computo 101 s, after a failed attempt that rolled back (77 s, writer asset over 250 MB, fixed in #277);
+  - datos (loader) 44 s;
+  - computo with the five tools 83 s.
+
+  **Eval (`resultados/eval_aws.md`):** 3 runs. The official one is the third.
+  - Run 1 (10/20) was discarded: `buscar_regla_negocio` and `muestrear_valores` were missing from the port, fixed in #281.
+  - Run 2 (9/20) was discarded: 8 tasks were aborted by the cumulative cap, raised in #283.
+  - Run 3: 9/20, Wilson 95% [0.258, 0.658] (es 7/10, en 2/10). Regression under week 10's rule against week 17 local (20/20). 3 tasks were aborted by the cap and reported as such.
+  - Main cause: 5 tasks stopped by the per-task token budget (46,000, week 17's calibration for Haiku 5.5) on Haiku 4.5. No prompt cache is used.
+  - Model spend over the 3 runs: 1.738784 USD and 1,273,532 tokens.
+
+  **Approval end to end:** every check passed (0.023269 USD).
+
+  **Bedrock judge (Nova Pro, 17 tasks, task type `General`, #284):** agreement with the verifier 0.8, kappa 0.5946 (n = 15). False fails on s03: the judge's prompt carries only the final SQL result. False pass: c02-en.
+
+  **Teardown (`destruir.sh --si --todo`, three runs).** Down times:
+  - eval 21 s;
+  - computo 2,451 s;
+  - datos 10 s, after emptying the versioned documents bucket (#286);
+  - base 33 s, with the default-SG custom resource retained;
+  - bootstrap 31 s;
+  - control 32 s, on the second try (the boundary raced its roles, retry added in #289).
+
+  The judge's job filter was also fixed (#285). The datos loader's implicit log group was deleted by hand, and step 4c now deletes such groups (#289).
+
+  **Read-only inventory:** `"quedan": "nada"`. Left: the `semana19-lectura` role and 13 keys pending deletion. The Tagging API's stale entries are explained per service (#288).
+
+  **Pending:** step 4 (Cost Explorer by the `proyecto` tag, 2 calls left, each with Manuel's OK) and `costo_real.md`.
