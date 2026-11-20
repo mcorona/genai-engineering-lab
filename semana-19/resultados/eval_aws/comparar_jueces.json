@@ -1,0 +1,55 @@
+{
+  "criterio": {
+    "Builtin.Correctness": 0.75,
+    "Builtin.Faithfulness": 0.75
+  },
+  "n": 15,
+  "sin_puntaje": [
+    "r02-en",
+    "r05-en"
+  ],
+  "acuerdo": 0.8,
+  "kappa": 0.5946,
+  "matriz": {
+    "ambos_aprueban": 7,
+    "ambos_reprueban": 5,
+    "falso_aprobado": 1,
+    "falso_reprobado": 2
+  },
+  "falsos_aprobados": [
+    "c02-en"
+  ],
+  "falsos_reprobados": [
+    "s03-es",
+    "s03-en"
+  ],
+  "ejemplos": {
+    "falso_reprobado": {
+      "id": "s03-es",
+      "puntajes": {
+        "Builtin.Completeness": 1.0,
+        "Builtin.Correctness": 1.0,
+        "Builtin.Faithfulness": 0.25
+      },
+      "verificador": true,
+      "respuesta": "El proveedor con la mayor cantidad de productos críticos es **Global Parts Inc** con 6 productos críticos.",
+      "explicacion": "Builtin.Correctness: The task is to identify the provider with the highest number of critical products, breaking ties by provider name in ascending order. The ground truth answer correctly identifies \"Global Parts Inc\" as the provider with the most critical products. The candidate response also identifies \"Global Parts Inc\" as the provider with the most critical products and provides additional in"
+    },
+    "falso_aprobado": {
+      "id": "c02-en",
+      "puntajes": {
+        "Builtin.Completeness": 1.0,
+        "Builtin.Correctness": 1.0,
+        "Builtin.Faithfulness": 1.0
+      },
+      "verificador": false,
+      "respuesta": "The database does not contain the information needed to answer this question. \n\nWhile the business rules define that purchase order proposals are approved according to their amount (R-OC-APRUEBA):\n- Buyer: < 50,000 MXN\n- Purchasing Manager: 50,000 - 250,000 MXN (inclusive)\n- Operations Director: > 250,000 MXN\n\nThe ocpcab table, which stores purchase orders and proposals, only contains the columns:",
+      "explicacion": "Builtin.Correctness: The candidate response states that the database does not contain the information needed to answer the question. This is because the necessary data, such as a column indicating which role approved each proposal, is missing from the current schema. The ground truth response provides specific numbers for each role, but these numbers are based on an assumption that such data exist"
+    }
+  },
+  "promedios": {
+    "Builtin.Correctness": 0.7,
+    "Builtin.Faithfulness": 0.8529,
+    "Builtin.Completeness": 0.6471
+  }
+}
