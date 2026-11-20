@@ -54,6 +54,7 @@ semana19 = [
     { name = "constructs" },
     { name = "moto" },
     { name = "pytest" },
+    { name = "sqlglot" },
 ]
 
 [package.metadata]
@@ -95,6 +96,7 @@ semana19 = [
     { name = "constructs", specifier = "==10.8.1" },
     { name = "moto", specifier = "==5.2.5" },
     { name = "pytest", specifier = "==9.2.0" },
+    { name = "sqlglot", specifier = "==30.26.0" },
 ]
 
 [[package]]
