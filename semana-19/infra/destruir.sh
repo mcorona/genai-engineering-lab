@@ -80,10 +80,11 @@ if [[ "$MODO" == "simulacion" ]]; then
   echo "2) vaciar el bucket y el ECR del bootstrap  (vaciar_bootstrap.py --si, perfil admin)"
   echo "3) aws cloudformation delete-stack semana19-cdktoolkit  (perfil admin; programa el borrado de la llave del bootstrap)"
   if [[ "$TODO" == "1" ]]; then
-    echo "4) aws cloudformation delete-stack semana19-control  (perfil admin)"
+    echo "4) aws cloudformation delete-stack semana19-control  (perfil admin; un reintento si solo falló el límite de permisos)"
   else
     echo "4) semana19-control se queda (no se pasó --todo)"
   fi
+  echo "4c) borrar los log groups implícitos de Lambda /aws/lambda/semana19-*  (perfil admin; actividad 8)"
   echo "5) inventario (solo lectura): solo se permite lo listado en inventario.py::permitidos"
   echo "Para el inventario sin borrar nada: destruir.sh --inventario. Para actuar: destruir.sh --si, con tu OK."
   exit 0
@@ -189,9 +190,31 @@ if [[ "$TODO" == "1" ]] && existe_stack semana19-control; then
   inicio=$(date +%s)
   echo "== Paso 4: borrar semana19-control"
   aws cloudformation delete-stack --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
-  aws cloudformation wait stack-delete-complete --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
+  if ! aws cloudformation wait stack-delete-complete --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"; then
+    # Known case (2026-11-19): CloudFormation deleted the permissions boundary (semana19-limite) while the stack's own
+    # roles that use it were still being deleted, and IAM answered 409. Once the roles are gone, one retry deletes it.
+    # Only that resource may have failed; anything else stops here.
+    fallidos="$(aws cloudformation describe-stack-resources --stack-name semana19-control --region "$REGION" \
+      --profile "$PERFIL_ADMIN" --query "StackResources[?ResourceStatus=='DELETE_FAILED'].LogicalResourceId" --output text)"
+    if [[ "$fallidos" != Limite* || "$fallidos" == *[[:space:]]* ]]; then
+      echo "semana19-control en DELETE_FAILED por: $fallidos; revisa los eventos del stack antes de continuar." >&2
+      exit 1
+    fi
+    echo "== Paso 4b: semana19-control falló solo en el límite de permisos (carrera con sus roles): un reintento"
+    aws cloudformation delete-stack --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
+    aws cloudformation wait stack-delete-complete --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
+  fi
   registrar "destruir-control" $(( $(date +%s) - inicio ))
 fi
+
+# Activity 8: a Lambda without its own log group gets /aws/lambda/<function> from the runtime, outside CloudFormation
+# (the datos loader, 2026-11-19). Once no stack of the project is left, those groups are deleted by name prefix.
+echo "== Paso 4c: borrar los log groups implícitos de Lambda (/aws/lambda/semana19-*)"
+for grupo in $(aws logs describe-log-groups --log-group-name-prefix /aws/lambda/semana19- --region "$REGION" \
+    --profile "$PERFIL_ADMIN" --query "logGroups[].logGroupName" --output text); do
+  aws logs delete-log-group --log-group-name "$grupo" --region "$REGION" --profile "$PERFIL_ADMIN"
+  echo "borrado: $grupo"
+done
 
 echo "== Paso 5: inventario (solo lectura)"
 set +e
