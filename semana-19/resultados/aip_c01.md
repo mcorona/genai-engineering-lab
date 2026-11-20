@@ -41,3 +41,21 @@ Each row: concept → where the lab shows it → evidence. Status: **medido** (M
 | Cost Anomaly Detection (not deployed: its price is N) | D3 | not in the stack | `test_sin_monitor_de_anomalias_hasta_confirmar_su_precio` | price N |
 | Log retention in every group | D3 | `RetencionDeLogs` aspect | `test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion` | tested |
 | Deploy in two steps: control by CLI (no assets, no bootstrap) and the bootstrap after it, trusting only the deploy role | D2 | `desplegar.sh` | `test_desplegar_sin_si_no_llama_a_aws` | simulation tested; real run pending |
+
+## Activity 8 (D5, D4)
+
+| Concept | Domain | Where in the repo | Evidence | Status |
+|---|---|---|---|---|
+| Evaluation against the deployed endpoint: public API, real Cognito tokens, execution-based verifier, Wilson 95% CI per language | D5 | `eval/eval_aws.py` | `resultados/eval_aws.md`: 9/20, CI [0.258, 0.658]; es 7/10, en 2/10 | medido 2026-11-19 |
+| Regression rule against a baseline (week 10's threshold, week 17 local 20/20) | D5 | `eval_aws.comparar` | `eval_aws.md`: regression yes in es, en and total | medido 2026-11-19 |
+| Trajectory graders on the deployed agent's spans (week 17) | D5 | `eval_aws.py` with week 17's graders | 17 graded, 7 OK, mean score 0.923; failing: pasos (9), recall_herramientas (1) | medido 2026-11-19 |
+| Cold and warm latency reported apart (Lambda REPORT lines) | D5 | `eval_aws.py` | cold n = 1, 49.95 s; warm n = 17, p50 23.52 s, p95 30.13 s | medido 2026-11-19 |
+| Diagnosis from the run's evidence: missing tools in the port (run 1), a per-task budget the deployed model outgrows (run 3) | D5 | `crudo_eval_descartada_1.json`, `crudo_eval.json` | `eval_aws.md` "Analysis": 5 tasks ended `presupuesto_tarea` at 36,797–42,692 tokens | medido 2026-11-19 |
+| Hard caps in the eval script; aborted tasks reported as such | D5 | `TOPE_USD`, `TOPE_TOKENS`, `tope_con_lo_previo` | 3 tasks `no_corrida` / `tope_del_script` in the official run | medido 2026-11-19 |
+| Human approval end to end (wait, 403 for the analyst, approval, writer role, expiry) | D5 | `eval/aprobacion_e2e.py` | `eval_aws/aprobacion_e2e.json`: every check passed, 0.023269 USD | medido 2026-11-19 |
+| Bedrock model evaluation job, LLM as a judge with built-in metrics on precomputed answers (task type `General`) | D5 | `eval/juez_bedrock.py` | `eval_aws/juez_bedrock.json`: Nova Pro, 17 tasks judged, Completed in 543 s | medido 2026-11-19 |
+| Where an LLM judge is and is not enough for SQL answers: agreement, kappa, false passes and false fails | D5 | `eval/comparar_jueces.py` | agreement 0.8, kappa 0.5946 (n = 15); false fails s03-es, s03-en (incomplete context); false pass c02-en | medido 2026-11-19 |
+| Tokens and model cost per task from the agent spans | D4 | `eval_aws.py` (costo) | 0.035544 USD and 26,647.4 tokens per task (19 tasks) | medido 2026-11-19 |
+| Prompt caching on Converse needs a `cachePoint` | D4 | `agente/converse_adaptador.py` (cache tokens read, none sent) | 0 cache read and 0 cache write tokens on every task | falla (not used) |
+| Per-task token budget calibrated per model | D4 | `agente/construccion.py` (week 17's 46,000 tokens, Haiku 5.5) | 5 of 20 tasks stopped by it on Haiku 4.5 | falla |
+| Real cost per query from Cost Explorer by the `proyecto` tag, against activity 2's model | D4 | `eval/costo_real.py` | pending: the day after (2026-11-20), 2 calls left in the ledger | pendiente |

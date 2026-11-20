@@ -1,0 +1,4293 @@
+{
+  "acceso": [
+    {
+      "con_token": false,
+      "esperado": 401,
+      "metodo": "POST",
+      "obtenido": 401,
+      "ok": true,
+      "ruta": "/consultas"
+    },
+    {
+      "con_token": true,
+      "esperado": 403,
+      "metodo": "POST",
+      "obtenido": 403,
+      "ok": true,
+      "ruta": "/aprobaciones/no-existe"
+    }
+  ],
+  "calentamiento": [
+    {
+      "arranque": {
+        "agente": null,
+        "clase": "desconocido",
+        "consultas": {
+          "frio": true,
+          "init_ms": 113.57,
+          "reportes": 51
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "SKU-0009",
+              "Perno de anclaje 3/4\"",
+              1036,
+              84
+            ],
+            [
+              "SKU-0027",
+              "Conector rapido M6",
+              169,
+              134
+            ],
+            [
+              "SKU-0034",
+              "Cable THHN Mediano",
+              144,
+              72
+            ],
+            [
+              "SKU-0036",
+              "Racor push-in 1/2\"",
+              509,
+              128
+            ],
+            [
+              "SKU-0038",
+              "Arnes M10",
+              65,
+              10
+            ],
+            [
+              "SKU-0046",
+              "Guante de nitrilo 1/2\"",
+              214,
+              65
+            ],
+            [
+              "SKU-0054",
+              "Casco industrial M6",
+              276,
+              259
+            ],
+            [
+              "SKU-0056",
+              "Tarima de madera Pro",
+              844,
+              807
+            ],
+            [
+              "SKU-0057",
+              "Tornillo hexagonal M10",
+              768,
+              106
+            ],
+            [
+              "SKU-0060",
+              "Electrovalvula 1/2\"",
+              450,
+              69
+            ],
+            [
+              "SKU-0064",
+              "Caja de carton XL",
+              653,
+              292
+            ],
+            [
+              "SKU-0065",
+              "Tuerca de seguridad 1\"",
+              1538,
+              679
+            ],
+            [
+              "SKU-0076",
+              "Cilindro neumatico Mediano",
+              637,
+              146
+            ],
+            [
+              "SKU-0081",
+              "Perno de anclaje 1\"",
+              256,
+              142
+            ],
+            [
+              "SKU-0105",
+              "Tornillo hexagonal 3/4\"",
+              343,
+              328
+            ],
+            [
+              "SKU-0109",
+              "Rodamiento de bolas 1/2\"",
+              222,
+              112
+            ],
+            [
+              "SKU-0130",
+              "Relevador M8",
+              555,
+              326
+            ],
+            [
+              "SKU-0153",
+              "Tornillo hexagonal Pro",
+              240,
+              211
+            ],
+            [
+              "SKU-0155",
+              "Manguera hidraulica Pro",
+              1173,
+              103
+            ],
+            [
+              "SKU-0159",
+              "Disco de corte Grande",
+              103,
+              83
+            ]
+          ],
+          "sql": "SELECT a.art_cd, a.art_dsc, a.art_ptr as punto_reorden, COALESCE(SUM(e.exi_qty), 0) as existencia_total FROM legado.artmst a LEFT JOIN legado.exidet e ON a.art_cd = e.exi_art GROUP BY a.art_cd, a.art_dsc, a.art_ptr HAVING COALESCE(SUM(e.exi_qty), 0) < a.art_ptr ORDER BY a.art_cd"
+        }
+      ],
+      "costo_usd": 0.022108900000000004,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124144.964,
+      "herramientas": 3,
+      "id_tarea": "s01-es",
+      "idioma": "es",
+      "inicio": 1795124101.074,
+      "latencia_s": 43.89,
+      "motivo": "responder",
+      "pasos": 3,
+      "respuesta": "Se encontraron 25 productos con existencias totales (suma de todos los almacenes) por debajo de su punto de reorden. La tabla detalla para cada producto: el código SKU, descripción, punto de reorden configurado y la existencia total actual. El producto más crítico es SKU-0009 (Perno de anclaje 3/4\") con solo 84 unidades cuando debería tener al menos 1036. Otros casos graves incluyen SKU-0155 (Manguera hidraulica Pro) con 103 vs 1173 requeridas, y SKU-0192 (Pelicula estirable M10) con apenas 1 unidad vs 18 requeridas.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT a.art_cd, a.art_dsc, a.art_ptr as punto_reorden, COALESCE(SUM(e.exi_qty), 0) as existencia_total FROM legado.artmst a LEFT JOIN legado.exidet e ON a.art_cd = e.exi_art GROUP BY a.art_cd, a.art_dsc, a.art_ptr HAVING COALESCE(SUM(e.exi_qty), 0) < a.art_ptr ORDER BY a.art_cd",
+          "valor": [
+            [
+              "SKU-0009",
+              "Perno de anclaje 3/4\"",
+              1036,
+              84
+            ],
+            [
+              "SKU-0027",
+              "Conector rapido M6",
+              169,
+              134
+            ],
+            [
+              "SKU-0034",
+              "Cable THHN Mediano",
+              144,
+              72
+            ],
+            [
+              "SKU-0036",
+              "Racor push-in 1/2\"",
+              509,
+              128
+            ],
+            [
+              "SKU-0038",
+              "Arnes M10",
+              65,
+              10
+            ],
+            [
+              "SKU-0046",
+              "Guante de nitrilo 1/2\"",
+              214,
+              65
+            ],
+            [
+              "SKU-0054",
+              "Casco industrial M6",
+              276,
+              259
+            ],
+            [
+              "SKU-0056",
+              "Tarima de madera Pro",
+              844,
+              807
+            ],
+            [
+              "SKU-0057",
+              "Tornillo hexagonal M10",
+              768,
+              106
+            ],
+            [
+              "SKU-0060",
+              "Electrovalvula 1/2\"",
+              450,
+              69
+            ],
+            [
+              "SKU-0064",
+              "Caja de carton XL",
+              653,
+              292
+            ],
+            [
+              "SKU-0065",
+              "Tuerca de seguridad 1\"",
+              1538,
+              679
+            ],
+            [
+              "SKU-0076",
+              "Cilindro neumatico Mediano",
+              637,
+              146
+            ],
+            [
+              "SKU-0081",
+              "Perno de anclaje 1\"",
+              256,
+              142
+            ],
+            [
+              "SKU-0105",
+              "Tornillo hexagonal 3/4\"",
+              343,
+              328
+            ],
+            [
+              "SKU-0109",
+              "Rodamiento de bolas 1/2\"",
+              222,
+              112
+            ],
+            [
+              "SKU-0130",
+              "Relevador M8",
+              555,
+              326
+            ],
+            [
+              "SKU-0153",
+              "Tornillo hexagonal Pro",
+              240,
+              211
+            ],
+            [
+              "SKU-0155",
+              "Manguera hidraulica Pro",
+              1173,
+              103
+            ],
+            [
+              "SKU-0159",
+              "Disco de corte Grande",
+              103,
+              83
+            ],
+            [
+              "SKU-0164",
+              "Regulador de presion Pro",
+              145,
+              74
+            ],
+            [
+              "SKU-0189",
+              "Rodamiento conico M6",
+              223,
+              101
+            ],
+            [
+              "SKU-0191",
+              "Dado de impacto Chico",
+              86,
+              7
+            ],
+            [
+              "SKU-0192",
+              "Pelicula estirable M10",
+              18,
+              1
+            ],
+            [
+              "SKU-0195",
+              "Bomba de engranes Pro",
+              129,
+              34
+            ]
+          ]
+        }
+      ],
+      "run_id": "02b22fd2788d",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 15,
+          "lab.tool.args.hmac": "31c6b703bc61b730",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 31,
+          "lab.tool.args.hmac": "2ba67e259f13ef37",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1685,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 327,
+          "lab.tool.args.hmac": "7d97be7ef1355631",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1256,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 12449,
+      "tokens_salida": 1530,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.666667
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.952381
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": true,
+          "init_ms": 99.83,
+          "reportes": 1
+        },
+        "clase": "frio",
+        "consultas": {
+          "frio": true,
+          "init_ms": 113.57,
+          "reportes": 51
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "SKU-0009",
+              "Perno de anclaje 3/4\"",
+              "Bavaria Precision"
+            ],
+            [
+              "SKU-0108",
+              "Electrovalvula XL",
+              "Bavaria Precision"
+            ],
+            [
+              "SKU-0164",
+              "Regulador de presion Pro",
+              "Rhein Industrietechnik"
+            ]
+          ],
+          "sql": "SELECT DISTINCT a.art_cd, a.art_dsc, p.prv_nm FROM legado.artmst a INNER JOIN legado.prvmst p ON a.art_prv = p.prv_id INNER JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE a.art_crt = TRUE AND p.prv_pais = 'DE' AND e.exi_qty < a.art_ptr ORDER BY a.art_cd"
+        }
+      ],
+      "costo_usd": 0.037752,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124151.024,
+      "herramientas": 6,
+      "id_tarea": "s02-es",
+      "idioma": "es",
+      "inicio": 1795124101.075,
+      "latencia_s": 49.95,
+      "motivo": "responder",
+      "pasos": 5,
+      "respuesta": "Se encontraron 3 productos críticos surtidos por proveedores de Alemania que están por debajo de su punto de reorden en al menos un almacén:\n\n1. **SKU-0009** - Perno de anclaje 3/4\" (Proveedor: Bavaria Precision)\n   - Por debajo del punto de reorden (1036) en: CEDIS Centro (21 unidades), CEDIS Occidente (35 unidades) y CEDIS Norte (28 unidades)\n\n2. **SKU-0108** - Electrovalvula XL (Proveedor: Bavaria Precision)\n   - Por debajo del punto de reorden (1318) en: CEDIS Occidente (505 unidades) y CEDIS Norte (415 unidades)\n\n3. **SKU-0164** - Regulador de presion Pro (Proveedor: Rhein Industrietechnik)\n   - Por debajo del punto de reorden (145) en: CEDIS Centro (46 unidades), CEDIS Occidente (0 unidades) y CEDIS Norte (28 unidades)",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT DISTINCT a.art_cd, a.art_dsc, p.prv_nm FROM legado.artmst a INNER JOIN legado.prvmst p ON a.art_prv = p.prv_id INNER JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE a.art_crt = TRUE AND p.prv_pais = 'DE' AND e.exi_qty < a.art_ptr ORDER BY a.art_cd",
+          "valor": [
+            [
+              "SKU-0009",
+              "Perno de anclaje 3/4\"",
+              "Bavaria Precision"
+            ],
+            [
+              "SKU-0108",
+              "Electrovalvula XL",
+              "Bavaria Precision"
+            ],
+            [
+              "SKU-0164",
+              "Regulador de presion Pro",
+              "Rhein Industrietechnik"
+            ]
+          ]
+        }
+      ],
+      "run_id": "81c017c69dcb",
+      "spans_completos": false,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 15,
+          "lab.tool.args.hmac": "31c6b703bc61b730",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 31,
+          "lab.tool.args.hmac": "2ba67e259f13ef37",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1685,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 327,
+          "lab.tool.args.hmac": "7d97be7ef1355631",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1256,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 31,
+          "lab.tool.args.hmac": "1850f7115e9d293b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1685,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 31,
+          "lab.tool.args.hmac": "dde863089042329f",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1751,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 39,
+          "lab.tool.args.hmac": "4681724e99cb4b20",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 294,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 450,
+          "lab.tool.args.hmac": "5c353ec73a11aeb2",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 792,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 317,
+          "lab.tool.args.hmac": "56e1065332520ccb",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 242,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 24910,
+      "tokens_salida": 1882,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.333333
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.904762
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    }
+  ],
+  "esperados": {
+    "c02-en/comprador": [
+      [
+        20
+      ]
+    ],
+    "c02-en/director": [
+      [
+        1
+      ]
+    ],
+    "c02-en/gerente": [
+      [
+        4
+      ]
+    ],
+    "c02-es/comprador": [
+      [
+        20
+      ]
+    ],
+    "c02-es/director": [
+      [
+        1
+      ]
+    ],
+    "c02-es/gerente": [
+      [
+        4
+      ]
+    ],
+    "c06-en/cobertura": [
+      [
+        38.1
+      ]
+    ],
+    "c06-en/menos_7": [
+      [
+        4
+      ]
+    ],
+    "c06-es/cobertura": [
+      [
+        38.1
+      ]
+    ],
+    "c06-es/menos_7": [
+      [
+        4
+      ]
+    ],
+    "r02-en/skus": [
+      [
+        "SKU-0164"
+      ],
+      [
+        "SKU-0009"
+      ],
+      [
+        "SKU-0189"
+      ],
+      [
+        "SKU-0130"
+      ],
+      [
+        "SKU-0036"
+      ],
+      [
+        "SKU-0155"
+      ],
+      [
+        "SKU-0060"
+      ],
+      [
+        "SKU-0109"
+      ],
+      [
+        "SKU-0192"
+      ],
+      [
+        "SKU-0057"
+      ],
+      [
+        "SKU-0027"
+      ]
+    ],
+    "r02-es/skus": [
+      [
+        "SKU-0164"
+      ],
+      [
+        "SKU-0009"
+      ],
+      [
+        "SKU-0189"
+      ],
+      [
+        "SKU-0130"
+      ],
+      [
+        "SKU-0036"
+      ],
+      [
+        "SKU-0155"
+      ],
+      [
+        "SKU-0060"
+      ],
+      [
+        "SKU-0109"
+      ],
+      [
+        "SKU-0192"
+      ],
+      [
+        "SKU-0057"
+      ],
+      [
+        "SKU-0027"
+      ]
+    ],
+    "r05-en/skus": [
+      [
+        "SKU-0009"
+      ],
+      [
+        "SKU-0057"
+      ],
+      [
+        "SKU-0058"
+      ],
+      [
+        "SKU-0060"
+      ],
+      [
+        "SKU-0071"
+      ],
+      [
+        "SKU-0108"
+      ],
+      [
+        "SKU-0140"
+      ],
+      [
+        "SKU-0152"
+      ],
+      [
+        "SKU-0155"
+      ],
+      [
+        "SKU-0164"
+      ],
+      [
+        "SKU-0167"
+      ],
+      [
+        "SKU-0189"
+      ]
+    ],
+    "r05-es/skus": [
+      [
+        "SKU-0009"
+      ],
+      [
+        "SKU-0057"
+      ],
+      [
+        "SKU-0058"
+      ],
+      [
+        "SKU-0060"
+      ],
+      [
+        "SKU-0071"
+      ],
+      [
+        "SKU-0108"
+      ],
+      [
+        "SKU-0140"
+      ],
+      [
+        "SKU-0152"
+      ],
+      [
+        "SKU-0155"
+      ],
+      [
+        "SKU-0164"
+      ],
+      [
+        "SKU-0167"
+      ],
+      [
+        "SKU-0189"
+      ]
+    ],
+    "r12-en/monto": [
+      [
+        0.0
+      ]
+    ],
+    "r12-es/monto": [
+      [
+        0.0
+      ]
+    ],
+    "s01-es/filas": [
+      [
+        "SKU-0009"
+      ],
+      [
+        "SKU-0027"
+      ],
+      [
+        "SKU-0034"
+      ],
+      [
+        "SKU-0036"
+      ],
+      [
+        "SKU-0038"
+      ],
+      [
+        "SKU-0046"
+      ],
+      [
+        "SKU-0054"
+      ],
+      [
+        "SKU-0056"
+      ],
+      [
+        "SKU-0057"
+      ],
+      [
+        "SKU-0060"
+      ],
+      [
+        "SKU-0064"
+      ],
+      [
+        "SKU-0065"
+      ],
+      [
+        "SKU-0076"
+      ],
+      [
+        "SKU-0081"
+      ],
+      [
+        "SKU-0105"
+      ],
+      [
+        "SKU-0109"
+      ],
+      [
+        "SKU-0130"
+      ],
+      [
+        "SKU-0153"
+      ],
+      [
+        "SKU-0155"
+      ],
+      [
+        "SKU-0159"
+      ],
+      [
+        "SKU-0164"
+      ],
+      [
+        "SKU-0189"
+      ],
+      [
+        "SKU-0191"
+      ],
+      [
+        "SKU-0192"
+      ],
+      [
+        "SKU-0195"
+      ]
+    ],
+    "s02-es/filas": [
+      [
+        "SKU-0009"
+      ],
+      [
+        "SKU-0108"
+      ],
+      [
+        "SKU-0164"
+      ]
+    ],
+    "s03-en/filas": [
+      [
+        "Global Parts Inc"
+      ]
+    ],
+    "s03-es/filas": [
+      [
+        "Global Parts Inc"
+      ]
+    ],
+    "s06-en/filas": [
+      [
+        "SKU-0012"
+      ],
+      [
+        "SKU-0092"
+      ],
+      [
+        "SKU-0104"
+      ]
+    ],
+    "s06-es/filas": [
+      [
+        "SKU-0012"
+      ],
+      [
+        "SKU-0092"
+      ],
+      [
+        "SKU-0104"
+      ]
+    ],
+    "v01-en/n": [
+      [
+        7
+      ]
+    ],
+    "v01-es/n": [
+      [
+        7
+      ]
+    ]
+  },
+  "fecha": "2026-11-19",
+  "filas": [
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 13
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "Global Parts Inc"
+            ]
+          ],
+          "sql": "SELECT p.prv_nm FROM legado.artmst a JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY COUNT(*) DESC, p.prv_nm ASC LIMIT 1"
+        }
+      ],
+      "costo_usd": 0.0250074,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124169.738,
+      "herramientas": 4,
+      "id_tarea": "s03-es",
+      "idioma": "es",
+      "inicio": 1795124155.658,
+      "latencia_s": 14.08,
+      "motivo": "responder",
+      "pasos": 4,
+      "respuesta": "El proveedor con la mayor cantidad de productos críticos es **Global Parts Inc** con 6 productos críticos.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT p.prv_nm FROM legado.artmst a JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY COUNT(*) DESC, p.prv_nm ASC LIMIT 1",
+          "valor": [
+            [
+              "Global Parts Inc"
+            ]
+          ]
+        }
+      ],
+      "run_id": "aa4ba75b14a3",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 15,
+          "lab.tool.args.hmac": "334103f951c63748",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 52,
+          "lab.tool.args.hmac": "c725db6c786172c1",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2905,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 292,
+          "lab.tool.args.hmac": "2144dd5115934cc9",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 85,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 283,
+          "lab.tool.args.hmac": "97f6b64298629f04",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 387,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 17959,
+      "tokens_salida": 955,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.5
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.928571
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 17
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "SKU-0012",
+              "Racor push-in Chico",
+              504,
+              235
+            ],
+            [
+              "SKU-0092",
+              "Regulador de presion 1\"",
+              776,
+              383
+            ],
+            [
+              "SKU-0104",
+              "Pelicula estirable XL",
+              1758,
+              853
+            ]
+          ],
+          "sql": "SELECT a.art_cd, a.art_dsc, e.exi_qty as existencias, a.art_ptr as punto_reorden FROM legado.artmst a JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE e.exi_alm = 2 AND e.exi_qty > (a.art_ptr * 2) ORDER BY a.art_cd"
+        }
+      ],
+      "costo_usd": 0.0368566,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124191.17,
+      "herramientas": 6,
+      "id_tarea": "s06-es",
+      "idioma": "es",
+      "inicio": 1795124170.493,
+      "latencia_s": 20.68,
+      "motivo": "responder",
+      "pasos": 6,
+      "respuesta": "En el almacén de Guadalajara (CEDIS Occidente) hay 3 productos con existencias mayores al doble de su punto de reorden:\n\n1. **SKU-0012** - Racor push-in Chico: 504 unidades (punto de reorden: 235)\n2. **SKU-0092** - Regulador de presion 1\": 776 unidades (punto de reorden: 383)\n3. **SKU-0104** - Pelicula estirable XL: 1,758 unidades (punto de reorden: 853)",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT a.art_cd, a.art_dsc, e.exi_qty as existencias, a.art_ptr as punto_reorden FROM legado.artmst a JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE e.exi_alm = 2 AND e.exi_qty > (a.art_ptr * 2) ORDER BY a.art_cd",
+          "valor": [
+            [
+              "SKU-0012",
+              "Racor push-in Chico",
+              504,
+              235
+            ],
+            [
+              "SKU-0092",
+              "Regulador de presion 1\"",
+              776,
+              383
+            ],
+            [
+              "SKU-0104",
+              "Pelicula estirable XL",
+              1758,
+              853
+            ]
+          ]
+        }
+      ],
+      "run_id": "31331095e0e9",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "c02d97636037b603",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 209,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 31,
+          "lab.tool.args.hmac": "1850f7115e9d293b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1685,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 137,
+          "lab.tool.args.hmac": "b45af4ff52e62e0f",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 96,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 292,
+          "lab.tool.args.hmac": "0336f5fbebc0bc9b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 238,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 258,
+          "lab.tool.args.hmac": "d75e883a601323f6",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 206,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 26266,
+      "tokens_salida": 1448,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.333333
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.904762
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 19
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.050281,
+      "errores_herramienta": 0,
+      "estado": "limite_alcanzado",
+      "estado_esperado": "respondida",
+      "fin": 1795124216.405,
+      "herramientas": 8,
+      "id_tarea": "r02-es",
+      "idioma": "es",
+      "inicio": 1795124192.395,
+      "latencia_s": 24.01,
+      "motivo": "presupuesto_tarea",
+      "pasos": 7,
+      "respuesta": "",
+      "resultados": [],
+      "run_id": "440d22cd0971",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 51,
+          "lab.tool.args.hmac": "80184773f82180af",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2572,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 40,
+          "lab.tool.args.hmac": "063aecd0b60e05ab",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 47,
+          "lab.tool.args.hmac": "23cb5318d1896db5",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2955,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "c6d21dea3c91ba6b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 152,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 1224,
+          "lab.tool.args.hmac": "49b4d2a9272447f5",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 59,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 443,
+          "lab.tool.args.hmac": "5c8369022d2531da",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1628,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 431,
+          "lab.tool.args.hmac": "d7b2e45aa04c9235",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 59,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "regla",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 36975,
+      "tokens_salida": 1747,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.375
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.910714
+      },
+      "verificacion": {
+        "claves": {
+          "skus": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 12
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "SKU-0009"
+            ],
+            [
+              "SKU-0057"
+            ],
+            [
+              "SKU-0058"
+            ],
+            [
+              "SKU-0060"
+            ],
+            [
+              "SKU-0071"
+            ],
+            [
+              "SKU-0108"
+            ],
+            [
+              "SKU-0140"
+            ],
+            [
+              "SKU-0152"
+            ],
+            [
+              "SKU-0155"
+            ],
+            [
+              "SKU-0164"
+            ],
+            [
+              "SKU-0167"
+            ],
+            [
+              "SKU-0189"
+            ]
+          ],
+          "sql": "SELECT DISTINCT a.art_cd FROM legado.artmst a INNER JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true AND p.prv_dte > 20 ORDER BY a.art_cd"
+        }
+      ],
+      "costo_usd": 0.0211002,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124229.703,
+      "herramientas": 4,
+      "id_tarea": "r05-es",
+      "idioma": "es",
+      "inicio": 1795124217.072,
+      "latencia_s": 12.63,
+      "motivo": "responder",
+      "pasos": 3,
+      "respuesta": "Se han identificado 12 SKU críticos que deben tener un proveedor alterno homologado. Estos son aquellos marcados como críticos cuyo proveedor principal tiene un tiempo de entrega mayor a 20 días, según la regla R-ALTERNO: \"Todo SKU crítico cuyo proveedor tenga un tiempo de entrega mayor a 20 días debe tener un proveedor alterno homologado.\"",
+      "resultados": [
+        {
+          "clave": "skus",
+          "sql": "SELECT DISTINCT a.art_cd FROM legado.artmst a INNER JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true AND p.prv_dte > 20 ORDER BY a.art_cd",
+          "valor": [
+            "SKU-0009",
+            "SKU-0057",
+            "SKU-0058",
+            "SKU-0060",
+            "SKU-0071",
+            "SKU-0108",
+            "SKU-0140",
+            "SKU-0152",
+            "SKU-0155",
+            "SKU-0164",
+            "SKU-0167",
+            "SKU-0189"
+          ]
+        }
+      ],
+      "run_id": "86b597894c97",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 51,
+          "lab.tool.args.hmac": "7f414597145ed024",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1751,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 26,
+          "lab.tool.args.hmac": "ade5927d9bdff35b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1751,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 177,
+          "lab.tool.args.hmac": "0b6b7dc7eb07fade",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 225,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "regla",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 13032,
+      "tokens_salida": 1230,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.75
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.964286
+      },
+      "verificacion": {
+        "claves": {
+          "skus": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 19
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              0.0
+            ]
+          ],
+          "sql": "SELECT ROUND(COALESCE(SUM(ocp.ocp_qty * art.art_cst), 0)::numeric, 2) as monto FROM legado.ocpcab ocp JOIN legado.artmst art ON ocp.ocp_art = art.art_cd WHERE art.art_crt = true AND ocp.ocp_sts IN ('PENDING_APPROVAL', 'APPROVED')"
+        }
+      ],
+      "costo_usd": 0.05018860000000001,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124255.445,
+      "herramientas": 8,
+      "id_tarea": "r12-es",
+      "idioma": "es",
+      "inicio": 1795124231.058,
+      "latencia_s": 24.39,
+      "motivo": "responder",
+      "pasos": 7,
+      "respuesta": "El monto total en MXN de las órdenes abiertas de SKU críticos es 0.00. Aunque existen 30 SKU críticos en el catálogo y 2 órdenes abiertas en el sistema, ninguna de las órdenes abiertas corresponde a SKU críticos (SKU-0011 y SKU-0012 ambos tienen art_crt = false).",
+      "resultados": [
+        {
+          "clave": "monto",
+          "sql": "SELECT ROUND(COALESCE(SUM(ocp.ocp_qty * art.art_cst), 0)::numeric, 2) as monto FROM legado.ocpcab ocp JOIN legado.artmst art ON ocp.ocp_art = art.art_cd WHERE art.art_crt = true AND ocp.ocp_sts IN ('PENDING_APPROVAL', 'APPROVED')",
+          "valor": 0.0
+        }
+      ],
+      "run_id": "3515793fa85d",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 36,
+          "lab.tool.args.hmac": "1fd2928932cea44a",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2566,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 43,
+          "lab.tool.args.hmac": "f091f6d99ca85e15",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2202,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "4780d1f81edb6417",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 236,
+          "lab.tool.args.hmac": "22cd0053549f3e73",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 65,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 88,
+          "lab.tool.args.hmac": "eba37da286321726",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 63,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 120,
+          "lab.tool.args.hmac": "8eb7f5c629a0c6ee",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 219,
+          "lab.tool.args.hmac": "5e4eb8f22032cfd2",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 143,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "regla",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 38146,
+      "tokens_salida": 1496,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.375
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.910714
+      },
+      "verificacion": {
+        "claves": {
+          "monto": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 10
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.0102784,
+      "errores_herramienta": 0,
+      "estado": "abstenida",
+      "estado_esperado": "respondida",
+      "fin": 1795124265.558,
+      "herramientas": 1,
+      "id_tarea": "c02-es",
+      "idioma": "es",
+      "inicio": 1795124256.082,
+      "latencia_s": 9.48,
+      "motivo": "responder",
+      "pasos": 2,
+      "respuesta": "La base de datos disponible no contiene una tabla de propuestas de orden de compra ni de registros de aprobaciones por nivel jerárquico (comprador, gerente de compras, director de operaciones). La tabla ocpcab solo registra órdenes de compra existentes con su estado, pero no hay información sobre propuestas en proceso de aprobación ni quién las aprueba. Para responder esta pregunta se requeriría acceso a un sistema de flujo de trabajo o gestión de aprobaciones que no está disponible en el esquema legado actual.",
+      "resultados": [],
+      "run_id": "6194497d9e57",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "compuesta",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 6634,
+      "tokens_salida": 542,
+      "trayectoria": {
+        "fallan": [
+          "recall_herramientas"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": false,
+            "puntaje": 0.333333
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.904762
+      },
+      "verificacion": {
+        "claves": {
+          "comprador": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          },
+          "director": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          },
+          "gerente": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 20
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.050222699999999995,
+      "errores_herramienta": 0,
+      "estado": "limite_alcanzado",
+      "estado_esperado": "respondida",
+      "fin": 1795124291.664,
+      "herramientas": 9,
+      "id_tarea": "c06-es",
+      "idioma": "es",
+      "inicio": 1795124266.251,
+      "latencia_s": 25.41,
+      "motivo": "presupuesto_tarea",
+      "pasos": 7,
+      "respuesta": "",
+      "resultados": [],
+      "run_id": "2650eb570d96",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 24,
+          "lab.tool.args.hmac": "e80cab163f35295b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 36,
+          "lab.tool.args.hmac": "2a8f8592c6dbb0b1",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1993,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 1053,
+          "lab.tool.args.hmac": "34e5782f749f88e8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 59,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 144,
+          "lab.tool.args.hmac": "dd2fab3fb836224c",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 67,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 183,
+          "lab.tool.args.hmac": "48fb077cb53ae769",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 99,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 186,
+          "lab.tool.args.hmac": "dd5809c48671e3c0",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 792,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 929,
+          "lab.tool.args.hmac": "0817cec22bb61882",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 959,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 9,
+          "lab.tool.args.chars": 882,
+          "lab.tool.args.hmac": "47bb02a739ec86a3",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 65,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "compuesta",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 34582,
+      "tokens_salida": 2215,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.555556
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.936508
+      },
+      "verificacion": {
+        "claves": {
+          "cobertura": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          },
+          "menos_7": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 11
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              7
+            ]
+          ],
+          "sql": "SELECT COUNT(DISTINCT a.art_cd) AS n FROM legado.artmst a JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_lin = 'Tornilleria' AND p.prv_pais = 'US'"
+        }
+      ],
+      "costo_usd": 0.0213455,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124308.503,
+      "herramientas": 4,
+      "id_tarea": "v01-es",
+      "idioma": "es",
+      "inicio": 1795124292.597,
+      "latencia_s": 15.91,
+      "motivo": "responder",
+      "pasos": 4,
+      "respuesta": "Hay 7 productos de la línea Tornillería que son surtidos por proveedores de Estados Unidos.",
+      "resultados": [
+        {
+          "clave": "n",
+          "sql": "SELECT COUNT(DISTINCT a.art_cd) AS n FROM legado.artmst a JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_lin = 'Tornilleria' AND p.prv_pais = 'US'",
+          "valor": 7
+        }
+      ],
+      "run_id": "53f4bdaac90a",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "4f86dbc167d31a36",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 392,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 39,
+          "lab.tool.args.hmac": "4681724e99cb4b20",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 294,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 176,
+          "lab.tool.args.hmac": "6bd8f42ecf3a3d99",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "valores",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 15145,
+      "tokens_salida": 852,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.75
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.964286
+      },
+      "verificacion": {
+        "claves": {
+          "n": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 9
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.0090904,
+      "errores_herramienta": 0,
+      "estado": "requiere_aclaracion",
+      "estado_esperado": "requiere_aclaracion",
+      "fin": 1795124324.247,
+      "herramientas": 0,
+      "id_tarea": "a01-es",
+      "idioma": "es",
+      "inicio": 1795124316.57,
+      "latencia_s": 7.68,
+      "motivo": "responder",
+      "pasos": 2,
+      "respuesta": "No es posible responder la pregunta \"¿Cuál es el mejor proveedor?\" sin más contexto. Por favor, especifica:",
+      "resultados": [],
+      "run_id": "ea68a9fea638",
+      "spans_completos": true,
+      "spans_herramientas": [],
+      "tipo": "ambigua",
+      "tipos_de_herramienta": [],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 5804,
+      "tokens_salida": 492,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.5
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.928571
+      },
+      "verificacion": {
+        "claves": {},
+        "coherencia_claves": null,
+        "estado_ok": true,
+        "exactitud_claves": null,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 11
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.014808200000000002,
+      "errores_herramienta": 0,
+      "estado": "abstenida",
+      "estado_esperado": "abstenida",
+      "fin": 1795124335.664,
+      "herramientas": 1,
+      "id_tarea": "n01-es",
+      "idioma": "es",
+      "inicio": 1795124324.912,
+      "latencia_s": 10.75,
+      "motivo": "responder",
+      "pasos": 3,
+      "respuesta": "No es posible calcular el margen de utilidad de cada SKU con los datos disponibles en la base de datos. \n\nLa tabla artmst contiene el costo de cada artículo (art_cst), pero no incluye el precio de venta unitario. El campo art_ptr es un identificador o código (tipo integer), no un precio en dinero.\n\nPara calcular el margen de utilidad se requiere:\n- Precio de venta unitario por SKU\n- O alternativamente, ingresos por venta y cantidad vendida que permita derivar el precio promedio\n\nEstos datos no están disponibles en las tablas del esquema legado: prvmst, artmst, almmst, exidet, vtadia, ocpcab y artnot.",
+      "resultados": [],
+      "run_id": "ceb8a0e3cae8",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "sin_respuesta",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 9987,
+      "tokens_salida": 695,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.333333
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.904762
+      },
+      "verificacion": {
+        "claves": {},
+        "coherencia_claves": null,
+        "estado_ok": true,
+        "exactitud_claves": null,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 19
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "Global Parts Inc"
+            ]
+          ],
+          "sql": "SELECT p.prv_nm FROM legado.artmst a JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY COUNT(*) DESC, p.prv_nm ASC LIMIT 1"
+        }
+      ],
+      "costo_usd": 0.029658200000000003,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124359.822,
+      "herramientas": 5,
+      "id_tarea": "s03-en",
+      "idioma": "en",
+      "inicio": 1795124336.307,
+      "latencia_s": 23.52,
+      "motivo": "responder",
+      "pasos": 5,
+      "respuesta": "Global Parts Inc is the supplier with the largest number of critical products, with 6 critical products. Ties are broken by supplier name in ascending order.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT p.prv_nm FROM legado.artmst a JOIN legado.prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY COUNT(*) DESC, p.prv_nm ASC LIMIT 1",
+          "valor": "Global Parts Inc"
+        }
+      ],
+      "run_id": "6289de65cbe4",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 32,
+          "lab.tool.args.hmac": "149ba9cf88d0a99e",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2172,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 31,
+          "lab.tool.args.hmac": "dde863089042329f",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1751,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 239,
+          "lab.tool.args.hmac": "51255f0b07d13997",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 351,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 197,
+          "lab.tool.args.hmac": "5fe36d23da9a6f34",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 79,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 22412,
+      "tokens_salida": 910,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.4
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.914286
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 18
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "SKU-0012",
+              "Racor push-in Chico"
+            ],
+            [
+              "SKU-0092",
+              "Regulador de presion 1\""
+            ],
+            [
+              "SKU-0104",
+              "Pelicula estirable XL"
+            ]
+          ],
+          "sql": "SELECT a.art_cd, a.art_dsc FROM legado.artmst a INNER JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE e.exi_alm = 2 AND e.exi_qty > (a.art_ptr * 2) ORDER BY a.art_cd"
+        }
+      ],
+      "costo_usd": 0.037083200000000004,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124383.084,
+      "herramientas": 7,
+      "id_tarea": "s06-en",
+      "idioma": "en",
+      "inicio": 1795124360.937,
+      "latencia_s": 22.15,
+      "motivo": "responder",
+      "pasos": 6,
+      "respuesta": "At the Guadalajara warehouse (CEDIS Occidente), there are 3 products with on-hand stock above twice their reorder point:\n\n1. **SKU-0012** - Racor push-in Chico (504 units in stock vs. 470 reorder point threshold)\n2. **SKU-0092** - Regulador de presion 1\" (776 units in stock vs. 766 reorder point threshold)\n3. **SKU-0104** - Pelicula estirable XL (1,758 units in stock vs. 1,706 reorder point threshold)\n\nThese products have stock levels that exceed double their reorder points (artmst.art_ptr), indicating they are well above minimum safety levels.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT a.art_cd, a.art_dsc FROM legado.artmst a INNER JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE e.exi_alm = 2 AND e.exi_qty > (a.art_ptr * 2) ORDER BY a.art_cd",
+          "valor": [
+            [
+              "SKU-0012",
+              "Racor push-in Chico"
+            ],
+            [
+              "SKU-0092",
+              "Regulador de presion 1\""
+            ],
+            [
+              "SKU-0104",
+              "Pelicula estirable XL"
+            ]
+          ]
+        }
+      ],
+      "run_id": "19c14eab6fef",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 28,
+          "lab.tool.args.hmac": "c643872ffc5ac260",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1685,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 37,
+          "lab.tool.args.hmac": "2a35f7fd652501eb",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 167,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 51,
+          "lab.tool.args.hmac": "061e668ddfeaa031",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 122,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 60,
+          "lab.tool.args.hmac": "aea5a30aeb4add11",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 170,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 327,
+          "lab.tool.args.hmac": "c3f435a93b791014",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 222,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 216,
+          "lab.tool.args.hmac": "ccb33e0a6143fad1",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 175,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 26972,
+      "tokens_salida": 1348,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.285714
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.897959
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 23
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.05775,
+      "errores_herramienta": 0,
+      "estado": "limite_alcanzado",
+      "estado_esperado": "respondida",
+      "fin": 1795124414.202,
+      "herramientas": 14,
+      "id_tarea": "r02-en",
+      "idioma": "en",
+      "inicio": 1795124384.076,
+      "latencia_s": 30.13,
+      "motivo": "presupuesto_tarea",
+      "pasos": 8,
+      "respuesta": "",
+      "resultados": [],
+      "run_id": "16b88f513a6c",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 22,
+          "lab.tool.args.hmac": "4d95504797ab286e",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 1350,
+          "lab.tool.args.hmac": "21de3a0a5cbc4330",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 59,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 61,
+          "lab.tool.args.hmac": "e3cdc330dcc3e133",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 798,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 98,
+          "lab.tool.args.hmac": "7958b45574a4c63a",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 63,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 77,
+          "lab.tool.args.hmac": "c6fac3bf5380a742",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 64,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 76,
+          "lab.tool.args.hmac": "579b1455f8d87221",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 66,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 61,
+          "lab.tool.args.hmac": "3a3aeff6fbc7d060",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 423,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 9,
+          "lab.tool.args.chars": 76,
+          "lab.tool.args.hmac": "44d1f325f96f629a",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 197,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 10,
+          "lab.tool.args.chars": 76,
+          "lab.tool.args.hmac": "ed16221fa0e47778",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 197,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 11,
+          "lab.tool.args.chars": 914,
+          "lab.tool.args.hmac": "58f9ea7bb6dae0f8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 59,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 12,
+          "lab.tool.args.chars": 840,
+          "lab.tool.args.hmac": "d470ccda9a61575e",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1482,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 13,
+          "lab.tool.args.chars": 114,
+          "lab.tool.args.hmac": "6d850b37a1ecbfac",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 687,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 14,
+          "lab.tool.args.chars": 47,
+          "lab.tool.args.hmac": "7109d599068a18bc",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 73,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "regla",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 40240,
+      "tokens_salida": 2452,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.214286
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.887755
+      },
+      "verificacion": {
+        "claves": {
+          "skus": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 19
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.04731320000000001,
+      "errores_herramienta": 0,
+      "estado": "limite_alcanzado",
+      "estado_esperado": "respondida",
+      "fin": 1795124440.222,
+      "herramientas": 9,
+      "id_tarea": "r05-en",
+      "idioma": "en",
+      "inicio": 1795124415.823,
+      "latencia_s": 24.4,
+      "motivo": "presupuesto_tarea",
+      "pasos": 8,
+      "respuesta": "",
+      "resultados": [],
+      "run_id": "f5ec58a76346",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 55,
+          "lab.tool.args.hmac": "d1b023f0be2e6003",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2324,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "c6d21dea3c91ba6b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 152,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "7afcf35eeda8154d",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 359,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 62,
+          "lab.tool.args.hmac": "46cb35cf0d2b1dde",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1739,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 188,
+          "lab.tool.args.hmac": "7208b7924dbceb37",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 873,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 161,
+          "lab.tool.args.hmac": "10ed9ffba01bc236",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 59,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 50,
+          "lab.tool.args.hmac": "a746d2a8505f2a97",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1281,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 9,
+          "lab.tool.args.chars": 149,
+          "lab.tool.args.hmac": "c748089d7aac58e3",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 147,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "regla",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 37597,
+      "tokens_salida": 1083,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.333333
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.904762
+      },
+      "verificacion": {
+        "claves": {
+          "skus": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 19
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.0475321,
+      "errores_herramienta": 0,
+      "estado": "limite_alcanzado",
+      "estado_esperado": "respondida",
+      "fin": 1795124464.501,
+      "herramientas": 10,
+      "id_tarea": "r12-en",
+      "idioma": "en",
+      "inicio": 1795124440.9,
+      "latencia_s": 23.6,
+      "motivo": "presupuesto_tarea",
+      "pasos": 8,
+      "respuesta": "",
+      "resultados": [],
+      "run_id": "6033025d8abf",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 33,
+          "lab.tool.args.hmac": "4fbf870a7e5d5c2a",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1993,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 26,
+          "lab.tool.args.hmac": "7d49b0dc88803485",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2202,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "4780d1f81edb6417",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "c6d21dea3c91ba6b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 152,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 236,
+          "lab.tool.args.hmac": "22cd0053549f3e73",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 65,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 201,
+          "lab.tool.args.hmac": "253d097f7b211b77",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 160,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 94,
+          "lab.tool.args.hmac": "8b34dbf7bdba3b78",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 63,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 9,
+          "lab.tool.args.chars": 219,
+          "lab.tool.args.hmac": "4575e312d2fec883",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 10,
+          "lab.tool.args.chars": 252,
+          "lab.tool.args.hmac": "e6b3a8e927cfba29",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 64,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "regla",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 37406,
+      "tokens_salida": 1161,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.3
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.9
+      },
+      "verificacion": {
+        "claves": {
+          "monto": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 22
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [],
+      "costo_usd": 0.04394170000000001,
+      "errores_herramienta": 0,
+      "estado": "abstenida",
+      "estado_esperado": "respondida",
+      "fin": 1795124493.941,
+      "herramientas": 7,
+      "id_tarea": "c02-en",
+      "idioma": "en",
+      "inicio": 1795124465.168,
+      "latencia_s": 28.77,
+      "motivo": "responder",
+      "pasos": 6,
+      "respuesta": "The database does not contain the information needed to answer this question. \n\nWhile the business rules define that purchase order proposals are approved according to their amount (R-OC-APRUEBA):\n- Buyer: < 50,000 MXN\n- Purchasing Manager: 50,000 - 250,000 MXN (inclusive)\n- Operations Director: > 250,000 MXN\n\nThe ocpcab table, which stores purchase orders and proposals, only contains the columns: ocp_id, ocp_art, ocp_qty, ocp_sts (status), and ocp_fcr (creation date). There is no column that explicitly records which role (comprador, gerente, or director) approved each proposal.\n\nTo answer this question, the system would need to track the approval history with a column like \"approved_by_role\" or a separate audit table recording who approved each proposal. This data is not available in the current legacy database schema.",
+      "resultados": [],
+      "run_id": "79588ec7500f",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 26,
+          "lab.tool.args.hmac": "c5b47565bbba1c20",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2077,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 70,
+          "lab.tool.args.hmac": "7fe9239e32048baa",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2288,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "4780d1f81edb6417",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 46,
+          "lab.tool.args.hmac": "975b10726fdfdd1e",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 201,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 43,
+          "lab.tool.args.hmac": "474bc649c60e67c5",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2292,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 21,
+          "lab.tool.args.hmac": "69e6c7f2bbf02b85",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "compuesta",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 32677,
+      "tokens_salida": 1454,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.857143
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.979592
+      },
+      "verificacion": {
+        "claves": {
+          "comprador": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          },
+          "director": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          },
+          "gerente": {
+            "coherente": false,
+            "error": null,
+            "exacta": false,
+            "reportada": false
+          }
+        },
+        "coherencia_claves": 0.0,
+        "estado_ok": false,
+        "exactitud_claves": 0.0,
+        "exito": false
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 20
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              36.8
+            ]
+          ],
+          "sql": "WITH sales_30_days AS (SELECT vta_art, SUM(vta_und)::numeric / 30.0 as avg_daily_sales FROM legado.vtadia WHERE vta_fch >= '2026-08-27' AND vta_fch <= '2026-09-26' GROUP BY vta_art HAVING SUM(vta_und) > 0), critical_with_sales AS (SELECT a.art_cd, s.avg_daily_sales, COALESCE(SUM(e.exi_qty), 0) as total_stock FROM legado.artmst a INNER JOIN sales_30_days s ON a.art_cd = s.vta_art LEFT JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE a.art_crt = true GROUP BY a.art_cd, s.avg_daily_sales), coverage_calc AS (SELECT art_cd, total_stock::numeric / avg_daily_sales as coverage_days FROM critical_with_sales) SELECT ROUND(AVG(coverage_days)::numeric, 1) as cobertura FROM coverage_calc;"
+        },
+        {
+          "error": null,
+          "filas": [
+            [
+              4
+            ]
+          ],
+          "sql": "WITH sales_30_days AS (SELECT vta_art, SUM(vta_und)::numeric / 30.0 as avg_daily_sales FROM legado.vtadia WHERE vta_fch >= '2026-08-27' AND vta_fch <= '2026-09-26' GROUP BY vta_art HAVING SUM(vta_und) > 0), critical_with_sales AS (SELECT a.art_cd, s.avg_daily_sales, COALESCE(SUM(e.exi_qty), 0) as total_stock FROM legado.artmst a INNER JOIN sales_30_days s ON a.art_cd = s.vta_art LEFT JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE a.art_crt = true GROUP BY a.art_cd, s.avg_daily_sales), coverage_calc AS (SELECT art_cd, total_stock::numeric / avg_daily_sales as coverage_days FROM critical_with_sales) SELECT COUNT(*) as menos_7 FROM coverage_calc WHERE coverage_days < 7;"
+        }
+      ],
+      "costo_usd": 0.0630124,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795124525.082,
+      "herramientas": 8,
+      "id_tarea": "c06-en",
+      "idioma": "en",
+      "inicio": 1795124494.954,
+      "latencia_s": 30.13,
+      "motivo": "responder",
+      "pasos": 7,
+      "respuesta": "He calculado la cobertura promedio de SKUs críticos con ventas en los últimos 30 días:\n\n- **Cobertura promedio: 36.8 días** - Este es el promedio de días de cobertura (stock total ÷ venta diaria promedio) para todos los SKUs críticos que tuvieron ventas en los últimos 30 días (período 2026-08-27 a 2026-09-26).\n\n- **SKUs críticos con menos de 7 días de cobertura: 4** - Hay 4 SKUs críticos con ventas que tienen menos de 7 días de cobertura, lo cual representa el nivel de escalamiento 2 según la política de compras.\n\nSupuestos:\n- Se utilizó la fecha máxima en el sistema (2026-09-26) como fecha de corte para los últimos 30 días.\n- Se incluyen solamente SKUs críticos (art_crt = true) que tienen al menos una venta en el período de 30 días.\n- La cobertura se calcula según la regla R-COB: stock total ÷ (suma de unidades vendidas en 30 días ÷ 30).",
+      "resultados": [
+        {
+          "clave": "cobertura",
+          "sql": "WITH sales_30_days AS (SELECT vta_art, SUM(vta_und)::numeric / 30.0 as avg_daily_sales FROM legado.vtadia WHERE vta_fch >= '2026-08-27' AND vta_fch <= '2026-09-26' GROUP BY vta_art HAVING SUM(vta_und) > 0), critical_with_sales AS (SELECT a.art_cd, s.avg_daily_sales, COALESCE(SUM(e.exi_qty), 0) as total_stock FROM legado.artmst a INNER JOIN sales_30_days s ON a.art_cd = s.vta_art LEFT JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE a.art_crt = true GROUP BY a.art_cd, s.avg_daily_sales), coverage_calc AS (SELECT art_cd, total_stock::numeric / avg_daily_sales as coverage_days FROM critical_with_sales) SELECT ROUND(AVG(coverage_days)::numeric, 1) as cobertura FROM coverage_calc;",
+          "valor": 36.8
+        },
+        {
+          "clave": "menos_7",
+          "sql": "WITH sales_30_days AS (SELECT vta_art, SUM(vta_und)::numeric / 30.0 as avg_daily_sales FROM legado.vtadia WHERE vta_fch >= '2026-08-27' AND vta_fch <= '2026-09-26' GROUP BY vta_art HAVING SUM(vta_und) > 0), critical_with_sales AS (SELECT a.art_cd, s.avg_daily_sales, COALESCE(SUM(e.exi_qty), 0) as total_stock FROM legado.artmst a INNER JOIN sales_30_days s ON a.art_cd = s.vta_art LEFT JOIN legado.exidet e ON a.art_cd = e.exi_art WHERE a.art_crt = true GROUP BY a.art_cd, s.avg_daily_sales), coverage_calc AS (SELECT art_cd, total_stock::numeric / avg_daily_sales as coverage_days FROM critical_with_sales) SELECT COUNT(*) as menos_7 FROM coverage_calc WHERE coverage_days < 7;",
+          "valor": 4
+        }
+      ],
+      "run_id": "eec660c901ec",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "cc0d157876119ff8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 52,
+          "lab.tool.args.hmac": "23c7817538b771e6",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1993,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "412c4507d9579b21",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2168,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 159,
+          "lab.tool.args.hmac": "9ffeea7a5b6d8fa7",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 110,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 1143,
+          "lab.tool.args.hmac": "8523a4641e7104b6",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 65,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 1137,
+          "lab.tool.args.hmac": "5e65645e09d3887c",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 7,
+          "lab.tool.args.chars": 794,
+          "lab.tool.args.hmac": "d7a41899de4c4171",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 65,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 8,
+          "lab.tool.args.chars": 788,
+          "lab.tool.args.hmac": "07cd0a3df9bdbd0d",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "compuesta",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 40199,
+      "tokens_salida": 3417,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.625
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.946429
+      },
+      "verificacion": {
+        "claves": {
+          "cobertura": {
+            "coherente": true,
+            "error": null,
+            "exacta": false,
+            "reportada": true
+          },
+          "menos_7": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 0.5,
+        "exito": false
+      }
+    },
+    {
+      "estado": "no_corrida",
+      "estado_esperado": "respondida",
+      "id_tarea": "v01-en",
+      "idioma": "en",
+      "motivo": "tope_del_script",
+      "tipo": "valores"
+    },
+    {
+      "estado": "no_corrida",
+      "estado_esperado": "requiere_aclaracion",
+      "id_tarea": "a01-en",
+      "idioma": "en",
+      "motivo": "tope_del_script",
+      "tipo": "ambigua"
+    },
+    {
+      "estado": "no_corrida",
+      "estado_esperado": "abstenida",
+      "id_tarea": "n01-en",
+      "idioma": "en",
+      "motivo": "tope_del_script",
+      "tipo": "sin_respuesta"
+    }
+  ],
+  "gasto": {
+    "tokens": 506301,
+    "usd": 0.675331
+  },
+  "resumen": {
+    "comparacion": {
+      "actividad7": {
+        "actividad7": 2,
+        "aws": 2,
+        "tareas_comunes": [
+          "s03-es",
+          "s06-es"
+        ]
+      },
+      "linea_base": "semana 17 local (eval_ci_local.json)",
+      "regla": {
+        "en": {
+          "base": 1.0,
+          "n": 10,
+          "regresion": true,
+          "umbral": 0.9,
+          "valor": 0.2
+        },
+        "es": {
+          "base": 1.0,
+          "n": 10,
+          "regresion": true,
+          "umbral": 0.9,
+          "valor": 0.7
+        },
+        "total": {
+          "base": 1.0,
+          "n": 20,
+          "regresion": true,
+          "umbral": 0.95,
+          "valor": 0.45
+        }
+      },
+      "regresion": true,
+      "semana13": {
+        "en": {
+          "n": 10,
+          "tasa": 0.933
+        },
+        "es": {
+          "n": 10,
+          "tasa": 1.0
+        },
+        "total": {
+          "n": 20,
+          "tasa": 0.967
+        }
+      }
+    },
+    "costo": {
+      "costo_por_tarea_usd": 0.035544,
+      "costo_usd": 0.675331,
+      "tareas": 19,
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 479392,
+      "tokens_por_tarea": 26647.4,
+      "tokens_salida": 26909
+    },
+    "exito": {
+      "en": {
+        "abortadas": 3,
+        "exito": 2,
+        "ic95": [
+          0.057,
+          0.51
+        ],
+        "n": 10,
+        "tasa": 0.2
+      },
+      "es": {
+        "abortadas": 0,
+        "exito": 7,
+        "ic95": [
+          0.397,
+          0.892
+        ],
+        "n": 10,
+        "tasa": 0.7
+      },
+      "total": {
+        "abortadas": 3,
+        "exito": 9,
+        "ic95": [
+          0.258,
+          0.658
+        ],
+        "n": 20,
+        "tasa": 0.45
+      }
+    },
+    "latencia": {
+      "caliente": {
+        "n": 17,
+        "p50_s": 23.52,
+        "p95_s": 30.13
+      },
+      "desconocido": {
+        "n": 1
+      },
+      "frio": {
+        "n": 1,
+        "p50_s": 49.95,
+        "p95_s": 49.95
+      }
+    },
+    "trayectoria": {
+      "calificadas": 17,
+      "fallan": {
+        "pasos": 9,
+        "recall_herramientas": 1
+      },
+      "ok": 7,
+      "puntaje_medio": 0.923
+    }
+  },
+  "tope": {
+    "tokens": 1300000,
+    "usd": 1.9
+  }
+}

@@ -1,0 +1,529 @@
+{
+  "espera_de_prueba_s": 120,
+  "fecha": "2026-11-19",
+  "gasto": {
+    "tokens": 16906,
+    "usd": 0.023269
+  },
+  "historial_aprobada": [
+    {
+      "executionStartedEventDetails": {
+        "input": "{\"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "roleArn": "arn:aws:iam::<account>:role/semana19-computo-AprobacionRole2D85028A-mnTD3qNJamA1"
+      },
+      "id": 1,
+      "previousEventId": 0,
+      "timestamp": "2026-11-19 12:43:50.310000-06:00",
+      "type": "ExecutionStarted"
+    },
+    {
+      "id": 2,
+      "previousEventId": 0,
+      "stateEnteredEventDetails": {
+        "input": "{\"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "name": "EscribirPropuesta"
+      },
+      "timestamp": "2026-11-19 12:43:50.332000-06:00",
+      "type": "TaskStateEntered"
+    },
+    {
+      "id": 3,
+      "lambdaFunctionScheduledEventDetails": {
+        "input": "{\"operacion\": \"proponer\", \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "resource": "arn:aws:lambda:us-east-1:<account>:function:semana19-computo-FuncionEscritor4DED88EF-lgQ5wwjwPcDa"
+      },
+      "previousEventId": 2,
+      "timestamp": "2026-11-19 12:43:50.332000-06:00",
+      "type": "LambdaFunctionScheduled"
+    },
+    {
+      "id": 4,
+      "previousEventId": 3,
+      "timestamp": "2026-11-19 12:43:50.412000-06:00",
+      "type": "LambdaFunctionStarted"
+    },
+    {
+      "id": 5,
+      "lambdaFunctionSucceededEventDetails": {
+        "output": "{\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "previousEventId": 4,
+      "timestamp": "2026-11-19 12:43:55.549000-06:00",
+      "type": "LambdaFunctionSucceeded"
+    },
+    {
+      "id": 6,
+      "previousEventId": 5,
+      "stateExitedEventDetails": {
+        "name": "EscribirPropuesta",
+        "output": "{\"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "timestamp": "2026-11-19 12:43:55.561000-06:00",
+      "type": "TaskStateExited"
+    },
+    {
+      "id": 7,
+      "previousEventId": 6,
+      "stateEnteredEventDetails": {
+        "input": "{\"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "name": "RegistrarToken"
+      },
+      "timestamp": "2026-11-19 12:43:55.561000-06:00",
+      "type": "TaskStateEntered"
+    },
+    {
+      "id": 8,
+      "previousEventId": 7,
+      "taskScheduledEventDetails": {
+        "parameters": "{\"FunctionName\": \"arn:aws:lambda:us-east-1:<account>:function:semana19-computo-FuncionRegistrarTokenDF67B75B-tWMRTviTz8wm\", \"Payload\": {\"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}, \"token\": \"<task-token>\"}}",
+        "region": "us-east-1",
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda",
+        "timeoutInSeconds": 120
+      },
+      "timestamp": "2026-11-19 12:43:55.561000-06:00",
+      "type": "TaskScheduled"
+    },
+    {
+      "id": 9,
+      "previousEventId": 8,
+      "taskStartedEventDetails": {
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda"
+      },
+      "timestamp": "2026-11-19 12:43:55.625000-06:00",
+      "type": "TaskStarted"
+    },
+    {
+      "id": 10,
+      "previousEventId": 9,
+      "taskSubmittedEventDetails": {
+        "output": "{\"ExecutedVersion\": \"$LATEST\", \"Payload\": {\"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\"}, \"SdkHttpMetadata\": {\"AllHttpHeaders\": {\"Connection\": [\"keep-alive\"], \"Content-Length\": [\"46\"], \"Content-Type\": [\"application/json\"], \"Date\": [\"Thu, 19 Nov 2026 18:44:02 GMT\"], \"X-Amz-Executed-Version\": [\"$LATEST\"], \"X-Amzn-Trace-Id\": [\"Root=1-6aff4348-7022222334f357af7c092a78;Parent=4c31415b167ea3cc;Sampled=0;Lineage=4:46067e98:0\"], \"x-amzn-Remapped-Content-Length\": [\"0\"], \"x-amzn-RequestId\": [\"ff4a6483-112c-4f9b-92b4-c5000f9ccefa\"]}, \"HttpHeaders\": {\"Connection\": \"keep-alive\", \"Content-Length\": \"46\", \"Content-Type\": \"application/json\", \"Date\": \"Thu, 19 Nov 2026 18:44:02 GMT\", \"X-Amz-Executed-Version\": \"$LATEST\", \"X-Amzn-Trace-Id\": \"Root=1-6aff4348-7022222334f357af7c092a78;Parent=4c31415b167ea3cc;Sampled=0;Lineage=4:46067e98:0\", \"x-amzn-Remapped-Content-Length\": \"0\", \"x-amzn-RequestId\": \"ff4a6483-112c-4f9b-92b4-c5000f9ccefa\"}, \"HttpStatusCode\": 200}, \"SdkResponseMetadata\": {\"RequestId\": \"ff4a6483-112c-4f9b-92b4-c5000f9ccefa\"}, \"StatusCode\": 200}",
+        "outputDetails": {
+          "truncated": false
+        },
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda"
+      },
+      "timestamp": "2026-11-19 12:44:02.620000-06:00",
+      "type": "TaskSubmitted"
+    },
+    {
+      "id": 11,
+      "previousEventId": 10,
+      "taskSucceededEventDetails": {
+        "output": "{\"decidido_por\": \"<sub:aprobador>\", \"decision\": \"aprobar\", \"nivel\": \"gerente\"}",
+        "outputDetails": {
+          "truncated": false
+        },
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda"
+      },
+      "timestamp": "2026-11-19 12:44:18.803000-06:00",
+      "type": "TaskSucceeded"
+    },
+    {
+      "id": 12,
+      "previousEventId": 11,
+      "stateExitedEventDetails": {
+        "name": "RegistrarToken",
+        "output": "{\"decision\": {\"decidido_por\": \"<sub:aprobador>\", \"decision\": \"aprobar\", \"nivel\": \"gerente\"}, \"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "timestamp": "2026-11-19 12:44:18.815000-06:00",
+      "type": "TaskStateExited"
+    },
+    {
+      "id": 13,
+      "previousEventId": 12,
+      "stateEnteredEventDetails": {
+        "input": "{\"decision\": {\"decidido_por\": \"<sub:aprobador>\", \"decision\": \"aprobar\", \"nivel\": \"gerente\"}, \"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "name": "EscribirDecision"
+      },
+      "timestamp": "2026-11-19 12:44:18.815000-06:00",
+      "type": "TaskStateEntered"
+    },
+    {
+      "id": 14,
+      "lambdaFunctionScheduledEventDetails": {
+        "input": "{\"decision\": {\"decidido_por\": \"<sub:aprobador>\", \"decision\": \"aprobar\", \"nivel\": \"gerente\"}, \"operacion\": \"decidir\", \"po_id\": 1}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "resource": "arn:aws:lambda:us-east-1:<account>:function:semana19-computo-FuncionEscritor4DED88EF-lgQ5wwjwPcDa"
+      },
+      "previousEventId": 13,
+      "timestamp": "2026-11-19 12:44:18.815000-06:00",
+      "type": "LambdaFunctionScheduled"
+    },
+    {
+      "id": 15,
+      "previousEventId": 14,
+      "timestamp": "2026-11-19 12:44:18.880000-06:00",
+      "type": "LambdaFunctionStarted"
+    },
+    {
+      "id": 16,
+      "lambdaFunctionSucceededEventDetails": {
+        "output": "{\"estado\": \"APPROVED\", \"po_id\": 1}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "previousEventId": 15,
+      "timestamp": "2026-11-19 12:44:19.300000-06:00",
+      "type": "LambdaFunctionSucceeded"
+    },
+    {
+      "id": 17,
+      "previousEventId": 16,
+      "stateExitedEventDetails": {
+        "name": "EscribirDecision",
+        "output": "{\"decision\": {\"decidido_por\": \"<sub:aprobador>\", \"decision\": \"aprobar\", \"nivel\": \"gerente\"}, \"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"resultado\": {\"estado\": \"APPROVED\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "timestamp": "2026-11-19 12:44:19.313000-06:00",
+      "type": "TaskStateExited"
+    },
+    {
+      "executionSucceededEventDetails": {
+        "output": "{\"decision\": {\"decidido_por\": \"<sub:aprobador>\", \"decision\": \"aprobar\", \"nivel\": \"gerente\"}, \"id\": \"2d94e003-6033-4dae-a19b-13d1069e0c20\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"6088.20\", \"nivel_requerido\": \"comprador\", \"po_id\": 1}, \"resultado\": {\"estado\": \"APPROVED\", \"po_id\": 1}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de aprobación de punta a punta\", \"sku\": \"SKU-0011\", \"solicitante\": \"<sub:comprador>\"}}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "id": 18,
+      "previousEventId": 17,
+      "timestamp": "2026-11-19 12:44:19.334000-06:00",
+      "type": "ExecutionSucceeded"
+    }
+  ],
+  "historial_vencida": [
+    {
+      "executionStartedEventDetails": {
+        "input": "{\"id\": \"c19d834a-652e-4906-a3f2-d30485950306\", \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de vencimiento\", \"sku\": \"SKU-0012\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "roleArn": "arn:aws:iam::<account>:role/semana19-computo-AprobacionRole2D85028A-mnTD3qNJamA1"
+      },
+      "id": 1,
+      "previousEventId": 0,
+      "timestamp": "2026-11-19 12:44:26.028000-06:00",
+      "type": "ExecutionStarted"
+    },
+    {
+      "id": 2,
+      "previousEventId": 0,
+      "stateEnteredEventDetails": {
+        "input": "{\"id\": \"c19d834a-652e-4906-a3f2-d30485950306\", \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de vencimiento\", \"sku\": \"SKU-0012\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "name": "EscribirPropuesta"
+      },
+      "timestamp": "2026-11-19 12:44:26.051000-06:00",
+      "type": "TaskStateEntered"
+    },
+    {
+      "id": 3,
+      "lambdaFunctionScheduledEventDetails": {
+        "input": "{\"operacion\": \"proponer\", \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de vencimiento\", \"sku\": \"SKU-0012\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "resource": "arn:aws:lambda:us-east-1:<account>:function:semana19-computo-FuncionEscritor4DED88EF-lgQ5wwjwPcDa"
+      },
+      "previousEventId": 2,
+      "timestamp": "2026-11-19 12:44:26.051000-06:00",
+      "type": "LambdaFunctionScheduled"
+    },
+    {
+      "id": 4,
+      "previousEventId": 3,
+      "timestamp": "2026-11-19 12:44:26.115000-06:00",
+      "type": "LambdaFunctionStarted"
+    },
+    {
+      "id": 5,
+      "lambdaFunctionSucceededEventDetails": {
+        "output": "{\"estado\": \"PENDING_APPROVAL\", \"monto\": \"2678.30\", \"nivel_requerido\": \"comprador\", \"po_id\": 2}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "previousEventId": 4,
+      "timestamp": "2026-11-19 12:44:26.562000-06:00",
+      "type": "LambdaFunctionSucceeded"
+    },
+    {
+      "id": 6,
+      "previousEventId": 5,
+      "stateExitedEventDetails": {
+        "name": "EscribirPropuesta",
+        "output": "{\"id\": \"c19d834a-652e-4906-a3f2-d30485950306\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"2678.30\", \"nivel_requerido\": \"comprador\", \"po_id\": 2}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de vencimiento\", \"sku\": \"SKU-0012\", \"solicitante\": \"<sub:comprador>\"}}",
+        "outputDetails": {
+          "truncated": false
+        }
+      },
+      "timestamp": "2026-11-19 12:44:26.578000-06:00",
+      "type": "TaskStateExited"
+    },
+    {
+      "id": 7,
+      "previousEventId": 6,
+      "stateEnteredEventDetails": {
+        "input": "{\"id\": \"c19d834a-652e-4906-a3f2-d30485950306\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"2678.30\", \"nivel_requerido\": \"comprador\", \"po_id\": 2}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de vencimiento\", \"sku\": \"SKU-0012\", \"solicitante\": \"<sub:comprador>\"}}",
+        "inputDetails": {
+          "truncated": false
+        },
+        "name": "RegistrarToken"
+      },
+      "timestamp": "2026-11-19 12:44:26.578000-06:00",
+      "type": "TaskStateEntered"
+    },
+    {
+      "id": 8,
+      "previousEventId": 7,
+      "taskScheduledEventDetails": {
+        "parameters": "{\"FunctionName\": \"arn:aws:lambda:us-east-1:<account>:function:semana19-computo-FuncionRegistrarTokenDF67B75B-tWMRTviTz8wm\", \"Payload\": {\"id\": \"c19d834a-652e-4906-a3f2-d30485950306\", \"orden\": {\"estado\": \"PENDING_APPROVAL\", \"monto\": \"2678.30\", \"nivel_requerido\": \"comprador\", \"po_id\": 2}, \"solicitud\": {\"cantidad\": 5, \"cedis\": 1, \"fecha_requerida\": \"2026-12-15\", \"motivo\": \"prueba de vencimiento\", \"sku\": \"SKU-0012\", \"solicitante\": \"<sub:comprador>\"}, \"token\": \"<task-token>\"}}",
+        "region": "us-east-1",
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda",
+        "timeoutInSeconds": 120
+      },
+      "timestamp": "2026-11-19 12:44:26.578000-06:00",
+      "type": "TaskScheduled"
+    },
+    {
+      "id": 9,
+      "previousEventId": 8,
+      "taskStartedEventDetails": {
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda"
+      },
+      "timestamp": "2026-11-19 12:44:26.633000-06:00",
+      "type": "TaskStarted"
+    },
+    {
+      "id": 10,
+      "previousEventId": 9,
+      "taskSubmittedEventDetails": {
+        "output": "{\"ExecutedVersion\": \"$LATEST\", \"Payload\": {\"id\": \"c19d834a-652e-4906-a3f2-d30485950306\"}, \"SdkHttpMetadata\": {\"AllHttpHeaders\": {\"Connection\": [\"keep-alive\"], \"Content-Length\": [\"46\"], \"Content-Type\": [\"application/json\"], \"Date\": [\"Thu, 19 Nov 2026 18:44:27 GMT\"], \"X-Amz-Executed-Version\": [\"$LATEST\"], \"X-Amzn-Trace-Id\": [\"Root=1-6aff4386-42e948186f4e003825d7f7d7;Parent=3ec00c79200d5fab;Sampled=0;Lineage=4:46067e98:0\"], \"x-amzn-Remapped-Content-Length\": [\"0\"], \"x-amzn-RequestId\": [\"699fe329-3385-47d3-9007-283743a7ccf7\"]}, \"HttpHeaders\": {\"Connection\": \"keep-alive\", \"Content-Length\": \"46\", \"Content-Type\": \"application/json\", \"Date\": \"Thu, 19 Nov 2026 18:44:27 GMT\", \"X-Amz-Executed-Version\": \"$LATEST\", \"X-Amzn-Trace-Id\": \"Root=1-6aff4386-42e948186f4e003825d7f7d7;Parent=3ec00c79200d5fab;Sampled=0;Lineage=4:46067e98:0\", \"x-amzn-Remapped-Content-Length\": \"0\", \"x-amzn-RequestId\": \"699fe329-3385-47d3-9007-283743a7ccf7\"}, \"HttpStatusCode\": 200}, \"SdkResponseMetadata\": {\"RequestId\": \"699fe329-3385-47d3-9007-283743a7ccf7\"}, \"StatusCode\": 200}",
+        "outputDetails": {
+          "truncated": false
+        },
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda"
+      },
+      "timestamp": "2026-11-19 12:44:27.192000-06:00",
+      "type": "TaskSubmitted"
+    },
+    {
+      "id": 11,
+      "previousEventId": 10,
+      "taskTimedOutEventDetails": {
+        "error": "States.Timeout",
+        "resource": "invoke.waitForTaskToken",
+        "resourceType": "lambda"
+      },
+      "timestamp": "2026-11-19 12:46:26.633000-06:00",
+      "type": "TaskTimedOut"
+    },
+    {
+      "executionFailedEventDetails": {
+        "error": "States.Timeout"
+      },
+      "id": 12,
+      "previousEventId": 11,
+      "timestamp": "2026-11-19 12:46:26.680000-06:00",
+      "type": "ExecutionFailed"
+    }
+  ],
+  "lectura_aprobada": {
+    "modo": "leer_ordenes",
+    "ordenes": [
+      {
+        "decided_by": "<sub:aprobador>",
+        "decided_level": "gerente",
+        "po_id": 1,
+        "requested_by": "<sub:comprador>",
+        "required_level": "comprador",
+        "sku": "SKU-0011",
+        "status": "APPROVED"
+      }
+    ],
+    "por_estado": {
+      "APPROVED": 1
+    },
+    "privilegios": {
+      "copilot_ro": {
+        "DELETE": false,
+        "INSERT": false,
+        "SELECT": false,
+        "UPDATE": false
+      },
+      "order_writer": {
+        "DELETE": false,
+        "INSERT": true,
+        "SELECT": true,
+        "UPDATE": true
+      }
+    },
+    "solo_lectura": true
+  },
+  "pasos": [
+    {
+      "comprobacion": "el agente propuso la orden",
+      "estado_de_la_tarea": "respondida",
+      "ok": true,
+      "paso": 0
+    },
+    {
+      "apariciones_del_token_en_logs": 0,
+      "comprobacion": "la máquina espera con el token en DynamoDB y no en logs",
+      "estado_de_la_ejecucion": "RUNNING",
+      "nivel_requerido": "comprador",
+      "ok": true,
+      "paso": 1,
+      "po_id": 1,
+      "token_en_dynamodb": true
+    },
+    {
+      "comprobacion": "el analista recibe 403 en el gateway",
+      "estado_despues": "RUNNING",
+      "http": 403,
+      "ok": true,
+      "paso": 2
+    },
+    {
+      "aprobador_distinto_del_solicitante": true,
+      "comprobacion": "el aprobador aprueba",
+      "estado_de_la_ejecucion": "SUCCEEDED",
+      "http": 200,
+      "ok": true,
+      "paso": 3,
+      "respuesta": "aprobada"
+    },
+    {
+      "comprobacion": "la fila la escribió order_writer",
+      "escritor_se_conecta_como": [
+        "order_writer"
+      ],
+      "ok": true,
+      "orden": {
+        "decided_by": "<sub:aprobador>",
+        "decided_level": "gerente",
+        "po_id": 1,
+        "requested_by": "<sub:comprador>",
+        "required_level": "comprador",
+        "sku": "SKU-0011",
+        "status": "APPROVED"
+      },
+      "paso": 4,
+      "paso_escribir_decision": {
+        "estado": "APPROVED",
+        "po_id": 1
+      },
+      "privilegios": {
+        "copilot_ro": {
+          "DELETE": false,
+          "INSERT": false,
+          "SELECT": false,
+          "UPDATE": false
+        },
+        "order_writer": {
+          "DELETE": false,
+          "INSERT": true,
+          "SELECT": true,
+          "UPDATE": true
+        }
+      }
+    },
+    {
+      "aprobacion_tardia": "no_encontrada",
+      "aprobacion_tardia_http": 404,
+      "comprobacion": "una solicitud vencida no escribe",
+      "decididas_antes": {
+        "APPROVED": 1,
+        "REJECTED": 0
+      },
+      "decididas_despues": {
+        "APPROVED": 1,
+        "REJECTED": 0
+      },
+      "error": "States.Timeout",
+      "estado_de_la_ejecucion": "FAILED",
+      "ok": true,
+      "orden": {
+        "decided_by": null,
+        "decided_level": null,
+        "po_id": 2,
+        "requested_by": "<sub:comprador>",
+        "required_level": "comprador",
+        "sku": "SKU-0012",
+        "status": "PENDING_APPROVAL"
+      },
+      "paso": 5
+    }
+  ],
+  "skus": [
+    "SKU-0011",
+    "SKU-0012"
+  ],
+  "tareas": [
+    {
+      "costo_usd": 0.011503800000000002,
+      "estado": "respondida",
+      "fin": 1795113836.06,
+      "herramientas": 1,
+      "id_tarea": "aprobacion-e2e-1",
+      "inicio": 1795113800.436,
+      "latencia_s": 35.62,
+      "pasos": 3,
+      "tokens_entrada": 7913,
+      "tokens_salida": 509
+    },
+    {
+      "costo_usd": 0.011765600000000001,
+      "estado": "respondida",
+      "fin": 1795113871.697,
+      "herramientas": 1,
+      "id_tarea": "aprobacion-e2e-2",
+      "inicio": 1795113862.361,
+      "latencia_s": 9.34,
+      "pasos": 3,
+      "tokens_entrada": 7931,
+      "tokens_salida": 553
+    }
+  ],
+  "tope": {
+    "tokens": 100000,
+    "usd": 0.2
+  }
+}
