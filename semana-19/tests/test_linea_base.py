@@ -169,3 +169,31 @@ def test_gasto_mes_no_corre_por_omision():
     assert 'if nombre == "gasto_mes" and not a.gasto_mes' in texto
 
 
+
+
+# ---------- activity 8: what the Tagging API still lists after a teardown ----------
+
+def test_etiquetados_de_llaves_pendientes_o_recursos_que_ya_no_existen_se_explican():
+    llaves = ["0906507d borrado 2026-11-20", "35d04092 borrado 2026-11-26"]
+    estado = {"vpce-0d9349b581fc383f2": False, "fl-0136735a0b9821329": False, "vpce-0aaaaaaaaaaaaaaaa": True}
+    ids = ["0906507d-407e-4410-b5d1-caf3578dc52b", "vpce-0d9349b581fc383f2", "fl-0136735a0b9821329",
+           "vpce-0aaaaaaaaaaaaaaaa", "otro-recurso"]
+    quedan, explicados = inv.explicar_etiquetados(ids, llaves, lambda i: estado.get(i))
+    assert quedan == ["vpce-0aaaaaaaaaaaaaaaa", "otro-recurso"]   # alive, or not checkable: still judged
+    assert explicados == {"llave_pendiente_de_borrado": ["0906507d-407e-4410-b5d1-caf3578dc52b"],
+                          "ya_no_existe": ["vpce-0d9349b581fc383f2", "fl-0136735a0b9821329"]}
+    assert inv.explicar_etiquetados([], llaves, lambda i: None) == ([], {})
+
+
+@mock_aws
+def test_vigente_ec2_pregunta_por_id_y_un_id_que_no_existe_es_falso():
+    sesion = boto3.Session(region_name=REGION)
+    ec2 = sesion.client("ec2", region_name=REGION)
+    vpc = ec2.create_vpc(CidrBlock="10.19.0.0/16")["Vpc"]["VpcId"]
+    vivo = ec2.create_vpc_endpoint(VpcId=vpc, ServiceName=f"com.amazonaws.{REGION}.s3", VpcEndpointType="Gateway")
+    vivo = vivo["VpcEndpoint"]["VpcEndpointId"]
+    vigente = inv.vigente_ec2(sesion, REGION)
+    assert vigente(vivo) is True
+    assert vigente("vpce-0123456789abcdef0") is False
+    assert vigente("fl-0123456789abcdef0") is False
+    assert vigente("0906507d-407e-4410-b5d1-caf3578dc52b") is None

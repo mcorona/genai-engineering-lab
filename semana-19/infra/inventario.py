@@ -319,6 +319,42 @@ def permitidos(con_control: bool, con_base: bool = False) -> dict:
     return base
 
 
+def explicar_etiquetados(ids: list[str], llaves_pendientes: list[str], vigente) -> tuple[list[str], dict[str, list[str]]]:
+    """Activity 8 (teardown of 2026-11-19): the Tagging API keeps listing what is gone or pending deletion.
+
+    A tagged id is explained, and not judged, when it is a project key already pending deletion (the
+    llaves_pendientes_borrado category, by its first 8 characters) or when its own service says it no longer exists
+    (`vigente(id)` is False: a VPC endpoint or a flow log). Anything else, and anything `vigente` cannot check (None),
+    stays unexpected. Returns (still unexpected, explained by reason)."""
+    pendientes = {n.split(" ", 1)[0] for n in llaves_pendientes}
+    quedan, explicados = [], {"llave_pendiente_de_borrado": [], "ya_no_existe": []}
+    for i in ids:
+        if i[:8] in pendientes:
+            explicados["llave_pendiente_de_borrado"].append(i)
+        elif vigente(i) is False:
+            explicados["ya_no_existe"].append(i)
+        else:
+            quedan.append(i)
+    return quedan, {k: v for k, v in explicados.items() if v}
+
+
+def vigente_ec2(sesion, region: str):
+    """True or False for a VPC endpoint (vpce-) or a flow log (fl-) id, asked to EC2 by id; None for any other id."""
+    cli = sesion.client("ec2", region_name=region)
+
+    def vigente(i: str):
+        try:
+            if i.startswith("vpce-"):
+                return any(e["State"].lower() not in ("deleted", "deleting")
+                           for e in cli.describe_vpc_endpoints(VpcEndpointIds=[i])["VpcEndpoints"])
+            if i.startswith("fl-"):
+                return bool(cli.describe_flow_logs(FlowLogIds=[i])["FlowLogs"])
+        except Exception as exc:  # noqa: BLE001 - only "not found" means gone; any other error is not a proof
+            return False if "NotFound" in type(exc).__name__ + str(exc) else None
+        return None
+    return vigente
+
+
 # Activity 7's disposable stacks: after destruir.sh --solo-actividad7 these categories must be empty.
 CATEGORIAS_ACTIVIDAD7 = ("gateways_agentcore", "motores_de_politicas_agentcore", "agentes_bedrock")
 
@@ -336,7 +372,15 @@ def inventario(sesion, region: str, con_control: bool = False, con_base: bool = 
             no_medido.append({"categoria": nombre, "error": type(exc).__name__, "detalle": str(exc)[:120]})
     reglas = permitidos(con_control, con_base)
     esperados, inesperados = {}, {}
-    for cat, datos in resultado.items():
+    a_juzgar = resultado   # por_categoria and total keep the raw counts; only the judgment uses the explained list
+    etiquetados = resultado.get("etiquetados_tagging_api")
+    if etiquetados and etiquetados["conteo"] and reglas.get("etiquetados_tagging_api", ()) is not None:
+        llaves = (resultado.get("llaves_pendientes_borrado") or {}).get("nombres") or []
+        quedan_ids, explicados = explicar_etiquetados(etiquetados["nombres"], llaves, vigente_ec2(sesion, region))
+        if explicados:
+            esperados["etiquetados_tagging_api_explicados"] = explicados
+        a_juzgar = {**resultado, "etiquetados_tagging_api": {"conteo": len(quedan_ids), "nombres": quedan_ids}}
+    for cat, datos in a_juzgar.items():
         if datos["conteo"] == 0:
             continue
         if cat in reglas and reglas[cat] is None:
