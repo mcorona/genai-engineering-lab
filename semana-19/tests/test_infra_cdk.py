@@ -1179,3 +1179,20 @@ def test_el_stack_del_juez_da_lo_que_lee_juez_bedrock(perfil):
     assert set(de_eval(perfil)["Outputs"]) == {"BucketJuez", "ArnRolJuez", "ArnLlave"}
     fuente = (S19 / "eval" / "juez_bedrock.py").read_text(encoding="utf-8")
     assert all(f'"{k}"' in fuente for k in ("BucketJuez", "ArnRolJuez", "ArnLlave"))
+
+
+def test_destruir_reintenta_control_solo_si_fallo_el_limite_de_permisos():
+    """2026-11-19: semana19-control ended DELETE_FAILED on semana19-limite only (409, its roles still deleting)."""
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    paso4 = texto[texto.index("== Paso 4: borrar semana19-control"):texto.index("== Paso 4c")]
+    assert 'if [[ "$fallidos" != Limite* || "$fallidos" == *[[:space:]]* ]]; then' in paso4
+    assert paso4.index("exit 1") < paso4.index("Paso 4b")   # anything other than the boundary alone stops
+    assert paso4.count("aws cloudformation delete-stack --stack-name semana19-control") == 2
+
+
+def test_destruir_borra_los_log_groups_implicitos_de_lambda_despues_de_las_pilas_y_antes_del_inventario():
+    """2026-11-19: the datos loader left /aws/lambda/semana19-datos-Cargador... outside CloudFormation."""
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    borrar = texto.index('aws logs delete-log-group --log-group-name "$grupo"')
+    assert texto.index("== Paso 4: borrar semana19-control") < borrar < texto.index('echo "== Paso 5: inventario')
+    assert "--log-group-name-prefix /aws/lambda/semana19- " in texto   # the project's functions only
