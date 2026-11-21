@@ -65,3 +65,62 @@ def test_por_etiqueta_agrupa_solo_por_servicio():
         {"Keys": ["Amazon Relational Database Service"], "Metrics": {"UnblendedCost": {"Amount": "0.46"}}}]}]}
     assert K.por_servicio(r, con_tipo=False) == {
         "dias": {"2026-11-19": {"Amazon Relational Database Service": {"Todo": 0.46}}}, "estimado": False}
+
+
+def test_el_periodo_se_extiende_hasta_el_teardown_pero_no_corta_la_corrida():
+    import pytest
+    assert K.periodo("2026-11-19", "2026-11-20", None) == ("2026-11-19", "2026-11-20")
+    assert K.periodo("2026-11-19", "2026-11-20", "2026-11-21") == ("2026-11-19", "2026-11-21")
+    with pytest.raises(ValueError):
+        K.periodo("2026-11-19", "2026-11-20", "2026-11-19")
+    with pytest.raises(ValueError):
+        K.periodo("2026-11-19", "2026-11-20", "mañana")
+
+
+def test_las_tareas_cuentan_todas_las_corridas_del_periodo_y_la_aprobacion(tmp_path):
+    def crudo(nombre, calentamiento, filas):
+        (tmp_path / nombre).write_text(json.dumps({"calentamiento": calentamiento, "filas": filas}), encoding="utf-8")
+    hecha, abortada = {"estado": "respondida"}, {"estado": "no_corrida"}
+    crudo("crudo_eval.json", [hecha, hecha], [hecha] * 17 + [abortada] * 3)
+    crudo("crudo_eval_descartada_1.json", [hecha], [hecha] * 20)
+    crudo("crudo_eval_descartada_2.json", [hecha], [hecha] * 12 + [abortada] * 8)
+    (tmp_path / "aprobacion_e2e.json").write_text(json.dumps({"tareas": [{}, {}]}), encoding="utf-8")
+    t = K.tareas_de_las_corridas(tmp_path)
+    assert t["por_archivo"] == {"crudo_eval.json": 19, "crudo_eval_descartada_1.json": 21,
+                                "crudo_eval_descartada_2.json": 13, "aprobacion_e2e.json": 2}
+    assert t["total"] == 55
+
+
+def test_las_tareas_del_repo_incluyen_las_corridas_descartadas():
+    t = K.tareas_de_las_corridas(K.CARPETA)
+    assert {"crudo_eval.json", "crudo_eval_descartada_1.json", "crudo_eval_descartada_2.json"} <= set(t["por_archivo"])
+    assert t["total"] > t["por_archivo"]["crudo_eval.json"]
+
+
+def test_las_horas_de_la_pila_son_las_que_cae_dentro_del_periodo():
+    import datetime as dt
+    utc = lambda *x: dt.datetime(*x, tzinfo=dt.timezone.utc)  # noqa: E731
+    resumenes = [{"StackName": "semana19-base", "CreationTime": utc(2026, 11, 16, 4, 56), "DeletionTime": utc(2026, 11, 20, 2, 0)},
+                 {"StackName": "semana19-datos", "CreationTime": utc(2026, 11, 16, 4, 57), "DeletionTime": utc(2026, 11, 20, 1, 55)},
+                 {"StackName": "semana19-base", "CreationTime": utc(2026, 11, 10, 0, 0), "DeletionTime": utc(2026, 11, 11, 0, 0)}]
+    assert K.horas_de_pila(resumenes, "semana19-base", "2026-11-19", "2026-11-21") == 26.0
+    assert K.horas_de_pila(resumenes, "semana19-base", "2026-11-19", "2026-11-20") == 24.0
+    sigue = [{"StackName": "semana19-base", "CreationTime": utc(2026, 11, 19, 12, 0)}]
+    assert K.horas_de_pila(sigue, "semana19-base", "2026-11-19", "2026-11-20") == 12.0
+
+
+def test_la_comparacion_marca_el_error_fuera_de_veinte_por_ciento():
+    d = {"costo_por_consulta_usd_cota": 0.05, "uso_fijo_usd": 1.3}
+    pred = {"lab": {"costo_por_consulta_usd": 0.08, "costo_por_hora_usd": 0.05},
+            "prod": {"costo_por_consulta_usd": 0.05, "costo_por_hora_usd": 0.093}}
+    c = K.comparar(d, 26.0, pred)
+    assert c["filas"]["lab.por_consulta"] == {"predicho_usd": 0.08, "real_usd": 0.05, "error": -0.375, "fuera_de_umbral": True}
+    assert c["filas"]["lab.por_hora"]["real_usd"] == 0.05 and c["filas"]["lab.por_hora"]["error"] == 0.0
+    assert c["filas"]["prod.por_consulta"]["fuera_de_umbral"] is False and c["corregir_modelo"] is True
+    assert K.comparar(d, 0.0, pred)["filas"]["lab.por_hora"]["real_usd"] is None
+
+
+def test_la_prediccion_es_la_del_modelo_de_la_actividad_2():
+    p = K.prediccion_del_modelo()
+    assert round(p["lab"]["costo_por_consulta_usd"], 8) == 0.07989162 and round(p["lab"]["costo_por_hora_usd"], 6) == 0.04189
+    assert round(p["prod"]["costo_por_hora_usd"], 6) == 0.09326
