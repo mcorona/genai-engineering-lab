@@ -1,6 +1,8 @@
 # Week 19, activity 2: predicted vs real cost
 
-Predicted by `semana-19/costos/modelo.py` (`precios.json`, token percentiles from week 13). The **real** column and the error column are empty: activity 8 fills them from Cost Explorer after the runs.
+Predicted by `semana-19/costos/modelo.py` (`precios.json`). v1 is activity 2's model (token p95 of week 13); v2 is
+the correction from activity 8 (the deployed agent's mean tokens). The real and error columns come from Cost
+Explorer, read on 2026-11-21 (`resultados/costo_real.md`). Error = (real − predicted) / predicted.
 
 ## Parameters used
 
@@ -12,19 +14,70 @@ Predicted by `semana-19/costos/modelo.py` (`precios.json`, token percentiles fro
 
 ## Predicted per hour and per query
 
-| Profile | Item | Predicted (USD) | Real (USD) | Error % | Marks |
-|---|---|---|---|---|---|
-| lab | per hour of stack | 0.041890 | | | M |
-| lab | per query | 0.07989162 | | | M (Haiku 4.5, Lambda, Titan, API GW, CloudWatch) |
-| prod | per hour of stack | 0.093260 | | | partial: RDS Multi-AZ N |
-| prod | per query | 0.07989162 | | | M (Haiku 4.5, Lambda, Titan, API GW, CloudWatch) |
+| Version | Profile | Item | Predicted (USD) | Real (USD) | Error % | Marks |
+|---|---|---|---|---|---|---|
+| v1 | lab | per hour of stack | 0.041890 | 0.037562 | −10.3 | M |
+| v1 | lab | per query | 0.07989162 | 0.038562 (bound) / 0.030913 (model) | −51.7 / −61.3 | M (Haiku 4.5, Lambda, Titan, API GW, CloudWatch) |
+| v1 | prod | per hour of stack | 0.093260 | n/a | — | partial: RDS Multi-AZ N; prod was never deployed |
+| v1 | prod | per query | 0.07989162 | 0.038562 (bound) / 0.030913 (model) | −51.7 / −61.3 | M |
+| v2 | lab | per hour of stack | 0.041890 | 0.037562 | −10.3 | M (unchanged from v1) |
+| v2 | lab | per query | 0.03094130 | 0.038562 (bound) / 0.030913 (model) | +24.6 / −0.1 | partial: ApplyGuardrail N |
+| v2 | prod | per hour of stack | 0.093260 | n/a | — | partial: RDS Multi-AZ N; prod was never deployed |
+| v2 | prod | per query | 0.03094130 | 0.038562 (bound) / 0.030913 (model) | +24.6 / −0.1 | partial: ApplyGuardrail N |
 
 ## Predicted per month (100 queries/day, 8 h/day)
 
-| Profile | Predicted total (USD) | Real (USD) | Error % | Net with credits (USD) | Not measured (N, outside total) |
-|---|---|---|---|---|---|
-| lab | 249.9186 | | | 107.9186 | none |
-| prod | 262.3673 | | | 120.3673 | RDS Multi-AZ, instancia adicional |
+No month ran at this volume, so there is no real column here.
+
+| Version | Profile | Predicted total (USD) | Net with credits (USD) | Not measured (N, outside total) |
+|---|---|---|---|---|
+| v1 | lab | 249.9186 | 107.9186 | none |
+| v1 | prod | 262.3673 | 120.3673 | RDS Multi-AZ, instancia adicional |
+| v2 | lab | 103.0676 | 0.0000 | ApplyGuardrail, unidades de texto |
+| v2 | prod | 115.5164 | 0.0000 | RDS Multi-AZ, instancia adicional; ApplyGuardrail, unidades de texto |
+
+## Activity 8: the first real row
+
+Source: Cost Explorer calls 2 and 3 of 3, period [2026-11-19, 2026-11-21) UTC, read on 2026-11-21. The base stack
+was up 26.004 h inside it. Every figure in this section is in `resultados/costo_real.md`, which is rendered from
+`resultados/eval_aws/costo_real.json`.
+
+**Fixed per hour and per query.**
+
+- **Fixed per hour:** VPC endpoints, RDS, KMS and Secrets Manager, 0.976755 USD, or 0.037562 USD per hour.
+- **Per query:** the model, Bedrock, API Gateway, DynamoDB, S3, Lambda and Step Functions, 2.198034 USD over 57
+  agent tasks.
+- **Set apart:**
+  - Cost Explorer itself, 0.02 USD;
+  - activity 7's AgentCore charges, 0.001655 USD;
+  - activity 7's model spend on the same UTC day, 0.481538 USD. That spend comes from activity 7's own spans; once
+    it is set apart, the Haiku line equals activity 8's spans to the cent (1.762053 USD).
+
+**Per query: the dominant item is Claude Haiku 4.5.** It is 1.762053 of the 2.198034 USD per query, or 80 %.
+
+- **v1 error: −61.3 %** against the model part, and −51.7 % against the upper bound, beyond ±20 %.
+- **Why v1 was off:** v1 priced week 13's local p95, 52,712 input and 3,978 output tokens. The deployed agent's mean
+  over the same 57 tasks Cost Explorer billed is 21,273 input and 1,366 output tokens. Two causes:
+  - **the statistic:** a p95 priced against a mean bill;
+  - **the runs:** week 13's runs were Haiku 5.5 locally, and these are Haiku 4.5 behind the API.
+- **No prompt cache:** 0 cached tokens were measured, so caching explains none of the gap.
+- **The fix:** v2 takes that mean. It changes the model, not the number.
+- **v2 error: −0.1 %** against the model part, and +24.6 % against the upper bound. The rest of the upper bound is
+  Cost Explorer's "Amazon Bedrock" line, 0.432590 USD, which joins the Bedrock judge's job (an eval cost, not a
+  query's), ApplyGuardrail and Titan, and cannot be split by service. v2 lists ApplyGuardrail as N until its price
+  and units per query are measured.
+
+**Per hour: −10.3 % (lab), within ±20 %, so the per-hour model is unchanged.** The total hides two items that move in
+opposite directions:
+
+| Item | Predicted (USD/h) | Real (USD/h) |
+|---|---|---|
+| VPC | 0.020000 (2 interface endpoints) | 0.028073 |
+| RDS (instance and storage) | 0.019151 | 0.007591 |
+
+- **VPC is higher:** the IaC has 3 interface endpoints (logs and states in the base, Secrets Manager in datos).
+- **RDS is lower:** the cause was not verified.
+- **Prod:** its per-hour row is n/a, since prod was never deployed.
 
 ## Per-item detail
 
