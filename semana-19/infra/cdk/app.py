@@ -752,7 +752,6 @@ class Control(Stack):
                                "IndiceKbDatos", "SecretoBdLeer", "KmsViaServiciosDelLimite", "BucketDelJuezDelLimite",
                                "LogsDeLaLambdaDatos"])
         saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
-        suprimir_iam5(congelar, ["NoCrearNiActualizarMientrasEsteActiva"])
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
                                   "FuncionesDeCustomResourceDelProyecto", "RolesConLimite"])
         saltar_checkov(ejecucion_datos, {
@@ -1130,7 +1129,7 @@ class Ia(Stack):
         NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
             id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.")], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="Guardrail: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.")], apply_to_children=True)
+            id="AwsSolutions-IAM5", reason="GuardrailEnBedrock: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.")], apply_to_children=True)
         creador.add_to_role_policy(_declaracion(
             sid="LlaveDelGuardrail", actions=["kms:Decrypt", "kms:DescribeKey", "kms:GenerateDataKey", "kms:CreateGrant"],
             resources=[llave.key_arn]))
@@ -1224,7 +1223,7 @@ class Computo(Stack):
 
         token_fn = lambda_.Function(
             self, "FuncionTokens", runtime=lambda_.Runtime.PYTHON_3_13, handler="tokens.handler", code=codigo,
-            timeout=Duration.seconds(5), memory_size=128, log_group=grupo("tokens"),
+            timeout=Duration.seconds(5), memory_size=128, log_group=grupo("tokens"), reserved_concurrent_executions=2,
             description="Pre-token generation V2: adds the LegacyBridge scopes from the groups (ADR 0009).")
         token_fn.add_permission("PermisoCognito", principal=iam.ServicePrincipal("cognito-idp.amazonaws.com"),
                                 source_arn=pool.attr_arn)
@@ -1235,6 +1234,7 @@ class Computo(Stack):
         registrar = lambda_.Function(
             self, "FuncionRegistrarToken", runtime=lambda_.Runtime.PYTHON_3_13, handler="aprobacion.handler_registrar",
             code=codigo, timeout=Duration.seconds(10), memory_size=128, log_group=grupo("registrar-token"),
+            reserved_concurrent_executions=2,
             environment={"TABLA_TOKENS": tabla.table_name},
             description="Stores the approval task token in DynamoDB (activity 6). The token is never logged.")
         # Only what the handler does: put_item of the token row (no batch writes, no describe, no re-encrypt).
@@ -1264,6 +1264,7 @@ class Computo(Stack):
         escritor = lambda_.Function(
             self, "FuncionEscritor", runtime=lambda_.Runtime.PYTHON_3_13, handler="computo.escritor.handler_escritor",
             code=codigo_escritor, timeout=Duration.seconds(30), memory_size=256, log_group=grupo("escritor"),
+            reserved_concurrent_executions=2,
             vpc=red, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
             security_groups=[sg_escritor], environment={"HOST_BD": bd.db_instance_endpoint_address},
             description="Order writer (activity 6): writes the pending order and then the decision, as order_writer.")
@@ -1328,6 +1329,9 @@ class Computo(Stack):
             self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.consultas.worker.handler_lambda",
             code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(120), memory_size=512,
             log_group=grupo("agente"), reserved_concurrent_executions=2,
+            # Activity 9: POST /consultas invokes it asynchronously. The worker catches every exception, but a timeout
+            # or a crash would be retried twice by Lambda, each retry a new paid run of the model. No retries.
+            retry_attempts=0,
             environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
                          "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name,
@@ -1384,7 +1388,7 @@ class Computo(Stack):
 
         aprobar = lambda_.Function(
             self, "FuncionAprobar", runtime=lambda_.Runtime.PYTHON_3_13, handler="aprobacion.handler_aprobar", code=codigo,
-            timeout=Duration.seconds(10), memory_size=128, log_group=grupo("aprobar"),
+            timeout=Duration.seconds(10), memory_size=128, log_group=grupo("aprobar"), reserved_concurrent_executions=2,
             environment={"TABLA_TOKENS": tabla.table_name},
             description="Approver's decision: sends success or failure to the approval state machine (activity 6).")
         # Only what the handler does: get_item to read the token, delete_item after the decision (no scan, query or stream).
@@ -1422,8 +1426,6 @@ class Computo(Stack):
                 id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).")])
             NagSuppressions.add_resource_suppressions(funcion.role, [NagPackSuppression(
                 id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.")])
-        NagSuppressions.add_resource_suppressions(registrar.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="PutItem en la tabla de tokens (y sus índices, grant de CDK) y uso de su llave KMS; ninguna otra tabla.")], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(aprobar.role, [NagPackSuppression(
             id="AwsSolutions-IAM5", reason="Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: " + EXCEPCIONES["DecisionAlFlujo"])], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(maquina.role, [NagPackSuppression(
@@ -1459,6 +1461,36 @@ class Computo(Stack):
             id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.")])
         NagSuppressions.add_resource_suppressions(consultas_api, [NagPackSuppression(
             id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+
+        # Activity 9: the checkov findings of this stack that stay, each with its reason (the fixes are above:
+        # reserved concurrency on every function and no async retries for the agent).
+        sin_secretos = ("CKV_AWS_173", "The environment holds resource names, IDs and the database host only: no "
+                        "secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda "
+                        "encrypts it at rest with its AWS managed key.")
+        sincronas = {token_fn: "Cognito calls the pre-token trigger synchronously",
+                     registrar: "Step Functions invokes it synchronously (LambdaInvoke, RequestResponse)",
+                     escritor: "Step Functions invokes it synchronously (LambdaInvoke, RequestResponse)",
+                     herramientas: "the agent and the gateway invoke it synchronously (RequestResponse)",
+                     aprobar: "the HTTP API invokes it synchronously",
+                     consultas_api: "the HTTP API invokes it synchronously"}
+        for funcion, quien in sincronas.items():
+            omisiones = {"CKV_AWS_116": f"{quien}: a dead-letter queue applies only to asynchronous invocations."}
+            if funcion is not token_fn:
+                omisiones[sin_secretos[0]] = sin_secretos[1]
+            saltar_checkov(funcion, omisiones)
+        saltar_checkov(agente, {
+            "CKV_AWS_116": "Invoked asynchronously by POST /consultas, with retry_attempts=0. The worker stores state "
+                           "'error' on any exception; a timeout or crash leaves the row pending until its TTL "
+                           "(finding in resultados/seguridad.md; an on-failure destination is not added here).",
+            sin_secretos[0]: sin_secretos[1]})
+        for funcion in (token_fn, registrar, aprobar, consultas_api, agente):
+            saltar_checkov(funcion, {
+                "CKV_AWS_117": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, "
+                               "Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated "
+                               "subnets it would need more interface endpoints than ADR 0005 provides."})
+        saltar_checkov(tabla, {"CKV_AWS_28": "Task tokens expire by TTL after 24 h and are deleted on the decision: a "
+                                             "point-in-time restore would bring back expired tokens (ADR 0011)."})
+        saltar_checkov(tabla_consultas, {"CKV_AWS_28": "Ephemeral answers with a 7-day TTL; nothing to restore."})
 
         cdk.CfnOutput(self, "IdUsuarios", value=pool.ref)
         cdk.CfnOutput(self, "IdClienteApp", value=cliente.ref)
