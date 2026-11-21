@@ -1,61 +1,85 @@
-%% Week 19, activity 2: reference architecture (LegacyBridge). Trust boundaries are the dashed subgraphs.
+%% Week 19: reference architecture (LegacyBridge), as built after activities 6 to 8 (updated in activity 9).
+%% Boxes F1 to F9 are trust boundaries of seguridad/threat_model.md; F4 (Lambda to RDS), F6 (approval), F10 (supply chain)
+%% and F11 (control plane) are flows, not boxes. Dashed edges: optional path, not wired, or encryption.
 flowchart LR
-  subgraph FRONTERA_CLIENTE["Frontera 1: cliente (no confiable)"]
-    cliente([Cliente: analista o aprobador])
+  subgraph F1["F1 · Client (not trusted)"]
+    cliente([User: analyst, buyer or approver])
   end
 
-  subgraph base["Capa base"]
-    cognito[(Cognito: grupos analista y aprobador)]
-    kms{{KMS: llave administrada por el cliente}}
-    cw[CloudWatch Logs]
-    subgraph FRONTERA_VPC["Frontera 2: VPC"]
-      direction TB
-      ep_s3[[Endpoint gateway S3]]
-      ep_logs[[Endpoint interfaz Logs]]
-      ep_states[[Endpoint interfaz Step Functions]]
-    end
+  subgraph identidad["Identity"]
+    cognito[(Cognito user pool, Essentials<br/>groups to scopes, tenant, level)]
+    pretoken[Pre-token trigger V2]
   end
 
-  subgraph computo["Capa computo"]
-    apigw[API Gateway HTTP API<br/>autorizador JWT de Cognito]
-    agente[Lambda del agente<br/>fuera de la VPC]
-    tools[Lambda de herramientas<br/>en la VPC]
-    sfn[[Step Functions Standard<br/>waitForTaskToken, expira]]
-    aprob[Aprobación por un usuario aprobador]
-    escritura[Rol de escritura]
+  subgraph F2["F2 · Front door"]
+    apigw[API Gateway HTTP API<br/>Cognito JWT authorizer, scope per route]
   end
 
-  subgraph ia["Capa IA"]
-    converse[Bedrock Converse<br/>Guardrail y versión de Prompt Management]
-    gw[AgentCore Gateway<br/>opcional]
-    titan[Titan Text Embeddings V2]
-    kb[Knowledge Base del diccionario de datos]
-    s3v[(S3 Vectors)]
+  subgraph computo["Compute (outside the VPC)"]
+    consultas[Consultas Lambda<br/>POST and GET /consultas]
+    tconsultas[(DynamoDB consultas<br/>CMK, TTL 7 days, owner hash)]
+    agente[Agent Lambda<br/>deterministic layer, budgets, spans]
+    aprobar[Approver Lambda<br/>POST /aprobaciones/id]
+    registrar[Token registrar Lambda]
+    ttokens[(DynamoDB task tokens<br/>CMK, TTL 24 h)]
+    sfn[[Step Functions Standard<br/>waitForTaskToken, timeout, AWS owned key]]
   end
 
-  subgraph datos["Capa datos"]
-    rds[(RDS PostgreSQL<br/>IAM auth, copilot_ro)]
-    docs[(S3: documentos cifrados con KMS)]
+  subgraph F3["F3 · Bedrock"]
+    converse[Converse, Haiku 4.5 profile<br/>Guardrail fixed version, Prompt Management version]
   end
+
+  subgraph F5["F5 · AgentCore Gateway (path b, optional)"]
+    gw[Gateway: Cognito JWT inbound<br/>Cedar Policy in ENFORCE]
+  end
+
+  subgraph F9["F9 · VPC, isolated subnets, no IGW, no NAT"]
+    tools[Tools Lambda<br/>SQL guard, copilot_ro]
+    escritor[Order writer Lambda<br/>order_writer]
+    cargador[Loader Lambda, one-shot]
+    rds[(RDS PostgreSQL<br/>IAM auth, TLS verified, no public IP)]
+    ep[[Endpoints: S3 gateway, Logs,<br/>Step Functions, Secrets Manager<br/>policy limited to the account]]
+  end
+
+  subgraph F7["F7 · Knowledge Base"]
+    docs[(S3 docs bucket, CMK)]
+    kb[Knowledge Base<br/>Titan V2, S3 Vectors with SSE-S3]
+  end
+
+  subgraph F8["F8 · Logs and traces"]
+    cw[CloudWatch Logs, CMK<br/>spans, access logs, flow logs]
+  end
+
+  kms{{KMS customer managed key}}
 
   cliente -->|HTTPS + JWT| apigw
-  apigw --> agente
-  agente -->|Converse| converse
-  agente -->|herramientas directas| tools
-  agente -.->|por AgentCore Gateway| gw
-  gw -.-> tools
+  cognito -.->|token validation| apigw
+  pretoken --> cognito
+  apigw -->|scope consultas| consultas
+  consultas --> tconsultas
+  consultas -->|async invoke, no retries| agente
+  agente --> tconsultas
+  agente -->|Converse + ApplyGuardrail| converse
+  agente -->|"path a: lambda.invoke, requester = token sub"| tools
+  agente -.->|"path b: MCP with the user's JWT"| gw
+  gw -.->|outbound role, Lambda target| tools
   tools -->|IAM auth| rds
-  agente -->|proponer_orden_compra| sfn
-  sfn --> aprob
-  aprob -->|tarea aprobada| escritura
-  escritura -->|rol de escritura| rds
-  kb --> titan
-  kb --> s3v
-  tools --> ep_logs --> cw
-  sfn --- ep_states
-  tools --> ep_s3 --> docs
-  cognito -.->|validación del token| apigw
+  tools -->|"proponer_orden_compra: StartExecution"| ep
+  ep --> sfn
+  sfn --> registrar --> ttokens
+  apigw -->|scope aprobaciones| aprobar
+  aprobar -->|read and delete token, SendTaskSuccess| ttokens
+  aprobar --> sfn
+  sfn -->|approved| escritor
+  escritor -->|IAM auth| rds
+  cargador --> rds
+  cargador --> docs
+  docs --> kb
+  kb -.->|"Retrieve: ADR 0008, not wired"| agente
+  agente --> cw
+  tools --> ep
   kms -.-> rds
   kms -.-> docs
-  kms -.-> s3v
+  kms -.-> tconsultas
+  kms -.-> ttokens
   kms -.-> cw
