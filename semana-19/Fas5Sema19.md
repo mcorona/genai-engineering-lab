@@ -583,6 +583,18 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   protection off (lab only).
 - 2026-11-15: **CI.** The live loader test is marked `vivo` and deselected in CI; the CI still fails on any
   skipped test.
+- 2026-11-18: **Activity 7 (AgentCore Gateway and Bedrock Agents).** PRs #245 to #268.
+  - **Paths, on the same 10 ES tasks:** (a) direct loop 10/10; (b) through the gateway with Cedar in ENFORCE 9/10, at the
+    same model cost (0.2405 against 0.2410 USD).
+  - **Live Policy test:** 4 of 4 as expected. The approver and the analyst cannot propose, and no one can propose in
+    another user's name.
+  - **Path (c), Bedrock Agents:** the service refused `CreateAgent` ("Maintenance Mode", account without prior use). The
+    IaC and its tests remain; nothing was measured.
+  - **Decision:** (b) for production, (a) the lab default, (c) discarded (`resultados/agentes.md`).
+  - **Cost:** model 0.6430 USD (a discarded run included) and AgentCore 0.001655 USD (Cost Explorer), against an
+    estimate of about 0.90 USD.
+  - **Teardown:** verified by the inventory (`agentes/inventario_actividad7.json`: "quedan": "nada").
+  - **AIP-C01 D1 and D2 rows:** added on 2026-11-21.
 - 2026-11-19: **Activity 8 (evaluation against the deployed endpoint), step 3.** Deploy times:
   - control 44 s;
   - bootstrap 2 s;
