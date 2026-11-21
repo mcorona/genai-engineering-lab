@@ -378,7 +378,7 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "1b9eb1ac86aa8360f133dcc7eaa3667b840f2189e2d3b26cb54e8d9871746c07",
+        "huella": "1aacecb05bb3afcc5a49c30a7e963aaed1ea0e71b6f65865d13c431c1e7dc08e",
         "hallazgos": [
           {
             "findingType": "SUGGESTION",
@@ -387,7 +387,7 @@
             "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
             "ruta": [
               "Statement",
-              14,
+              15,
               "Resource",
               0
             ]
@@ -970,7 +970,7 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "1b9eb1ac86aa8360f133dcc7eaa3667b840f2189e2d3b26cb54e8d9871746c07",
+        "huella": "1aacecb05bb3afcc5a49c30a7e963aaed1ea0e71b6f65865d13c431c1e7dc08e",
         "hallazgos": [
           {
             "findingType": "SUGGESTION",
@@ -979,7 +979,7 @@
             "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
             "ruta": [
               "Statement",
-              14,
+              15,
               "Resource",
               0
             ]

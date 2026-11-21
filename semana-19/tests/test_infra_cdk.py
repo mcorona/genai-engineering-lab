@@ -1196,3 +1196,16 @@ def test_destruir_borra_los_log_groups_implicitos_de_lambda_despues_de_las_pilas
     borrar = texto.index('aws logs delete-log-group --log-group-name "$grupo"')
     assert texto.index("== Paso 4: borrar semana19-control") < borrar < texto.index('echo "== Paso 5: inventario')
     assert "--log-group-name-prefix /aws/lambda/semana19- " in texto   # the project's functions only
+
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_la_ejecucion_del_base_etiqueta_sus_roles_sin_la_llave_del_limite(perfil):
+    """CloudFormation tags a new role with its own TagRole call, which carries no iam:PermissionsBoundary, so the
+    boundary condition of RolesConLimite cannot cover it (2026-11-21, semana19-flow-logs)."""
+    declaraciones = [d for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+                     for d in r["Properties"]["PolicyDocument"]["Statement"]]
+    (etiquetar,) = [d for d in declaraciones if d.get("Sid") == "EtiquetarRolesDelBase"]
+    assert sorted(etiquetar["Action"]) == ["iam:TagRole", "iam:UntagRole"] and "Condition" not in etiquetar
+    recursos_ = json.dumps(etiquetar["Resource"])
+    assert "role/semana19-flow-logs" in recursos_ and "role/semana19-base-*" in recursos_

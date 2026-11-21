@@ -334,6 +334,11 @@ def politica_ejecucion_cfn() -> list[iam.PolicyStatement]:
             resources=[arn_iam("role/semana19-base-*")]),
         _declaracion(sid="BorrarRolesDelBase", actions=["iam:DeleteRole"],
                      resources=[arn_iam("role/semana19-base-*")]),
+        # CloudFormation tags a new role with a separate TagRole call, which carries no boundary key, so RolesConLimite
+        # does not cover it (activity 9, 2026-11-21: the first base from scratch since 2026-11-14 failed on
+        # semana19-flow-logs with UnauthorizedTaggingOperation). Datos, ia and computo list it the same way.
+        _declaracion(sid="EtiquetarRolesDelBase", actions=["iam:TagRole", "iam:UntagRole"],
+                     resources=[arn_iam("role/semana19-flow-logs"), arn_iam("role/semana19-base-*")]),
         _declaracion(sid="LeerActivosDelBootstrap", actions=["s3:GetObject", "s3:GetObjectVersion", "s3:GetBucketLocation",
                                                              "s3:ListBucket"],
                      resources=[f"arn:{Aws.PARTITION}:s3:::cdk-s19-assets-{Aws.ACCOUNT_ID}-{REGION}",
