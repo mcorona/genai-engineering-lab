@@ -13,6 +13,7 @@
         "RESOURCE_POLICY": 25
       },
       "hallazgos": {
+        "ERROR": 2,
         "SUGGESTION": 6,
         "WARNING": 1
       }
@@ -24,16 +25,19 @@
         "RESOURCE_POLICY": 25
       },
       "hallazgos": {
+        "ERROR": 2,
         "SUGGESTION": 6,
         "WARNING": 1
       }
     }
   },
   "hallazgos_por_tipo": {
+    "ERROR": 4,
     "SUGGESTION": 12,
     "WARNING": 2
   },
   "errores_o_advertencias_de_seguridad": 0,
+  "desmentidos_por_un_despliegue": 4,
   "veredicto": "ok",
   "documentos": {
     "lab": [
@@ -434,8 +438,35 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "eb7ff862cad0dfd82967fc9f9428a36f9836c80fe836602751ee4ea3a46416b1",
-        "hallazgos": []
+        "huella": "51ce8bc1f7798a71bb53d157a912e48a5c21e5ebcd42adac103cbbc02cedcc34",
+        "hallazgos": [
+          {
+            "findingType": "ERROR",
+            "issueCode": "INVALID_ACTION",
+            "detalle": "The action apigateway:TagResource does not exist.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-error-invalid-action",
+            "ruta": [
+              "Statement",
+              0,
+              "Action",
+              5
+            ],
+            "desmentido": "IAM evaluated it on 2026-11-21: CloudFormation's AWS::ApiGatewayV2::Stage handler was denied apigateway:TagResource while creating semana19-computo (activity 9, step 4.1)"
+          },
+          {
+            "findingType": "ERROR",
+            "issueCode": "INVALID_ACTION",
+            "detalle": "The action apigateway:UntagResource does not exist.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-error-invalid-action",
+            "ruta": [
+              "Statement",
+              0,
+              "Action",
+              6
+            ],
+            "desmentido": "IAM evaluated it on 2026-11-21: CloudFormation's AWS::ApiGatewayV2::Stage handler was denied apigateway:TagResource while creating semana19-computo (activity 9, step 4.1)"
+          }
+        ]
       },
       {
         "stack": "semana19-control",
@@ -1026,8 +1057,35 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "eb7ff862cad0dfd82967fc9f9428a36f9836c80fe836602751ee4ea3a46416b1",
-        "hallazgos": []
+        "huella": "51ce8bc1f7798a71bb53d157a912e48a5c21e5ebcd42adac103cbbc02cedcc34",
+        "hallazgos": [
+          {
+            "findingType": "ERROR",
+            "issueCode": "INVALID_ACTION",
+            "detalle": "The action apigateway:TagResource does not exist.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-error-invalid-action",
+            "ruta": [
+              "Statement",
+              0,
+              "Action",
+              5
+            ],
+            "desmentido": "IAM evaluated it on 2026-11-21: CloudFormation's AWS::ApiGatewayV2::Stage handler was denied apigateway:TagResource while creating semana19-computo (activity 9, step 4.1)"
+          },
+          {
+            "findingType": "ERROR",
+            "issueCode": "INVALID_ACTION",
+            "detalle": "The action apigateway:UntagResource does not exist.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-error-invalid-action",
+            "ruta": [
+              "Statement",
+              0,
+              "Action",
+              6
+            ],
+            "desmentido": "IAM evaluated it on 2026-11-21: CloudFormation's AWS::ApiGatewayV2::Stage handler was denied apigateway:TagResource while creating semana19-computo (activity 9, step 4.1)"
+          }
+        ]
       },
       {
         "stack": "semana19-control",

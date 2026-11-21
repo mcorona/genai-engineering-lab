@@ -1221,3 +1221,13 @@ def test_la_ejecucion_del_base_etiqueta_sus_roles_sin_la_llave_del_limite(perfil
     assert sorted(etiquetar["Action"]) == ["iam:TagRole", "iam:UntagRole"] and "Condition" not in etiquetar
     recursos_ = json.dumps(etiquetar["Resource"])
     assert "role/semana19-flow-logs" in recursos_ and "role/semana19-base-*" in recursos_
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_la_ejecucion_del_computo_etiqueta_el_stage_del_api(perfil):
+    """The AWS::ApiGatewayV2::Stage handler checks apigateway:TagResource. ValidatePolicy calls it INVALID_ACTION;
+    without it semana19-computo failed with AccessDenied (2026-11-21)."""
+    declaraciones = [d for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+                     for d in r["Properties"]["PolicyDocument"]["Statement"]]
+    (api,) = [d for d in declaraciones if d.get("Sid") == "ApiHttpPorCfn"]
+    assert {"apigateway:TagResource", "apigateway:UntagResource"} <= set(api["Action"])

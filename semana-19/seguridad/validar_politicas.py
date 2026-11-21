@@ -26,7 +26,9 @@ run, so no document is validated half-resolved.
 
 The snapshot keeps, per document, its SHA-256 (of the template's document, before resolution) and its findings.
 `tests/test_validar_politicas.py` fails if the snapshot has an ERROR or a SECURITY_WARNING, and the coverage test
-fails if a document of the current synth is not in the snapshot.
+fails if a document of the current synth is not in the snapshot. The one exception is `RECHAZOS_DESMENTIDOS`: an
+INVALID_ACTION that a live deploy showed IAM does evaluate. It stays in the snapshot, marked with its evidence, and is
+not counted.
 """
 from __future__ import annotations
 
@@ -47,6 +49,23 @@ SALIDA = S19 / "resultados" / "seguridad" / "validate_policy.json"
 CUENTA, REGION, PARTICION = "111122223333", "us-east-1", "aws"
 LLAVE_EJEMPLO = "1234abcd-12ab-34cd-56ef-1234567890ab"
 MALAS = {"ERROR", "SECURITY_WARNING"}
+
+# INVALID_ACTION findings that a live deploy disproved: IAM evaluates these actions, so removing them breaks the deploy.
+# Activity 9 removed both after ValidatePolicy reported "The action ... does not exist." (#298); on 2026-11-21 the
+# AWS::ApiGatewayV2::Stage handler of semana19-computo then failed with AccessDenied, naming apigateway:TagResource.
+RECHAZOS_DESMENTIDOS = {
+    a: "IAM evaluated it on 2026-11-21: CloudFormation's AWS::ApiGatewayV2::Stage handler was denied "
+       "apigateway:TagResource while creating semana19-computo (activity 9, step 4.1)"
+    for a in ("apigateway:TagResource", "apigateway:UntagResource")}
+_ACCION_INEXISTENTE = re.compile(r"^The action (\S+) does not exist\.$")
+
+
+def desmentido(h: dict) -> str | None:
+    """The evidence that disproves this finding, or None if the finding stands."""
+    m = _ACCION_INEXISTENTE.match(h.get("detalle", ""))
+    if h.get("issueCode") != "INVALID_ACTION" or not m:
+        return None
+    return RECHAZOS_DESMENTIDOS.get(m.group(1))
 
 PSEUDO = {"AWS::Partition": PARTICION, "AWS::AccountId": CUENTA, "AWS::Region": REGION,
           "AWS::URLSuffix": "amazonaws.com", "AWS::NoValue": None}
@@ -237,11 +256,16 @@ def validar(cliente, doc: dict) -> list[dict]:
 
 def informe(perfiles: dict[str, list[dict]]) -> dict:
     total = Counter()
+    malos = desmentidos = 0
     for docs in perfiles.values():
         for d in docs:
             for h in d["hallazgos"]:
                 total[h["findingType"]] += 1
-    malos = sum(v for k, v in total.items() if k in MALAS)
+                if motivo := desmentido(h):
+                    h["desmentido"] = motivo
+                    desmentidos += 1
+                elif h["findingType"] in MALAS:
+                    malos += 1
     return redactar({
         "herramienta": "IAM Access Analyzer ValidatePolicy (policy validation, no charge)",
         "valores_de_ejemplo": {"cuenta": CUENTA, "region": REGION, "particion": PARTICION},
@@ -250,6 +274,7 @@ def informe(perfiles: dict[str, list[dict]]) -> dict:
                            "hallazgos": dict(sorted(Counter(h["findingType"] for d in docs for h in d["hallazgos"]).items()))}
                        for p, docs in perfiles.items()},
         "hallazgos_por_tipo": dict(sorted(total.items())), "errores_o_advertencias_de_seguridad": malos,
+        "desmentidos_por_un_despliegue": desmentidos,
         "veredicto": "ok" if malos == 0 else "revisar",
         "documentos": {p: [{k: v for k, v in d.items() if k != "documento"} for d in docs]
                        for p, docs in perfiles.items()}}, cuentas=[CUENTA])
