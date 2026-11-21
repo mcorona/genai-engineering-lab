@@ -42,6 +42,21 @@ Each row: concept → where the lab shows it → evidence. Status: **medido** (M
 | Log retention in every group | D3 | `RetencionDeLogs` aspect | `test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion` | tested |
 | Deploy in two steps: control by CLI (no assets, no bootstrap) and the bootstrap after it, trusting only the deploy role | D2 | `desplegar.sh` | `test_desplegar_sin_si_no_llama_a_aws` | simulation tested; real run pending |
 
+## Activity 7 (D1, D2)
+
+Added on 2026-11-21. Every row cites figures already in `resultados/agentes.md` and `resultados/agentes/`.
+
+| Concept | Domain | Where in the repo | Evidence | Status |
+|---|---|---|---|---|
+| AgentCore Gateway with a Lambda target and the tool schemas from one source | D2 | `infra/cdk/app.py` (stack `semana19-gateway`), `gateway/herramientas.json`, `gateway/esquemas.py` | `agentes/crudo_gateway.json`: 10 tasks through the gateway, tool spans `gen_ai.tool.type` = `extension` | medido 2026-11-18 |
+| Inbound auth with the Cognito pool (`CUSTOM_JWT`), outbound with the gateway's IAM role | D2 | `infra/cdk/app.py`, `tests/test_infra_gateway.py` | `agentes/politica_en_vivo.json`: real tokens of analista, comprador and aprobador accepted; the role invokes only the tools function | medido 2026-11-18 |
+| AgentCore Policy (Cedar) in ENFORCE: protected tool per scope, separation of duties, requester equal to the token's `sub`, `tools/list` filtered per user | D2 | `gateway/politicas/*.cedar`, `tests/test_gateway_politicas.py` | `agentes/politica_en_vivo.json`: 4 of 4 calls as expected (3 denied with −32002, 1 allowed); lists per user in `agentes.md` | medido 2026-11-18 |
+| The agent as an MCP client of the gateway with the user's token, behind a flag (`CAMINO_HERRAMIENTAS`) | D1 | `agente/cliente_gateway.py`, `agente/handler.py` | `agentes.md`: path (b) 9/10, p50 15.76 s, 0.2410 USD | medido 2026-11-18 |
+| Two tools paths on the same tasks: direct loop against the gateway | D1 | `agentes/comparar.py` | `agentes.md`: (a) 10/10, p50 18.51 s, 0.2405 USD; (b) 9/10, p50 15.76 s, 0.2410 USD | medido 2026-11-18 |
+| Bedrock Agents with the same tools as an action group, as a comparison | D1 | stack `semana19-agentes-comparacion` (#253), its offline tests | `agentes.md`: `CreateAgent` refused by the service ("Maintenance Mode ... accounts without prior service usage"); nothing measured | falla (AWS restriction on the account) |
+| Which week 13 to 17 controls survive each orchestration option | D1 | `agentes.md`, "What survives on each path" | (a) and (b) keep budgets, deterministic layer and spans; (c) from the design: loses them | D (c from the design) |
+| AgentCore charges: gateway invocations and Policy authorizations | D2 | Cost Explorer | `agentes.md`: 56 invocations 0.00028 USD, 55 authorizations 0.001375 USD; total 0.001655 USD | medido 2026-11-19 |
+
 ## Activity 8 (D5, D4)
 
 | Concept | Domain | Where in the repo | Evidence | Status |
