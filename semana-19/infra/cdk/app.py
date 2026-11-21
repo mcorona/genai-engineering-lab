@@ -414,9 +414,11 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
     return [
         # HTTP API (API Gateway v2): the create call has no ARN yet, so the path is the only resource.
         _declaracion(sid="ApiHttpPorCfn", actions=[
-            # Tags on an HTTP API are apigateway:POST/DELETE on /tags/* (activity 9: TagResource and UntagResource are
-            # not IAM actions; ValidatePolicy reported INVALID_ACTION).
-            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE"],
+            # Tags on an HTTP API are apigateway:POST/DELETE on /tags/*, and the stage handler also checks
+            # apigateway:TagResource. ValidatePolicy calls TagResource and UntagResource INVALID_ACTION, but removing
+            # them made semana19-computo fail with AccessDenied on 2026-11-21 (validar_politicas.RECHAZOS_DESMENTIDOS).
+            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE",
+            "apigateway:TagResource", "apigateway:UntagResource"],
             resources=[f"{region_api}/apis", f"{region_api}/apis/*", f"{region_api}/tags/*"]),
         # Cognito pool, its client, resource servers and groups: created by CloudFormation, no ARN before creation.
         _declaracion(sid="CognitoPorCfn", actions=[

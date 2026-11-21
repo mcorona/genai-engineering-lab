@@ -130,7 +130,31 @@ def test_veredicto_por_tipo_de_hallazgo(tipo, veredicto):
 def test_snapshot_sin_errores_ni_advertencias_de_seguridad():
     r = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     malos = [(p, d["recurso"], h["issueCode"]) for p, docs in r["documentos"].items() for d in docs
-             for h in d["hallazgos"] if h["findingType"] in V.MALAS]
+             for h in d["hallazgos"] if h["findingType"] in V.MALAS and not V.desmentido(h)]
     assert malos == [] and r["veredicto"] == "ok" and r["errores_o_advertencias_de_seguridad"] == 0
     assert set(r["por_perfil"]) == {"lab", "prod"}
     assert all(p["documentos"] > 0 for p in r["por_perfil"].values())
+
+
+@pytest.mark.parametrize("hallazgo,esperado", [
+    ({"issueCode": "INVALID_ACTION", "detalle": "The action apigateway:TagResource does not exist."}, True),
+    ({"issueCode": "INVALID_ACTION", "detalle": "The action apigateway:UntagResource does not exist."}, True),
+    ({"issueCode": "INVALID_ACTION", "detalle": "The action apigateway:TagResources does not exist."}, False),
+    ({"issueCode": "INVALID_ACTION", "detalle": "The action s3:TagResource does not exist."}, False),
+    ({"issueCode": "PASS_ROLE_WITH_STAR_IN_RESOURCE", "detalle": "The action apigateway:TagResource does not exist."},
+     False),
+])
+def test_solo_se_desmiente_la_accion_exacta_que_un_despliegue_mostro(hallazgo, esperado):
+    assert bool(V.desmentido(hallazgo)) is esperado
+
+
+def test_un_desmentido_queda_en_el_informe_y_no_cuenta_como_error():
+    docs = [{"stack": "s", "recurso": "r", "tipo": "AWS::IAM::ManagedPolicy", "campo": "PolicyDocument",
+             "policyType": "IDENTITY_POLICY", "validatePolicyResourceType": None, "huella": "h", "documento": {},
+             "hallazgos": [{"findingType": "ERROR", "issueCode": "INVALID_ACTION",
+                            "detalle": "The action apigateway:TagResource does not exist.", "learnMoreLink": None,
+                            "ruta": []}]}]
+    r = V.informe({"lab": docs})
+    assert r["veredicto"] == "ok" and r["errores_o_advertencias_de_seguridad"] == 0
+    assert r["desmentidos_por_un_despliegue"] == 1 and r["hallazgos_por_tipo"] == {"ERROR": 1}
+    assert "2026-11-21" in r["documentos"]["lab"][0]["hallazgos"][0]["desmentido"]
