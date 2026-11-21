@@ -409,8 +409,9 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
     return [
         # HTTP API (API Gateway v2): the create call has no ARN yet, so the path is the only resource.
         _declaracion(sid="ApiHttpPorCfn", actions=[
-            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE",
-            "apigateway:TagResource", "apigateway:UntagResource"],
+            # Tags on an HTTP API are apigateway:POST/DELETE on /tags/* (activity 9: TagResource and UntagResource are
+            # not IAM actions; ValidatePolicy reported INVALID_ACTION).
+            "apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE"],
             resources=[f"{region_api}/apis", f"{region_api}/apis/*", f"{region_api}/tags/*"]),
         # Cognito pool, its client, resource servers and groups: created by CloudFormation, no ARN before creation.
         _declaracion(sid="CognitoPorCfn", actions=[
@@ -816,11 +817,16 @@ class Base(Stack):
                              principals=[iam.ServicePrincipal("delivery.logs.amazonaws.com")]),
                 _declaracion(sid="LogsDelProyectoConLaLlave", actions=[
                     "kms:Encrypt", "kms:Decrypt", "kms:ReEncryptFrom", "kms:ReEncryptTo", "kms:GenerateDataKey",
-                    "kms:GenerateDataKeyWithoutPlaintext", "kms:DescribeKey"],
+                    "kms:GenerateDataKeyWithoutPlaintext"],
                     principals=[iam.ServicePrincipal(f"logs.{region}.amazonaws.com")],
                     resources=["*"],
                     conditions={"ArnLike": {"kms:EncryptionContext:aws:logs:arn":
                                             f"arn:{Aws.PARTITION}:logs:{region}:{cuenta}:log-group:{PREFIJO_LOGS}*"}}),
+                # Activity 9: DescribeKey carries no encryption context, so the condition above was never evaluated for
+                # it (ValidatePolicy: UNSUPPORTED_ACTION_FOR_CONDITION_KEY). Its own statement states what was in
+                # effect: CloudWatch Logs may read the key's metadata, nothing else.
+                _declaracion(sid="LogsDelProyectoDescribeLaLlave", actions=["kms:DescribeKey"],
+                             principals=[iam.ServicePrincipal(f"logs.{region}.amazonaws.com")], resources=["*"]),
             ]))
 
         grupo = logs.CfnLogGroup(
