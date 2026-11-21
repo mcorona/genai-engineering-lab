@@ -2,7 +2,7 @@
 
 ## Diagram
 
-Source: `semana-19/arquitectura/diagrama.mmd`. Export: `semana-19/arquitectura/diagrama.svg` (mermaid-cli 11.17.1). Trust boundaries (input for the threat model of activity 9): **Frontera 1** is the client (not trusted); **Frontera 2** is the VPC, which holds the tools Lambda, RDS and the endpoints. The four layers are base, datos, ia and computo.
+Source: `semana-19/arquitectura/diagrama.mmd`. Export: `semana-19/arquitectura/diagrama.svg` (mermaid-cli 11.17.1). Trust boundaries (input for the threat model of activity 9): **Frontera 1** is the client (not trusted); **Frontera 2** is the VPC, which holds the tools Lambda, RDS and the endpoints. Activity 9 updated the diagram to what activities 6 to 8 built (asynchronous `/consultas`, the task-token table, the AgentCore Gateway with Cedar, the approver and writer Lambdas) and numbered its boundaries F1 to F11 as in `seguridad/threat_model.md`. The four layers are base, datos, ia and computo.
 
 Flow: client → API Gateway HTTP API (Cognito JWT, groups `analista` and `aprobador`) → agent Lambda (outside the VPC) → Bedrock Converse with Guardrail and Prompt Management → tools, directly or through AgentCore Gateway → tools Lambda in the VPC → RDS PostgreSQL (IAM auth, `copilot_ro`). `proponer_orden_compra` → Step Functions Standard (`waitForTaskToken`, with timeout) → approval by an `aprobador` user → write with the write role. The knowledge base of the data dictionary uses Titan Text Embeddings V2 and S3 Vectors. KMS (customer-managed key) covers everything that can be encrypted with it.
 
