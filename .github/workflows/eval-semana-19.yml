@@ -94,6 +94,16 @@ jobs:
           checkov -d "$RUNNER_TEMP/cdk-out" --framework cloudformation --quiet --compact
           checkov -d "$RUNNER_TEMP/cdk-out-prod" --framework cloudformation --quiet --compact
           checkov -d "$RUNNER_TEMP/cdk-ia" --framework cloudformation --quiet --compact
+      - name: Todos los stacks (COMPUTO=1, lab y prod) con cdk-nag, checkov y el inventario de supresiones (actividad 9)
+        run: |
+          python semana-19/infra/paquete_agente.py --sin-dependencias
+          for perfil in lab prod; do
+            rm -rf "$RUNNER_TEMP/todo-$perfil"
+            S19_SIN_DEPENDENCIAS=1 COMPUTO=1 PERFIL="$perfil" CDK_OUTDIR="$RUNNER_TEMP/todo-$perfil" python semana-19/infra/cdk/app.py > /dev/null
+            checkov -d "$RUNNER_TEMP/todo-$perfil" --framework cloudformation --quiet --compact
+          done
+          python semana-19/seguridad/supresiones.py --checkov "$(command -v checkov)" \
+            --synth lab="$RUNNER_TEMP/todo-lab" --synth prod="$RUNNER_TEMP/todo-prod" --salida "$RUNNER_TEMP/supresiones.json"
       - name: Instalar Terraform 1.17.2 (sha256 verificado)
         run: |
           cd "$RUNNER_TEMP"

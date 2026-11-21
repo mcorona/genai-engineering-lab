@@ -1,0 +1,2017 @@
+{
+  "herramientas": {
+    "cdk-nag": "AwsSolutions (cdk-nag of the semana19 group)",
+    "checkov": "checkov 3.4.4"
+  },
+  "perfiles": {
+    "lab": {
+      "conteos": {
+        "nag_suprimidas": 55,
+        "nag_sin_suprimir": 0,
+        "checkov_aprobados": 452,
+        "checkov_omitidos": 38,
+        "checkov_fallidos": 0,
+        "por_regla": {
+          "AwsSolutions-COG2": 1,
+          "AwsSolutions-COG8": 1,
+          "AwsSolutions-DDB3": 2,
+          "AwsSolutions-IAM4": 11,
+          "AwsSolutions-IAM5": 25,
+          "AwsSolutions-L1": 9,
+          "AwsSolutions-RDS10": 1,
+          "AwsSolutions-RDS11": 1,
+          "AwsSolutions-RDS3": 1,
+          "AwsSolutions-S1": 2,
+          "AwsSolutions-SMG4": 1,
+          "CKV_AWS_109": 2,
+          "CKV_AWS_111": 5,
+          "CKV_AWS_115": 1,
+          "CKV_AWS_116": 10,
+          "CKV_AWS_117": 7,
+          "CKV_AWS_118": 1,
+          "CKV_AWS_157": 1,
+          "CKV_AWS_173": 6,
+          "CKV_AWS_18": 2,
+          "CKV_AWS_21": 1,
+          "CKV_AWS_28": 2
+        }
+      },
+      "sin_suprimir": {
+        "cdk_nag": [],
+        "checkov": []
+      },
+      "sin_razon": [],
+      "sobran": [],
+      "supresiones": [
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "RolFlowLogsA335DD51",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirSoloEnSuGrupo: Los flow logs escriben en los streams del grupo: AWS exige la forma <grupo>:* . | DescribirGruposParaFlowLogs: logs:DescribeLogGroups no acepta ARN de recurso. | -: Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
+          "usada": false,
+          "sids": {
+            "EscribirSoloEnSuGrupo": "con_comodin",
+            "DescribirGruposParaFlowLogs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "RolFlowLogsDefaultPolicyCF855930",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirSoloEnSuGrupo: Los flow logs escriben en los streams del grupo: AWS exige la forma <grupo>:* . | DescribirGruposParaFlowLogs: logs:DescribeLogGroups no acepta ARN de recurso. | -: Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
+          "usada": true,
+          "sids": {
+            "EscribirSoloEnSuGrupo": "con_comodin",
+            "DescribirGruposParaFlowLogs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Custom resource que CDK genera para vaciar el grupo de seguridad por defecto: corre una vez al crear la VPC; fuera de la VPC por diseño de CDK.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Custom resource de CDK: invocación única al crear la VPC; sin cola de mensajes muertos.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_115",
+          "razon": "Custom resource de CDK: invocación única; sin límite de concurrencia.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Tokens1180AAEA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-DDB3",
+          "razon": "Tokens de tarea: caducan por TTL a las 24 h y se borran al decidir; la recuperación a un punto en el tiempo no aporta nada aquí y su costo no está verificado.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Tokens1180AAEA",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_28",
+          "razon": "Task tokens expire by TTL after 24 h and are deleted on the decision: a point-in-time restore would bring back expired tokens (ADR 0011).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Usuarios",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-COG2",
+          "razon": "MFA desactivada en el laboratorio: usuarios de prueba creados por un administrador (ADR 0013); la decisión de MFA es de la actividad 8.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Usuarios",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-COG8",
+          "razon": "Feature plan Essentials por ADR 0009 (costo autorizado por Manuel); Plus no está autorizado y su costo no está verificado.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokensServiceRoleBFA90C1C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokens559D9185",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokens559D9185",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Cognito calls the pre-token trigger synchronously: a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokens559D9185",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenServiceRole711A6DD2",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Step Functions invokes it synchronously (LambdaInvoke, RequestResponse): a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritorServiceRoleFD45F742",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de una VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritor4DED88EF",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritor4DED88EF",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Step Functions invokes it synchronously (LambdaInvoke, RequestResponse): a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritor4DED88EF",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientasServiceRole1FF7D8C6",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientas10B13045",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientas10B13045",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "the agent and the gateway invoke it synchronously (RequestResponse): a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientas10B13045",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "ConsultasAE11F1EF",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-DDB3",
+          "razon": "Consultas: respuestas efímeras con TTL de 7 días; la recuperación a un punto en el tiempo no aporta aquí y su costo no está verificado.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "ConsultasAE11F1EF",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_28",
+          "razon": "Ephemeral answers with a 7-day TTL; nothing to restore.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgenteServiceRole7F9E6BDA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgenteServiceRole7F9E6BDA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "ModeloDeHaikuPorConverse: bedrock:InvokeModel sobre el perfil de inferencia del modelo del agente (ia/config.py) de esta cuenta y el modelo de fundación en cualquier Región (el perfil cross-Region enruta a varias Regiones de EE. UU.): sin el comodín no funciona la llamada. | EscribirSpansDelAgente: CreateLogStream y PutLogEvents sobre el grupo de spans del agente y sus flujos (/semana19/computo/spans): el flujo lo crea el SDK.",
+          "usada": false,
+          "sids": {
+            "ModeloDeHaikuPorConverse": "con_comodin",
+            "EscribirSpansDelAgente": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgenteServiceRoleDefaultPolicy799632EA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "ModeloDeHaikuPorConverse: bedrock:InvokeModel sobre el perfil de inferencia del modelo del agente (ia/config.py) de esta cuenta y el modelo de fundación en cualquier Región (el perfil cross-Region enruta a varias Regiones de EE. UU.): sin el comodín no funciona la llamada. | EscribirSpansDelAgente: CreateLogStream y PutLogEvents sobre el grupo de spans del agente y sus flujos (/semana19/computo/spans): el flujo lo crea el SDK.",
+          "usada": true,
+          "sids": {
+            "ModeloDeHaikuPorConverse": "con_comodin",
+            "EscribirSpansDelAgente": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Invoked asynchronously by POST /consultas, with retry_attempts=0. The worker stores state 'error' on any exception; a timeout or crash leaves the row pending until its TTL (finding in resultados/seguridad.md; an on-failure destination is not added here).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "AprobacionRole2D85028A",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.",
+          "usada": false,
+          "sids": {},
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "AprobacionRoleDefaultPolicyA1FD41A7",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.",
+          "usada": true,
+          "sids": {},
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarServiceRole40C6D621",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarServiceRole40C6D621",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: states:SendTaskSuccess sobre '*' (aprobar y rechazar van por SendTaskSuccess): AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
+          "usada": false,
+          "sids": {
+            "DecisionAlFlujo": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarServiceRoleDefaultPolicy217697F9",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: states:SendTaskSuccess sobre '*' (aprobar y rechazar van por SendTaskSuccess): AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
+          "usada": true,
+          "sids": {
+            "DecisionAlFlujo": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "the HTTP API invokes it synchronously: a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultasServiceRoleDCD000BC",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "the HTTP API invokes it synchronously: a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "LimiteDED23B9D",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "LogsDelLimite: Escritura de logs en el límite de permisos (activity 7: tres statements con las mismas acciones en uno). LogsDelGrupoDelProyecto: Nombre por prefijo: los grupos del proyecto empiezan por /semana19/. El recurso no tiene ARN previo. EscribirLogsDeLaLambdaDatos: CreateLogStream y PutLogEvents sobre los grupos /aws/lambda/semana19-datos* (la función del cargador). EscribirLogsDelCreadorDeGuardrail: CreateLogStream y PutLogEvents sobre /semana19/ia/* (la función que crea el guardrail; su grupo está cifrado con la llave base). | SinArnDelLimite: Acciones sin ARN de recurso en el límite de permisos, en un solo statement (activity 7, límite de 6,144 caracteres). LogsDescribir: logs:DescribeLogGroups no acepta ARN de recurso: AWS exige resource '*'. EntregaDeLogsDelLimite: Acciones de entrega de logs y política de recursos de CloudWatch Logs sobre '*' en el límite de permisos: Step Functions valida su destino de logs con el rol de la máquina y estas acciones no admiten un recurso más estrecho. Los roles reciben solo lo que su política de identidad concede. XrayDelLimite: Acciones de X-Ray sobre '*' en el límite de permisos: la máquina de estados traza con X-Ray y estas acciones no admiten recurso más estrecho. CloudFormationLeer: Describe, Get y List de CloudFormation: AWS no los acepta con ARN de recurso para listar stacks. RestringirSgPorDefecto: ec2:DescribeSecurityGroups no acepta ARN; Revoke* sobre el grupo por defecto lo usa el custom resource de CDK que vacía sus reglas. RedDeLambdaEnVpc: Interfaces de red de una Lambda dentro de la VPC: AWS no admite ARN de recurso para crear ENIs; es la política administrada AWSLambdaVPCAccessExecutionRole. RespuestaDeTareaDelLimite: states:SendTaskSuccess y SendTaskFailure sobre '*' en el límite de permisos: AWS no define tipo de recurso para estas acciones; el token de tarea identifica la ejecución. | CdkAssumeRoles: Nombre por prefijo: los roles del bootstrap llevan la cuenta y la región en el nombre (cdk-s19-*-<cuenta>-us-east-1); la cuenta no se escribe en el repo. | DocsDatosLeerYListar: Lectura de objetos y ListBucket del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3; ListBucket exige el ARN del bucket. | DocsDatosEscribir: Escritura del cargador solo bajo docs/ del bucket de documentos del stack datos. | IndiceKbDatos: Operaciones del índice de S3 Vectors legado-kb (bucket semana19-kb-*): la KB lo consulta y escribe vectores. | SecretoBdLeer: GetSecretValue sobre los secretos semana19datos* (contraseña de la base): lo leen el cargador y RDS. | KmsViaServiciosDelLimite: Uso de llaves KMS de la cuenta (key/*) solo cuando la llamada llega por DynamoDB, S3 o Secrets Manager en us-east-1 (kms:ViaService): la llave base cifra las tablas, el bucket de la KB, el del juez y el secreto de la base; cada rol recibe en su política solo la llave exacta. | BucketDelJuezDelLimite: Acciones S3 del rol de servicio del juez (judge-service-roles.html) sobre los buckets semana19-eval-* en el límite de permisos: el nombre lo pone CloudFormation; la política propia del rol nombra el bucket exacto. | LogsDeLaLambdaDatos: logs:CreateLogGroup sobre /aws/lambda/semana19-datos*: Lambda crea el grupo de logs de la función del cargador en su primera ejecución; sin esto los errores no se ven.",
+          "usada": true,
+          "sids": {
+            "LogsDelLimite": "con_comodin",
+            "SinArnDelLimite": "con_comodin",
+            "CdkAssumeRoles": "con_comodin",
+            "DocsDatosLeerYListar": "con_comodin",
+            "DocsDatosEscribir": "con_comodin",
+            "IndiceKbDatos": "con_comodin",
+            "SecretoBdLeer": "con_comodin",
+            "KmsViaServiciosDelLimite": "con_comodin",
+            "BucketDelJuezDelLimite": "con_comodin",
+            "LogsDeLaLambdaDatos": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "LimiteDED23B9D",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfn7F724C55",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "VpcYRedes: Acciones de creación de VPC, subredes, grupos y endpoints: el recurso aún no existe (AWS exige '*'); ec2:Describe* no acepta ARN. | LlavesKms: kms:CreateKey exige resource '*' (la llave aún no existe); las demás acciones usan '*' porque la llave la crea el mismo stack. | GruposDeLogs: Nombre por prefijo: /semana19/*. El stack crea el grupo con ese nombre. | DescribirGruposDeLogs: logs:DescribeLogGroups no acepta ARN de recurso. | FuncionesDeCustomResourceDelProyecto: Nombre por prefijo: las funciones de custom resource del stack empiezan por semana19-. | RolesConLimite: Nombre por prefijo semana19-*, y la condición iam:PermissionsBoundary obliga el límite en la creación.",
+          "usada": true,
+          "sids": {
+            "VpcYRedes": "con_comodin",
+            "LlavesKms": "con_comodin",
+            "GruposDeLogs": "con_comodin",
+            "DescribirGruposDeLogs": "con_comodin",
+            "FuncionesDeCustomResourceDelProyecto": "con_comodin",
+            "RolesConLimite": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfn7F724C55",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfn7F724C55",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_109",
+          "razon": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnDatos4EF77136",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "SecretoDeLaBdPorCfn: Secrets Manager crea el secreto con nombre generado por CloudFormation: el ARN no existe antes de crearlo; AWS exige '*' para Create*. | ContrasenaGeneradaPorCfn: GetRandomPassword no admite ARN de recurso: AWS exige '*'. | LeerSecretoDeLaBdPorCfn: GetSecretValue solo sobre los secretos cuyo nombre empieza por semana19datos (el secreto de la base de datos): RDS lo lee para aplicar la contraseña generada. | EscribirSecretoDeLaBdPorCfn: PutSecretValue y UpdateSecretVersionStage sobre los secretos semana19datos* (la contraseña de la base): CloudFormation escribe ahí los datos de conexión al asociar el secreto. | DescribirRdsPorCfn: rds:Describe* no acepta ARN de recurso para listar instancias y subnet groups: AWS exige '*'. | LlaveParaRdsYSecretos: kms:CreateGrant y ListGrants para que RDS y Secrets Manager usen la llave del proyecto; el recurso es la llave (AWS exige '*' en la política de ejecución) y la condición kms:ViaService limita el uso a esos dos servicios. | BaseDeDatosPostgresPorCfn: Crear, modificar y borrar la base y su subnet group: el nombre lo pone CloudFormation con el prefijo semana19-datos; la base no tiene ARN antes de crearse. | BucketDocsKbPorCfn: Bucket de documentos de la Knowledge Base: CloudFormation le pone nombre con el prefijo semana19-datos; el borrado de objetos se necesita para el teardown. | VectoresKbPorCfn: Bucket e índice de S3 Vectors con el prefijo semana19-kb-; el índice se crea dentro del bucket y su ARN no existe antes del despliegue. | KnowledgeBasePorCfn: Knowledge Base y su fuente de datos: el ID lo asigna Bedrock al crearse, así que el ARN es knowledge-base/* dentro de la región y cuenta. | CrearKnowledgeBasePorCfn: bedrock:CreateKnowledgeBase no tiene ARN antes de crear la Knowledge Base: AWS la autoriza contra '*' (verificado con iam simulate-custom-policy). | RolesDelDatosPorCfn: Roles del stack datos (semana19-kb y semana19-datos-*): sus políticas en línea y adjuntas las pone CloudFormation; los roles llevan el límite semana19-limite, que acota lo que pueden tener. | PasarRolesDelDatosAKbYLambda: iam:PassRole de los roles del stack datos solo hacia bedrock y lambda (condición PassedToService). | ConcurrenciaDelCargador: Concurrencia reservada de la Lambda del cargador: su nombre tiene el prefijo semana19-.",
+          "usada": true,
+          "sids": {
+            "SecretoDeLaBdPorCfn": "con_comodin",
+            "ContrasenaGeneradaPorCfn": "con_comodin",
+            "LeerSecretoDeLaBdPorCfn": "con_comodin",
+            "EscribirSecretoDeLaBdPorCfn": "con_comodin",
+            "DescribirRdsPorCfn": "con_comodin",
+            "LlaveParaRdsYSecretos": "con_comodin",
+            "BaseDeDatosPostgresPorCfn": "con_comodin",
+            "BucketDocsKbPorCfn": "con_comodin",
+            "VectoresKbPorCfn": "con_comodin",
+            "KnowledgeBasePorCfn": "con_comodin",
+            "CrearKnowledgeBasePorCfn": "con_comodin",
+            "RolesDelDatosPorCfn": "con_comodin",
+            "PasarRolesDelDatosAKbYLambda": "con_comodin",
+            "ConcurrenciaDelCargador": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnDatos4EF77136",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Creación de recursos del stack datos sin ARN previo (secreto, base, buckets, Knowledge Base); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnDatos4EF77136",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_109",
+          "razon": "Roles semana19-kb y semana19-datos-* sin condición de límite en las acciones de gestión: los roles se crean con semana19-limite (aplicado por el Aspect), y iam:PassRole solo hacia bedrock y lambda.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnIaA9DE7690",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "PromptsDelAgentePorCfn: Acciones de Prompt Management sobre prompt/* de esta cuenta: CloudFormation crea, versiona y lee los prompts del agente (ARN no existe antes de crearlos). | LlaveDeLosPromptsPorCfn: Uso de llaves KMS de la cuenta solo por Bedrock en us-east-1 (kms:ViaService): los prompts se cifran con la llave base. | PasarRolDelCreadorDeGuardrail: iam:PassRole sobre role/semana19-ia-* solo hacia lambda.amazonaws.com: CloudFormation asigna el rol a la función que crea el guardrail. | PoliticasYAdjuntosDelRolDeIa: Políticas en línea y adjuntas del rol del creador de guardrail, solo sobre role/semana19-ia-* (nombre que genera CDK para el stack semana19-ia). | BorrarRolDeIa: Borrar y leer el rol del creador de guardrail, solo sobre role/semana19-ia-*: el rol se crea con el límite; el stack lo borra al destruirse.",
+          "usada": true,
+          "sids": {
+            "PromptsDelAgentePorCfn": "con_comodin",
+            "LlaveDeLosPromptsPorCfn": "con_comodin",
+            "PasarRolDelCreadorDeGuardrail": "con_comodin",
+            "PoliticasYAdjuntosDelRolDeIa": "con_comodin",
+            "BorrarRolDeIa": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnComputo2326E081",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "ApiHttpPorCfn: API Gateway v2 (HTTP API) de semana19-api: la llamada de creación no tiene ARN previo; /apis/* cubre solo las APIs que el stack crea y /tags/* sus etiquetas. | CognitoPorCfn: Cognito no admite ARN de recurso en las acciones de creación del pool, cliente, servidores y grupos: CloudFormation las llama antes de que exista el pool. Solo las acciones de este stack, en esta cuenta. | TablaDeTokensPorCfn: Tabla DynamoDB del stack computo: su nombre lo genera CloudFormation desde el nombre del stack, así que el patrón es table/semana19-*. | LlaveDeLaTablaPorCfn: kms:CreateGrant, ListGrants y DescribeKey sobre '*', limitados a llamadas vía DynamoDB en esta Región: la tabla cifrada con llave del stack necesita el grant; la llave no tiene ARN previo. | RolesDeComputoPorCfn: Leer y modificar las políticas y etiquetas de los roles del stack computo, solo sobre role/semana19-computo-*: CloudFormation los lee y actualiza al crearlos. Sin la condición del límite porque estas llamadas no la llevan; la creación sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite. | EntregaDeLogsDeApiPorCfn: Acciones de entrega de logs de API Gateway (CreateLogDelivery y similares) sobre '*': no admiten ARN de recurso; API Gateway las usa para los logs de acceso de la HTTP API del stack computo. | MaquinaDeAprobacionPorCfn: Step Functions: la máquina de aprobación semana19-aprobacion; el patrón stateMachine:semana19-* cubre solo las máquinas de este proyecto. | PasarRolesDeComputoAFuncionesYMaquina: iam:PassRole sobre role/semana19-* solo hacia lambda.amazonaws.com y states.amazonaws.com: CloudFormation asigna los roles con límite que crea el stack a sus funciones y a la máquina de aprobación.",
+          "usada": true,
+          "sids": {
+            "ApiHttpPorCfn": "con_comodin",
+            "CognitoPorCfn": "con_comodin",
+            "TablaDeTokensPorCfn": "con_comodin",
+            "LlaveDeLaTablaPorCfn": "con_comodin",
+            "RolesDeComputoPorCfn": "con_comodin",
+            "EntregaDeLogsDeApiPorCfn": "con_comodin",
+            "MaquinaDeAprobacionPorCfn": "con_comodin",
+            "PasarRolesDeComputoAFuncionesYMaquina": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnComputo2326E081",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB (LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnAgentes220F2759",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "GatewayPorCfn: Gateway de AgentCore, su target y su identidad de carga de trabajo sobre arn:...:*gateway* de esta cuenta y Región (patrón de gateway-prerequisites-permissions.html): el ID lo asigna AgentCore al crearlo e incluye el nombre semana19-gateway; InvokeGateway lo usa CreatePolicy para validar las acciones Cedar. | IdentidadDelGatewayPorCfn: Identidad de carga de trabajo del gateway: CreateWorkloadIdentity se autoriza sobre el directorio default de la cuenta, y Get/Update/Delete sobre workload-identity/semana19-gateway-* (el sufijo lo asigna AgentCore al crear el gateway). | MotorDePoliticasPorCfn: Motor de políticas de AgentCore y sus políticas sobre policy-engine/* de esta cuenta y Región: el ID lo asigna AgentCore al crearlo (policy-permissions.html, rol de administración). | CrearAgentePorCfn: bedrock:CreateAgent sobre '*': la Service Authorization Reference no define tipo de recurso para esta acción; el resto de acciones del agente se acotan a agent/* y agent-alias/*. | AgentePorCfn: Acciones del agente de comparación (Bedrock Agents) sobre agent/* y agent-alias/* de esta cuenta y Región: los IDs los asigna Bedrock al crearlos; el stack es desechable (semana19-agentes-comparacion). | ModeloYGuardrailDelAgentePorCfn: GetGuardrail sobre guardrail/* de esta cuenta y Región (el ID lo asigna Bedrock en el stack ia), más GetInferenceProfile y GetFoundationModel sobre el perfil y el modelo exactos del agente: Bedrock los lee al crear y preparar el agente. | PasarRolesAAgentCoreYBedrock: iam:PassRole sobre role/semana19-* solo hacia bedrock-agentcore.amazonaws.com y bedrock.amazonaws.com: CloudFormation asigna al Gateway y al agente de comparación los roles con límite que crean sus stacks. | RolesDeActividad7PorCfn: Leer y modificar las políticas en línea de los roles de semana19-gateway y semana19-agentes-comparacion, solo sobre role/semana19-gateway-* y role/semana19-agentes-comparacion-*: CloudFormation las crea, lee y borra. Sin la condición del límite porque estas llamadas no la llevan; la creación del rol sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite.",
+          "usada": true,
+          "sids": {
+            "GatewayPorCfn": "con_comodin",
+            "IdentidadDelGatewayPorCfn": "con_comodin",
+            "MotorDePoliticasPorCfn": "con_comodin",
+            "CrearAgentePorCfn": "con_comodin",
+            "AgentePorCfn": "con_comodin",
+            "ModeloYGuardrailDelAgentePorCfn": "con_comodin",
+            "PasarRolesAAgentCoreYBedrock": "con_comodin",
+            "RolesDeActividad7PorCfn": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnAgentes220F2759",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "CreateAgent sin tipo de recurso (Service Authorization Reference) y recursos de AgentCore sin ID previo; ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "Despliegue3F2F11CF",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "AsumirRolesCdk: Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo). | LeerCloudFormation: Describe, Get y List de CloudFormation: sin ARN de recurso para listar. | CrearRolesSoloConLimite: Nombre por prefijo semana19-*, y la condición obliga el límite. | NoQuitarNiCambiarElLimite: Denegación sobre roles semana19-* por prefijo.",
+          "usada": false,
+          "sids": {
+            "AsumirRolesCdk": "con_comodin",
+            "LeerCloudFormation": "con_comodin",
+            "CrearRolesSoloConLimite": "con_comodin",
+            "NoQuitarNiCambiarElLimite": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "DespliegueDefaultPolicy8E849597",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "AsumirRolesCdk: Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo). | LeerCloudFormation: Describe, Get y List de CloudFormation: sin ARN de recurso para listar. | CrearRolesSoloConLimite: Nombre por prefijo semana19-*, y la condición obliga el límite. | NoQuitarNiCambiarElLimite: Denegación sobre roles semana19-* por prefijo.",
+          "usada": true,
+          "sids": {
+            "AsumirRolesCdk": "con_comodin",
+            "LeerCloudFormation": "con_comodin",
+            "CrearRolesSoloConLimite": "con_comodin",
+            "NoQuitarNiCambiarElLimite": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "semana19datosPostgreSQLSecretD3F1FA153fdaad7efa858a3daf9490cf0a702aeb",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-SMG4",
+          "razon": "Sin rotación automática en el laboratorio: la Lambda de rotación queda fuera de la actividad 4; la contraseña nunca sale del secreto cifrado con la llave del stack.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-RDS11",
+          "razon": "Puerto 5432 de PostgreSQL: el acceso lo limita el SG a la Lambda del cargador.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-RDS10",
+          "razon": "Protección contra borrado apagada solo en el laboratorio; el teardown debe borrarla. Documentado en el plan.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-RDS3",
+          "razon": "Single-AZ por diseño de laboratorio (plan, actividad 4).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_157",
+          "razon": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_118",
+          "razon": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRole39D9B8D7",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirDocsKb: Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
+          "usada": false,
+          "sids": {
+            "EscribirDocsKb": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRole39D9B8D7",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: el cargador necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRoleDefaultPolicy0B3E8FAB",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirDocsKb: Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
+          "usada": true,
+          "sids": {
+            "EscribirDocsKb": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRoleDefaultPolicy0B3E8FAB",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: el cargador necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.",
+          "usada": false,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "Cargador29E38F40",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirDocsKb: Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
+          "usada": false,
+          "sids": {
+            "EscribirDocsKb": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "Cargador29E38F40",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio; el cargador es de un solo uso.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "Cargador29E38F40",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Cargador de un solo uso invocado a mano: el resultado vuelve en la respuesta de la invocación; no hay cola de reintentos que vigilar.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "DocsKb68D14A8C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-S1",
+          "razon": "Registros de acceso al bucket de documentos apagados en el laboratorio: el contenido es sintético y los eventos quedan en CloudTrail.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "DocsKb68D14A8C",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_18",
+          "razon": "Registros de acceso apagados en el laboratorio (contenido sintético; eventos en CloudTrail), igual que AwsSolutions-S1.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "RolKb0DAFB92D",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "LeerLosDocs: Lectura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base, para el rol de Bedrock; el ARN de objeto se acota al prefijo.",
+          "usada": false,
+          "sids": {
+            "LeerLosDocs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "RolKbDefaultPolicy138C7222",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "LeerLosDocs: Lectura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base, para el rol de Bedrock; el ARN de objeto se acota al prefijo.",
+          "usada": true,
+          "sids": {
+            "LeerLosDocs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "Juez1E3B69A4",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-S1",
+          "razon": "Registros de acceso apagados en el laboratorio: el bucket solo guarda el dataset y la salida del juez, redactados, por una corrida; los eventos quedan en CloudTrail.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "Juez1E3B69A4",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_18",
+          "razon": "Registros de acceso apagados en el laboratorio, igual que AwsSolutions-S1.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "Juez1E3B69A4",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_21",
+          "razon": "Sin versiones: el bucket se vacía al terminar la corrida y se destruye con el stack.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "RolJuez8231F91D",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "BucketDelJuez: Acciones S3 del juez (judge-service-roles.html) sobre su bucket exacto y sus objetos (arn/*): Bedrock lee el dataset y escribe la salida bajo prefijos que crea al correr.",
+          "usada": false,
+          "sids": {
+            "BucketDelJuez": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "RolJuezDefaultPolicy277F5E51",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "BucketDelJuez: Acciones S3 del juez (judge-service-roles.html) sobre su bucket exacto y sus objetos (arn/*): Bedrock lee el dataset y escribe la salida bajo prefijos que crea al correr.",
+          "usada": true,
+          "sids": {
+            "BucketDelJuez": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRole7706FC6C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRole7706FC6C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "GuardrailEnBedrock: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.",
+          "usada": false,
+          "sids": {
+            "GuardrailEnBedrock": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRoleDefaultPolicy7CBC0D72",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.",
+          "usada": false,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRoleDefaultPolicy7CBC0D72",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "GuardrailEnBedrock: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.",
+          "usada": true,
+          "sids": {
+            "GuardrailEnBedrock": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrail7EC797F5",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio; el custom resource corre una vez por despliegue.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrail7EC797F5",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Custom resource del proyecto: la API de control de Bedrock es pública; fuera de la VPC por diseño.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrail7EC797F5",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Custom resource: CloudFormation reintenta y reporta el fallo en la respuesta; no hay cola que vigilar.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        }
+      ]
+    },
+    "prod": {
+      "conteos": {
+        "nag_suprimidas": 55,
+        "nag_sin_suprimir": 0,
+        "checkov_aprobados": 452,
+        "checkov_omitidos": 38,
+        "checkov_fallidos": 0,
+        "por_regla": {
+          "AwsSolutions-COG2": 1,
+          "AwsSolutions-COG8": 1,
+          "AwsSolutions-DDB3": 2,
+          "AwsSolutions-IAM4": 11,
+          "AwsSolutions-IAM5": 25,
+          "AwsSolutions-L1": 9,
+          "AwsSolutions-RDS10": 1,
+          "AwsSolutions-RDS11": 1,
+          "AwsSolutions-RDS3": 1,
+          "AwsSolutions-S1": 2,
+          "AwsSolutions-SMG4": 1,
+          "CKV_AWS_109": 2,
+          "CKV_AWS_111": 5,
+          "CKV_AWS_115": 1,
+          "CKV_AWS_116": 10,
+          "CKV_AWS_117": 7,
+          "CKV_AWS_118": 1,
+          "CKV_AWS_157": 1,
+          "CKV_AWS_173": 6,
+          "CKV_AWS_18": 2,
+          "CKV_AWS_21": 1,
+          "CKV_AWS_28": 2
+        }
+      },
+      "sin_suprimir": {
+        "cdk_nag": [],
+        "checkov": []
+      },
+      "sin_razon": [],
+      "sobran": [],
+      "supresiones": [
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "RolFlowLogsA335DD51",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirSoloEnSuGrupo: Los flow logs escriben en los streams del grupo: AWS exige la forma <grupo>:* . | DescribirGruposParaFlowLogs: logs:DescribeLogGroups no acepta ARN de recurso. | -: Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
+          "usada": false,
+          "sids": {
+            "EscribirSoloEnSuGrupo": "con_comodin",
+            "DescribirGruposParaFlowLogs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "RolFlowLogsDefaultPolicyCF855930",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirSoloEnSuGrupo: Los flow logs escriben en los streams del grupo: AWS exige la forma <grupo>:* . | DescribirGruposParaFlowLogs: logs:DescribeLogGroups no acepta ARN de recurso. | -: Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
+          "usada": true,
+          "sids": {
+            "EscribirSoloEnSuGrupo": "con_comodin",
+            "DescribirGruposParaFlowLogs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Custom resource que CDK genera para vaciar el grupo de seguridad por defecto: corre una vez al crear la VPC; fuera de la VPC por diseño de CDK.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Custom resource de CDK: invocación única al crear la VPC; sin cola de mensajes muertos.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-base",
+          "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_115",
+          "razon": "Custom resource de CDK: invocación única; sin límite de concurrencia.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Tokens1180AAEA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-DDB3",
+          "razon": "Tokens de tarea: caducan por TTL a las 24 h y se borran al decidir; la recuperación a un punto en el tiempo no aporta nada aquí y su costo no está verificado.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Tokens1180AAEA",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_28",
+          "razon": "Task tokens expire by TTL after 24 h and are deleted on the decision: a point-in-time restore would bring back expired tokens (ADR 0011).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Usuarios",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-COG2",
+          "razon": "MFA desactivada en el laboratorio: usuarios de prueba creados por un administrador (ADR 0013); la decisión de MFA es de la actividad 8.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "Usuarios",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-COG8",
+          "razon": "Feature plan Essentials por ADR 0009 (costo autorizado por Manuel); Plus no está autorizado y su costo no está verificado.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokensServiceRoleBFA90C1C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokens559D9185",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokens559D9185",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Cognito calls the pre-token trigger synchronously: a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionTokens559D9185",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenServiceRole711A6DD2",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Step Functions invokes it synchronously (LambdaInvoke, RequestResponse): a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionRegistrarTokenDF67B75B",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritorServiceRoleFD45F742",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de una VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritor4DED88EF",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritor4DED88EF",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Step Functions invokes it synchronously (LambdaInvoke, RequestResponse): a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionEscritor4DED88EF",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientasServiceRole1FF7D8C6",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientas10B13045",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientas10B13045",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "the agent and the gateway invoke it synchronously (RequestResponse): a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionHerramientas10B13045",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "ConsultasAE11F1EF",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-DDB3",
+          "razon": "Consultas: respuestas efímeras con TTL de 7 días; la recuperación a un punto en el tiempo no aporta aquí y su costo no está verificado.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "ConsultasAE11F1EF",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_28",
+          "razon": "Ephemeral answers with a 7-day TTL; nothing to restore.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgenteServiceRole7F9E6BDA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgenteServiceRole7F9E6BDA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "ModeloDeHaikuPorConverse: bedrock:InvokeModel sobre el perfil de inferencia del modelo del agente (ia/config.py) de esta cuenta y el modelo de fundación en cualquier Región (el perfil cross-Region enruta a varias Regiones de EE. UU.): sin el comodín no funciona la llamada. | EscribirSpansDelAgente: CreateLogStream y PutLogEvents sobre el grupo de spans del agente y sus flujos (/semana19/computo/spans): el flujo lo crea el SDK.",
+          "usada": false,
+          "sids": {
+            "ModeloDeHaikuPorConverse": "con_comodin",
+            "EscribirSpansDelAgente": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgenteServiceRoleDefaultPolicy799632EA",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "ModeloDeHaikuPorConverse: bedrock:InvokeModel sobre el perfil de inferencia del modelo del agente (ia/config.py) de esta cuenta y el modelo de fundación en cualquier Región (el perfil cross-Region enruta a varias Regiones de EE. UU.): sin el comodín no funciona la llamada. | EscribirSpansDelAgente: CreateLogStream y PutLogEvents sobre el grupo de spans del agente y sus flujos (/semana19/computo/spans): el flujo lo crea el SDK.",
+          "usada": true,
+          "sids": {
+            "ModeloDeHaikuPorConverse": "con_comodin",
+            "EscribirSpansDelAgente": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Invoked asynchronously by POST /consultas, with retry_attempts=0. The worker stores state 'error' on any exception; a timeout or crash leaves the row pending until its TTL (finding in resultados/seguridad.md; an on-failure destination is not added here).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAgente1EADB7D9",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "AprobacionRole2D85028A",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.",
+          "usada": false,
+          "sids": {},
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "AprobacionRoleDefaultPolicyA1FD41A7",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.",
+          "usada": true,
+          "sids": {},
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarServiceRole40C6D621",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarServiceRole40C6D621",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: states:SendTaskSuccess sobre '*' (aprobar y rechazar van por SendTaskSuccess): AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
+          "usada": false,
+          "sids": {
+            "DecisionAlFlujo": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarServiceRoleDefaultPolicy217697F9",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: states:SendTaskSuccess sobre '*' (aprobar y rechazar van por SendTaskSuccess): AWS no define tipo de recurso para estas acciones (Service Authorization Reference), así que un ARN de máquina nunca coincide; el token de tarea identifica la ejecución.",
+          "usada": true,
+          "sids": {
+            "DecisionAlFlujo": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "the HTTP API invokes it synchronously: a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionAprobarC2637364",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultasServiceRoleDCD000BC",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "the HTTP API invokes it synchronously: a dead-letter queue applies only to asynchronous invocations.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_173",
+          "razon": "The environment holds resource names, IDs and the database host only: no secret (the database uses IAM authentication; its secret stays in Secrets Manager). Lambda encrypts it at rest with its AWS managed key.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-computo",
+          "recurso": "FuncionConsultas473B0684",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Outside the VPC by design (ADR 0004): it reaches only public AWS APIs (Cognito, DynamoDB, Step Functions, Lambda, Bedrock) and no resource inside the VPC; inside the isolated subnets it would need more interface endpoints than ADR 0005 provides.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "LimiteDED23B9D",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "LogsDelLimite: Escritura de logs en el límite de permisos (activity 7: tres statements con las mismas acciones en uno). LogsDelGrupoDelProyecto: Nombre por prefijo: los grupos del proyecto empiezan por /semana19/. El recurso no tiene ARN previo. EscribirLogsDeLaLambdaDatos: CreateLogStream y PutLogEvents sobre los grupos /aws/lambda/semana19-datos* (la función del cargador). EscribirLogsDelCreadorDeGuardrail: CreateLogStream y PutLogEvents sobre /semana19/ia/* (la función que crea el guardrail; su grupo está cifrado con la llave base). | SinArnDelLimite: Acciones sin ARN de recurso en el límite de permisos, en un solo statement (activity 7, límite de 6,144 caracteres). LogsDescribir: logs:DescribeLogGroups no acepta ARN de recurso: AWS exige resource '*'. EntregaDeLogsDelLimite: Acciones de entrega de logs y política de recursos de CloudWatch Logs sobre '*' en el límite de permisos: Step Functions valida su destino de logs con el rol de la máquina y estas acciones no admiten un recurso más estrecho. Los roles reciben solo lo que su política de identidad concede. XrayDelLimite: Acciones de X-Ray sobre '*' en el límite de permisos: la máquina de estados traza con X-Ray y estas acciones no admiten recurso más estrecho. CloudFormationLeer: Describe, Get y List de CloudFormation: AWS no los acepta con ARN de recurso para listar stacks. RestringirSgPorDefecto: ec2:DescribeSecurityGroups no acepta ARN; Revoke* sobre el grupo por defecto lo usa el custom resource de CDK que vacía sus reglas. RedDeLambdaEnVpc: Interfaces de red de una Lambda dentro de la VPC: AWS no admite ARN de recurso para crear ENIs; es la política administrada AWSLambdaVPCAccessExecutionRole. RespuestaDeTareaDelLimite: states:SendTaskSuccess y SendTaskFailure sobre '*' en el límite de permisos: AWS no define tipo de recurso para estas acciones; el token de tarea identifica la ejecución. | CdkAssumeRoles: Nombre por prefijo: los roles del bootstrap llevan la cuenta y la región en el nombre (cdk-s19-*-<cuenta>-us-east-1); la cuenta no se escribe en el repo. | DocsDatosLeerYListar: Lectura de objetos y ListBucket del bucket de documentos del stack datos (prefijo semana19-datos*): la KB lee el diccionario desde S3; ListBucket exige el ARN del bucket. | DocsDatosEscribir: Escritura del cargador solo bajo docs/ del bucket de documentos del stack datos. | IndiceKbDatos: Operaciones del índice de S3 Vectors legado-kb (bucket semana19-kb-*): la KB lo consulta y escribe vectores. | SecretoBdLeer: GetSecretValue sobre los secretos semana19datos* (contraseña de la base): lo leen el cargador y RDS. | KmsViaServiciosDelLimite: Uso de llaves KMS de la cuenta (key/*) solo cuando la llamada llega por DynamoDB, S3 o Secrets Manager en us-east-1 (kms:ViaService): la llave base cifra las tablas, el bucket de la KB, el del juez y el secreto de la base; cada rol recibe en su política solo la llave exacta. | BucketDelJuezDelLimite: Acciones S3 del rol de servicio del juez (judge-service-roles.html) sobre los buckets semana19-eval-* en el límite de permisos: el nombre lo pone CloudFormation; la política propia del rol nombra el bucket exacto. | LogsDeLaLambdaDatos: logs:CreateLogGroup sobre /aws/lambda/semana19-datos*: Lambda crea el grupo de logs de la función del cargador en su primera ejecución; sin esto los errores no se ven.",
+          "usada": true,
+          "sids": {
+            "LogsDelLimite": "con_comodin",
+            "SinArnDelLimite": "con_comodin",
+            "CdkAssumeRoles": "con_comodin",
+            "DocsDatosLeerYListar": "con_comodin",
+            "DocsDatosEscribir": "con_comodin",
+            "IndiceKbDatos": "con_comodin",
+            "SecretoBdLeer": "con_comodin",
+            "KmsViaServiciosDelLimite": "con_comodin",
+            "BucketDelJuezDelLimite": "con_comodin",
+            "LogsDeLaLambdaDatos": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "LimiteDED23B9D",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfn7F724C55",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "VpcYRedes: Acciones de creación de VPC, subredes, grupos y endpoints: el recurso aún no existe (AWS exige '*'); ec2:Describe* no acepta ARN. | LlavesKms: kms:CreateKey exige resource '*' (la llave aún no existe); las demás acciones usan '*' porque la llave la crea el mismo stack. | GruposDeLogs: Nombre por prefijo: /semana19/*. El stack crea el grupo con ese nombre. | DescribirGruposDeLogs: logs:DescribeLogGroups no acepta ARN de recurso. | FuncionesDeCustomResourceDelProyecto: Nombre por prefijo: las funciones de custom resource del stack empiezan por semana19-. | RolesConLimite: Nombre por prefijo semana19-*, y la condición iam:PermissionsBoundary obliga el límite en la creación.",
+          "usada": true,
+          "sids": {
+            "VpcYRedes": "con_comodin",
+            "LlavesKms": "con_comodin",
+            "GruposDeLogs": "con_comodin",
+            "DescribirGruposDeLogs": "con_comodin",
+            "FuncionesDeCustomResourceDelProyecto": "con_comodin",
+            "RolesConLimite": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfn7F724C55",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfn7F724C55",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_109",
+          "razon": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnDatos4EF77136",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "SecretoDeLaBdPorCfn: Secrets Manager crea el secreto con nombre generado por CloudFormation: el ARN no existe antes de crearlo; AWS exige '*' para Create*. | ContrasenaGeneradaPorCfn: GetRandomPassword no admite ARN de recurso: AWS exige '*'. | LeerSecretoDeLaBdPorCfn: GetSecretValue solo sobre los secretos cuyo nombre empieza por semana19datos (el secreto de la base de datos): RDS lo lee para aplicar la contraseña generada. | EscribirSecretoDeLaBdPorCfn: PutSecretValue y UpdateSecretVersionStage sobre los secretos semana19datos* (la contraseña de la base): CloudFormation escribe ahí los datos de conexión al asociar el secreto. | DescribirRdsPorCfn: rds:Describe* no acepta ARN de recurso para listar instancias y subnet groups: AWS exige '*'. | LlaveParaRdsYSecretos: kms:CreateGrant y ListGrants para que RDS y Secrets Manager usen la llave del proyecto; el recurso es la llave (AWS exige '*' en la política de ejecución) y la condición kms:ViaService limita el uso a esos dos servicios. | BaseDeDatosPostgresPorCfn: Crear, modificar y borrar la base y su subnet group: el nombre lo pone CloudFormation con el prefijo semana19-datos; la base no tiene ARN antes de crearse. | BucketDocsKbPorCfn: Bucket de documentos de la Knowledge Base: CloudFormation le pone nombre con el prefijo semana19-datos; el borrado de objetos se necesita para el teardown. | VectoresKbPorCfn: Bucket e índice de S3 Vectors con el prefijo semana19-kb-; el índice se crea dentro del bucket y su ARN no existe antes del despliegue. | KnowledgeBasePorCfn: Knowledge Base y su fuente de datos: el ID lo asigna Bedrock al crearse, así que el ARN es knowledge-base/* dentro de la región y cuenta. | CrearKnowledgeBasePorCfn: bedrock:CreateKnowledgeBase no tiene ARN antes de crear la Knowledge Base: AWS la autoriza contra '*' (verificado con iam simulate-custom-policy). | RolesDelDatosPorCfn: Roles del stack datos (semana19-kb y semana19-datos-*): sus políticas en línea y adjuntas las pone CloudFormation; los roles llevan el límite semana19-limite, que acota lo que pueden tener. | PasarRolesDelDatosAKbYLambda: iam:PassRole de los roles del stack datos solo hacia bedrock y lambda (condición PassedToService). | ConcurrenciaDelCargador: Concurrencia reservada de la Lambda del cargador: su nombre tiene el prefijo semana19-.",
+          "usada": true,
+          "sids": {
+            "SecretoDeLaBdPorCfn": "con_comodin",
+            "ContrasenaGeneradaPorCfn": "con_comodin",
+            "LeerSecretoDeLaBdPorCfn": "con_comodin",
+            "EscribirSecretoDeLaBdPorCfn": "con_comodin",
+            "DescribirRdsPorCfn": "con_comodin",
+            "LlaveParaRdsYSecretos": "con_comodin",
+            "BaseDeDatosPostgresPorCfn": "con_comodin",
+            "BucketDocsKbPorCfn": "con_comodin",
+            "VectoresKbPorCfn": "con_comodin",
+            "KnowledgeBasePorCfn": "con_comodin",
+            "CrearKnowledgeBasePorCfn": "con_comodin",
+            "RolesDelDatosPorCfn": "con_comodin",
+            "PasarRolesDelDatosAKbYLambda": "con_comodin",
+            "ConcurrenciaDelCargador": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnDatos4EF77136",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Creación de recursos del stack datos sin ARN previo (secreto, base, buckets, Knowledge Base); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnDatos4EF77136",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_109",
+          "razon": "Roles semana19-kb y semana19-datos-* sin condición de límite en las acciones de gestión: los roles se crean con semana19-limite (aplicado por el Aspect), y iam:PassRole solo hacia bedrock y lambda.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnIaA9DE7690",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "PromptsDelAgentePorCfn: Acciones de Prompt Management sobre prompt/* de esta cuenta: CloudFormation crea, versiona y lee los prompts del agente (ARN no existe antes de crearlos). | LlaveDeLosPromptsPorCfn: Uso de llaves KMS de la cuenta solo por Bedrock en us-east-1 (kms:ViaService): los prompts se cifran con la llave base. | PasarRolDelCreadorDeGuardrail: iam:PassRole sobre role/semana19-ia-* solo hacia lambda.amazonaws.com: CloudFormation asigna el rol a la función que crea el guardrail. | PoliticasYAdjuntosDelRolDeIa: Políticas en línea y adjuntas del rol del creador de guardrail, solo sobre role/semana19-ia-* (nombre que genera CDK para el stack semana19-ia). | BorrarRolDeIa: Borrar y leer el rol del creador de guardrail, solo sobre role/semana19-ia-*: el rol se crea con el límite; el stack lo borra al destruirse.",
+          "usada": true,
+          "sids": {
+            "PromptsDelAgentePorCfn": "con_comodin",
+            "LlaveDeLosPromptsPorCfn": "con_comodin",
+            "PasarRolDelCreadorDeGuardrail": "con_comodin",
+            "PoliticasYAdjuntosDelRolDeIa": "con_comodin",
+            "BorrarRolDeIa": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnComputo2326E081",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "ApiHttpPorCfn: API Gateway v2 (HTTP API) de semana19-api: la llamada de creación no tiene ARN previo; /apis/* cubre solo las APIs que el stack crea y /tags/* sus etiquetas. | CognitoPorCfn: Cognito no admite ARN de recurso en las acciones de creación del pool, cliente, servidores y grupos: CloudFormation las llama antes de que exista el pool. Solo las acciones de este stack, en esta cuenta. | TablaDeTokensPorCfn: Tabla DynamoDB del stack computo: su nombre lo genera CloudFormation desde el nombre del stack, así que el patrón es table/semana19-*. | LlaveDeLaTablaPorCfn: kms:CreateGrant, ListGrants y DescribeKey sobre '*', limitados a llamadas vía DynamoDB en esta Región: la tabla cifrada con llave del stack necesita el grant; la llave no tiene ARN previo. | RolesDeComputoPorCfn: Leer y modificar las políticas y etiquetas de los roles del stack computo, solo sobre role/semana19-computo-*: CloudFormation los lee y actualiza al crearlos. Sin la condición del límite porque estas llamadas no la llevan; la creación sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite. | EntregaDeLogsDeApiPorCfn: Acciones de entrega de logs de API Gateway (CreateLogDelivery y similares) sobre '*': no admiten ARN de recurso; API Gateway las usa para los logs de acceso de la HTTP API del stack computo. | MaquinaDeAprobacionPorCfn: Step Functions: la máquina de aprobación semana19-aprobacion; el patrón stateMachine:semana19-* cubre solo las máquinas de este proyecto. | PasarRolesDeComputoAFuncionesYMaquina: iam:PassRole sobre role/semana19-* solo hacia lambda.amazonaws.com y states.amazonaws.com: CloudFormation asigna los roles con límite que crea el stack a sus funciones y a la máquina de aprobación.",
+          "usada": true,
+          "sids": {
+            "ApiHttpPorCfn": "con_comodin",
+            "CognitoPorCfn": "con_comodin",
+            "TablaDeTokensPorCfn": "con_comodin",
+            "LlaveDeLaTablaPorCfn": "con_comodin",
+            "RolesDeComputoPorCfn": "con_comodin",
+            "EntregaDeLogsDeApiPorCfn": "con_comodin",
+            "MaquinaDeAprobacionPorCfn": "con_comodin",
+            "PasarRolesDeComputoAFuncionesYMaquina": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnComputo2326E081",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB (LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnAgentes220F2759",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "GatewayPorCfn: Gateway de AgentCore, su target y su identidad de carga de trabajo sobre arn:...:*gateway* de esta cuenta y Región (patrón de gateway-prerequisites-permissions.html): el ID lo asigna AgentCore al crearlo e incluye el nombre semana19-gateway; InvokeGateway lo usa CreatePolicy para validar las acciones Cedar. | IdentidadDelGatewayPorCfn: Identidad de carga de trabajo del gateway: CreateWorkloadIdentity se autoriza sobre el directorio default de la cuenta, y Get/Update/Delete sobre workload-identity/semana19-gateway-* (el sufijo lo asigna AgentCore al crear el gateway). | MotorDePoliticasPorCfn: Motor de políticas de AgentCore y sus políticas sobre policy-engine/* de esta cuenta y Región: el ID lo asigna AgentCore al crearlo (policy-permissions.html, rol de administración). | CrearAgentePorCfn: bedrock:CreateAgent sobre '*': la Service Authorization Reference no define tipo de recurso para esta acción; el resto de acciones del agente se acotan a agent/* y agent-alias/*. | AgentePorCfn: Acciones del agente de comparación (Bedrock Agents) sobre agent/* y agent-alias/* de esta cuenta y Región: los IDs los asigna Bedrock al crearlos; el stack es desechable (semana19-agentes-comparacion). | ModeloYGuardrailDelAgentePorCfn: GetGuardrail sobre guardrail/* de esta cuenta y Región (el ID lo asigna Bedrock en el stack ia), más GetInferenceProfile y GetFoundationModel sobre el perfil y el modelo exactos del agente: Bedrock los lee al crear y preparar el agente. | PasarRolesAAgentCoreYBedrock: iam:PassRole sobre role/semana19-* solo hacia bedrock-agentcore.amazonaws.com y bedrock.amazonaws.com: CloudFormation asigna al Gateway y al agente de comparación los roles con límite que crean sus stacks. | RolesDeActividad7PorCfn: Leer y modificar las políticas en línea de los roles de semana19-gateway y semana19-agentes-comparacion, solo sobre role/semana19-gateway-* y role/semana19-agentes-comparacion-*: CloudFormation las crea, lee y borra. Sin la condición del límite porque estas llamadas no la llevan; la creación del rol sigue exigiendo el límite (RolesConLimite) y estas acciones no cambian el límite.",
+          "usada": true,
+          "sids": {
+            "GatewayPorCfn": "con_comodin",
+            "IdentidadDelGatewayPorCfn": "con_comodin",
+            "MotorDePoliticasPorCfn": "con_comodin",
+            "CrearAgentePorCfn": "con_comodin",
+            "AgentePorCfn": "con_comodin",
+            "ModeloYGuardrailDelAgentePorCfn": "con_comodin",
+            "PasarRolesAAgentCoreYBedrock": "con_comodin",
+            "RolesDeActividad7PorCfn": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "EjecucionCfnAgentes220F2759",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_111",
+          "razon": "CreateAgent sin tipo de recurso (Service Authorization Reference) y recursos de AgentCore sin ID previo; ver EXCEPCIONES.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "Despliegue3F2F11CF",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "AsumirRolesCdk: Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo). | LeerCloudFormation: Describe, Get y List de CloudFormation: sin ARN de recurso para listar. | CrearRolesSoloConLimite: Nombre por prefijo semana19-*, y la condición obliga el límite. | NoQuitarNiCambiarElLimite: Denegación sobre roles semana19-* por prefijo.",
+          "usada": false,
+          "sids": {
+            "AsumirRolesCdk": "con_comodin",
+            "LeerCloudFormation": "con_comodin",
+            "CrearRolesSoloConLimite": "con_comodin",
+            "NoQuitarNiCambiarElLimite": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-control",
+          "recurso": "DespliegueDefaultPolicy8E849597",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "AsumirRolesCdk: Nombre por prefijo: cdk-s19-*-<cuenta>-us-east-1 (la cuenta no se escribe en el repo). | LeerCloudFormation: Describe, Get y List de CloudFormation: sin ARN de recurso para listar. | CrearRolesSoloConLimite: Nombre por prefijo semana19-*, y la condición obliga el límite. | NoQuitarNiCambiarElLimite: Denegación sobre roles semana19-* por prefijo.",
+          "usada": true,
+          "sids": {
+            "AsumirRolesCdk": "con_comodin",
+            "LeerCloudFormation": "con_comodin",
+            "CrearRolesSoloConLimite": "con_comodin",
+            "NoQuitarNiCambiarElLimite": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "semana19datosPostgreSQLSecretD3F1FA153fdaad7efa858a3daf9490cf0a702aeb",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-SMG4",
+          "razon": "Sin rotación automática en el laboratorio: la Lambda de rotación queda fuera de la actividad 4; la contraseña nunca sale del secreto cifrado con la llave del stack.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-RDS11",
+          "razon": "Puerto 5432 de PostgreSQL: el acceso lo limita el SG a la Lambda del cargador.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-RDS10",
+          "razon": "Protección contra borrado apagada solo en el laboratorio; el teardown debe borrarla. Documentado en el plan.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-RDS3",
+          "razon": "Single-AZ por diseño de laboratorio (plan, actividad 4).",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_157",
+          "razon": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "PostgreSQLB528AA70",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_118",
+          "razon": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRole39D9B8D7",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirDocsKb: Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
+          "usada": false,
+          "sids": {
+            "EscribirDocsKb": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRole39D9B8D7",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: el cargador necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRoleDefaultPolicy0B3E8FAB",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirDocsKb: Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
+          "usada": true,
+          "sids": {
+            "EscribirDocsKb": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "CargadorServiceRoleDefaultPolicy0B3E8FAB",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaVPCAccessExecutionRole: el cargador necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.",
+          "usada": false,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "Cargador29E38F40",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "EscribirDocsKb: Escritura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base; CloudFormation y AWS exigen el ARN de objeto con clave, así que el comodín queda acotado al prefijo.",
+          "usada": false,
+          "sids": {
+            "EscribirDocsKb": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "Cargador29E38F40",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio; el cargador es de un solo uso.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "Cargador29E38F40",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Cargador de un solo uso invocado a mano: el resultado vuelve en la respuesta de la invocación; no hay cola de reintentos que vigilar.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "DocsKb68D14A8C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-S1",
+          "razon": "Registros de acceso al bucket de documentos apagados en el laboratorio: el contenido es sintético y los eventos quedan en CloudTrail.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "DocsKb68D14A8C",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_18",
+          "razon": "Registros de acceso apagados en el laboratorio (contenido sintético; eventos en CloudTrail), igual que AwsSolutions-S1.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "RolKb0DAFB92D",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "LeerLosDocs: Lectura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base, para el rol de Bedrock; el ARN de objeto se acota al prefijo.",
+          "usada": false,
+          "sids": {
+            "LeerLosDocs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-datos",
+          "recurso": "RolKbDefaultPolicy138C7222",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "LeerLosDocs: Lectura de los documentos del diccionario bajo el prefijo docs/ del bucket de la Knowledge Base, para el rol de Bedrock; el ARN de objeto se acota al prefijo.",
+          "usada": true,
+          "sids": {
+            "LeerLosDocs": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "Juez1E3B69A4",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-S1",
+          "razon": "Registros de acceso apagados en el laboratorio: el bucket solo guarda el dataset y la salida del juez, redactados, por una corrida; los eventos quedan en CloudTrail.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "Juez1E3B69A4",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_18",
+          "razon": "Registros de acceso apagados en el laboratorio, igual que AwsSolutions-S1.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "Juez1E3B69A4",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_21",
+          "razon": "Sin versiones: el bucket se vacía al terminar la corrida y se destruye con el stack.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "RolJuez8231F91D",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "BucketDelJuez: Acciones S3 del juez (judge-service-roles.html) sobre su bucket exacto y sus objetos (arn/*): Bedrock lee el dataset y escribe la salida bajo prefijos que crea al correr.",
+          "usada": false,
+          "sids": {
+            "BucketDelJuez": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-eval",
+          "recurso": "RolJuezDefaultPolicy277F5E51",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "BucketDelJuez: Acciones S3 del juez (judge-service-roles.html) sobre su bucket exacto y sus objetos (arn/*): Bedrock lee el dataset y escribe la salida bajo prefijos que crea al correr.",
+          "usada": true,
+          "sids": {
+            "BucketDelJuez": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRole7706FC6C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRole7706FC6C",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "GuardrailEnBedrock: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.",
+          "usada": false,
+          "sids": {
+            "GuardrailEnBedrock": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRoleDefaultPolicy7CBC0D72",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM4",
+          "razon": "AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.",
+          "usada": false,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrailServiceRoleDefaultPolicy7CBC0D72",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-IAM5",
+          "razon": "GuardrailEnBedrock: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.",
+          "usada": true,
+          "sids": {
+            "GuardrailEnBedrock": "con_comodin"
+          },
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrail7EC797F5",
+          "herramienta": "cdk-nag",
+          "regla": "AwsSolutions-L1",
+          "razon": "Runtime Python 3.13, el más reciente aprobado para el laboratorio; el custom resource corre una vez por despliegue.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrail7EC797F5",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_117",
+          "razon": "Custom resource del proyecto: la API de control de Bedrock es pública; fuera de la VPC por diseño.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        },
+        {
+          "perfil_stack": "semana19-ia",
+          "recurso": "CreadorGuardrail7EC797F5",
+          "herramienta": "checkov",
+          "regla": "CKV_AWS_116",
+          "razon": "Custom resource: CloudFormation reintenta y reporta el fallo en la respuesta; no hay cola que vigilar.",
+          "usada": true,
+          "usada_en_su_grupo": true
+        }
+      ]
+    }
+  },
+  "veredicto": "ok"
+}
