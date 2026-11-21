@@ -1231,3 +1231,15 @@ def test_la_ejecucion_del_computo_etiqueta_el_stage_del_api(perfil):
                      for d in r["Properties"]["PolicyDocument"]["Statement"]]
     (api,) = [d for d in declaraciones if d.get("Sid") == "ApiHttpPorCfn"]
     assert {"apigateway:TagResource", "apigateway:UntagResource"} <= set(api["Action"])
+
+
+@pytest.mark.parametrize("perfil", PERFILES)
+def test_la_ejecucion_del_computo_configura_la_invocacion_asincrona_del_agente(perfil):
+    """retry_attempts=0 synthesizes an AWS::Lambda::EventInvokeConfig; its handler needs the four calls, or the stack
+    and its rollback fail (2026-11-21)."""
+    declaraciones = [d for r in recursos(de_control(perfil), "AWS::IAM::ManagedPolicy").values()
+                     for d in r["Properties"]["PolicyDocument"]["Statement"]]
+    (config,) = [d for d in declaraciones if d.get("Sid") == "ConfigAsincronaDelAgente"]
+    assert sorted(config["Action"]) == sorted(f"lambda:{v}FunctionEventInvokeConfig" for v in ("Put", "Get", "Update",
+                                                                                               "Delete"))
+    assert "function:semana19-computo-FuncionAgente*" in json.dumps(config["Resource"])

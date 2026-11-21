@@ -438,7 +438,7 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "51ce8bc1f7798a71bb53d157a912e48a5c21e5ebcd42adac103cbbc02cedcc34",
+        "huella": "081ee48bc97e88b9f978810d2cf2f4e901a2ee81f47da01bda2a1356b192c766",
         "hallazgos": [
           {
             "findingType": "ERROR",
@@ -1057,7 +1057,7 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "51ce8bc1f7798a71bb53d157a912e48a5c21e5ebcd42adac103cbbc02cedcc34",
+        "huella": "081ee48bc97e88b9f978810d2cf2f4e901a2ee81f47da01bda2a1356b192c766",
         "hallazgos": [
           {
             "findingType": "ERROR",

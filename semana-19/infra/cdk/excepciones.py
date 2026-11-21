@@ -76,6 +76,7 @@ EXCEPCIONES = {
     "DescribirGruposParaFlowLogs": "logs:DescribeLogGroups no acepta ARN de recurso.",
     "-": "Statement sin Sid generado por CDK para el destino de los flow logs (log-group:*). Mismo motivo que EscribirSoloEnSuGrupo.",
     "ApiHttpPorCfn": "API Gateway v2 (HTTP API) de semana19-api: la llamada de creación no tiene ARN previo; /apis/* cubre solo las APIs que el stack crea y /tags/* sus etiquetas.",
+    "ConfigAsincronaDelAgente": "Nombre generado por CDK bajo semana19-computo-FuncionAgente* (sufijo aleatorio), con su calificador $LATEST: la configuración de invocación asíncrona (retry_attempts=0) de la función del agente, nada más.",
     "CognitoPorCfn": "Cognito no admite ARN de recurso en las acciones de creación del pool, cliente, servidores y grupos: CloudFormation las llama antes de que exista el pool. Solo las acciones de este stack, en esta cuenta.",
     "TablaDeTokensPorCfn": "Tabla DynamoDB del stack computo: su nombre lo genera CloudFormation desde el nombre del stack, así que el patrón es table/semana19-*.",
     "LlaveDeLaTablaPorCfn": "kms:CreateGrant, ListGrants y DescribeKey sobre '*', limitados a llamadas vía DynamoDB en esta Región: la tabla cifrada con llave del stack necesita el grant; la llave no tiene ARN previo.",
