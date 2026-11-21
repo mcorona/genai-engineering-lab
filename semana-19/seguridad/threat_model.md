@@ -103,7 +103,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 |---|---|---|---|---|---|---|
 | T7.1 | T | the agent's context | Poisoned documents in the KB (indirect injection) | **None needed today, and none in place: no code calls `Retrieve`.** ADR 0008 decided the agent would, and the agent role has no `bedrock:Retrieve` | `git grep` finds no `Retrieve` call in `agente/` or `herramientas/` | step 4 (a direct `Retrieve` shows what the KB would return); **H2** |
 | T7.2 | E | the docs prefix | Someone writes documents | Only the loader writes `docs/*`; the boundary allows `s3:PutObject` only on `semana19-datos*/docs/*` | `resultados/seguridad/validate_policy.json` (the boundary validated); `test_infra_cdk.py::test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto` | offline |
-| T7.3 | I | documents, vectors | The bucket or the vector store is public or not on the CMK | CMK on the bucket and the KB, Block Public Access | `test_infra_cdk.py::test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto`; `verificar_desplegado.py` | offline; step 2 |
+| T7.3 | I | documents, vectors | The bucket or the vector store is public or not on the CMK | Docs bucket on the CMK with Block Public Access. The vector bucket has no encryption configuration, so S3 Vectors uses SSE-S3, which cannot be changed after creation | `test_infra_cdk.py::test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto` (docs bucket); `verificar_desplegado.py` | offline (docs bucket); step 2; vector bucket: **H10** |
 
 ### F8 · Logs, traces and the audit trail
 
@@ -111,7 +111,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 |---|---|---|---|---|---|---|
 | T8.1 | I | questions, answers, tokens | Free text or tokens in spans | The exporter drops undeclared free-text attributes and counts them | `test_agente_exportador.py::test_atributo_de_texto_libre_se_omite_y_se_cuenta` | offline + live (spans of activity 8) |
 | T8.2 | I | log groups | Logs not on the CMK, or kept forever | Every group on the CMK with retention | `test_infra_cdk.py::test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion`; `test_infra_computo.py::test_todo_grupo_de_logs_del_stack_esta_cifrado_y_con_retencion` | offline; step 2 |
-| T8.3 | R | Bedrock calls | No record of which role called Bedrock | CloudTrail management events (free, 90 days); Bedrock data events need a trail, which this lab does not have | `verificar_desplegado.py` (CloudTrail check) | step 2 |
+| T8.3 | R | Bedrock calls | No record of which role called Bedrock | CloudTrail Event history: 90 days of management events, free. `Converse` and `InvokeModel` are management events. `ApplyGuardrail`, `Retrieve`, `InvokeAgent` and AgentCore `InvokeGateway` are data events that need a paid trail, which this lab does not have | `verificar_desplegado.py` (CloudTrail check) | step 2; the data events are not visible: **H11** |
 | T8.4 | E | the key | A service principal in the key policy acts for another account (confused deputy) | `DeliveryDeLogsDescifra` gives `delivery.logs.amazonaws.com` `kms:Decrypt` **without** `aws:SourceAccount` or `aws:SourceArn` | `resultados/seguridad/validate_policy.json` (no finding: the validator does not flag it) | not tested; **H7** |
 
 ### F9 · The network (VPC, endpoints)
@@ -150,6 +150,8 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 | H6 | F1 | Lab settings that must not reach prod: admin password login enabled for the test users, MFA off | low in the lab; high in prod | Prod profile without `ALLOW_ADMIN_USER_PASSWORD_AUTH`, with MFA | accepted for the lab |
 | H7 | F8 | Key policy statement `DeliveryDeLogsDescifra` has no `aws:SourceAccount` condition (confused deputy) | low | Add `aws:SourceAccount` and check that Step Functions log delivery still works | open |
 | H8 | F10 | Vendored packages (botocore, PyJWT, cryptography, pg8000, sqlglot) are pinned but not scanned for known vulnerabilities | medium | `pip-audit` (or OSV) over `uv.lock` and the vendored dist-info in CI | open, for week 21 |
+| H10 | F2, F6, F7 | Not on the CMK: the approval state machine (AWS owned key; its log group is on the CMK), the KB's vector bucket (SSE-S3 by default, immutable), and the environment variables of the 6 computo Lambdas that have them (AWS managed key `aws/lambda`; they hold resource names and ids, no secrets). The test `test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto` synthesizes only control, base and datos, so it never saw computo | low | Add the CMK to the state machine, the vector bucket (a new bucket) and the Lambdas' `KmsKeyArn`, and extend the test to computo | open |
+| H11 | F8 | Bedrock data events (`ApplyGuardrail`, `Retrieve`) and gateway `InvokeGateway` calls are not recorded: no trail. Only `Converse` and `InvokeModel` reach Event history | low in the lab; medium in prod | A trail with advanced event selectors for those resource types in prod | accepted for the lab (a trail is paid and needs Manuel's OK) |
 | H9 | F1 to F11 | Fixed in this activity: 24 checkov failures on computo (#297); two ValidatePolicy errors (#298) | — | — | fixed |
 
 ## What changed from week 14

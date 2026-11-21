@@ -22,7 +22,7 @@ flowchart LR
     aprobar[Approver Lambda<br/>POST /aprobaciones/id]
     registrar[Token registrar Lambda]
     ttokens[(DynamoDB task tokens<br/>CMK, TTL 24 h)]
-    sfn[[Step Functions Standard<br/>waitForTaskToken, timeout]]
+    sfn[[Step Functions Standard<br/>waitForTaskToken, timeout, AWS owned key]]
   end
 
   subgraph F3["F3 · Bedrock"]
@@ -43,7 +43,7 @@ flowchart LR
 
   subgraph F7["F7 · Knowledge Base"]
     docs[(S3 docs bucket, CMK)]
-    kb[Knowledge Base<br/>Titan V2, S3 Vectors]
+    kb[Knowledge Base<br/>Titan V2, S3 Vectors with SSE-S3]
   end
 
   subgraph F8["F8 · Logs and traces"]
@@ -83,4 +83,3 @@ flowchart LR
   kms -.-> tconsultas
   kms -.-> ttokens
   kms -.-> cw
-  kms -.-> sfn
