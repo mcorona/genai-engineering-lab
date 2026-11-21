@@ -829,6 +829,11 @@ class Base(Stack):
             retention_in_days=CFG["retencion_flow_logs_dias"], kms_key_id=llave.key_arn)
         grupo.apply_removal_policy(BORRADO)
 
+        # No KMS permission here, on purpose. CloudTrail shows this role denied kms:GenerateDataKey on the base key
+        # (session vpc-flow-logging; 2026-11-18 and twice on 2026-11-20), yet delivery never stopped: the group's
+        # IncomingBytes metric was nonzero every day from 2026-11-13 to 2026-11-20 (11,722,093 bytes on 2026-11-18,
+        # the day of the denial). CloudWatch Logs encrypts the group through the key policy, and the VPC guide's role
+        # policy (flow-logs-iam-role.html) asks for no KMS action. Granting one would only silence that CloudTrail line.
         rol_flow = iam.Role(
             self, "RolFlowLogs", role_name="semana19-flow-logs",
             assumed_by=iam.ServicePrincipal("vpc-flow-logs.amazonaws.com",
