@@ -1,8 +1,15 @@
 """Week 19, activity 2: cost model for the LegacyBridge stack (lab and prod). Offline, $0.
 
-Prices come from precios.json, each with its source. Token percentiles come from the week 13 detail.
-A line whose price is not measured (null, mark N) is listed but NOT added to the total: the output
-says so (`parcial`), it is never counted as 0.
+Prices come from precios.json, each with its source. A line whose price is not measured (null, mark N) is listed but
+NOT added to the total: the output says so (`parcial`), it is never counted as 0.
+
+Two versions of the tokens per query, both kept (activity 8, step 4: the model is corrected, never the number):
+- v1 (activity 2): p95 of week 13's local runs (eval_sdk_low_detalle.jsonl). Cost Explorer put it 61 % above the real
+  model cost per task.
+- v2 (default, 2026-11-21): the deployed agent's own spans, the 57 agent tasks of activity 8's runs
+  (resultados/eval_aws/crudo_eval*.json and aprobacion_e2e.json), the same tasks Cost Explorer billed. The mean is the
+  expected cost per query; p95 stays available for a conservative quote. No prompt caching was measured (0 cached
+  tokens). v2 also lists ApplyGuardrail, which runs on every model call since activity 5: its price is N.
 """
 from __future__ import annotations
 
@@ -17,6 +24,8 @@ RAIZ = COSTOS.parent.parent
 HORAS_MES = 730.0
 DIAS_MES = 30.0
 DETALLE_S13 = RAIZ / "semana-13" / "resultados" / "eval_sdk_low_detalle.jsonl"
+EVAL_AWS = COSTOS.parent / "resultados" / "eval_aws"
+VERSIONES = {"v1": "p95 of week 13's local runs", "v2": "the deployed agent's spans (activity 8, 57 tasks)"}
 PERFILES = {
     # lab: 1 AZ, Single-AZ database, no public IPv4, 2 interface endpoints (logs, states; S3 is a gateway endpoint, not priced here).
     "lab": {"azs": 1, "rds_multi_az": False, "ipv4": 0, "endpoints": 2, "llaves_kms": 2, "log_gb": 1.0},
@@ -46,11 +55,35 @@ def tokens_s13(campo: str, p: str) -> float:
     return percentil(valores, 0.5 if p == "p50" else 0.95)
 
 
+def filas_desplegado(carpeta: Path = EVAL_AWS) -> list[dict]:
+    """Every agent task of activity 8's runs with its spans (warm-up and discarded runs included, aborted ones out)."""
+    filas = []
+    for archivo in sorted(carpeta.glob("crudo_eval*.json")):
+        crudo = json.loads(archivo.read_text(encoding="utf-8"))
+        filas += crudo.get("calentamiento", []) + crudo["filas"]
+    aprob = carpeta / "aprobacion_e2e.json"
+    if aprob.exists():
+        filas += json.loads(aprob.read_text(encoding="utf-8"))["tareas"]
+    return [f for f in filas if f.get("tokens_entrada")]
+
+
+def tokens_desplegado(campo: str, p: str, carpeta: Path = EVAL_AWS) -> float:
+    """p in {'media','p50','p95','max'} over the deployed agent's tasks; campo as in week 13 (tokens_in, tokens_out)."""
+    clave = {"tokens_in": "tokens_entrada", "tokens_out": "tokens_salida"}[campo]
+    valores = [float(f[clave]) for f in filas_desplegado(carpeta)]
+    if p == "media":
+        return sum(valores) / len(valores)
+    if p == "max":
+        return max(valores)
+    return percentil(valores, 0.5 if p == "p50" else 0.95)
+
+
 @dataclass
 class Parametros:
     perfil: str = "lab"
     consultas_dia: float = 100.0
-    percentil_tokens: str = "p95"      # p50 | p95 | max
+    version: str = "v2"                # v1 | v2 (VERSIONES)
+    percentil_tokens: str | None = None  # media | p50 | p95 | max; by default p95 in v1, media in v2
     horas_dia: float = 8.0
     horas_sesion: float = 0.0          # para la estimación de la actividad 3
     usuarios: float = 10.0             # MAU de Cognito
@@ -110,11 +143,13 @@ def lineas_fijas_mes(par: Parametros, precios: dict) -> list[dict]:
 
 
 def lineas_consulta(par: Parametros, precios: dict, tokens_in: float, tokens_out: float) -> list[dict]:
+    fuente = f"{par.percentil_tokens} de la semana 13" if par.version == "v1" else \
+        f"{par.percentil_tokens} del agente desplegado (actividad 8)"
     c = []
     c.append(_linea("Haiku 4.5 (us.), tokens de entrada", precios, "haiku45_entrada_1m", tokens_in / 1e6,
-                    "M tokens", "por consulta", f"{par.percentil_tokens} de la semana 13"))
+                    "M tokens", "por consulta", fuente))
     c.append(_linea("Haiku 4.5 (us.), tokens de salida", precios, "haiku45_salida_1m", tokens_out / 1e6,
-                    "M tokens", "por consulta", f"{par.percentil_tokens} de la semana 13"))
+                    "M tokens", "por consulta", fuente))
     c.append(_linea("Lambda, GB-segundo", precios, "lambda_arm_gb_s", par.memoria_gb * par.duracion_s,
                     "GB-s", "por consulta", f"memoria {par.memoria_gb} GB y {par.duracion_s} s (supuesto)"))
     c.append(_linea("Lambda, solicitudes", precios, "lambda_solicitud", 1.0, "solicitud", "por consulta"))
@@ -125,6 +160,9 @@ def lineas_consulta(par: Parametros, precios: dict, tokens_in: float, tokens_out
                     par.log_kb_por_consulta / 1e6, "GB", "por consulta"))
     c.append(_linea("AgentCore Gateway, invocaciones", precios, "agentcore_gateway_invocacion",
                     par.llamadas_gateway_por_consulta, "invocaciones", "por consulta"))
+    if par.version == "v2":
+        c.append(_linea("ApplyGuardrail, unidades de texto", precios, "guardrail_unidad_texto", None,
+                        "unidades de texto", "por consulta", "corre en cada llamada al modelo; ni precio ni unidades medidos"))
     return c
 
 
@@ -145,9 +183,15 @@ def estimacion_base_hora(perfil: str = "lab") -> dict:
 def modelo(par: Parametros) -> dict:
     if par.perfil not in PERFILES:
         raise ValueError(f"perfil desconocido: {par.perfil}")
+    if par.version not in VERSIONES:
+        raise ValueError(f"versión desconocida: {par.version}")
+    if par.percentil_tokens is None:
+        par.percentil_tokens = "p95" if par.version == "v1" else "media"
     precios = cargar_precios()
-    tin = tokens_s13("tokens_in", par.percentil_tokens)
-    tout = tokens_s13("tokens_out", par.percentil_tokens)
+    if par.version == "v1":
+        tin, tout = tokens_s13("tokens_in", par.percentil_tokens), tokens_s13("tokens_out", par.percentil_tokens)
+    else:
+        tin, tout = tokens_desplegado("tokens_in", par.percentil_tokens), tokens_desplegado("tokens_out", par.percentil_tokens)
     fijas_h = lineas_fijas_hora(par, precios)
     fijas_m = lineas_fijas_mes(par, precios)
     cons = lineas_consulta(par, precios, tin, tout)
@@ -187,13 +231,13 @@ def modelo(par: Parametros) -> dict:
 def tabla(res: dict) -> str:
     def f(x):
         return "N" if x is None else f"{x:.6f}"
-    out = [f"Perfil: {res['perfil']}  (tokens {res['parametros']['percentil_tokens']}: "
+    out = [f"Perfil: {res['perfil']}, versión {res['parametros']['version']}  (tokens {res['parametros']['percentil_tokens']}: "
            f"entrada {res['parametros']['tokens_in']:.0f}, salida {res['parametros']['tokens_out']:.0f})", ""]
     out.append("| Partida | Frecuencia | Marca | Cantidad | Costo USD |")
     out.append("|---|---|---|---|---|")
     for grupo in ("fijas_por_hora", "fijas_por_mes", "por_consulta"):
         for l in res[grupo]:
-            out.append(f"| {l['partida']} | {l['frecuencia']} | {l['marca']} | {l['cantidad']:.6g} {l['unidad']} | {f(l['costo_usd'])} |")
+            out.append(f"| {l['partida']} | {l['frecuencia']} | {l['marca']} | {'N' if l['cantidad'] is None else format(l['cantidad'], '.6g')} {l['unidad']} | {f(l['costo_usd'])} |")
     out.append("")
     out.append(f"Costo por hora (medido): {res['costo_por_hora_usd']:.6f} USD")
     out.append(f"Costo por consulta (medido): {res['costo_por_consulta_usd']:.8f} USD")
@@ -208,14 +252,15 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--perfil", choices=sorted(PERFILES), default="lab")
     ap.add_argument("--consultas-dia", type=float, default=100.0)
-    ap.add_argument("--tokens", choices=["p50", "p95", "max"], default="p95")
+    ap.add_argument("--version", choices=sorted(VERSIONES), default="v2")
+    ap.add_argument("--tokens", choices=["media", "p50", "p95", "max"], default=None)
     ap.add_argument("--horas-dia", type=float, default=8.0)
     ap.add_argument("--horas-sesion", type=float, default=0.0)
     ap.add_argument("--usuarios", type=float, default=10.0)
     ap.add_argument("--sin-creditos", action="store_true")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
-    par = Parametros(perfil=a.perfil, consultas_dia=a.consultas_dia, percentil_tokens=a.tokens,
+    par = Parametros(perfil=a.perfil, consultas_dia=a.consultas_dia, version=a.version, percentil_tokens=a.tokens,
                      horas_dia=a.horas_dia, horas_sesion=a.horas_sesion, usuarios=a.usuarios,
                      usar_creditos=not a.sin_creditos)
     res = modelo(par)

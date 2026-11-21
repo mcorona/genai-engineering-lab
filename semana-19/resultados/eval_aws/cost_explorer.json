@@ -4,14 +4,87 @@
     {
       "n": 1,
       "operacion": "ListCostAllocationTags",
-      "parametros": {"TagKeys": ["proyecto"], "MaxResults": 10},
+      "parametros": {
+        "TagKeys": [
+          "proyecto"
+        ],
+        "MaxResults": 10
+      },
       "perfil": "semana19-lectura",
       "hora_utc": "2026-11-19T16:16:25+00:00",
       "paginas": 1,
-      "resultado": [{"TagKey": "proyecto", "Type": "UserDefined", "Status": "Active",
-                     "LastUpdatedDate": "2026-11-14T00:08:28Z", "LastUsedDate": "2026-11-01T00:00:00Z"}],
+      "resultado": [
+        {
+          "TagKey": "proyecto",
+          "Type": "UserDefined",
+          "Status": "Active",
+          "LastUpdatedDate": "2026-11-14T00:08:28Z",
+          "LastUsedDate": "2026-11-01T00:00:00Z"
+        }
+      ],
       "conclusion": "Active since 2026-11-14, before the run: the step 4 query by tag proyecto=semana19 covers the run's window."
+    },
+    {
+      "n": 2,
+      "operacion": "GetCostAndUsage",
+      "parametros": {
+        "TimePeriod": {
+          "Start": "2026-11-19",
+          "End": "2026-11-21"
+        },
+        "Granularity": "DAILY",
+        "Metrics": [
+          "UnblendedCost"
+        ],
+        "Filter": {
+          "Tags": {
+            "Key": "proyecto",
+            "Values": [
+              "semana19"
+            ],
+            "MatchOptions": [
+              "EQUALS"
+            ]
+          }
+        },
+        "GroupBy": [
+          {
+            "Type": "DIMENSION",
+            "Key": "SERVICE"
+          }
+        ]
+      },
+      "perfil": "semana19-lectura",
+      "hora_utc": "2026-11-21T06:41:17+00:00",
+      "paginas": 1
+    },
+    {
+      "n": 3,
+      "operacion": "GetCostAndUsage",
+      "parametros": {
+        "TimePeriod": {
+          "Start": "2026-11-19",
+          "End": "2026-11-21"
+        },
+        "Granularity": "DAILY",
+        "Metrics": [
+          "UnblendedCost"
+        ],
+        "GroupBy": [
+          {
+            "Type": "DIMENSION",
+            "Key": "SERVICE"
+          },
+          {
+            "Type": "DIMENSION",
+            "Key": "RECORD_TYPE"
+          }
+        ]
+      },
+      "perfil": "semana19-lectura",
+      "hora_utc": "2026-11-21T06:41:18+00:00",
+      "paginas": 1
     }
   ],
-  "quedan": 2
+  "quedan": 0
 }
