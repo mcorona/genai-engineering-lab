@@ -69,6 +69,7 @@ EXCEPCIONES = {
     "NoQuitarNiCambiarElLimite": "Denegación sobre roles semana19-* por prefijo.",
     "RaizDeLaCuenta": "Política de llave: kms:* para la raíz (delegación a IAM). En una política de llave, resource '*' significa esta llave; AWS lo exige.",
     "LogsDelProyectoConLaLlave": "Política de llave: resource '*' significa esta llave; AWS lo exige. La condición EncryptionContext limita al grupo /semana19/*.",
+    "LogsDelProyectoDescribeLaLlave": "Key policy: resource '*' means this key; AWS requires it. DescribeKey has no encryption context, so it cannot carry the group condition (activity 9, ValidatePolicy); it reveals the key's metadata only.",
     "RolesConNombre": "Política de llave: resource '*' significa esta llave; AWS lo exige.",
     "EscribirSoloEnSuGrupo": "Los flow logs escriben en los streams del grupo: AWS exige la forma <grupo>:* .",
     "DescribirGruposParaFlowLogs": "logs:DescribeLogGroups no acepta ARN de recurso.",

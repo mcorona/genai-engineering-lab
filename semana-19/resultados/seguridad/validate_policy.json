@@ -1,0 +1,1224 @@
+{
+  "herramienta": "IAM Access Analyzer ValidatePolicy (policy validation, no charge)",
+  "valores_de_ejemplo": {
+    "cuenta": "<account>",
+    "region": "us-east-1",
+    "particion": "aws"
+  },
+  "por_perfil": {
+    "lab": {
+      "documentos": 50,
+      "por_tipo": {
+        "IDENTITY_POLICY": 25,
+        "RESOURCE_POLICY": 25
+      },
+      "hallazgos": {
+        "SUGGESTION": 6,
+        "WARNING": 1
+      }
+    },
+    "prod": {
+      "documentos": 50,
+      "por_tipo": {
+        "IDENTITY_POLICY": 25,
+        "RESOURCE_POLICY": 25
+      },
+      "hallazgos": {
+        "SUGGESTION": 6,
+        "WARNING": 1
+      }
+    }
+  },
+  "hallazgos_por_tipo": {
+    "SUGGESTION": 12,
+    "WARNING": 2
+  },
+  "errores_o_advertencias_de_seguridad": 0,
+  "veredicto": "ok",
+  "documentos": {
+    "lab": [
+      {
+        "stack": "semana19-agentes-comparacion",
+        "recurso": "RolAgente30A392D6",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "4e32159a9235e9ec245b2268f34748f0009e9552048f6a8d4bb4809a5bab7b6a",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-agentes-comparacion",
+        "recurso": "RolAgenteDefaultPolicy8012EF3D",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "ab9fae296a98f8d93d0ac6e2791a2d4c7158e01fec6ad3ffe021c03afeb0168b",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "Llave0AEC6D4F",
+        "tipo": "AWS::KMS::Key",
+        "campo": "KeyPolicy",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "8da9e57f882a81087a7e00dc5f675cb7c1ffbd7bfb57e524d9d9e395986223e6",
+        "hallazgos": [
+          {
+            "findingType": "WARNING",
+            "issueCode": "TYPE_MISMATCH",
+            "detalle": "Use the operator type String instead of operator ARN for the condition key kms:EncryptionContext:aws:logs:arn.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-general-warning-type-mismatch",
+            "ruta": [
+              "Statement",
+              3,
+              "Condition",
+              "ArnLike",
+              "kms:EncryptionContext:aws:logs:arn"
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "RolFlowLogsA335DD51",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "644d54f0b852e4f5002e2f3a15b78e5747a97d8d5afa2245df9b19192c363c3c",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "RolFlowLogsDefaultPolicyCF855930",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "d88f6fb9747a356c0207d408a80db2bedf3762beef34f40c20c22b4ccf0c7a50",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+        "tipo": "AWS::IAM::Role",
+        "campo": "Policies[0]",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "a31367a313af276038ce6ae0ba1f6dcf01b965788552eb7251dc4690870deae6",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "EndpointS3",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "EndpointLogs",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "EndpointStepFunctions",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionTokensServiceRoleBFA90C1C",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionRegistrarTokenServiceRole711A6DD2",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionRegistrarTokenServiceRoleDefaultPolicy6F2F4B3E",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "60efeabe780ec1d537397550157e227d144ba36d36bf075c8163d6555fe5498b",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionEscritorServiceRoleFD45F742",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionEscritorServiceRoleDefaultPolicy8DFAC551",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "80ac156f16f7c639ae03bcf98342d1d8259f02a80b1990f0d0ca862ce34028ab",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionHerramientasServiceRole1FF7D8C6",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionHerramientasServiceRoleDefaultPolicy65F3B88A",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "4034fc2a5aca8bb401f7055cc6c4ce5221dbae681c59f2f05ea0cc49566f5b70",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAgenteServiceRole7F9E6BDA",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAgenteServiceRoleDefaultPolicy799632EA",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "abdee0f5566f51903cd23bc6791a2a3bf84de97e51d78b0df4ef1b8f933b810a",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:logs:us-east-1:<account>:log-group:/semana19/computo/spans:*:* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              2,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "AprobacionRole2D85028A",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "2b054f22d9bda5be023b5fe57a133d27833263377bef2600efae2aa8d0674612",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "AprobacionRoleDefaultPolicyA1FD41A7",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "44a95c1f8476f7be5f4ee5e224e7a0e348f4af7937e04b8a2efb2fd76f9d9404",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAprobarServiceRole40C6D621",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAprobarServiceRoleDefaultPolicy217697F9",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "c5b52630a1ab500be1199607256e614af0e3019acff59cace5e1efd454a23292",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionConsultasServiceRoleDCD000BC",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionConsultasServiceRoleDefaultPolicy714D2A9D",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "7f21fe1e9b90ee429630b709bc7f80b36576a44acc81c37fe4293faf9112f1d5",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "LimiteDED23B9D",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "a688c7728c9195c9cecac0c76deec63e008623d60b73a3270be809065a46e3f8",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:logs:us-east-1:<account>:log-group:/semana19/ia/*:* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              0,
+              "Resource",
+              0
+            ]
+          },
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-datos*/* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              10,
+              "Resource",
+              0
+            ]
+          },
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-eval-*/* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              22,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "Congelar7EC2592D",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "fcbdf64606b0b6b049a9a80ab14a4b27c9b1e68f5b211fb8b85a1a8214c91308",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfn7F724C55",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "1b9eb1ac86aa8360f133dcc7eaa3667b840f2189e2d3b26cb54e8d9871746c07",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:iam::<account>:role/semana19-* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              14,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnDatos4EF77136",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "0e2378abc57f5ccec0831c9d88d7fb5b4a9fbc24a870ebe742b2968bb88b29d7",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3vectors:us-east-1:<account>:bucket/semana19-kb-*/index/* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              8,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnIaA9DE7690",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "43bc34d3e8d2b8eaf622278ed1af80908c582c6d2ccae322a00db2ec3755c7d5",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnComputo2326E081",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "eb7ff862cad0dfd82967fc9f9428a36f9836c80fe836602751ee4ea3a46416b1",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnAgentes220F2759",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "386d6f9e4347ef6df40ccdfcbfa2b83b6848448ee985a8eed3820bd8e964b2ce",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "Despliegue3F2F11CF",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "d6d57d03eb39be81d4e181ea9498abd050590d2aa2502785bcf55ed45195185e",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "DespliegueDefaultPolicy8E849597",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "5a9cf67525d3090d3ea1f6174959df820f83a114b5b378121e2a76d948e7cb05",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "RolPresupuesto2BA90026",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "0cf362158ca9840caef6b474c6492cd20ab3a4fc56c738f38c283c691dcc7e1e",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "RolPresupuestoDefaultPolicy8574D3F1",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "80a0620b099efdb7bb1ec42201a99419de704add040f01989c2b8803779d3ffa",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "EndpointSecretos",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "CargadorServiceRole39D9B8D7",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "CargadorServiceRoleDefaultPolicy0B3E8FAB",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "19d16370af3c341ecd6191b364423c78ba006971e93b8b0fbf2554ce115f223d",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "DocsKbPolicyD4B55F40",
+        "tipo": "AWS::S3::BucketPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::S3::Bucket",
+        "huella": "9ebbd0442395dc0337717277cbb8586d931081415da525b305ffd88dbd8ad44d",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "RolKb0DAFB92D",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "0939506f15c840db35ccf5c2d89d4e53a48742fe2eff5b31d8bfc15e3055ca8b",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "RolKbDefaultPolicy138C7222",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "d334dd1310ab0609ad34aa0936fb610e8bddd2f9387aa18075cb8c17df03128d",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-eval",
+        "recurso": "JuezPolicy2AD4D4B7",
+        "tipo": "AWS::S3::BucketPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::S3::Bucket",
+        "huella": "0e05047d81a5be6351366e2014455fc8489e91189b27f848064023d1782ed6d3",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-eval",
+        "recurso": "RolJuez8231F91D",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "3ac607b5cc33986ca098216278e69a2bb1735027a39b3be88fb9deef0ee6f7b5",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-eval",
+        "recurso": "RolJuezDefaultPolicy277F5E51",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "9c5207972e77440a1150f567eabce43195830997cb43efec9f31a6be1f3ff3f6",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-gateway",
+        "recurso": "RolGatewayC1EA120C",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "610d3a8d05242566b27fafad0bbc61a95d4a156e32e146ff2e52a156a15293a3",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-gateway",
+        "recurso": "RolGatewayDefaultPolicy3115C70E",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "4f55eb90242867975e8c8eb0b630fe710263d110afdf67d091d6a7815697dd85",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-gateway",
+        "recurso": "EvaluarPoliticasEC02BA8D",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "fca1b96a09ffd901159a69459c6d2f5ce61d01f456d125c67eb29c3675701236",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-ia",
+        "recurso": "CreadorGuardrailServiceRole7706FC6C",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-ia",
+        "recurso": "CreadorGuardrailServiceRoleDefaultPolicy7CBC0D72",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "41b7934f3e6bf47ddd5d61d643970fe69cc9260fc8aa11485d24b923b774cbc9",
+        "hallazgos": []
+      }
+    ],
+    "prod": [
+      {
+        "stack": "semana19-agentes-comparacion",
+        "recurso": "RolAgente30A392D6",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "4e32159a9235e9ec245b2268f34748f0009e9552048f6a8d4bb4809a5bab7b6a",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-agentes-comparacion",
+        "recurso": "RolAgenteDefaultPolicy8012EF3D",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "ab9fae296a98f8d93d0ac6e2791a2d4c7158e01fec6ad3ffe021c03afeb0168b",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "Llave0AEC6D4F",
+        "tipo": "AWS::KMS::Key",
+        "campo": "KeyPolicy",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "8da9e57f882a81087a7e00dc5f675cb7c1ffbd7bfb57e524d9d9e395986223e6",
+        "hallazgos": [
+          {
+            "findingType": "WARNING",
+            "issueCode": "TYPE_MISMATCH",
+            "detalle": "Use the operator type String instead of operator ARN for the condition key kms:EncryptionContext:aws:logs:arn.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-general-warning-type-mismatch",
+            "ruta": [
+              "Statement",
+              3,
+              "Condition",
+              "ArnLike",
+              "kms:EncryptionContext:aws:logs:arn"
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "RolFlowLogsA335DD51",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "644d54f0b852e4f5002e2f3a15b78e5747a97d8d5afa2245df9b19192c363c3c",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "RolFlowLogsDefaultPolicyCF855930",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "d88f6fb9747a356c0207d408a80db2bedf3762beef34f40c20c22b4ccf0c7a50",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+        "tipo": "AWS::IAM::Role",
+        "campo": "Policies[0]",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "a31367a313af276038ce6ae0ba1f6dcf01b965788552eb7251dc4690870deae6",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "EndpointS3",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "EndpointLogs",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-base",
+        "recurso": "EndpointStepFunctions",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionTokensServiceRoleBFA90C1C",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionRegistrarTokenServiceRole711A6DD2",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionRegistrarTokenServiceRoleDefaultPolicy6F2F4B3E",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "60efeabe780ec1d537397550157e227d144ba36d36bf075c8163d6555fe5498b",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionEscritorServiceRoleFD45F742",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionEscritorServiceRoleDefaultPolicy8DFAC551",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "80ac156f16f7c639ae03bcf98342d1d8259f02a80b1990f0d0ca862ce34028ab",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionHerramientasServiceRole1FF7D8C6",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionHerramientasServiceRoleDefaultPolicy65F3B88A",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "4034fc2a5aca8bb401f7055cc6c4ce5221dbae681c59f2f05ea0cc49566f5b70",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAgenteServiceRole7F9E6BDA",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAgenteServiceRoleDefaultPolicy799632EA",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "abdee0f5566f51903cd23bc6791a2a3bf84de97e51d78b0df4ef1b8f933b810a",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:logs:us-east-1:<account>:log-group:/semana19/computo/spans:*:* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              2,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "AprobacionRole2D85028A",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "2b054f22d9bda5be023b5fe57a133d27833263377bef2600efae2aa8d0674612",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "AprobacionRoleDefaultPolicyA1FD41A7",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "44a95c1f8476f7be5f4ee5e224e7a0e348f4af7937e04b8a2efb2fd76f9d9404",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAprobarServiceRole40C6D621",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionAprobarServiceRoleDefaultPolicy217697F9",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "c5b52630a1ab500be1199607256e614af0e3019acff59cace5e1efd454a23292",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionConsultasServiceRoleDCD000BC",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-computo",
+        "recurso": "FuncionConsultasServiceRoleDefaultPolicy714D2A9D",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "7f21fe1e9b90ee429630b709bc7f80b36576a44acc81c37fe4293faf9112f1d5",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "LimiteDED23B9D",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "a688c7728c9195c9cecac0c76deec63e008623d60b73a3270be809065a46e3f8",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:logs:us-east-1:<account>:log-group:/semana19/ia/*:* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              0,
+              "Resource",
+              0
+            ]
+          },
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-datos*/* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              10,
+              "Resource",
+              0
+            ]
+          },
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-eval-*/* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              22,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "Congelar7EC2592D",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "fcbdf64606b0b6b049a9a80ab14a4b27c9b1e68f5b211fb8b85a1a8214c91308",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfn7F724C55",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "1b9eb1ac86aa8360f133dcc7eaa3667b840f2189e2d3b26cb54e8d9871746c07",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:iam::<account>:role/semana19-* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              14,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnDatos4EF77136",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "0e2378abc57f5ccec0831c9d88d7fb5b4a9fbc24a870ebe742b2968bb88b29d7",
+        "hallazgos": [
+          {
+            "findingType": "SUGGESTION",
+            "issueCode": "REDUNDANT_RESOURCE",
+            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3vectors:us-east-1:<account>:bucket/semana19-kb-*/index/* to remove the redundancy.",
+            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
+            "ruta": [
+              "Statement",
+              8,
+              "Resource",
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnIaA9DE7690",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "43bc34d3e8d2b8eaf622278ed1af80908c582c6d2ccae322a00db2ec3755c7d5",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnComputo2326E081",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "eb7ff862cad0dfd82967fc9f9428a36f9836c80fe836602751ee4ea3a46416b1",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "EjecucionCfnAgentes220F2759",
+        "tipo": "AWS::IAM::ManagedPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "386d6f9e4347ef6df40ccdfcbfa2b83b6848448ee985a8eed3820bd8e964b2ce",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "Despliegue3F2F11CF",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "d6d57d03eb39be81d4e181ea9498abd050590d2aa2502785bcf55ed45195185e",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "DespliegueDefaultPolicy8E849597",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "5a9cf67525d3090d3ea1f6174959df820f83a114b5b378121e2a76d948e7cb05",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "RolPresupuesto2BA90026",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "0cf362158ca9840caef6b474c6492cd20ab3a4fc56c738f38c283c691dcc7e1e",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-control",
+        "recurso": "RolPresupuestoDefaultPolicy8574D3F1",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "80a0620b099efdb7bb1ec42201a99419de704add040f01989c2b8803779d3ffa",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "EndpointSecretos",
+        "tipo": "AWS::EC2::VPCEndpoint",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "02f00b978286bad91943bf0a766e55936a7b9d204e48dfe3a4d9c82e2e8c346f",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "CargadorServiceRole39D9B8D7",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "CargadorServiceRoleDefaultPolicy0B3E8FAB",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "19d16370af3c341ecd6191b364423c78ba006971e93b8b0fbf2554ce115f223d",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "DocsKbPolicyD4B55F40",
+        "tipo": "AWS::S3::BucketPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::S3::Bucket",
+        "huella": "9ebbd0442395dc0337717277cbb8586d931081415da525b305ffd88dbd8ad44d",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "RolKb0DAFB92D",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "0939506f15c840db35ccf5c2d89d4e53a48742fe2eff5b31d8bfc15e3055ca8b",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-datos",
+        "recurso": "RolKbDefaultPolicy138C7222",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "d334dd1310ab0609ad34aa0936fb610e8bddd2f9387aa18075cb8c17df03128d",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-eval",
+        "recurso": "JuezPolicy2AD4D4B7",
+        "tipo": "AWS::S3::BucketPolicy",
+        "campo": "PolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::S3::Bucket",
+        "huella": "0e05047d81a5be6351366e2014455fc8489e91189b27f848064023d1782ed6d3",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-eval",
+        "recurso": "RolJuez8231F91D",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "3ac607b5cc33986ca098216278e69a2bb1735027a39b3be88fb9deef0ee6f7b5",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-eval",
+        "recurso": "RolJuezDefaultPolicy277F5E51",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "9c5207972e77440a1150f567eabce43195830997cb43efec9f31a6be1f3ff3f6",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-gateway",
+        "recurso": "RolGatewayC1EA120C",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "610d3a8d05242566b27fafad0bbc61a95d4a156e32e146ff2e52a156a15293a3",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-gateway",
+        "recurso": "RolGatewayDefaultPolicy3115C70E",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "4f55eb90242867975e8c8eb0b630fe710263d110afdf67d091d6a7815697dd85",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-gateway",
+        "recurso": "EvaluarPoliticasEC02BA8D",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "fca1b96a09ffd901159a69459c6d2f5ce61d01f456d125c67eb29c3675701236",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-ia",
+        "recurso": "CreadorGuardrailServiceRole7706FC6C",
+        "tipo": "AWS::IAM::Role",
+        "campo": "AssumeRolePolicyDocument",
+        "policyType": "RESOURCE_POLICY",
+        "validatePolicyResourceType": "AWS::IAM::AssumeRolePolicyDocument",
+        "huella": "f3502e8666443cacc9bec965f5cc2886f9ed0e884c87714821fdc6872835efd0",
+        "hallazgos": []
+      },
+      {
+        "stack": "semana19-ia",
+        "recurso": "CreadorGuardrailServiceRoleDefaultPolicy7CBC0D72",
+        "tipo": "AWS::IAM::Policy",
+        "campo": "PolicyDocument",
+        "policyType": "IDENTITY_POLICY",
+        "validatePolicyResourceType": null,
+        "huella": "41b7934f3e6bf47ddd5d61d643970fe69cc9260fc8aa11485d24b923b774cbc9",
+        "hallazgos": []
+      }
+    ]
+  }
+}
