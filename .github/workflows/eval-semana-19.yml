@@ -50,6 +50,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0              # gitleaks recorre todo el historial
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
@@ -106,3 +108,19 @@ jobs:
           "$RUNNER_TEMP/tfbin/terraform" init -backend=false -input=false -no-color
           "$RUNNER_TEMP/tfbin/terraform" validate -no-color
           checkov -d . --framework terraform --quiet --compact
+      - name: Instalar gitleaks 8.30.1 (sha256 fijado del checksums.txt oficial)
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfLO https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks_8.30.1_linux_x64.tar.gz" | sha256sum -c -
+          mkdir -p glbin && tar -xzf gitleaks_8.30.1_linux_x64.tar.gz -C glbin gitleaks
+      - name: Escaneo de secretos (historial completo y synth con computo, lab y prod); falla si queda algo sin clasificar
+        run: |
+          python semana-19/infra/paquete_agente.py --sin-dependencias
+          for perfil in lab prod; do
+            rm -rf "$RUNNER_TEMP/secretos-$perfil"
+            S19_SIN_DEPENDENCIAS=1 COMPUTO=1 PERFIL="$perfil" CDK_OUTDIR="$RUNNER_TEMP/secretos-$perfil" python semana-19/infra/cdk/app.py > /dev/null
+          done
+          python semana-19/seguridad/escaneo_secretos.py --gitleaks "$RUNNER_TEMP/glbin/gitleaks" \
+            --cdk-out lab="$RUNNER_TEMP/secretos-lab" --cdk-out prod="$RUNNER_TEMP/secretos-prod" \
+            --salida "$RUNNER_TEMP/secretos.json"
