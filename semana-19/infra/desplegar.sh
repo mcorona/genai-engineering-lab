@@ -140,6 +140,12 @@ if [[ -z "${ALERTA_EMAIL:-}" ]]; then
     exit 2
   fi
 fi
+# Budgets rejects a malformed address only after CloudFormation has started, and the rollback can stick (2026-11-21:
+# ROLLBACK_FAILED on semana19-limite). The shape is checked here, before any AWS call; the address is never printed.
+if [[ -n "${ALERTA_EMAIL:-}" && ! "$ALERTA_EMAIL" =~ ^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$ ]]; then
+  echo "ALERTA_EMAIL no tiene forma de correo (una arroba y un dominio con punto, sin espacios); no se imprime." >&2
+  exit 2
+fi
 
 CUENTA="$(aws sts get-caller-identity --profile "$PERFIL_ADMIN" --query Account --output text)"
 echo "== Cuenta: <account> (resuelta en ejecución, no se imprime)"

@@ -460,6 +460,18 @@ def test_desplegar_si_sin_correo_se_detiene_antes_de_aws(tmp_path):
     assert not marcas.exists()
 
 
+@pytest.mark.parametrize("correo", ["TU_CORREO", "tu-correo-real", "alertas" + chr(64) + "ejemplo",
+                                    "alertas " + chr(64) + "ejemplo.invalid", " alertas" + chr(64) + "ejemplo.invalid"])
+def test_desplegar_si_con_correo_mal_formado_se_detiene_antes_de_aws(tmp_path, correo):
+    """2026-11-21: a placeholder reached Budgets, and the control stack ended in ROLLBACK_FAILED."""
+    entorno, marcas = _entorno_falso(tmp_path)
+    entorno["ALERTA_EMAIL"] = correo
+    r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh"), "--si"], env=entorno, capture_output=True, text=True)
+    assert r.returncode == 2 and "no tiene forma de correo" in r.stderr
+    assert correo.strip() not in r.stdout + r.stderr     # the value is never printed
+    assert not marcas.exists()
+
+
 def test_solo_control_despliega_control_y_bootstrap_y_nada_mas(tmp_path):
     """--solo-control --si: semana19-control and the bootstrap only. The fakes answer OK and record every call."""
     entorno, marcas = _entorno_falso(tmp_path)
