@@ -1,0 +1,279 @@
+{
+  "ventana_utc": [
+    "2026-11-19",
+    "2026-11-21"
+  ],
+  "ventana_de_la_corrida_s": [
+    1795113800,
+    1795124525
+  ],
+  "tareas": {
+    "por_archivo": {
+      "crudo_eval.json": 19,
+      "crudo_eval_descartada_1.json": 22,
+      "crudo_eval_descartada_2.json": 14,
+      "aprobacion_e2e.json": 2
+    },
+    "total": 57
+  },
+  "por_etiqueta": {
+    "dias": {
+      "2026-11-19": {
+        "AWS Key Management Service": {
+          "Todo": 0.0333333336
+        },
+        "AWS Lambda": {
+          "Todo": 0.0
+        },
+        "AWS Secrets Manager": {
+          "Todo": 0.0132484567
+        },
+        "Amazon Relational Database Service": {
+          "Todo": 0.1973945765
+        },
+        "Amazon Simple Storage Service": {
+          "Todo": 0.0004560304
+        },
+        "Amazon Virtual Private Cloud": {
+          "Todo": 0.7100013382
+        },
+        "AmazonCloudWatch": {
+          "Todo": 0.0
+        }
+      },
+      "2026-11-20": {
+        "AWS Key Management Service": {
+          "Todo": 0.0027777778
+        },
+        "AWS Lambda": {
+          "Todo": 0.0
+        },
+        "Amazon Simple Storage Service": {
+          "Todo": 5e-06
+        },
+        "Amazon Virtual Private Cloud": {
+          "Todo": 0.02
+        },
+        "AmazonCloudWatch": {
+          "Todo": 0.0
+        }
+      }
+    },
+    "estimado": true
+  },
+  "por_servicio_y_tipo": {
+    "dias": {
+      "2026-11-19": {
+        "AWS Budgets": {
+          "Usage": 0.0
+        },
+        "AWS CloudFormation": {
+          "Usage": 0.0
+        },
+        "AWS Cost Explorer": {
+          "Credit": -0.02,
+          "Usage": 0.02
+        },
+        "AWS Glue": {
+          "Usage": 0.0
+        },
+        "AWS Key Management Service": {
+          "Credit": -0.03333336,
+          "Usage": 0.0333333336
+        },
+        "AWS Lambda": {
+          "Usage": 0.0
+        },
+        "AWS Secrets Manager": {
+          "Credit": -0.013248464,
+          "Usage": 0.0132484567
+        },
+        "AWS Step Functions": {
+          "Usage": 0.0
+        },
+        "Amazon API Gateway": {
+          "Credit": -0.001125,
+          "Usage": 0.001125
+        },
+        "Amazon Bedrock": {
+          "Credit": -0.4325896,
+          "Usage": 0.4325896
+        },
+        "Amazon Bedrock AgentCore": {
+          "Credit": -0.001655,
+          "Usage": 0.001655
+        },
+        "Amazon DynamoDB": {
+          "Credit": -0.0002683125,
+          "Usage": 0.0002683125
+        },
+        "Amazon Relational Database Service": {
+          "Credit": -0.1973945826,
+          "Usage": 0.1973945765
+        },
+        "Amazon Simple Storage Service": {
+          "Credit": -0.0017484051,
+          "Usage": 0.0017484048
+        },
+        "Amazon Virtual Private Cloud": {
+          "Credit": -0.7100013382,
+          "Usage": 0.7100013382
+        },
+        "AmazonCloudWatch": {
+          "Usage": 0.0
+        },
+        "Claude Haiku 4.5 (Amazon Bedrock Edition)": {
+          "Credit": -2.2435908,
+          "Usage": 2.2435908
+        }
+      },
+      "2026-11-20": {
+        "AWS CloudFormation": {
+          "Usage": 0.0
+        },
+        "AWS Glue": {
+          "Usage": 0.0
+        },
+        "AWS Key Management Service": {
+          "Credit": -0.00277778,
+          "Usage": 0.0027777778
+        },
+        "AWS Lambda": {
+          "Usage": 0.0
+        },
+        "AWS Step Functions": {
+          "Usage": 0.0
+        },
+        "Amazon Simple Storage Service": {
+          "Credit": -0.0002500007,
+          "Usage": 0.0002500006
+        },
+        "Amazon Virtual Private Cloud": {
+          "Credit": -0.02,
+          "Usage": 0.02
+        },
+        "AmazonCloudWatch": {
+          "Usage": 0.0
+        }
+      }
+    },
+    "estimado": true
+  },
+  "desglose": {
+    "uso_fijo_usd": 0.976755,
+    "uso_por_consulta_usd": 2.198034,
+    "creditos_usd": -3.677983,
+    "neto_usd": -0.0,
+    "por_servicio_usd": {
+      "Claude Haiku 4.5 (Amazon Bedrock Edition)": 2.2435908,
+      "Amazon Virtual Private Cloud": 0.7300013382,
+      "Amazon Bedrock": 0.4325896,
+      "Amazon Relational Database Service": 0.1973945765,
+      "AWS Key Management Service": 0.0361111114,
+      "AWS Cost Explorer": 0.02,
+      "AWS Secrets Manager": 0.0132484567,
+      "Amazon Simple Storage Service": 0.0019984054,
+      "Amazon Bedrock AgentCore": 0.001655,
+      "Amazon API Gateway": 0.001125,
+      "Amazon DynamoDB": 0.0002683125,
+      "AWS Budgets": 0.0,
+      "AWS CloudFormation": 0.0,
+      "AWS Glue": 0.0,
+      "AWS Lambda": 0.0,
+      "AWS Step Functions": 0.0,
+      "AmazonCloudWatch": 0.0
+    },
+    "partida_dominante": "Claude Haiku 4.5 (Amazon Bedrock Edition)",
+    "fuera_usd": {
+      "AWS Cost Explorer": 0.02,
+      "Amazon Bedrock AgentCore": 0.001655
+    },
+    "otras_corridas_modelo_usd": {
+      "crudo_directo.json": 0.240525,
+      "crudo_gateway.json": 0.241013
+    },
+    "modelo_atribuible_usd": 1.762053,
+    "tareas": 57,
+    "costo_por_consulta_usd_cota": 0.038562,
+    "costo_por_consulta_modelo_usd": 0.030913,
+    "conciliacion": {
+      "spans_usd": 1.762053,
+      "cost_explorer_usd": 1.762053,
+      "diferencia_usd": 0.0
+    }
+  },
+  "comparacion": {
+    "v1": {
+      "horas_de_pila": 26.004,
+      "umbral": 0.2,
+      "filas": {
+        "lab.por_consulta": {
+          "predicho_usd": 0.07989162,
+          "real_usd": 0.038562,
+          "error": -0.5173,
+          "real_modelo_usd": 0.030913,
+          "error_modelo": -0.6131,
+          "fuera_de_umbral": true
+        },
+        "lab.por_hora": {
+          "predicho_usd": 0.04189041,
+          "real_usd": 0.037562,
+          "error": -0.1033,
+          "fuera_de_umbral": false
+        },
+        "prod.por_consulta": {
+          "predicho_usd": 0.07989162,
+          "real_usd": 0.038562,
+          "error": -0.5173,
+          "real_modelo_usd": 0.030913,
+          "error_modelo": -0.6131,
+          "fuera_de_umbral": true
+        },
+        "prod.por_hora": {
+          "predicho_usd": 0.09326027,
+          "real_usd": null,
+          "error": null,
+          "fuera_de_umbral": false,
+          "no_aplica": "prod was never deployed; the real hours are lab's"
+        }
+      },
+      "corregir_modelo": true
+    },
+    "v2": {
+      "horas_de_pila": 26.004,
+      "umbral": 0.2,
+      "filas": {
+        "lab.por_consulta": {
+          "predicho_usd": 0.0309413,
+          "real_usd": 0.038562,
+          "error": 0.2463,
+          "real_modelo_usd": 0.030913,
+          "error_modelo": -0.0009,
+          "fuera_de_umbral": true
+        },
+        "lab.por_hora": {
+          "predicho_usd": 0.04189041,
+          "real_usd": 0.037562,
+          "error": -0.1033,
+          "fuera_de_umbral": false
+        },
+        "prod.por_consulta": {
+          "predicho_usd": 0.0309413,
+          "real_usd": 0.038562,
+          "error": 0.2463,
+          "real_modelo_usd": 0.030913,
+          "error_modelo": -0.0009,
+          "fuera_de_umbral": true
+        },
+        "prod.por_hora": {
+          "predicho_usd": 0.09326027,
+          "real_usd": null,
+          "error": null,
+          "fuera_de_umbral": false,
+          "no_aplica": "prod was never deployed; the real hours are lab's"
+        }
+      },
+      "corregir_modelo": true
+    }
+  }
+}

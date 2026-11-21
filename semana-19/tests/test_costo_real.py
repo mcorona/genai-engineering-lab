@@ -35,7 +35,9 @@ def test_las_dos_solicitudes_pasan_la_validacion_de_botocore():
 
 def test_el_registro_limita_las_llamadas_a_tres():
     registro = json.loads((S19 / "resultados" / "eval_aws" / "cost_explorer.json").read_text(encoding="utf-8"))
-    assert K.quedan(registro) == registro["quedan"] == 2 == len(K.solicitudes("a", "b"))
+    assert len(registro["llamadas"]) <= 3 and K.quedan(registro) == registro["quedan"]
+    assert [l["operacion"] for l in registro["llamadas"]] == ["ListCostAllocationTags", "GetCostAndUsage", "GetCostAndUsage"]
+    assert K.quedan(registro) < len(K.solicitudes("a", "b"))   # no call is left: --si refuses
     assert K.quedan({"llamadas": [{}, {}]}) == 1
 
 
@@ -118,9 +120,48 @@ def test_la_comparacion_marca_el_error_fuera_de_veinte_por_ciento():
     assert c["filas"]["lab.por_hora"]["real_usd"] == 0.05 and c["filas"]["lab.por_hora"]["error"] == 0.0
     assert c["filas"]["prod.por_consulta"]["fuera_de_umbral"] is False and c["corregir_modelo"] is True
     assert K.comparar(d, 0.0, pred)["filas"]["lab.por_hora"]["real_usd"] is None
+    # prod was never deployed: its per-hour row does not apply and never asks for a correction.
+    ph = c["filas"]["prod.por_hora"]
+    assert ph["real_usd"] is None and ph["error"] is None and ph["fuera_de_umbral"] is False and "no_aplica" in ph
+    # With the model part known, both errors are reported and either one beyond 20 % flags the row.
+    c = K.comparar(d | {"costo_por_consulta_modelo_usd": 0.045}, 26.0, {"lab": pred["prod"]})
+    f = c["filas"]["lab.por_consulta"]
+    assert (f["error"], f["error_modelo"], f["fuera_de_umbral"]) == (0.0, -0.1, False)
 
 
 def test_la_prediccion_es_la_del_modelo_de_la_actividad_2():
     p = K.prediccion_del_modelo()
     assert round(p["lab"]["costo_por_consulta_usd"], 8) == 0.07989162 and round(p["lab"]["costo_por_hora_usd"], 6) == 0.04189
     assert round(p["prod"]["costo_por_hora_usd"], 6) == 0.09326
+
+
+def test_las_corridas_de_otra_actividad_y_lo_ajeno_no_se_cargan_a_las_tareas():
+    def g(servicio, tipo, usd):
+        return {"Keys": [servicio, tipo], "Metrics": {"UnblendedCost": {"Amount": str(usd), "Unit": "USD"}}}
+    r = {"ResultsByTime": [{"TimePeriod": {"Start": "2026-11-19"}, "Estimated": True, "Groups": [
+        g(K.MODELO, "Usage", 1.0), g("Amazon Bedrock", "Usage", 0.2), g("AWS Cost Explorer", "Usage", 0.02),
+        g("Amazon Bedrock AgentCore", "Usage", 0.001), g("Amazon Virtual Private Cloud", "Usage", 0.7)]}]}
+    d = K.desglose(K.por_servicio(r, con_tipo=True), 10, {"crudo_directo.json": 0.25, "crudo_gateway.json": 0.15}, 0.6)
+    assert d["modelo_atribuible_usd"] == 0.6 and d["costo_por_consulta_modelo_usd"] == 0.06
+    assert d["uso_por_consulta_usd"] == 0.8 and d["costo_por_consulta_usd_cota"] == 0.08
+    assert d["fuera_usd"] == {"AWS Cost Explorer": 0.02, "Amazon Bedrock AgentCore": 0.001}
+    assert d["conciliacion"] == {"spans_usd": 0.6, "cost_explorer_usd": 0.6, "diferencia_usd": 0.0}
+    assert d["neto_usd"] == 1.921
+
+
+def test_el_costo_real_del_repo_concilia_con_los_spans_y_compara_las_dos_versiones():
+    r = json.loads(K.SALIDA.read_text(encoding="utf-8"))
+    d = r["desglose"]
+    assert set(d["otras_corridas_modelo_usd"]) == {"crudo_directo.json", "crudo_gateway.json"}
+    assert abs(d["conciliacion"]["diferencia_usd"]) < 0.01
+    assert d["tareas"] == r["tareas"]["total"] == K.tareas_de_las_corridas(K.CARPETA)["total"] == 57
+    assert set(r["comparacion"]) == {"v1", "v2"}
+    assert r["comparacion"]["v1"]["filas"]["lab.por_consulta"]["error_modelo"] < -0.2      # why v2 exists
+    assert abs(r["comparacion"]["v2"]["filas"]["lab.por_consulta"]["error_modelo"]) <= 0.2
+
+
+def test_el_informe_se_genera_solo_desde_el_json():
+    r = json.loads(K.SALIDA.read_text(encoding="utf-8"))
+    md = K.informe_md(r)
+    assert md.rstrip("\n") == (S19 / "resultados" / "costo_real.md").read_text(encoding="utf-8").rstrip("\n")
+    assert "Reconciliation" in md and "| v2 | lab.por_consulta |" in md and "n/a" in md

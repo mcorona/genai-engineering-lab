@@ -73,12 +73,15 @@ def test_creditos_no_dejan_numeros_negativos():
 
 
 def test_partidas_n_no_suman_y_marcan_parcial():
-    lab = correr(perfil="lab", consultas_dia=10, horas_dia=8)
-    prod = correr(perfil="prod", consultas_dia=10, horas_dia=8)
-    # Lab: todo medido. Prod: solo RDS Multi-AZ queda N, y no suma al total.
+    lab = correr(perfil="lab", consultas_dia=10, horas_dia=8, version="v1")
+    prod = correr(perfil="prod", consultas_dia=10, horas_dia=8, version="v1")
+    # v1, lab: todo medido. Prod: solo RDS Multi-AZ queda N, y no suma al total.
     assert lab["parcial"] is False and lab["partidas_no_medidas"] == []
     assert prod["parcial"] is True
     assert prod["partidas_no_medidas"] == ["RDS Multi-AZ, instancia adicional"]
+    # v2 lists ApplyGuardrail as N (price and units not measured), outside the total.
+    v2 = correr(perfil="lab", consultas_dia=10, horas_dia=8)
+    assert v2["parcial"] is True and v2["partidas_no_medidas"] == ["ApplyGuardrail, unidades de texto"]
     assert all(l["costo_usd"] is None for g in ("fijas_por_hora", "fijas_por_mes", "por_consulta") for l in prod[g] if l["marca"] == "N")
 
 
@@ -116,3 +119,30 @@ def test_estimacion_base_de_la_actividad_3_es_kms_mas_endpoints_mas_presupuesto(
     assert lab["por_hora_usd"] == pytest.approx(2 / 730 + 2 * 0.01)
     presupuesto = [l for l in lab["lineas"] if l["partida"].startswith("AWS Budgets")][0]
     assert presupuesto["costo_usd"] == 0.0
+
+
+def test_v1_se_conserva_y_v2_usa_los_tokens_del_agente_desplegado():
+    """Activity 8, step 4: v1 (p95 of week 13) is kept as it was; v2 takes the mean of the deployed agent's 57 tasks,
+    the same tasks Cost Explorer billed, so its model cost per query equals the spans' mean."""
+    v1 = correr(perfil="lab", version="v1")
+    assert round(v1["costo_por_consulta_usd"], 8) == 0.07989162 and v1["parametros"]["percentil_tokens"] == "p95"
+    v2 = correr(perfil="lab")
+    assert v2["parametros"]["version"] == "v2" and v2["parametros"]["percentil_tokens"] == "media"
+    filas = modelo.filas_desplegado()
+    assert len(filas) == 57
+    media = sum(f["costo_usd"] for f in filas) / len(filas)
+    haiku = sum(l["costo_usd"] for l in v2["por_consulta"] if l["partida"].startswith("Haiku"))
+    assert haiku == pytest.approx(media, rel=1e-6)
+    assert v2["costo_por_hora_usd"] == v1["costo_por_hora_usd"]   # the per-hour part did not change
+    with pytest.raises(ValueError):
+        correr(version="v3")
+
+
+def test_tokens_del_desplegado_por_estadistico(tmp_path):
+    (tmp_path / "crudo_eval.json").write_text(json.dumps({"calentamiento": [{"tokens_entrada": 100, "tokens_salida": 10}],
+        "filas": [{"tokens_entrada": 300, "tokens_salida": 30}, {"estado": "no_corrida"}]}), encoding="utf-8")
+    (tmp_path / "aprobacion_e2e.json").write_text(json.dumps({"tareas": [{"tokens_entrada": 200, "tokens_salida": 20}]}),
+                                                  encoding="utf-8")
+    assert modelo.tokens_desplegado("tokens_in", "media", tmp_path) == 200
+    assert modelo.tokens_desplegado("tokens_out", "max", tmp_path) == 30
+    assert modelo.tokens_desplegado("tokens_in", "p50", tmp_path) == 200

@@ -155,6 +155,13 @@
       "marca": "M",
       "fuente": "Price List API, AWSBudgets, usagetype BudgetsReports, SKU 65GKVXQ58KMKSXD8. No se usa en el stack (solo alertas por correo)",
       "fecha": "2026-11-13"
+    },
+    "guardrail_unidad_texto": {
+      "valor": null,
+      "unidad": "USD por unidad de texto (1,000 caracteres) por política del guardrail",
+      "marca": "N",
+      "fuente": "no medido: el Price List de la línea base no lo trae; Cost Explorer lo junta en la línea Amazon Bedrock con el juez y Titan (actividad 8)",
+      "fecha": "2026-11-21"
     }
   }
 }
