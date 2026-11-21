@@ -67,11 +67,11 @@ def test_extrae_cada_documento_con_su_tipo(synth):
 
 def test_resuelve_intrinsecas_e_importaciones(synth):
     pol = next(d for d in V.documentos(synth) if d["recurso"] == "Pol")["documento"]["Statement"]
-    assert pol[0]["Resource"] == "arn:aws:dynamodb:us-east-1:111122223333:table/semana19-tokens"
-    assert pol[1]["Resource"] == f"arn:aws:kms:us-east-1:111122223333:key/{V.LLAVE_EJEMPLO}"
-    assert pol[2]["Resource"] == "arn:aws:logs:us-east-1:111122223333:log-group:/semana19/*"
+    assert pol[0]["Resource"] == f"arn:aws:dynamodb:us-east-1:{V.CUENTA}:table/semana19-tokens"
+    assert pol[1]["Resource"] == f"arn:aws:kms:us-east-1:{V.CUENTA}:key/{V.LLAVE_EJEMPLO}"
+    assert pol[2]["Resource"] == f"arn:aws:logs:us-east-1:{V.CUENTA}:log-group:/semana19/*"
     llave = next(d for d in V.documentos(synth) if d["recurso"] == "Llave")["documento"]
-    assert llave["Statement"][0]["Principal"]["AWS"] == "arn:aws:iam::111122223333:root"
+    assert llave["Statement"][0]["Principal"]["AWS"] == f"arn:aws:iam::{V.CUENTA}:root"
 
 
 def test_la_huella_es_del_documento_sin_resolver(synth):
@@ -119,11 +119,11 @@ def test_validar_pasa_el_tipo_y_lee_los_hallazgos():
 def test_veredicto_por_tipo_de_hallazgo(tipo, veredicto):
     docs = [{"stack": "s", "recurso": "r", "tipo": "AWS::IAM::Policy", "campo": "PolicyDocument",
              "policyType": "IDENTITY_POLICY", "validatePolicyResourceType": None, "huella": "h", "documento": {},
-             "hallazgos": [{"findingType": tipo, "issueCode": "X", "detalle": "arn:aws:iam::111122223333:role/x",
+             "hallazgos": [{"findingType": tipo, "issueCode": "X", "detalle": f"arn:aws:iam::{V.CUENTA}:role/x",
                             "learnMoreLink": None, "ruta": []}]}]
     r = V.informe({"lab": docs})
     assert r["veredicto"] == veredicto
-    assert "111122223333" not in json.dumps(r["documentos"])
+    assert V.CUENTA not in json.dumps(r["documentos"])
     assert "documento" not in r["documentos"]["lab"][0]
 
 
