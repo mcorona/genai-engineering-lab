@@ -615,3 +615,25 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   **Read-only inventory:** `"quedan": "nada"`. Left: the `semana19-lectura` role and 13 keys pending deletion. The Tagging API's stale entries are explained per service (#288).
 
   **Pending:** step 4 (Cost Explorer by the `proyecto` tag, 2 calls left, each with Manuel's OK) and `costo_real.md`.
+- 2026-11-21: **Activity 8, step 4 (real cost and the first real row of the quotation).** Cost Explorer calls 2 and 3
+  of 3, with the read-only profile and Manuel's OK, over [2026-11-19, 2026-11-21) UTC. The base stack was up 26.004 h
+  inside the period. Everything below is in `resultados/costo_real.md`, rendered from `costo_real.json`.
+  - **Reconciliation:** the Haiku line also held activity 7's paths (a) and (b), run the evening of 2026-11-18 CST.
+    Set apart, using their own spans (0.481538 USD), the line equals the spans of activity 8's 57 tasks to the cent:
+    1.762053 USD.
+  - **Real cost:**
+    - per query: 0.030913 USD for the model alone, 0.038562 USD with every per-query line (an upper bound, since
+      the "Amazon Bedrock" line joins the judge, ApplyGuardrail and Titan);
+    - per hour of stack: 0.037562 USD.
+  - **Quotation error and correction:**
+    - `modelo.py` v1 was −61.3 % per query (−51.7 % at the bound), beyond ±20 %. The cause is the tokens: week 13's
+      local p95 (52,712 in) against the deployed mean (21,273 in), with no cache.
+    - v2 takes the deployed mean: −0.1 % for the model part, +24.6 % at the bound (the unsplit Bedrock line;
+      ApplyGuardrail stays N).
+    - Per hour, −10.3 % (lab), within the threshold. Prod is n/a, since it was never deployed.
+  - **Against the authorized caps:**
+    - the eval's model, 1.738784 USD of 1.90;
+    - the approval test, 0.023269 of 0.20;
+    - the judge, at most 0.432590 (the whole Bedrock line) of 0.45;
+    - Cost Explorer, 0.03 (3 calls).
+    Every charge was covered by credits (net 0).
