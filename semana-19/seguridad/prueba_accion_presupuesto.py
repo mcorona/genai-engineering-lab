@@ -14,8 +14,8 @@ Resources, all named semana19-prueba-accion*:
 - a test role with no permissions, that nobody can assume except Lambda (`semana19-prueba-accion-objetivo`);
 - the action's execution role, trusted by budgets.amazonaws.com for this account only, that may attach and detach
   only that policy and only on the test role (`semana19-prueba-accion-ejecucion`);
-- a monthly COST budget of USD 0.01 over the whole account (`semana19-prueba-accion`), so this month's actual spend is
-  already above it;
+- a monthly COST budget of USD 0.01 over the whole account (`semana19-prueba-accion`), counting gross spend (credits and
+  refunds not subtracted, as the production budget does), so this month's actual spend is already above it;
 - its action: APPLY_IAM_POLICY at 100 % of ACTUAL, approval AUTOMATIC.
 
 Budgets evaluates actual spend a few times a day, so the action may take hours to run. `--estado` reads the action's
@@ -42,6 +42,13 @@ POLITICA = f"{PREFIJO}-negar"
 OBJETIVO = f"{PREFIJO}-objetivo"
 EJECUCION = f"{PREFIJO}-ejecucion"
 LIMITE_USD = "0.01"
+# Gross spend, as the production budget counts it (semana19-control, include_credit=False). With the default cost
+# types, credits are subtracted: on 2026-11-22 the first version of this budget read 0.0 USD while semana19 read
+# 4.953 USD, every charge being covered by credits, so the action could never run.
+TIPOS_DE_COSTO = {"IncludeTax": True, "IncludeSubscription": True, "UseBlended": False, "IncludeRefund": False,
+                  "IncludeCredit": False, "IncludeUpfront": True, "IncludeRecurring": True,
+                  "IncludeOtherSubscription": True, "IncludeSupport": True, "IncludeDiscount": True,
+                  "UseAmortized": False}
 _CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
@@ -86,7 +93,7 @@ def crear(iam, budgets, cuenta: str, correo: str) -> list[str]:
                         PolicyDocument=json.dumps(d["permisos_ejecucion"]))
     budgets.create_budget(AccountId=cuenta, Budget={
         "BudgetName": PRESUPUESTO, "BudgetLimit": {"Amount": LIMITE_USD, "Unit": "USD"},
-        "TimeUnit": "MONTHLY", "BudgetType": "COST"})
+        "TimeUnit": "MONTHLY", "BudgetType": "COST", "CostTypes": TIPOS_DE_COSTO})
     time.sleep(10)   # a new role is not usable by Budgets right away (IAM is eventually consistent)
     budgets.create_budget_action(
         AccountId=cuenta, BudgetName=PRESUPUESTO, NotificationType="ACTUAL", ActionType="APPLY_IAM_POLICY",
@@ -94,7 +101,7 @@ def crear(iam, budgets, cuenta: str, correo: str) -> list[str]:
         Definition={"IamActionDefinition": {"PolicyArn": arn_politica, "Roles": [OBJETIVO]}},
         ExecutionRoleArn=arn_ejecucion, ApprovalModel="AUTOMATIC",
         Subscribers=[{"SubscriptionType": "EMAIL", "Address": correo}])
-    return ["creado: " + p.split(" (")[0].split(":")[0] for p in plan()]
+    return ["hecho: " + p.split(" (")[0].split(":")[0] for p in plan()]
 
 
 def _accion(budgets, cuenta: str) -> dict | None:

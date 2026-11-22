@@ -91,6 +91,8 @@ def test_ciclo_crear_estado_limpiar(aws, tmp_path):
     P.crear(iam, budgets, CUENTA, CORREO)
     accion = budgets.acciones[P.PRESUPUESTO][0]
     assert budgets.presupuestos[P.PRESUPUESTO]["BudgetLimit"] == {"Amount": "0.01", "Unit": "USD"}
+    tipos = budgets.presupuestos[P.PRESUPUESTO]["CostTypes"]
+    assert tipos["IncludeCredit"] is False and tipos["IncludeRefund"] is False   # gross spend, as semana19 counts it
     assert accion["ApprovalModel"] == "AUTOMATIC" and accion["ActionType"] == "APPLY_IAM_POLICY"
     assert accion["Definition"]["IamActionDefinition"]["Roles"] == [P.OBJETIVO]
     assert "despliegue" not in json.dumps(accion)          # never the real deploy role
@@ -116,3 +118,11 @@ def test_el_registro_no_lleva_cuenta_ni_correo(aws, tmp_path):
     P.registrar(P.estado(iam, budgets, CUENTA), ruta)
     texto = ruta.read_text(encoding="utf-8")
     assert CUENTA not in texto and CORREO not in texto
+
+
+def test_cuenta_el_gasto_como_el_presupuesto_de_produccion():
+    """The production budget (app.py, semana19) has include_credit=False and include_refund=False; with credits
+    subtracted, the test budget read 0.0 USD on 2026-11-22 and its action could never run."""
+    app = (S19 / "infra" / "cdk" / "app.py").read_text(encoding="utf-8")
+    assert "include_credit=False" in app and "include_refund=False" in app
+    assert P.TIPOS_DE_COSTO["IncludeCredit"] is False and P.TIPOS_DE_COSTO["IncludeRefund"] is False
