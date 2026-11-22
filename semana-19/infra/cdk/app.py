@@ -463,6 +463,12 @@ def politica_ejecucion_computo() -> list[iam.PolicyStatement]:
                      resources=[arn_iam("role/semana19-*")],
                      conditions={"StringEquals": {"iam:PassedToService": ["lambda.amazonaws.com",
                                                                          "states.amazonaws.com"]}}),
+        # retry_attempts=0 on the agent (activity 9, #297) is an AWS::Lambda::EventInvokeConfig resource, whose handler
+        # calls these. Without them semana19-computo failed and its rollback too (2026-11-21).
+        _declaracion(sid="ConfigAsincronaDelAgente", actions=[
+            "lambda:PutFunctionEventInvokeConfig", "lambda:GetFunctionEventInvokeConfig",
+            "lambda:UpdateFunctionEventInvokeConfig", "lambda:DeleteFunctionEventInvokeConfig"],
+            resources=[f"arn:{Aws.PARTITION}:lambda:{REGION}:{Aws.ACCOUNT_ID}:function:semana19-computo-FuncionAgente*"]),
     ]
 
 
