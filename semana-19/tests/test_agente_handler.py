@@ -188,3 +188,35 @@ def test_la_propuesta_lleva_el_sujeto_del_token_como_solicitante_y_las_lecturas_
     capa.llamar("ejecutar_sql", {"sql": "SELECT prv_nm FROM legado.prvmst"})
     assert llamadas[0][2] == {"solicitante": ALCANCE.usuario} and "solicitante" not in llamadas[0][1]
     assert llamadas[1][2] == {}
+
+
+def _notas_de_artnot() -> dict[int, str]:
+    import re
+    sql = (S19 / "infra" / "loader" / "artnot.sql").read_text(encoding="utf-8")
+    return {int(m.group(1)): m.group(2).replace("''", "'")
+            for m in re.finditer(r"\((\d+), 'SKU-\d+', '((?:[^']|'')*)'", sql)}
+
+
+@pytest.mark.parametrize("not_id,retirada", [(1, False), (2, True), (4, True), (6, False), (8, True)])
+def test_el_resultado_de_una_herramienta_pasa_el_sanitizador_de_la_semana_17(not_id, retirada):
+    """H13 (activity 9): before this, a poisoned legado.artnot note reached the model as is (8 of 8 tasks, 2026-11-22).
+    Week 17's sanitizer removes notes 2 (iny-d1), 4 (iny-d2) and 8 (iny-d4). Note 6 (iny-d3) is not caught by it: the
+    residual reported in resultados/seguridad.md."""
+    nota = _notas_de_artnot()[not_id]
+    decisiones = []
+    capa = H.HerramientasCapadas(lambda n, a, **k: {"ok": True, "columnas": ["not_txt"], "filas": [[nota]]}, DEFS,
+                                 ALCANCE, PREGUNTA, decisiones)
+    visto = capa.llamar("ejecutar_sql", {"sql": "SELECT not_txt FROM legado.artnot"})
+    ultima = decisiones[-1]
+    assert ultima.guardrail == "input_resultado_inyeccion" and ultima.etapa == "input"
+    if retirada:
+        assert ultima.accion == "sanitize" and nota not in str(visto) and visto["ok"] is True
+    else:
+        assert ultima.accion == "allow" and visto["filas"] == [[nota]]
+
+
+def test_un_bloqueo_de_la_capa_no_pasa_por_el_sanitizador():
+    decisiones = []
+    capa = H.HerramientasCapadas(lambda n, a, **k: pytest.fail("no debe correr"), DEFS, ALCANCE, PREGUNTA, decisiones)
+    capa.llamar("ejecutar_sql", {"sql": "DELETE FROM legado.exidet"})
+    assert all(d.guardrail != "input_resultado_inyeccion" for d in decisiones)

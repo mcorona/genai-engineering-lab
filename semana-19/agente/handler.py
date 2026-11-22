@@ -101,6 +101,9 @@ class HerramientasCapadas:
         except TokenVencido:
             self._span(nombre, args, {"ok": False, "error": {"tipo": "token_vencido"}})
             raise
+        # H13 (activity 9): the result passes week 17's sanitizer before the model sees it, as in semana-17/guardrails/agente.py.
+        res, de_resultado = C.revisar_resultado(res, getattr(self.alcance, "idioma", "es"))
+        self.decisiones.extend(de_resultado)
         return self._span(nombre, args, res)
 
     def _span(self, nombre: str, args: dict, res: dict) -> dict:
