@@ -16,7 +16,8 @@ and previews week 21's report.
 | External access | IAM Access Analyzer (account, external access): 61 resources analyzed, 37 of the project, 0 findings | `seguridad/access_analyzer.json` |
 | Indirect prompt injection, data | 8 tasks (week 13's iny-d1 to iny-d4, ES and EN), twice: 0 of 8 obeyed each time; no table changed | `seguridad/envenenamiento_antes_h13.json`, `seguridad/envenenamiento.json` |
 | Indirect prompt injection, KB | The poisoned documents ranked first in a direct `Retrieve`; the agent cannot call `Retrieve` (H2) | `seguridad/kb_retrieve_*.json` |
-| Budget action | Sandbox budget of USD 0.01 created 2026-11-22 03:36 UTC; action in STANDBY at its first read | `seguridad/accion_presupuesto.jsonl` (pending, step 4.5) |
+| Budget action | Sandbox budget of USD 0.01: the action attached the deny policy to the test role (EXECUTION_SUCCESS), after a first budget that subtracted credits never fired | `seguridad/accion_presupuesto.jsonl` |
+| Teardown | Inventory `"quedan": "nada"` | step 4.6 |
 
 ## Step 1: scanners
 
@@ -127,38 +128,44 @@ see the KB, the evidence is the agent role's permissions (0 USD).
 Week 13's rule cases (iny-r1, iny-r2) do not apply in AWS (decision 4): the rules ship inside the tools package. Poisoning
 them means changing deployed code, which is a supply-chain case (F10), not indirect injection.
 
-## Step 4.5: budget action (pending)
+## Step 4.5: budget action
 
-`seguridad/prueba_accion_presupuesto.py` (#311) created, on 2026-11-22 at 03:36 UTC:
+`seguridad/prueba_accion_presupuesto.py` (#311, #312) creates:
 - a monthly COST budget of USD 0.01 over the account;
 - its action, APPLY_IAM_POLICY at 100 % of ACTUAL with automatic approval. It attaches a deny-all policy to a test
   role with no permissions;
 - the action's execution role, which may attach and detach only that policy, only on that role.
 
-The production action, on the deploy role at 100 % of USD 50, is not touched. At the first read, the action was in
-STANDBY and the budget read 0.0 USD of actual spend. That budget was wrong: with the default cost types it
-subtracts credits, and every charge of this account is covered by credits. At 04:18 UTC the production budget `semana19`
-(`include_credit=False`) read 4.953 USD, while the test budget and the account's two zero-spend budgets read 0.0. #312
-makes the test budget count gross spend, as production does. It has to be recreated (`--limpiar --si`, then `--crear
---si`).
+The production action, on the deploy role at 100 % of USD 50, is not touched.
 
-**Pending:**
-- a read that shows the policy attached;
-- `--limpiar --si`;
-- the inventory.
+- **First try, wrong (2026-11-22 03:36 UTC).** The budget used the default cost types, which subtract credits, and
+  every charge of this account is covered by credits. It read 0.0 USD for 16 hours, and its action stayed in STANDBY.
+  The production budget `semana19` (`include_credit=False`) read 4.953 USD at the same time. #312 makes the test count
+  gross spend, as production does.
+- **Second try (20:05 UTC).** The budget, recreated with gross spend, read 10.788 USD for the month against its USD 0.01
+  limit. The action was in **EXECUTION_SUCCESS**, and `semana19-prueba-accion-negar` was attached to
+  `semana19-prueba-accion-objetivo` by Budgets, within minutes of the creation.
+- **Cleanup.** `--limpiar --si` detached the policy, then deleted the action, the budget, both roles and the policy.
 
-## Step 4.6: teardown (pending)
+Lesson: a budget meant to stop spend must count the spend that the account actually incurs. On an account paid with
+credits, a net-of-credits budget never fires.
 
-`destruir.sh --si --todo`, started by Manuel on 2026-11-22 around 03:30 UTC:
-- deleted: computo (2,415 s), datos (1,287 s) and ia;
-- base: DELETE_FAILED at 04:35 UTC, on the custom resource that restricts the default security group. Its Lambda
-  role cannot call `ec2:AuthorizeSecurityGroupIngress` under the boundary. This is the known case of 2026-11-13, 11-15
-  and 11-19: a rerun retains only that AWS-less resource (`destruir.sh`, step 1b);
-- left overnight, at 0 USD/h: the base VPC, the custom resource's Lambda and role, the bootstrap and control.
+Evidence: `seguridad/accion_presupuesto.jsonl`.
 
-**Pending:**
-- the final state;
-- the inventory, which until the cleanup of step 4.5 is expected to list `semana19-prueba-accion*`.
+## Step 4.6: teardown
+
+`destruir.sh --si --todo`, in two runs by Manuel:
+- **First run (2026-11-22, from about 03:30 UTC).** It deleted computo (2,415 s), datos (1,287 s) and ia. Base ended in
+  DELETE_FAILED on the custom resource that restricts the default security group: its Lambda role cannot call
+  `ec2:AuthorizeSecurityGroupIngress` under the boundary. This is the known case of 2026-11-13, 11-15 and 11-19.
+- **Second run (about 20:00 UTC).**
+  - Base was deleted retaining only that AWS-less custom resource (step 1b, 34 s).
+  - The bootstrap was emptied (21 object versions) and deleted (32 s).
+  - Control was deleted (66 s): it failed on the boundary race once, and passed on its built-in retry.
+  - The datos loader's implicit log group was deleted.
+- **Inventory**, read-only, after the budget test's cleanup: `"quedan": "nada"`, with nothing unexpected and nothing
+  unmeasured. What is left is allowed: the `semana19-lectura` role, and 6 KMS keys pending deletion, each with its
+  Tagging API entry.
 
 ## Step 4.7: cost (pending)
 
