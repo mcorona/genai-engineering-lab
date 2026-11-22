@@ -18,6 +18,10 @@ or committed.
 
 - The file is removed by `destruir.sh --todo` together with the test users.
 - A test checks that the password does not appear in the repo, the logs or the output of `usuarios.py`.
+- Amended 2026-11-21 (activity 9): the file is `~/s19-secretos/usuarios-prueba.env`, outside the repository (mode 600;
+  `S19_SECRETOS` overrides it), for both `infra/usuarios.py`, which writes it, and `agentes/comparar.py`, which reads
+  it. `usuarios.py` used to default to `semana-19/infra/.secretos.env`, so the new pool's passwords went there while the
+  live runs read the deleted pool's. The `.gitignore` entry stays as a guard.
 
 ## Costs
 

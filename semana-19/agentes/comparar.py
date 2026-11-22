@@ -27,6 +27,7 @@ import contextlib
 import functools
 import json
 import math
+import os
 import sys
 import time
 import uuid
@@ -373,6 +374,10 @@ def probar_politica(llamar_como: Callable[[str, str | None], dict], listar_como:
 
 # ---------------------------------------------------------------- real clients (only with --si)
 
+# The test users' passwords, written by infra/usuarios.py (its SECRETOS): the same path and the same override. The last
+# line of a key wins, so the passwords appended for a new pool replace those of a deleted one.
+SECRETOS = Path(os.environ.get("S19_SECRETOS") or Path.home() / "s19-secretos" / "usuarios-prueba.env")
+
 USUARIOS = {"analista": ("analista-prueba", "ANALISTA_PRUEBA_PASSWORD"),
             "comprador": ("comprador-prueba", "COMPRADOR_PRUEBA_PASSWORD"),
             "aprobador": ("aprobador-prueba", "APROBADOR_PRUEBA_PASSWORD")}
@@ -397,8 +402,7 @@ class Aws:  # pragma: no cover - live only
         self.lam = self.s.client("lambda")
         conf = self.lam.get_function_configuration(FunctionName=self.computo["ArnAgente"])["Environment"]["Variables"]
         self.camino_desplegado, self.grupo_spans = conf.get("CAMINO_HERRAMIENTAS", "directo"), conf["GRUPO_SPANS"]
-        secretos = Path.home() / "s19-secretos" / "usuarios-prueba.env"
-        self._secretos = dict(l.split("=", 1) for l in secretos.read_text(encoding="utf-8").splitlines() if "=" in l)
+        self._secretos = dict(l.split("=", 1) for l in SECRETOS.read_text(encoding="utf-8").splitlines() if "=" in l)
         self._tokens: dict[str, str] = {}
 
     def token(self, clave: str) -> str:

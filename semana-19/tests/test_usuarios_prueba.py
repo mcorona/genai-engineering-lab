@@ -90,3 +90,18 @@ def test_la_contrasena_cumple_la_politica_del_pool():
         c = U.generar_contrasena()
         assert len(c) >= 12 and any(x.islower() for x in c) and any(x.isupper() for x in c)
         assert any(x.isdigit() for x in c) and any(not x.isalnum() for x in c)
+
+
+def test_usuarios_escribe_donde_las_corridas_leen():
+    """2026-11-21: usuarios.py wrote the new pool's passwords to infra/.secretos.env, and comparar.py read the deleted
+    pool's from ~/s19-secretos. Both define SECRETOS with the same line."""
+    linea = 'SECRETOS = Path(os.environ.get("S19_SECRETOS") or Path.home() / "s19-secretos" / "usuarios-prueba.env")'
+    assert linea in (S19 / "infra" / "usuarios.py").read_text(encoding="utf-8")
+    assert linea in (S19 / "agentes" / "comparar.py").read_text(encoding="utf-8")
+    assert "secretos = Path.home()" not in (S19 / "agentes" / "comparar.py").read_text(encoding="utf-8")
+
+
+def test_guardar_crea_la_carpeta_privada(tmp_path):
+    ruta = tmp_path / "s19-secretos" / "usuarios-prueba.env"
+    U._guardar([("CLAVE", "valor")], ruta)
+    assert stat.S_IMODE(ruta.parent.stat().st_mode) == 0o700 and stat.S_IMODE(ruta.stat().st_mode) == 0o600
