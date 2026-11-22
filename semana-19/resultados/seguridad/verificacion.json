@@ -1,0 +1,398 @@
+{
+  "fecha": "2026-11-22T03:18:59Z",
+  "identidad": "semana19-lectura",
+  "region": "us-east-1",
+  "desde": "2026-11-21T22:30:00Z",
+  "recursos_por_tipo": {
+    "AWS::ApiGatewayV2::Api": 1,
+    "AWS::ApiGatewayV2::Authorizer": 1,
+    "AWS::ApiGatewayV2::Integration": 3,
+    "AWS::ApiGatewayV2::Route": 3,
+    "AWS::ApiGatewayV2::Stage": 1,
+    "AWS::Bedrock::DataSource": 1,
+    "AWS::Bedrock::KnowledgeBase": 1,
+    "AWS::Bedrock::Prompt": 2,
+    "AWS::Bedrock::PromptVersion": 2,
+    "AWS::Budgets::Budget": 1,
+    "AWS::Budgets::BudgetsAction": 1,
+    "AWS::CDK::Metadata": 4,
+    "AWS::CloudFormation::CustomResource": 1,
+    "AWS::Cognito::UserPool": 1,
+    "AWS::Cognito::UserPoolClient": 1,
+    "AWS::Cognito::UserPoolGroup": 5,
+    "AWS::Cognito::UserPoolResourceServer": 2,
+    "AWS::DynamoDB::Table": 2,
+    "AWS::EC2::FlowLog": 1,
+    "AWS::EC2::RouteTable": 2,
+    "AWS::EC2::SecurityGroup": 7,
+    "AWS::EC2::SecurityGroupEgress": 3,
+    "AWS::EC2::SecurityGroupIngress": 7,
+    "AWS::EC2::Subnet": 2,
+    "AWS::EC2::SubnetRouteTableAssociation": 2,
+    "AWS::EC2::VPC": 1,
+    "AWS::EC2::VPCEndpoint": 4,
+    "AWS::ECR::Repository": 1,
+    "AWS::IAM::ManagedPolicy": 7,
+    "AWS::IAM::Policy": 15,
+    "AWS::IAM::Role": 20,
+    "AWS::KMS::Alias": 1,
+    "AWS::KMS::Key": 1,
+    "AWS::Lambda::EventInvokeConfig": 1,
+    "AWS::Lambda::Function": 10,
+    "AWS::Lambda::Permission": 4,
+    "AWS::Logs::LogGroup": 12,
+    "AWS::RDS::DBInstance": 1,
+    "AWS::RDS::DBSubnetGroup": 1,
+    "AWS::S3::Bucket": 2,
+    "AWS::S3::BucketPolicy": 2,
+    "AWS::S3Vectors::Index": 1,
+    "AWS::S3Vectors::VectorBucket": 1,
+    "AWS::SSM::Parameter": 1,
+    "AWS::SecretsManager::Secret": 1,
+    "AWS::SecretsManager::SecretTargetAttachment": 1,
+    "AWS::StepFunctions::StateMachine": 1,
+    "Custom::VpcRestrictDefaultSG": 1
+  },
+  "veredictos": {
+    "cifrado": "hallazgo",
+    "publico": "ok",
+    "rds_sin_ip_publica": "ok",
+    "red": "ok",
+    "endpoints": "ok",
+    "cloudtrail": "ok"
+  },
+  "veredicto": "hallazgo",
+  "sin_permiso": [
+    "bedrock:GetGuardrail",
+    "bedrock:GetPrompt"
+  ],
+  "checks": {
+    "cifrado": {
+      "veredicto": "hallazgo",
+      "recursos": 29,
+      "con_la_llave": 17,
+      "por_tipo": {
+        "AWS::S3::Bucket": 2,
+        "AWS::Logs::LogGroup": 13,
+        "AWS::RDS::DBInstance": 1,
+        "AWS::StepFunctions::StateMachine": 1,
+        "AWS::DynamoDB::Table": 2,
+        "AWS::Bedrock::KnowledgeBase": 1,
+        "AWS::Bedrock::DataSource": 1,
+        "AWS::S3Vectors::VectorBucket": 1,
+        "AWS::SecretsManager::Secret": 1,
+        "AWS::Lambda::Function": 6
+      },
+      "otra_llave": [
+        {
+          "tipo": "AWS::S3::Bucket",
+          "id": "cdk-s19-assets-<account>-us-east-1",
+          "llave": "aws/s3 (AWS managed)",
+          "cmk": false,
+          "razon": null
+        },
+        {
+          "tipo": "AWS::Logs::LogGroup",
+          "id": "/aws/lambda/semana19-datos-Cargador29E38F40-7A7thnhGuTfY",
+          "llave": "CloudWatch Logs default",
+          "cmk": false,
+          "razon": "H10: the loader has no log group in CloudFormation; the Lambda runtime created this one without a key."
+        },
+        {
+          "tipo": "AWS::StepFunctions::StateMachine",
+          "id": "arn:aws:states:us-east-1:<account>:stateMachine:semana19-aprobacion",
+          "llave": "AWS owned key",
+          "cmk": false,
+          "razon": "H10: no EncryptionConfiguration, so Step Functions uses an AWS owned key. Its log group is on the CMK."
+        },
+        {
+          "tipo": "AWS::Bedrock::KnowledgeBase",
+          "id": "W3WBVTDJ4L",
+          "llave": "vector bucket not read",
+          "cmk": false,
+          "razon": "H10: the Knowledge Base stores its vectors in the vector bucket above (SSE-S3)."
+        },
+        {
+          "tipo": "AWS::Bedrock::DataSource",
+          "id": "AKLBYRSHCT",
+          "llave": "AWS owned key",
+          "cmk": false,
+          "razon": "H10: no ServerSideEncryptionConfiguration, so the transient ingestion data uses an AWS owned key."
+        },
+        {
+          "tipo": "AWS::S3Vectors::VectorBucket",
+          "id": "arn:aws:s3vectors:us-east-1:<account>:bucket/semana19-kb-<account>-us-east-1",
+          "llave": "SSE-S3",
+          "cmk": false,
+          "razon": "H10: no encryption configuration, so S3 Vectors uses SSE-S3. It cannot be changed after the bucket is created."
+        },
+        {
+          "tipo": "AWS::Lambda::Function",
+          "id": "semana19-computo-FuncionAgente1EADB7D9-4OxaOL7IYeom",
+          "llave": "aws/lambda (AWS managed)",
+          "cmk": false,
+          "razon": "H10: environment variables (resource names and ids, no secrets) under the AWS managed key aws/lambda."
+        },
+        {
+          "tipo": "AWS::Lambda::Function",
+          "id": "semana19-computo-FuncionAprobarC2637364-ceMMNqRSoUEk",
+          "llave": "aws/lambda (AWS managed)",
+          "cmk": false,
+          "razon": "H10: environment variables (resource names and ids, no secrets) under the AWS managed key aws/lambda."
+        },
+        {
+          "tipo": "AWS::Lambda::Function",
+          "id": "semana19-computo-FuncionConsultas473B0684-SC0DEqc7NYRm",
+          "llave": "aws/lambda (AWS managed)",
+          "cmk": false,
+          "razon": "H10: environment variables (resource names and ids, no secrets) under the AWS managed key aws/lambda."
+        },
+        {
+          "tipo": "AWS::Lambda::Function",
+          "id": "semana19-computo-FuncionEscritor4DED88EF-z9iuKbyxrGT4",
+          "llave": "aws/lambda (AWS managed)",
+          "cmk": false,
+          "razon": "H10: environment variables (resource names and ids, no secrets) under the AWS managed key aws/lambda."
+        },
+        {
+          "tipo": "AWS::Lambda::Function",
+          "id": "semana19-computo-FuncionHerramientas10B13045-21kdCabDdMRu",
+          "llave": "aws/lambda (AWS managed)",
+          "cmk": false,
+          "razon": "H10: environment variables (resource names and ids, no secrets) under the AWS managed key aws/lambda."
+        },
+        {
+          "tipo": "AWS::Lambda::Function",
+          "id": "semana19-computo-FuncionRegistrarTokenDF67B75B-wuRCL8wBwTy2",
+          "llave": "aws/lambda (AWS managed)",
+          "cmk": false,
+          "razon": "H10: environment variables (resource names and ids, no secrets) under the AWS managed key aws/lambda."
+        }
+      ]
+    },
+    "publico": {
+      "veredicto": "ok",
+      "publicos": [],
+      "no_leidos": [],
+      "excepcion": "the HTTP API endpoint is public by design; every route has the JWT authorizer",
+      "rutas_api": [
+        "POST /aprobaciones/{id}: JWT",
+        "POST /consultas: JWT",
+        "GET /consultas/{id}: JWT"
+      ],
+      "gateways": []
+    },
+    "rds_sin_ip_publica": {
+      "veredicto": "ok",
+      "instancias": [
+        "semana19-datos-postgresqlb528aa70-nyiuqyqchpn9"
+      ],
+      "interfaces": 1,
+      "malos": []
+    },
+    "red": {
+      "veredicto": "ok",
+      "lambdas_en_vpc": [
+        "semana19-computo-FuncionEscritor4DED88EF-z9iuKbyxrGT4",
+        "semana19-computo-FuncionHerramientas10B13045-21kdCabDdMRu",
+        "semana19-datos-Cargador29E38F40-7A7thnhGuTfY"
+      ],
+      "subredes": {
+        "subnet-08766fdad76d4da1d": [
+          {
+            "destino": "10.19.0.0/16",
+            "objetivo": "local"
+          },
+          {
+            "destino": "pl-63a5400a",
+            "objetivo": "vpce-0e4c863531b73413d"
+          }
+        ],
+        "subnet-0f743066611369296": [
+          {
+            "destino": "10.19.0.0/16",
+            "objetivo": "local"
+          },
+          {
+            "destino": "pl-63a5400a",
+            "objetivo": "vpce-0e4c863531b73413d"
+          }
+        ]
+      },
+      "grupos": 8,
+      "malos": []
+    },
+    "endpoints": {
+      "veredicto": "ok",
+      "endpoints": [
+        {
+          "id": "vpce-0e4c863531b73413d",
+          "servicio": "com.amazonaws.us-east-1.s3",
+          "tipo": "Gateway",
+          "limitada_a_la_cuenta": true,
+          "limita_aws_ResourceAccount": false
+        },
+        {
+          "id": "vpce-06235f87dec2fcdf9",
+          "servicio": "com.amazonaws.us-east-1.states",
+          "tipo": "Interface",
+          "limitada_a_la_cuenta": true,
+          "limita_aws_ResourceAccount": false
+        },
+        {
+          "id": "vpce-0c3e52332a9447d1e",
+          "servicio": "com.amazonaws.us-east-1.logs",
+          "tipo": "Interface",
+          "limitada_a_la_cuenta": true,
+          "limita_aws_ResourceAccount": false
+        },
+        {
+          "id": "vpce-0bc14585d41ae1793",
+          "servicio": "com.amazonaws.us-east-1.secretsmanager",
+          "tipo": "Interface",
+          "limitada_a_la_cuenta": true,
+          "limita_aws_ResourceAccount": false
+        }
+      ],
+      "malos": [],
+      "nota": "limita_aws_ResourceAccount false: the policy limits who calls, not whose resources (H12)"
+    },
+    "cloudtrail": {
+      "veredicto": "ok",
+      "eventos": 125,
+      "runtime": 46,
+      "runtime_por_evento_y_rol": [
+        {
+          "evento": "Converse",
+          "rol": "semana19-computo-FuncionAgenteServiceRole7F9E6BDA-Dz6mJ0AFItIK",
+          "n": 30
+        },
+        {
+          "evento": "InvokeModel",
+          "rol": "semana19-kb",
+          "n": 16
+        }
+      ],
+      "errores": {},
+      "roles_esperados": {
+        "semana19-computo-FuncionAgenteServiceRole7F9E6BDA-Dz6mJ0AFItIK": "the agent (Converse, Haiku 4.5 profile)",
+        "semana19-kb": "the Knowledge Base ingestion (InvokeModel, Titan Text Embeddings V2)"
+      },
+      "roles_inesperados": [],
+      "plano_de_control": [
+        {
+          "evento": "CreateDataSource",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 1
+        },
+        {
+          "evento": "CreateGuardrail",
+          "rol": "semana19-ia-CreadorGuardrailServiceRole7706FC6C-YmRhzVVNMN7h",
+          "n": 1
+        },
+        {
+          "evento": "CreateGuardrailVersion",
+          "rol": "semana19-ia-CreadorGuardrailServiceRole7706FC6C-YmRhzVVNMN7h",
+          "n": 1
+        },
+        {
+          "evento": "CreateKnowledgeBase",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 1
+        },
+        {
+          "evento": "CreatePrompt",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 2
+        },
+        {
+          "evento": "CreatePromptVersion",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 2
+        },
+        {
+          "evento": "GetDataSource",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 5
+        },
+        {
+          "evento": "GetDataSource",
+          "rol": "semana19-lectura",
+          "n": 2
+        },
+        {
+          "evento": "GetGuardrail",
+          "rol": "AWSServiceRoleForResourceExplorer",
+          "n": 1
+        },
+        {
+          "evento": "GetGuardrail",
+          "rol": "semana19-lectura",
+          "n": 2
+        },
+        {
+          "evento": "GetKnowledgeBase",
+          "rol": "AWSServiceRoleForResourceExplorer",
+          "n": 1
+        },
+        {
+          "evento": "GetKnowledgeBase",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 10
+        },
+        {
+          "evento": "GetKnowledgeBase",
+          "rol": "semana19-lectura",
+          "n": 1
+        },
+        {
+          "evento": "GetPrompt",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 14
+        },
+        {
+          "evento": "GetPrompt",
+          "rol": "semana19-lectura",
+          "n": 2
+        },
+        {
+          "evento": "ListDataSources",
+          "rol": "semana19-lectura",
+          "n": 2
+        },
+        {
+          "evento": "ListIngestionJobs",
+          "rol": "semana19-lectura",
+          "n": 5
+        },
+        {
+          "evento": "ListKnowledgeBases",
+          "rol": "semana19-lectura",
+          "n": 1
+        },
+        {
+          "evento": "ListTagsForResource",
+          "rol": "AWSServiceRoleForResourceExplorer",
+          "n": 1
+        },
+        {
+          "evento": "ListTagsForResource",
+          "rol": "cdk-s19-cfn-exec-role-<account>-us-east-1",
+          "n": 21
+        },
+        {
+          "evento": "StartIngestionJob",
+          "rol": "IAMUser",
+          "n": 3
+        }
+      ],
+      "no_visibles": {
+        "ApplyGuardrail": "data event (AWS::Bedrock::Guardrail): needs a trail with advanced event selectors, not created (H11)",
+        "Retrieve": "data event (AWS::Bedrock::KnowledgeBase): needs a trail with advanced event selectors, not created (H11)",
+        "RetrieveAndGenerate": "data event (AWS::Bedrock::KnowledgeBase): needs a trail with advanced event selectors, not created (H11)",
+        "InvokeAgent": "data event (AWS::Bedrock::AgentAlias): needs a trail with advanced event selectors, not created (H11)",
+        "InvokeGateway": "data event (AWS::BedrockAgentCore::Gateway): needs a trail with advanced event selectors, not created (H11)"
+      }
+    }
+  }
+}

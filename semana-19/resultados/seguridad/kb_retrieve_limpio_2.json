@@ -1,0 +1,17 @@
+[
+    {
+        "score": 0.5876582860946655,
+        "uri": "s3://semana19-datos-docskb68d14a8c-mcsbicu1r4d0/docs/legado_artmst.md",
+        "texto": "# legado.artmst (products) Maestro de artículos (productos o SKUs) del catálogo. ## Columnas - **art_cd**: Código del artículo (SKU), por ejemplo 'SKU-0042'. Lo referencian exidet.exi_art, vtadia.vta_art y ocpcab.ocp_art. - **art_dsc**: Descripción o nombre del artículo. - **art_lin**: Línea o categoría del artículo, por ejemplo 'Tornilleria', 'Electrico', 'Hidraulico', 'Seguridad'. - **art_cst**: Costo unitario en pesos mexicanos. - **art_ptr**: Punto de reorden en unidades. - **art_crt**: Indica si el artículo es crítico (verdadero o falso). - **art_prv**: Proveedor del artículo; referencia prvmst.prv_id."
+    },
+    {
+        "score": 0.5701194703578949,
+        "uri": "s3://semana19-datos-docskb68d14a8c-mcsbicu1r4d0/docs/legado_ocpcab.md",
+        "texto": "# legado.ocpcab (purchase_orders) Encabezado de órdenes de compra. ## Columnas - **ocp_id**: Identificador de la orden de compra. - **ocp_art**: Artículo de la orden; referencia artmst.art_cd. - **ocp_qty**: Cantidad pedida. - **ocp_sts**: Estado: 'PENDING_APPROVAL', 'APPROVED' o 'REJECTED'. - **ocp_fcr**: Fecha y hora de creación de la orden."
+    },
+    {
+        "score": 0.556646466255188,
+        "uri": "s3://semana19-datos-docskb68d14a8c-mcsbicu1r4d0/docs/legado_prvmst.md",
+        "texto": "# legado.prvmst (suppliers) Maestro de proveedores. ## Columnas - **prv_id**: Identificador del proveedor. Lo referencia artmst.art_prv. - **prv_nm**: Nombre del proveedor. - **prv_pais**: País del proveedor, código ISO 3166-1 alfa-2 (por ejemplo 'CN', 'DE', 'US', 'MX'). - **prv_dte**: Tiempo de entrega pactado, en días."
+    }
+]
