@@ -1243,3 +1243,10 @@ def test_la_ejecucion_del_computo_configura_la_invocacion_asincrona_del_agente(p
     assert sorted(config["Action"]) == sorted(f"lambda:{v}FunctionEventInvokeConfig" for v in ("Put", "Get", "Update",
                                                                                                "Delete"))
     assert "function:semana19-computo-FuncionAgente*" in json.dumps(config["Resource"])
+
+
+def test_desplegar_sintetiza_y_despliega_con_computo_para_que_existan_sus_exports():
+    """2026-11-21: base, datos and ia deployed without COMPUTO=1 lacked the exports semana19-computo imports."""
+    texto = (SCRIPTS / "desplegar.sh").read_text(encoding="utf-8")
+    assert texto.index("\nexport COMPUTO=1\n") < texto.index("\nsintetizar() {")
+    assert "COMPUTO=0" not in texto and "unset COMPUTO" not in texto

@@ -46,6 +46,12 @@ if [[ "$PERFIL" != "lab" ]]; then
   exit 2
 fi
 
+# Activity 9, 2026-11-21: semana19-computo imports exports of base, datos and ia that only a COMPUTO=1 synth creates.
+# Deployed without it, computo failed ("No export named semana19-datos:..."); and once computo imports them, a deploy
+# without it would try to remove exports in use. The foundation is synthesized and deployed the way destruir.sh destroys
+# it. The synth needs the agent package (python3 semana-19/infra/paquete_agente.py) and stops at step 0 without it.
+export COMPUTO=1
+
 OUT="$(mktemp -d "${TMPDIR:-/tmp}/s19-desplegar.XXXXXX")"
 trap 'rm -rf "$OUT"' EXIT
 
