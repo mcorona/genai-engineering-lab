@@ -113,6 +113,13 @@ def revisar_herramienta(nombre: str, args: dict, *, alcance, peticion: str, defi
     return N.error_de_herramienta(bloqueo, idioma), decisiones
 
 
+def revisar_resultado(res: dict, idioma: str = "es") -> tuple[dict, list]:
+    """(the result the model sees, decisions). Week 17's sanitizer: instruction-like sentences in a tool result are
+    replaced by a marker, the structure is kept (H13, activity 9: the AWS port did not call it)."""
+    limpio, decision = N.revisar_resultado(res, idioma)
+    return limpio, [decision]
+
+
 def revisar_final(final: dict | None, *, conocidas, herramientas_ok: int, idioma: str = "es"):
     """(final answer after redaction, decisions). Audit mode of week 17 for figures (shipped mode)."""
     return N.revisar_respuesta(final, conocidas=conocidas, herramientas_ok=herramientas_ok, idioma=idioma,
