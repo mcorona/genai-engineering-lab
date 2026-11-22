@@ -6,8 +6,8 @@ aprobadores-gerente and aprobadores-director approve up to their level and canno
   python3 infra/usuarios.py --pool <id>            simulation (default): prints the plan. No AWS calls.
   python3 infra/usuarios.py --pool <id> --si       acts: creates the users, adds them to their groups.
 
-Passwords are generated here, written only to semana-19/infra/.secretos.env (ignored by git, mode 0600, ADR 0013) and
-never printed. An existing user is left as it is: its password is not reset. The pool id is not a secret, but the account
+Passwords are generated here, written only to ~/s19-secretos/usuarios-prueba.env (outside the repository, mode 0600,
+ADR 0013; S19_SECRETOS overrides it) and never printed. An existing user is left as it is: its password is not reset. The pool id is not a secret, but the account
 ID never appears in this file or in its output.
 """
 from __future__ import annotations
@@ -23,8 +23,9 @@ USUARIOS = [("analista-prueba", "analistas", "ANALISTA_PRUEBA_PASSWORD"),
             ("aprobador-comprador-prueba", "aprobadores-comprador", "APROBADOR_COMPRADOR_PRUEBA_PASSWORD"),
             ("aprobador-prueba", "aprobadores-gerente", "APROBADOR_PRUEBA_PASSWORD"),
             ("aprobador-director-prueba", "aprobadores-director", "APROBADOR_DIRECTOR_PRUEBA_PASSWORD")]
-# The file lives outside the repository when S19_SECRETOS points there (the lab's: ~/s19-secretos/usuarios-prueba.env).
-SECRETOS = Path(os.environ.get("S19_SECRETOS") or Path(__file__).resolve().parent / ".secretos.env")
+# The file the live runs read (agentes/comparar.py SECRETOS): outside the repository. Activity 9, 2026-11-21: the default
+# was semana-19/infra/.secretos.env, so the new pool's passwords went there while the runs read the old pool's here.
+SECRETOS = Path(os.environ.get("S19_SECRETOS") or Path.home() / "s19-secretos" / "usuarios-prueba.env")
 
 
 def generar_contrasena() -> str:
@@ -37,6 +38,7 @@ def plan(pool: str) -> list[str]:
 
 
 def _guardar(lineas: list[tuple[str, str]], ruta: Path) -> None:
+    ruta.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd = os.open(ruta, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     with os.fdopen(fd, "a", encoding="utf-8") as f:
         for clave, valor in lineas:
