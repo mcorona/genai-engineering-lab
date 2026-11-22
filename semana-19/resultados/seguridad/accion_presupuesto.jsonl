@@ -3,3 +3,10 @@
 {"fecha": "2026-11-22T03:45:17Z", "accion": "STANDBY", "gasto_real_del_mes_usd": "0.0", "politicas_del_rol_de_prueba": [], "adjunta": false}
 {"fecha": "2026-11-22T04:18:02Z", "accion": "STANDBY", "gasto_real_del_mes_usd": "0.0", "politicas_del_rol_de_prueba": [], "adjunta": false}
 {"fecha": "2026-11-22T06:18:07Z", "accion": "STANDBY", "gasto_real_del_mes_usd": "0.0", "politicas_del_rol_de_prueba": [], "adjunta": false}
+{"fecha": "2026-11-22T08:18:11Z", "accion": "STANDBY", "gasto_real_del_mes_usd": "0.0", "politicas_del_rol_de_prueba": [], "adjunta": false}
+{"fecha": "2026-11-22T10:18:10Z", "accion": "STANDBY", "gasto_real_del_mes_usd": "0.0", "politicas_del_rol_de_prueba": [], "adjunta": false}
+{"fecha": "2026-11-22T20:03:46Z", "accion": "STANDBY", "gasto_real_del_mes_usd": "0.0", "politicas_del_rol_de_prueba": [], "adjunta": false}
+{"fecha": "2026-11-22T20:04:34Z", "evento": "limpiado", "hecho": ["acción borrada", "presupuesto borrado", "rol semana19-prueba-accion-ejecucion borrado", "rol semana19-prueba-accion-objetivo borrado", "política semana19-prueba-accion-negar borrada"]}
+{"fecha": "2026-11-22T20:05:15Z", "evento": "creado"}
+{"fecha": "2026-11-22T20:05:40Z", "accion": "EXECUTION_SUCCESS", "gasto_real_del_mes_usd": "10.788", "politicas_del_rol_de_prueba": ["semana19-prueba-accion-negar"], "adjunta": true}
+{"fecha": "2026-11-22T20:06:15Z", "evento": "limpiado", "hecho": ["acción borrada", "presupuesto borrado", "semana19-prueba-accion-negar quitada de semana19-prueba-accion-objetivo", "rol semana19-prueba-accion-ejecucion borrado", "rol semana19-prueba-accion-objetivo borrado", "política semana19-prueba-accion-negar borrada"]}

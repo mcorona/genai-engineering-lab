@@ -46,3 +46,6 @@
 {"fecha": "2026-11-21", "paso": "computo-actualizar-codigo", "segundos": 97, "modo": "cdk-deploy"}
 {"fecha": "2026-11-21", "paso": "destruir-computo", "segundos": 2415, "modo": "destruir-si"}
 {"fecha": "2026-11-21", "paso": "destruir-datos", "segundos": 1287, "modo": "destruir-si"}
+{"fecha": "2026-11-22", "paso": "destruir-base-retenido", "segundos": 34, "modo": "destruir-si"}
+{"fecha": "2026-11-22", "paso": "destruir-bootstrap", "segundos": 32, "modo": "destruir-si"}
+{"fecha": "2026-11-22", "paso": "destruir-control", "segundos": 66, "modo": "destruir-si"}

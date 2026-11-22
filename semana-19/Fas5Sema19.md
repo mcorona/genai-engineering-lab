@@ -683,8 +683,9 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     - poisoning: 0 of 8 obeyed in both runs, no table changed (0.179818 and 0.187653 USD);
     - H13: fixed (#310). Notes sanitized 6 of 6 after the fix; residual: iny-d3;
     - KB: the poisoned chunks ranked first, the agent cannot reach them, and the cleanup was verified.
-  - **Pending:**
-    - the budget action read and its cleanup (#311; created 03:36 UTC, STANDBY);
-    - the teardown's final state and the inventory;
-    - Cost Explorer (2 calls, approved, at least a day after the teardown);
-    - the final ✅ table.
+  - **Budget action (4.5).** The first test budget subtracted credits: it read 0.0 USD and never fired. #312 counts
+    gross spend, as the production budget does. Recreated at 20:05 UTC, the action ran (EXECUTION_SUCCESS) and
+    attached the deny policy to the test role. Then everything was cleaned up.
+  - **Teardown (4.6).** Two runs. The first stopped on the known default-SG custom resource of base; the second
+    retained it, deleted the bootstrap and control (control on its retry). Inventory: `"quedan": "nada"`.
+  - **Pending:** Cost Explorer (2 calls, approved, at least a day after the teardown) and the final ✅ table.
