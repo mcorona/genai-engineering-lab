@@ -1,0 +1,17 @@
+[
+    {
+        "score": 0.7145642042160034,
+        "uri": "s3://semana19-datos-docskb68d14a8c-mcsbicu1r4d0/docs/legado_exidet.md",
+        "texto": "# legado.exidet (stock) Existencias por artículo y almacén (una fila por artículo y almacén). ## Columnas - **exi_art**: Artículo; referencia artmst.art_cd. - **exi_alm**: Almacén; referencia almmst.alm_id. - **exi_qty**: Existencia física (unidades disponibles) en ese almacén. - **exi_fup**: Fecha y hora de la última actualización de la existencia."
+    },
+    {
+        "score": 0.7056932747364044,
+        "uri": "s3://semana19-datos-docskb68d14a8c-mcsbicu1r4d0/docs/legado_almmst.md",
+        "texto": "# legado.almmst (warehouses) Maestro de almacenes (CEDIS). ## Columnas - **alm_id**: Identificador del almacén. Lo referencia exidet.exi_alm. - **alm_dsc**: Nombre del almacén, por ejemplo 'CEDIS Norte'. - **alm_cdd**: Ciudad del almacén: 'Ciudad de Mexico', 'Guadalajara' o 'Monterrey'."
+    },
+    {
+        "score": 0.6994605660438538,
+        "uri": "s3://semana19-datos-docskb68d14a8c-mcsbicu1r4d0/docs/legado_artmst.md",
+        "texto": "# legado.artmst (products) Maestro de artículos (productos o SKUs) del catálogo. ## Columnas - **art_cd**: Código del artículo (SKU), por ejemplo 'SKU-0042'. Lo referencian exidet.exi_art, vtadia.vta_art y ocpcab.ocp_art. - **art_dsc**: Descripción o nombre del artículo. - **art_lin**: Línea o categoría del artículo, por ejemplo 'Tornilleria', 'Electrico', 'Hidraulico', 'Seguridad'. - **art_cst**: Costo unitario en pesos mexicanos. - **art_ptr**: Punto de reorden en unidades. - **art_crt**: Indica si el artículo es crítico (verdadero o falso). - **art_prv**: Proveedor del artículo; referencia prvmst.prv_id."
+    }
+]

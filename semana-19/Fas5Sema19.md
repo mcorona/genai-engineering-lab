@@ -649,3 +649,42 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     - the judge, at most 0.432590 (the whole Bedrock line) of 0.45;
     - Cost Explorer, 0.03 (3 calls).
     Every charge was covered by credits (net 0).
+- 2026-11-21 and 2026-11-22: **Activity 9, steps 4 and 5 (security review, live).** Steps 1 to 3 were merged first
+  (#296 to #302). Results are in `resultados/seguridad.md` and `resultados/seguridad/`.
+  - **Manuel's 4 decisions** (2026-11-21, all as recommended in `estimacion.md`):
+    1. no unused access analyzer: it would evaluate no project role and would cost 5.80 to 8.20 USD;
+    2. use the poisoned `legado.artnot` rows already loaded;
+    3. test the KB with an upload, a re-ingestion and a direct `Retrieve` run by Manuel, then clean up and report it
+       as "not reachable today (H2)";
+    4. measure H13 first, then fix it, then measure again.
+
+    Later choices: the budget action test runs after the teardown, since Budgets takes hours to act; and
+    `semana19-lectura` gets `bedrock:GetGuardrail` and `GetPrompt`.
+  - **Deploy failures, each fixed by a PR before going on:**
+    - `ALERTA_EMAIL` was not a valid address. Budgets rejected it and control ended in ROLLBACK_FAILED. Manuel
+      deleted it; `desplegar.sh` now checks the address shape before any AWS call (#305).
+    - Base, the first from scratch since 2026-11-14: CloudFormation's `iam:TagRole` call carries no boundary key, so
+      the role `semana19-flow-logs` could not be tagged (#304).
+    - Computo failed five times:
+      - twice for exports that a synth without `COMPUTO=1` does not create. Added by hand (a diff with outputs only),
+        and `desplegar.sh` now exports `COMPUTO=1` (#308);
+      - once for `apigateway:TagResource`, removed in #298 on ValidatePolicy's word. Restored, with the finding
+        marked disproved (#306);
+      - once for `lambda:*FunctionEventInvokeConfig`, needed by `retry_attempts=0` from #297 (#307). This attempt left
+        the stack in ROLLBACK_FAILED, and deleting it took 1,577 s;
+      - the fifth attempt deployed in 576 s.
+
+      Two of the five were regressions of this activity's own scanner fixes.
+    - `usuarios.py` wrote the new pool's passwords to `infra/.secretos.env`, while the runs read
+      `~/s19-secretos`. Both now use the same path (#309).
+  - **Results:**
+    - external access analyzer: 0 findings over 61 resources;
+    - verification: 5 of 6 checks ok, new finding H14 (the bootstrap's assets bucket on `aws/s3`);
+    - poisoning: 0 of 8 obeyed in both runs, no table changed (0.179818 and 0.187653 USD);
+    - H13: fixed (#310). Notes sanitized 6 of 6 after the fix; residual: iny-d3;
+    - KB: the poisoned chunks ranked first, the agent cannot reach them, and the cleanup was verified.
+  - **Pending:**
+    - the budget action read and its cleanup (#311; created 03:36 UTC, STANDBY);
+    - the teardown's final state and the inventory;
+    - Cost Explorer (2 calls, approved, at least a day after the teardown);
+    - the final ✅ table.

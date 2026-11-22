@@ -1,0 +1,27 @@
+{
+  "fecha": "2026-11-22",
+  "analizador": "semana19-externo (ACCOUNT, external access; no charge)",
+  "perfil_lectura": "semana19-lectura",
+  "analizados": 61,
+  "analizados_por_tipo": {
+    "AWS::DynamoDB::Table": 2,
+    "AWS::ECR::Repository": 1,
+    "AWS::IAM::Role": 36,
+    "AWS::KMS::Key": 7,
+    "AWS::Lambda::Function": 10,
+    "AWS::S3::Bucket": 4,
+    "AWS::SecretsManager::Secret": 1
+  },
+  "del_proyecto": 37,
+  "del_proyecto_por_tipo": {
+    "AWS::DynamoDB::Table": 2,
+    "AWS::ECR::Repository": 1,
+    "AWS::IAM::Role": 21,
+    "AWS::Lambda::Function": 10,
+    "AWS::S3::Bucket": 2,
+    "AWS::SecretsManager::Secret": 1
+  },
+  "hallazgos": 0,
+  "hallazgos_detalle": [],
+  "nota": "Count stable at 61 over two reads one minute apart (02:28:43 and 02:29:45 UTC) before the analyzer was deleted."
+}

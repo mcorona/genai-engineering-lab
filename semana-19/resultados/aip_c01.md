@@ -77,3 +77,19 @@ Added on 2026-11-21. Every row cites figures already in `resultados/agentes.md` 
 | Quotation error and the model's correction, both versions kept | D4 | `costos/modelo.py --version v1/v2` | `cotizacion.md`: v1 −61.3 % per query (model part), v2 −0.1 %; per hour −10.3 % (lab), prod n/a | medido 2026-11-21 |
 | Fixed per hour against per query, from the bill | D4 | `costo_real.FIJOS`, `FUERA` | 0.037562 USD per hour over 26.004 h; VPC above the model (3 interface endpoints, not 2), RDS below (cause not verified) | medido 2026-11-21 |
 | Real cost per query from Cost Explorer by the `proyecto` tag, against activity 2's model | D4 | `eval/costo_real.py` | pending: the day after (2026-11-20), 2 calls left in the ledger | pendiente |
+
+## Activity 9 (D3)
+
+| Concept | Domain | Where the lab shows it | Evidence | Status |
+|---|---|---|---|---|
+| Threat model per trust boundary (STRIDE), mapped to OWASP LLM Top 10 | D3 | `seguridad/threat_model.md`, `resultados/seguridad.md` | 11 boundaries, H1–H14, each with its OWASP LLM category | D |
+| Secret scanning of the history and the synthesized templates | D3 | `seguridad/escaneo_secretos.py` (gitleaks) | `resultados/seguridad/secretos.json`: 0 unclassified | medido 2026-11-21 |
+| IaC policy scanners with justified suppressions | D3 | checkov and cdk-nag, `seguridad/supresiones.py` | `resultados/seguridad/supresiones.json`: 0 failed, 0 unsuppressed | medido 2026-11-21 |
+| IAM Access Analyzer ValidatePolicy, and its false positives | D3 | `seguridad/validar_politicas.py` | `validate_policy.json`: 0 errors; 4 INVALID_ACTION disproved by a live AccessDenied (#306) | medido 2026-11-21 |
+| IAM Access Analyzer external access findings | D3 | analyzer of type ACCOUNT, created and deleted | `resultados/seguridad/access_analyzer.json`: 61 analyzed, 0 findings | medido 2026-11-22 |
+| Unused access analyzer: what it evaluates and what it bills | D3 | `resultados/seguridad/estimacion.md` | not created: entities younger than the tracking period are not evaluated; 0.20 USD per role or user per month | D |
+| Read-only verification of encryption, public exposure and network | D3 | `seguridad/verificar_desplegado.py` | `verificacion.json`: 5 of 6 ok; H14 new | medido 2026-11-22 |
+| Reading a CMK-encrypted Bedrock resource needs kms:Decrypt as well as the Get action | D3 | `semana19-lectura` with `bedrock:GetGuardrail` and `GetPrompt` | still AccessDenied ("insufficient permissions to access this guardrail") | medido 2026-11-22 |
+| Indirect prompt injection through data and through a Knowledge Base | D3 | `seguridad/envenenamiento.py`, direct `Retrieve` | 0 of 8 obeyed, twice; poisoned chunks ranked first in Retrieve, unreachable by the agent (H2) | medido 2026-11-22 |
+| Sanitizing tool results before the model (defense in depth beside the Guardrail) | D3 | `agente/handler.py` (#310) | 6 of 6 notes sanitized after the fix; the Guardrail blocked 0 in both runs; residual iny-d3 | medido 2026-11-22 |
+| Budget action that applies an IAM deny policy | D3 | `seguridad/prueba_accion_presupuesto.py` (#311) | sandbox budget USD 0.01, action STANDBY at 03:36 UTC | pendiente |
