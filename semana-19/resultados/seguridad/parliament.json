@@ -1,0 +1,99 @@
+{
+  "herramienta": "parliament 1.6.4",
+  "perfiles": {
+    "lab": {
+      "politicas": 50,
+      "hallazgos": 150,
+      "por_issue": {
+        "MALFORMED": 18,
+        "MISMATCHED_TYPE": 1,
+        "MISMATCHED_TYPE_BUT_USABLE": 2,
+        "RESOURCE_MISMATCH": 14,
+        "RESOURCE_POLICY_PRIVILEGE_ESCALATION": 4,
+        "RESOURCE_STAR": 18,
+        "UNKNOWN_ACTION": 2,
+        "UNKNOWN_CONDITION_FOR_ACTION": 20,
+        "UNKNOWN_PREFIX": 71
+      },
+      "sin_clasificar": []
+    },
+    "prod": {
+      "politicas": 50,
+      "hallazgos": 150,
+      "por_issue": {
+        "MALFORMED": 18,
+        "MISMATCHED_TYPE": 1,
+        "MISMATCHED_TYPE_BUT_USABLE": 2,
+        "RESOURCE_MISMATCH": 14,
+        "RESOURCE_POLICY_PRIVILEGE_ESCALATION": 4,
+        "RESOURCE_STAR": 18,
+        "UNKNOWN_ACTION": 2,
+        "UNKNOWN_CONDITION_FOR_ACTION": 20,
+        "UNKNOWN_PREFIX": 71
+      },
+      "sin_clasificar": []
+    }
+  },
+  "reglas": [
+    {
+      "issue": "MALFORMED",
+      "campo": "donde",
+      "patron": "^AWS::IAM::Role\\.AssumeRolePolicyDocument$",
+      "motivo": "a trust policy names principals, not resources: no Resource by design"
+    },
+    {
+      "issue": "RESOURCE_STAR",
+      "campo": "donde",
+      "patron": "^AWS::KMS::Key\\.KeyPolicy$",
+      "motivo": "in a key policy, Resource \"*\" means the key that holds the policy"
+    },
+    {
+      "issue": "MISMATCHED_TYPE",
+      "campo": "detalle",
+      "patron": "^Type mismatch: ArnLike requires a value of type Arn but given String$",
+      "motivo": "ArnLike on kms:EncryptionContext:aws:logs:arn, the pattern of the CloudWatch Logs documentation for a log group's KMS key"
+    },
+    {
+      "issue": "UNKNOWN_PREFIX",
+      "campo": "detalle",
+      "patron": "Unknown prefix (s3vectors|bedrock-agentcore)$",
+      "motivo": "parliament's bundled IAM database (release 2025-04-25) predates it; ValidatePolicy, on the live database, reports no error for it (validate_policy.json)"
+    },
+    {
+      "issue": "UNKNOWN_CONDITION_FOR_ACTION",
+      "campo": "detalle",
+      "patron": "^Unknown condition iam:PermissionsBoundary for action iam:",
+      "motivo": "parliament's bundled IAM database (release 2025-04-25) predates it; ValidatePolicy, on the live database, reports no error for it (validate_policy.json)"
+    },
+    {
+      "issue": "UNKNOWN_ACTION",
+      "campo": "detalle",
+      "patron": "^Unknown action apigateway:(Tag|Untag)Resource$",
+      "motivo": "also ValidatePolicy's INVALID_ACTION, disproved by a live AccessDenied when it was missing (#306)"
+    },
+    {
+      "issue": "RESOURCE_MISMATCH",
+      "campo": "detalle",
+      "patron": "'required_format': '(arn:\\*:bedrock|\\*)",
+      "motivo": "parliament lists every Bedrock ARN format the action accepts that the policy does not use; each policy names on purpose the formats it needs (foundation model, inference profile, guardrail, prompt), and every stack with these policies was deployed and used in activities 7 to 9"
+    },
+    {
+      "issue": "RESOURCE_STAR",
+      "campo": "recurso",
+      "patron": "^(RolFlowLogs|Limite|EjecucionCfn|Despliegue)",
+      "motivo": "actions without resource-level permissions, or Describe and List calls, on roles whose wildcards are suppressed one by one with a reason in cdk-nag AwsSolutions-IAM5 (supresiones.json)"
+    },
+    {
+      "issue": "RESOURCE_POLICY_PRIVILEGE_ESCALATION",
+      "campo": "detalle",
+      "patron": "on arn:aws:s3:::semana19-eval-\\* due to",
+      "motivo": "the CloudFormation execution role sets the policy of the judge bucket it creates; scoped to semana19-eval-* and bound by the permissions boundary (threat model, F11)"
+    },
+    {
+      "issue": "MISMATCHED_TYPE_BUT_USABLE",
+      "campo": "detalle",
+      "patron": "^Type mismatch: StringEquals requires a value of type String but given Arn$",
+      "motivo": "iam:PermissionsBoundary compared with StringEquals, as the IAM documentation does; usable"
+    }
+  ]
+}

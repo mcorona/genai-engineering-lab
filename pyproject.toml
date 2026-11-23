@@ -47,4 +47,6 @@ semana19 = [
     "pytest==9.2.0",
     "awscrt==0.38.0",
     "sqlglot==30.26.0",
+    "pytest-cov==7.1.0",
+    "coverage==7.17.4",
 ]
