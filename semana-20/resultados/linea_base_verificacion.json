@@ -1,0 +1,117 @@
+{
+ "fecha": "2026-11-23",
+ "fuente": "semana-19/resultados/eval_aws_detalle.jsonl",
+ "plan": {
+  "con_costo": 19,
+  "costo_mediana": 0.03708,
+  "costo_max": 0.06301,
+  "entrada_mediana": 26266,
+  "salida_mediana": 1348,
+  "cache_lectura": 0,
+  "cache_escritura": 0,
+  "pasos_mediana": 6,
+  "pasos_max": 8,
+  "latencia_mediana": 23.6,
+  "latencia_max": 49.95,
+  "exitos": 9,
+  "tareas": 20
+ },
+ "todas_las_filas": {
+  "filas": 22,
+  "con_costo": 19,
+  "costo_mediana": 0.03708,
+  "costo_max": 0.06301,
+  "entrada_mediana": 26266,
+  "salida_mediana": 1348,
+  "cache_lectura": 0,
+  "cache_escritura": 0,
+  "pasos_mediana": 6,
+  "pasos_max": 8,
+  "latencia_mediana": 23.6,
+  "latencia_max": 49.95,
+  "exitos": 9,
+  "tareas": 20
+ },
+ "contra_el_plan": {
+  "ok": true,
+  "distintas": {}
+ },
+ "solo_principales": {
+  "filas": 20,
+  "con_costo": 17,
+  "costo_mediana": 0.03708,
+  "costo_max": 0.06301,
+  "entrada_mediana": 26972,
+  "salida_mediana": 1230,
+  "cache_lectura": 0,
+  "cache_escritura": 0,
+  "pasos_mediana": 6,
+  "pasos_max": 8,
+  "latencia_mediana": 23.52,
+  "latencia_max": 30.13,
+  "exitos": 9,
+  "tareas": 20
+ },
+ "fallas": {
+  "presupuesto_tarea": [
+   "r02-es",
+   "c06-es",
+   "r02-en",
+   "r05-en",
+   "r12-en"
+  ],
+  "abstenida": [
+   "c02-es",
+   "c02-en"
+  ],
+  "respuesta_incorrecta": [
+   "c06-en"
+  ],
+  "tope_del_script": [
+   "v01-en",
+   "a01-en",
+   "n01-en"
+  ]
+ },
+ "compuerta": {
+  "regresion_semana19": true,
+  "corrida_corregida": false,
+  "estado": "abierta",
+  "nota": "week 20 fixes the cause and re-runs the 20 tasks, estimated and capped, with Manuel's OK"
+ },
+ "precios": {
+  "ok": true,
+  "fecha": "2026-11-23",
+  "usd_por_millon_regional": {
+   "entrada": 1.1,
+   "salida": 5.5,
+   "cache_lectura": 0.11,
+   "cache_escritura_5m": 1.375,
+   "cache_escritura_1h": 2.2,
+   "lote_entrada": 0.55,
+   "lote_salida": 2.75
+  },
+  "razones": {
+   "cache_lectura/entrada": 0.1,
+   "cache_escritura_5m/entrada": 1.25,
+   "cache_escritura_1h/entrada": 2.0,
+   "lote_entrada/entrada": 0.5,
+   "lote_salida/salida": 0.5
+  }
+ },
+ "prefijo_cacheable": {
+  "caracteres": 7486,
+  "herramientas": 7,
+  "tokens_aprox": 2773,
+  "minimo_haiku45": 4096,
+  "alcanza": false
+ },
+ "traspaso": {
+  "modelo.invocar": true,
+  "modelo de cotización": true,
+  "MODELO_ID en ia/config.py": true,
+  "exportador de spans": true,
+  "etiquetas de las pilas": true
+ },
+ "ok": true
+}

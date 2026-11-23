@@ -1,0 +1,2195 @@
+{
+ "fecha": "2026-11-23",
+ "region": "us-east-1",
+ "fuente": "M",
+ "precios": [
+  {
+   "servicio": "AWSXRay",
+   "sku": "3TP6FV8W3FH2HE28",
+   "uso": "USE1-XRay-TracesAccessed",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "traces",
+     "usd": 5e-07,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS X-Ray - Total Traces Accessed - US East (North Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AWSXRay",
+   "sku": "G7U2U9R3GDETG8JR",
+   "uso": "USE1-XRay-TracesAccessed",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "traces",
+     "usd": 5e-07,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS X-Ray - Total Traces Accessed - US East (North Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AWSXRay",
+   "sku": "Y6TW3M2TDT7SJYK8",
+   "uso": "USE1-XRay-TracesStored",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "traces",
+     "usd": 5e-06,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS X-Ray - Total Traces Stored - US East (North Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "MY2FTC9YPT5VDDRJ",
+   "uso": "USE1-NovaLite-Customization-Storage",
+   "modelo": "Nova Lite",
+   "tipo": null,
+   "modalidad": "Model Customization",
+   "precios": [
+    {
+     "unidad": "Model/month",
+     "usd": 1.95,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$1.95 per Model/month for Nova Lite in us-east-1(N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "55ZV9VPWSDHUWN3G",
+   "uso": "USE1-NovaLite-Customization-Training",
+   "modelo": "Nova Lite",
+   "tipo": null,
+   "modalidad": "Model Customization",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.002,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.002 per 1K tokens for Nova Lite-Customization-Training in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "DU74ARUX9SF92JGY",
+   "uso": "USE1-NovaLite-ProvisionedThroughput-1month-ModelUnits",
+   "modelo": "Nova Lite",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - 1 month",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 55.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$55.00 per hour for USE1-NovaLite-ProvisionedThroughput-1month-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "4FARTY2XXRKKGU8C",
+   "uso": "USE1-NovaLite-ProvisionedThroughput-6months-ModelUnits",
+   "modelo": "Nova Lite",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - 6 months",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 30.25,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$30.25 per hour for USE1-NovaLite-ProvisionedThroughput-6months-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "Z9YXWS2UWJ5D8AHS",
+   "uso": "USE1-NovaLite-ProvisionedThroughput-NoCommit-ModelUnits",
+   "modelo": "Nova Lite",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - no commit",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 60.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$60.50 per hour for USE1-NovaLite-ProvisionedThroughput-NoCommit-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "FYTFBAWEJFBAVTWK",
+   "uso": "USE1-NovaLite-cache-read-input-token-count",
+   "modelo": "Nova Lite",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 1.5e-05,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.000015 per 1K cache read input tokens of Nova Lite in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "NF8UDYEDB4HXGNAZ",
+   "uso": "USE1-NovaLite-cache-write-input-token-count",
+   "modelo": "Nova Lite",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00 per 1K tokens for USE1-NovaLite-cache-write-input-token-count in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "QRGWJ3P8FT28EYX2",
+   "uso": "USE1-NovaLite-input-tokens",
+   "modelo": "Nova Lite",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 6e-05,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00006 per 1K tokens for Nova Lite-input-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "FHPM2WQ68N32TY6D",
+   "uso": "USE1-NovaLite-input-tokens-batch",
+   "modelo": "Nova Lite",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 3e-05,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00003 per 1K tokens for Nova Lite-input-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "CBZ6A6U7XK8WJ3KA",
+   "uso": "USE1-NovaLite-output-tokens",
+   "modelo": "Nova Lite",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.00024,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00024 per 1K tokens for Nova Lite-output-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "T5KBFMBTZEACW9MW",
+   "uso": "USE1-NovaLite-output-tokens-batch",
+   "modelo": "Nova Lite",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.00012,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00012 per 1K tokens for Nova Lite-output-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "DR6E7WPG8GTX32D4",
+   "uso": "USE1-NovaMicro-Customization-Storage",
+   "modelo": "Nova Micro",
+   "tipo": null,
+   "modalidad": "Model Customization",
+   "precios": [
+    {
+     "unidad": "Model/month",
+     "usd": 1.95,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$1.95 per Model/month for Nova Micro in us-east-1(N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "NAXJVN8UCKYT6PVB",
+   "uso": "USE1-NovaMicro-Customization-Training",
+   "modelo": "Nova Micro",
+   "tipo": null,
+   "modalidad": "Model Customization",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.001,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.001 per 1K tokens for Nova Micro-Customization-Training in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "T658W62235ZFJB8S",
+   "uso": "USE1-NovaMicro-ProvisionedThroughput-1month-ModelUnits",
+   "modelo": "Nova Micro",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - 1 month",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 55.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$55.00 per hour for USE1-NovaMicro-ProvisionedThroughput-1month-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "V2Z62Q44EA95VS8W",
+   "uso": "USE1-NovaMicro-ProvisionedThroughput-6months-ModelUnits",
+   "modelo": "Nova Micro",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - 6 months",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 30.25,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$30.25 per hour for USE1-NovaMicro-ProvisionedThroughput-6months-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "RY4EA2XYK2B6Z86R",
+   "uso": "USE1-NovaMicro-ProvisionedThroughput-NoCommit-ModelUnits",
+   "modelo": "Nova Micro",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - no commit",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 60.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$60.50 per hour for USE1-NovaMicro-ProvisionedThroughput-NoCommit-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "ZQ5FR9UVF8V64SX8",
+   "uso": "USE1-NovaMicro-cache-read-input-token-count",
+   "modelo": "Nova Micro",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 8.75e-06,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00000875 per 1K cache read input tokens of Nova Micro in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "7JUJCEZMJF9JADGK",
+   "uso": "USE1-NovaMicro-cache-write-input-token-count",
+   "modelo": "Nova Micro",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00 per 1K tokens for USE1-NovaMicro-cache-write-input-token-count in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "XAR69MSGZSU6FEM9",
+   "uso": "USE1-NovaMicro-input-tokens",
+   "modelo": "Nova Micro",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 3.5e-05,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.000035 per 1K tokens for Nova Micro-input-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "Z6CR5WMH7Y2J558H",
+   "uso": "USE1-NovaMicro-input-tokens-batch",
+   "modelo": "Nova Micro",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 1.75e-05,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.0000175 per 1K tokens for Nova Micro-input-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "YUSGHKDUPQRC75RK",
+   "uso": "USE1-NovaMicro-output-tokens",
+   "modelo": "Nova Micro",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.00014,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.00014 per 1K tokens for Nova Micro-output-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "MAEEQK3UC24XC6W2",
+   "uso": "USE1-NovaMicro-output-tokens-batch",
+   "modelo": "Nova Micro",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 7e-05,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.00007per 1K tokens for Nova Micro-output-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "3ZF5XYEX95Z6MCFU",
+   "uso": "USE1-NovaPro-Customization-Storage",
+   "modelo": "Nova Pro",
+   "tipo": null,
+   "modalidad": "Model Customization",
+   "precios": [
+    {
+     "unidad": "Model/month",
+     "usd": 1.95,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$1.95 per Model/month for Nova Pro in us-east-1(N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "53H5R5ST2K32S9HM",
+   "uso": "USE1-NovaPro-Customization-Training",
+   "modelo": "Nova Pro",
+   "tipo": null,
+   "modalidad": "Model Customization",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.008,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.008 per 1K tokens for Nova Pro-Customization-Training in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "6765QJ7J726SM42X",
+   "uso": "USE1-NovaPro-ProvisionedThroughput-1month-ModelUnits",
+   "modelo": "Nova Pro",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - 1 month",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 55.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$55.00 per hour for USE1-NovaPro-ProvisionedThroughput-1month-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "DW2D34FDRHG3G2E6",
+   "uso": "USE1-NovaPro-ProvisionedThroughput-6months-ModelUnits",
+   "modelo": "Nova Pro",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - 6 months",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 30.25,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$30.25 per hour for USE1-NovaPro-ProvisionedThroughput-6months-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "MGVARZJHHYND4Q3H",
+   "uso": "USE1-NovaPro-ProvisionedThroughput-NoCommit-ModelUnits",
+   "modelo": "Nova Pro",
+   "tipo": null,
+   "modalidad": "Provisioned Throughput Inference - no commit",
+   "precios": [
+    {
+     "unidad": "hour",
+     "usd": 60.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$60.50 per hour for USE1-NovaPro-ProvisionedThroughput-NoCommit-ModelUnits in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "4GSM2HNMJEMXJEDM",
+   "uso": "USE1-NovaPro-cache-read-input-token-count",
+   "modelo": "Nova Pro",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0002,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.0002 per 1K cache read input tokens of Nova Pro in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "DZQZT2WQVGNDDE2J",
+   "uso": "USE1-NovaPro-cache-read-input-token-count-flex",
+   "modelo": "Nova Pro",
+   "tipo": "Prompt cache read input tokens flex",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0001,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.0001 per 1K tokens for USE1-NovaPro-cache-read-input-token-count-flex in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "GSPMUZC8FX9AXVES",
+   "uso": "USE1-NovaPro-cache-read-input-token-count-priority",
+   "modelo": "Nova Pro",
+   "tipo": "Prompt cache read input tokens priority",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.00035,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00035 per 1K tokens for USE1-NovaPro-cache-read-input-token-count-priority in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "XQ27CMF66QP5ZU2W",
+   "uso": "USE1-NovaPro-cache-write-input-token-count",
+   "modelo": "Nova Pro",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00 per 1K tokens for USE1-NovaPro-cache-write-input-token-count in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "CX77WYA7AVXKWCSE",
+   "uso": "USE1-NovaPro-cache-write-input-token-count-flex",
+   "modelo": "Nova Pro",
+   "tipo": "Prompt cache write input tokens flex",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00 per 1K tokens for USE1-NovaPro-cache-write-input-token-count-flex in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "WU88KS2C92H5ZW2X",
+   "uso": "USE1-NovaPro-cache-write-input-token-count-priority",
+   "modelo": "Nova Pro",
+   "tipo": "Prompt cache write input tokens priority",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00 per 1K tokens for USE1-NovaPro-cache-write-input-token-count-priority in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "8X836UXRHN5Q5T2H",
+   "uso": "USE1-NovaPro-input-tokens",
+   "modelo": "Nova Pro",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0008,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.0008 per 1K tokens for Nova Pro-input-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "6FVZT3BBCSHTHQND",
+   "uso": "USE1-NovaPro-input-tokens-batch",
+   "modelo": "Nova Pro",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0004,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.0004 per 1K tokens for Nova Pro-input-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "PUZN23F2U55E57VV",
+   "uso": "USE1-NovaPro-input-tokens-flex",
+   "modelo": "Nova Pro",
+   "tipo": "Input tokens flex",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0004,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.0004 per 1K tokens for USE1-NovaPro-input-tokens-flex in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "FBT6R74EAHQ4YCF7",
+   "uso": "USE1-NovaPro-input-tokens-priority",
+   "modelo": "Nova Pro",
+   "tipo": "Input tokens priority",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0014,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.0014 per 1K tokens for USE1-NovaPro-input-tokens-priority in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "ARFVY95XGU794VBG",
+   "uso": "USE1-NovaPro-output-tokens",
+   "modelo": "Nova Pro",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0032,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.0032 per 1K tokens for Nova Pro-output-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "URFXX2XGYJ66495M",
+   "uso": "USE1-NovaPro-output-tokens-batch",
+   "modelo": "Nova Pro",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0016,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$ 0.0016 per 1K tokens for Nova Pro-output-tokens in us-east-1 (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "A9397E2R94JS7RK5",
+   "uso": "USE1-NovaPro-output-tokens-flex",
+   "modelo": "Nova Pro",
+   "tipo": "Output tokens flex",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0016,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.0016 per 1K tokens for USE1-NovaPro-output-tokens-flex in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "U7XN943P53SAXMY3",
+   "uso": "USE1-NovaPro-output-tokens-priority",
+   "modelo": "Nova Pro",
+   "tipo": "Output tokens priority",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.0056,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.0056 per 1K tokens for USE1-NovaPro-output-tokens-priority in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "SMX6CK9YP4NWDC8W",
+   "uso": "USE1-NovaPro-input-tokens-latency-optimized",
+   "modelo": "Nova Pro Latency Optimized",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.001,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.001 per 1K tokens for USE1-NovaPro-input-tokens-latency-optimized in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrock",
+   "sku": "9ZG8UHUQKAKDXPNY",
+   "uso": "USE1-NovaPro-output-tokens-latency-optimized",
+   "modelo": "Nova Pro Latency Optimized",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1K tokens",
+     "usd": 0.004,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.004 per 1K tokens for USE1-NovaPro-output-tokens-latency-optimized in US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "VJXPZKPF7EDCFXN3",
+   "uso": "USE1-MP:USE1_CacheReadInputTokenCount-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.11,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Read Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "V6YWAS4REFW47M5K",
+   "uso": "USE1-MP:USE1_CacheReadInputTokenCount_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.1,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Read Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "WTCBCUF6TGQ5M3NB",
+   "uso": "USE1-MP:USE1_CacheWrite1hInputTokenCount-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 2.2,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million 1 hour Cache Write Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "3Z3HTWANN6PKFUBJ",
+   "uso": "USE1-MP:USE1_CacheWrite1hInputTokenCount_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 2.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million 1 hour Cache Write Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "CDG7WESKYQ9N9KDN",
+   "uso": "USE1-MP:USE1_CacheWriteInputTokenCount-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.375,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Write Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "W4WDUUMEWN8ZMKYT",
+   "uso": "USE1-MP:USE1_CacheWriteInputTokenCount_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.25,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Write Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "JQDUC8Q4K8C6GSGH",
+   "uso": "USE1-MP:USE1_InputTokenCount-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.1,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "8GAKPXRDT9CSGWEC",
+   "uso": "USE1-MP:USE1_InputTokenCount_Batch-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.55,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "DY4B4Q3TRTAY8V6G",
+   "uso": "USE1-MP:USE1_InputTokenCount_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "T9333HTDJ5XXW7GZ",
+   "uso": "USE1-MP:USE1_InputTokenCount_Global_Batch-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "X629GDA2GXAP6R54",
+   "uso": "USE1-MP:USE1_OutputTokenCount-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 5.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Response Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "E56Y3URFEMX4ZGDC",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Batch-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 2.75,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Response Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "XADKFYXVGBFBJSU7",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 5.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Response Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "P8DMZHZDTNRHAPMZ",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Global_Batch-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 2.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Response Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "WFDJPN3RNP3N6NWZ",
+   "uso": "USE1-MP:USE1_Reserved_1Month_InputTPM_Geo-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.066,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 1 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "YJFU5XBU67BFQMCX",
+   "uso": "USE1-MP:USE1_Reserved_1Month_InputTPM_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.06,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 1 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "NBCPQTKQRKGSQ75J",
+   "uso": "USE1-MP:USE1_Reserved_1Month_OutputTPM_Geo-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.33,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 1 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "SHU8SWFE8GBAQTTK",
+   "uso": "USE1-MP:USE1_Reserved_1Month_OutputTPM_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.3,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 1 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "X6EFEEBNCHT9594X",
+   "uso": "USE1-MP:USE1_Reserved_3Month_InputTPM_Geo-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.0594,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 3 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "RMNG53S49ZTEK6HS",
+   "uso": "USE1-MP:USE1_Reserved_3Month_InputTPM_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.054,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 3 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "NNDNGXGPTYYKYS5U",
+   "uso": "USE1-MP:USE1_Reserved_3Month_OutputTPM_Geo-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.297,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 3 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "P2NHPZ82T9FY9YPQ",
+   "uso": "USE1-MP:USE1_Reserved_3Month_OutputTPM_Global-Units",
+   "modelo": "Claude Haiku 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.27,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 3 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "Y2USTN98BME666E9",
+   "uso": "USE1-MP:USE1_CacheReadInputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.33,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Read Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "FAAH2HNZTKVYPW4Z",
+   "uso": "USE1-MP:USE1_CacheReadInputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.3,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Read Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "NBR524QDJGN4CKTW",
+   "uso": "USE1-MP:USE1_CacheWrite1hInputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 6.6,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million 1 hour Cache Write Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "CZGM4ZWSFPNRXG2N",
+   "uso": "USE1-MP:USE1_CacheWrite1hInputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 6.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million 1 hour Cache Write Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "GP3ME74Q5RQMRZ88",
+   "uso": "USE1-MP:USE1_CacheWriteInputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 4.125,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Write Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "CHTW5FCNF8AHNHMH",
+   "uso": "USE1-MP:USE1_CacheWriteInputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 3.75,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Write Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "SSK4DT4JBRUQJYP5",
+   "uso": "USE1-MP:USE1_InputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 3.3,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "U6DMH3A9ZY592SKX",
+   "uso": "USE1-MP:USE1_InputTokenCount_Batch-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.65,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Input Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "GJ7NHAXUYKGEHMVV",
+   "uso": "USE1-MP:USE1_InputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 3.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "WYHKK945BYFG88WB",
+   "uso": "USE1-MP:USE1_InputTokenCount_Global_Batch-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "3YN5KGC2HJU9VC5A",
+   "uso": "USE1-MP:USE1_OutputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 16.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Response Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "JBG5T76ZKNPXGB2J",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Batch-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 8.25,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Response Tokens Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "W4BVSJCZM5M9FZYT",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 15.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Response Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "R6N75VRFRJ78G6RP",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Global_Batch-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 7.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Response Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "7A4FHQJZ55DMBFNF",
+   "uso": "USE1-MP:USE1_Reserved_1Month_InputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.198,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 1 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "BUJCHTFPFYUJFGUW",
+   "uso": "USE1-MP:USE1_Reserved_1Month_InputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.18,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 1 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "ZQBWNDN2E9Y5GK2R",
+   "uso": "USE1-MP:USE1_Reserved_1Month_OutputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.99,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 1 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "JM2QZD4TES635N9A",
+   "uso": "USE1-MP:USE1_Reserved_1Month_OutputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.9,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 1 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "H5YKZEGH4DYXARC8",
+   "uso": "USE1-MP:USE1_Reserved_3Month_InputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.1782,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 3 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "B8ZFX39D24S2YRQA",
+   "uso": "USE1-MP:USE1_Reserved_3Month_InputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.162,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 3 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "TW7DF2ZA6MS2SBE8",
+   "uso": "USE1-MP:USE1_Reserved_3Month_OutputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.891,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 3 Month Regional"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "MJDKGBEVEUD7PN6K",
+   "uso": "USE1-MP:USE1_Reserved_3Month_OutputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.5",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.81,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 3 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "2459RQS6BSFATF92",
+   "uso": "USE1-MP:USE1_CacheReadInputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.33,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Read Input Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "R2P3DDR9MM8SVY24",
+   "uso": "USE1-MP:USE1_CacheReadInputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Prompt cache read input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 0.3,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Read Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "Q5UDFRBQA4X5VSXR",
+   "uso": "USE1-MP:USE1_CacheWrite1hInputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 6.6,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million 1 hour Cache Write Input Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "2TXXPHUXEQ3T5476",
+   "uso": "USE1-MP:USE1_CacheWrite1hInputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 6.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million 1 hour Cache Write Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "UZUVWF3P26ENQTZ8",
+   "uso": "USE1-MP:USE1_CacheWriteInputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 4.125,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Write Input Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "77BN6999TPFX9ZBM",
+   "uso": "USE1-MP:USE1_CacheWriteInputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Prompt cache write input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 3.75,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Cache Write Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "KPFGPZJ8VWMREGAV",
+   "uso": "USE1-MP:USE1_InputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 3.3,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Input Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "UJMQKCEQQFGKWWER",
+   "uso": "USE1-MP:USE1_InputTokenCount_Batch-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.65,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Input Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "4BCSX42248MW35W4",
+   "uso": "USE1-MP:USE1_InputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 3.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "D89RPQUG7KHJSC4J",
+   "uso": "USE1-MP:USE1_InputTokenCount_Global_Batch-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 1.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Input Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "GMB9AQ5DYNAGYZEC",
+   "uso": "USE1-MP:USE1_OutputTokenCount-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 16.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Response Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "Z4SQF7NRBNGJ5FC2",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Batch-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 8.25,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Response Tokens Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "CMWTKXQCAJ2T8A4U",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "On-demand Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 15.0,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Response Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "95SWKTBCWXB2RFD3",
+   "uso": "USE1-MP:USE1_OutputTokenCount_Global_Batch-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "Batch Inference",
+   "precios": [
+    {
+     "unidad": "1M tokens",
+     "usd": 7.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Million Batch Response Tokens Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "4P7DTUVGUQQ9SM93",
+   "uso": "USE1-MP:USE1_Reserved_1Month_InputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.198,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 1 Month Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "VPGGU7JVD22B9ZQH",
+   "uso": "USE1-MP:USE1_Reserved_1Month_InputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.18,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 1 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "Z9EEDW9DSUY5A6YM",
+   "uso": "USE1-MP:USE1_Reserved_1Month_OutputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.99,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 1 Month Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "X4UEUE85NSCZ8JDC",
+   "uso": "USE1-MP:USE1_Reserved_1Month_OutputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.9,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 1 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "6JGKZA72DM42JNSJ",
+   "uso": "USE1-MP:USE1_Reserved_3Month_InputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.1782,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 3 Month Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "QSDMHTQ9MJNF55QY",
+   "uso": "USE1-MP:USE1_Reserved_3Month_InputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Input tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.162,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Input TPM Reserved 3 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "KNDYCBE733Q3KC6C",
+   "uso": "USE1-MP:USE1_Reserved_3Month_OutputTPM_Geo-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.891,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 3 Month Regional CRIS"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonBedrockFoundationModels",
+   "sku": "F6BV8Y52ETCYQN4W",
+   "uso": "USE1-MP:USE1_Reserved_3Month_OutputTPM_Global-Units",
+   "modelo": "Claude Sonnet 4.6",
+   "tipo": "Output tokens",
+   "modalidad": "Provisioned Throughput Inference",
+   "precios": [
+    {
+     "unidad": "1M TPM Hour",
+     "usd": 0.81,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "AWS Marketplace software usage|us-east-1|Per Hour per 1K Output TPM Reserved 3 Month Global"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "EVETVUGEN3MUTMXM",
+   "uso": "CW:AlarmMonitorUsage",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "Alarms",
+     "usd": 0.1,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.10 per alarm metric month (standard resolution) - US East (Northern Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "7BK9TRWG8E43D4AJ",
+   "uso": "CW:HighResAlarmMonitorUsage",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "Alarms",
+     "usd": 0.3,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.30 per alarm metric month (high resolution) - US East (Northern Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "KG586CTNGQ4VRZKZ",
+   "uso": "CW:MetricMonitorUsage",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "Metrics",
+     "usd": 0.1,
+     "desde": "10000",
+     "hasta": "250000",
+     "descripcion": "$0.10 per metric-month for the next 240,000 metrics - US East (Northern Virginia)"
+    },
+    {
+     "unidad": "Metrics",
+     "usd": 0.05,
+     "desde": "250000",
+     "hasta": "1000000",
+     "descripcion": "$0.05 per metric-month for the next 750,000 metrics - US East (Northern Virginia)"
+    },
+    {
+     "unidad": "Metrics",
+     "usd": 0.3,
+     "desde": "0",
+     "hasta": "10000",
+     "descripcion": "$0.30 per metric-month for the first 10,000 metrics - US East (Northern Virginia)"
+    },
+    {
+     "unidad": "Metrics",
+     "usd": 0.02,
+     "desde": "1000000",
+     "hasta": "Inf",
+     "descripcion": "$0.02 per metric-month  for over 1,000,000 metrics - US East (Northern Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "4DAN5Z24DZ67DTM2",
+   "uso": "USE1-Application-Signals-Bytes",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "GB",
+     "usd": 0.2,
+     "desde": "10240",
+     "hasta": "30720",
+     "descripcion": "$0.20 per GB of Application Signals data ingested for the next 20TB - US East (N. Virginia)"
+    },
+    {
+     "unidad": "GB",
+     "usd": 0.35,
+     "desde": "0",
+     "hasta": "10240",
+     "descripcion": "$0.35 per GB of Application Signals data ingested for the first 10TB - US East (N. Virginia)"
+    },
+    {
+     "unidad": "GB",
+     "usd": 0.15,
+     "desde": "30720",
+     "hasta": "Inf",
+     "descripcion": "$0.15 per GB of Application Signals data ingested for over 30TB - US East (N. Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "S8QGXX5R2BKKMDSJ",
+   "uso": "USE1-DataProcessing-Bytes",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "GB",
+     "usd": 0.5,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.50 per GB custom log data ingested in Standard log class - US East (Northern Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "466C636KV6VS3849",
+   "uso": "USE1-DataScanned-Bytes",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "GB",
+     "usd": 0.005,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.005 per GB log data scanned by CloudWatch Logs Insights queries - US East (Northern Virginia)"
+    }
+   ]
+  },
+  {
+   "servicio": "AmazonCloudWatch",
+   "sku": "FBU5ADNKR93A95EP",
+   "uso": "USE1-XRay-Spans-Indexed",
+   "modelo": null,
+   "tipo": null,
+   "modalidad": null,
+   "precios": [
+    {
+     "unidad": "spans indexed",
+     "usd": 7.5e-07,
+     "desde": "0",
+     "hasta": "Inf",
+     "descripcion": "$0.00000075 per spans indexed for USE1-XRay-Spans-Indexed in US East (N. Virginia)"
+    }
+   ]
+  }
+ ],
+ "cuotas": {
+  "candidatos": {
+   "Anthropic Claude Haiku 4.5": {
+    "tpm": 5000000.0,
+    "rpm": 50.0,
+    "codigos": [
+     "L-58BE175A",
+     "L-CCA5DF70"
+    ]
+   },
+   "Anthropic Claude Sonnet 4.5 V1": {
+    "tpm": 5000000.0,
+    "rpm": 50.0,
+    "codigos": [
+     "L-F4DDD3EB",
+     "L-4A6BFAB1"
+    ]
+   },
+   "Anthropic Claude Sonnet 4.6": {
+    "tpm": 6000000.0,
+    "rpm": 50.0,
+    "codigos": [
+     "L-15B8E632",
+     "L-00FF3314"
+    ]
+   },
+   "Amazon Nova Micro": {
+    "tpm": 8000000.0,
+    "rpm": 400.0,
+    "codigos": [
+     "L-DC7FF66C",
+     "L-3F110E0F"
+    ]
+   },
+   "Amazon Nova Lite": {
+    "tpm": 8000000.0,
+    "rpm": 400.0,
+    "codigos": [
+     "L-7C42E72A",
+     "L-89F8391A"
+    ]
+   },
+   "Amazon Nova 2 Lite": {
+    "tpm": 8000000.0,
+    "rpm": 200.0,
+    "codigos": [
+     "L-C6F5908D",
+     "L-F06F1187"
+    ]
+   },
+   "Amazon Nova Pro": {
+    "tpm": 2000000.0,
+    "rpm": 50.0,
+    "codigos": [
+     "L-C0326783",
+     "L-ED46B8C5"
+    ]
+   }
+  },
+  "lote": {
+   "Claude Haiku 4.5": {
+    "min_registros": 100.0,
+    "max_registros": 100000.0,
+    "max_registros_archivo": 100000.0,
+    "gb_trabajo": 5.0,
+    "gb_archivo": 1.0,
+    "trabajos_en_curso": 100.0
+   },
+   "Nova Micro V1": {
+    "min_registros": 100.0,
+    "max_registros": 100000.0,
+    "max_registros_archivo": 100000.0,
+    "gb_trabajo": 5.0,
+    "gb_archivo": 1.0,
+    "trabajos_en_curso": 100.0
+   },
+   "Nova Lite V1": {
+    "min_registros": 100.0,
+    "max_registros": 100000.0,
+    "max_registros_archivo": 100000.0,
+    "gb_trabajo": 100.0,
+    "gb_archivo": 1.0,
+    "trabajos_en_curso": 100.0
+   },
+   "Nova 2 Lite": {
+    "min_registros": 100.0,
+    "max_registros": 100000.0,
+    "max_registros_archivo": 100000.0,
+    "gb_archivo": 1.0,
+    "trabajos_en_curso": 100.0
+   },
+   "Nova Pro V1": {
+    "min_registros": 100.0,
+    "max_registros": 100000.0,
+    "max_registros_archivo": 100000.0,
+    "gb_trabajo": 100.0,
+    "gb_archivo": 1.0,
+    "trabajos_en_curso": 100.0
+   }
+  }
+ },
+ "enrutadores": [
+  {
+   "nombre": "Nova Prompt Router",
+   "tipo": "default",
+   "modelos": [
+    "us.amazon.nova-lite-v1:0",
+    "us.amazon.nova-pro-v1:0"
+   ],
+   "respaldo": "us.amazon.nova-pro-v1:0"
+  },
+  {
+   "nombre": "Anthropic Prompt Router",
+   "tipo": "default",
+   "modelos": [
+    "us.anthropic.claude-3-haiku-20240307-v1:0",
+    "us.anthropic.claude-3-5-sonnet-20240620-v1:0"
+   ],
+   "respaldo": "us.anthropic.claude-3-5-sonnet-20240620-v1:0"
+  },
+  {
+   "nombre": "Meta Prompt Router",
+   "tipo": "default",
+   "modelos": [
+    "us.meta.llama3-1-8b-instruct-v1:0",
+    "us.meta.llama3-1-70b-instruct-v1:0"
+   ],
+   "respaldo": "us.meta.llama3-1-70b-instruct-v1:0"
+  }
+ ]
+}
