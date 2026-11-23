@@ -240,6 +240,10 @@ A quota alone does not prove the model can be called. Activity 4 checks each can
 - They are priced as the model in the calling region (D, [inference-profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html)).
 - Their tags track the cost of on-demand calls, once the tag keys are activated in Billing (D, [tagging](https://docs.aws.amazon.com/bedrock/latest/userguide/tagging.html)).
 - **How they show in Cost Explorer: N.** The docs do not say. Activity 2 checks it on its first paid call, with one authorized Cost Explorer call. It also depends on Manuel activating `componente`.
+- **Cost allocation tags** ([`etiquetas_costo.json`](etiquetas_costo.json), one `ListCostAllocationTags` call at 2026-11-23T23:22:26+00:00, 0.01 USD, with Manuel's OK):
+  - `proyecto` has been Active since 2026-11-14.
+  - `componente` is not listed yet, so it cannot be activated: Billing has not yet seen it on a tagged resource. The week 20 stacks carried it from 2026-11-23.
+  - Manuel activates it once it shows, before activity 2 reads cost by component.
 
 ### 4.7 CloudWatch and X-Ray
 
