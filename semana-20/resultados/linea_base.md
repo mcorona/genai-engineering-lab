@@ -38,9 +38,9 @@ Every figure of the plan's table matches the file (`contra_el_plan.ok`, [linea_b
 
 The plan's Log records the correction. Week 20 compares against the 20 main tasks.
 
-## 3. The regression gate: open
+## 3. The regression gate: accepted without passing (Manuel, 2026-11-23)
 
-Week 19 activity 10 decided that the 9/20 regression goes to week 20. Its README lists the fixes and says each one needs a paid run. No corrected run exists, so the gate is **open** (`compuerta.estado`).
+Week 19 activity 10 decided that the 9/20 regression goes to week 20. Its README lists the fixes and says each one needs a paid run. The corrected run (§3, "Result") reached 16/20, still a regression under that rule. Manuel accepted it as week 20's baseline, stated as not passing (`compuerta.estado` = `aceptada_sin_pasar`).
 
 ### The 11 failures, by cause
 
@@ -101,7 +101,52 @@ The session, from the week 19 worktree:
 3. `usuarios.py` and `corrida.py --si` (Manuel, admin profile).
 4. `destruir.sh --si --todo`, and the inventory at "nada".
 
-The verdict, the uncut distribution and the new calibrated cap go in the section that follows, once the run is done.
+### Result (2026-11-23)
+
+Files:
+- [`corrida_corregida/crudo_eval.json`](corrida_corregida/crudo_eval.json): the raw run;
+- [`corrida_corregida_detalle.jsonl`](corrida_corregida_detalle.jsonl): one line per task;
+- the gate is in [`linea_base_verificacion.json`](linea_base_verificacion.json).
+
+| | Week 19 (activity 8) | Corrected run |
+|---|---|---|
+| Success | 9/20 | **16/20** (Wilson 95 % [0.584, 0.919]) |
+| Spanish / English | 7/10 / 2/10 | 8/10 / 8/10 |
+| Cut by the per-task budget | 5 | **0** |
+| Not run (the script's cap) | 3 | 0 |
+| Model spend, warm-up included | — | **1.008147 USD** (expected 0.99, cap 2.50) |
+| Warm latency, p50 / p95 | 23.52 / 30.13 s | 21.57 / 45.02 s (n = 20) |
+| Trajectory (week 17 graders) | 7 OK of 17 | 8 OK of 20, mean score 0.912; 11 fail on `pasos` |
+| Regression (week 10's rule, against week 17 local 20/20) | yes | **yes**: 0.8 in Spanish and in English, against a 0.9 threshold per language, and 0.8 in total against 0.95 |
+
+**The four failures:**
+- **c02-es and c02-en** abstain, as in week 19.
+- **r05-es** abstains after 11 steps.
+- **r05-en** stops on the loop's own step limit (`max_pasos` = 12), not on the budget.
+- c06-en now answers correctly.
+
+All four fail on model quality.
+- A per-task ceiling would not fix them, and neither would another run.
+- A prompt tuned to them would fit the eval set.
+- **Manuel's decision (2026-11-23):** this run is week 20's baseline, stated as not passing. Activity 4 routes these cases to a stronger model and measures against it.
+
+**Haiku 4.5's distribution, uncut** (the 20 main tasks):
+
+| Figure | Value |
+|---|---|
+| Tokens per task: median, p90, maximum | 25,450, 74,841, 87,831 (r05-en, at the step limit) |
+| The most expensive successful task | 78,674 tokens and 0.11411 USD (r02-en) |
+| Cost per task: median and maximum | 0.03408 and 0.11411 USD; 0.92782 USD for the 20 |
+| Steps: median and maximum | 5 and 12 |
+| Input and output tokens, median | 24,099 and 1,266.5 |
+| Cache read and write | 0 and 0 (no `cachePoint`, as decided) |
+
+**The cap from here on:**
+- Week 20 keeps the ceiling (`techo_semana20`, 0.12 USD and 100,000 tokens) as its operating cap. It is 5 % above the most expensive successful task.
+- No new calibrated value is written yet. Week 17 took the p99 of 252 runs, and 20 tasks give no p99: their maximum would be a made-up percentile.
+- Activity 9, the optimized run, calibrates it on its own repeated runs, with caching on.
+
+One caveat: the warm-up task s02-es has incomplete spans (21 of 22 complete). It does not count toward success, and its tokens and cost are recorded.
 
 ## 4. Prices and limits
 
@@ -223,4 +268,4 @@ A quota alone does not prove the model can be called. Activity 4 checks each can
 - Activity 5: batch jobs of at least 100 records, without tools.
 - Activity 6: provisioned throughput priced with a commitment only; no purchase.
 - Activities 7 and 8: at most 10 metrics and 3 dashboards, inside the free tier.
-- Before any of them: Manuel's decision on the regression re-run (§3).
+- Every comparison is against the corrected run (§3): 16/20, a regression under week 10's rule, accepted as the baseline.
