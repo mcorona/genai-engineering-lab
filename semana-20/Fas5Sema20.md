@@ -46,13 +46,13 @@ re-reads them and checks them before anything uses them:
 
 | Figure | Value |
 |---|---|
-| Tasks with a cost | 19 of 20 |
+| Rows with a cost (2 warm-up rows and the 20 main tasks) | 19 of 22 (17 of the 20 main tasks) |
 | Model cost per task, median and maximum | 0.03708 and 0.06301 USD |
 | Input tokens per task, median | 26,266 |
 | Output tokens per task, median | 1,348 |
 | Cache read and write tokens | 0 and 0 (no cache point is sent today) |
 | Steps per task, median and maximum | 6 and 8 |
-| End-to-end latency, median and maximum | 23.6 and 49.95 s |
+| End-to-end latency, median and maximum | 23.6 and 49.95 s (the maximum is the cold warm-up) |
 | Success (week 13 verifier) | 9 of 20, a regression against 20/20 local by the week 10 rule |
 
 The input-to-output ratio is about 20 to 1, and nothing is cached. The system prompt and the tool definitions are
@@ -435,3 +435,8 @@ README (last).
   4. the budget `semana19` was removed by the week 19 teardown, and is recreated with the control stack;
   5. Cost Anomaly Detection is checked in activity 1, not assumed on. The hand-off to week 21 adds the H13 residual
      case.
+- 2026-11-23: activity 1 ($0). The baseline table matches the file, but it is computed over the 22 rows, warm-ups
+  included: "19 of 20" with a cost is 19 of 22, and 17 of the 20 main tasks; the latency maximum is the cold warm-up.
+  Week 20 compares against the 20 main tasks (`resultados/linea_base.md`, section 2). The regression gate is open, and
+  its re-run waits for Manuel's OK. Haiku 4.5 caches only from 4,096 tokens per cache point, more than the system prompt
+  and the tools (about 2,800), so activity 3 puts the cache point at the end of the history.
