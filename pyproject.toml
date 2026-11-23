@@ -50,3 +50,15 @@ semana19 = [
     "pytest-cov==7.1.0",
     "coverage==7.17.4",
 ]
+# Week 20: costs and performance (preparation: pins already verified in weeks 17 and 19; the trace exporter is pinned in activity 7)
+semana20 = [
+    "boto3==1.43.122",
+    "botocore==1.43.122",
+    "moto==5.2.5",
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "coverage==7.17.4",
+    "opentelemetry-api==1.45.2",
+    "opentelemetry-sdk==1.45.2",
+    "opentelemetry-semantic-conventions==0.66b2",
+]

@@ -58,6 +58,17 @@ semana19 = [
     { name = "pytest-cov" },
     { name = "sqlglot" },
 ]
+semana20 = [
+    { name = "boto3" },
+    { name = "botocore" },
+    { name = "coverage" },
+    { name = "moto" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-sdk" },
+    { name = "opentelemetry-semantic-conventions" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -101,6 +112,17 @@ semana19 = [
     { name = "pytest", specifier = "==9.2.0" },
     { name = "pytest-cov", specifier = "==7.1.0" },
     { name = "sqlglot", specifier = "==30.26.0" },
+]
+semana20 = [
+    { name = "boto3", specifier = "==1.43.122" },
+    { name = "botocore", specifier = "==1.43.122" },
+    { name = "coverage", specifier = "==7.17.4" },
+    { name = "moto", specifier = "==5.2.5" },
+    { name = "opentelemetry-api", specifier = "==1.45.2" },
+    { name = "opentelemetry-sdk", specifier = "==1.45.2" },
+    { name = "opentelemetry-semantic-conventions", specifier = "==0.66b2" },
+    { name = "pytest", specifier = "==9.2.0" },
+    { name = "pytest-cov", specifier = "==7.1.0" },
 ]
 
 [[package]]

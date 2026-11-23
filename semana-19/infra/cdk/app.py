@@ -908,8 +908,6 @@ class Base(Stack):
                 policy_document=politica_cuenta)
 
         suprimir_iam5(rol_flow, ["EscribirSoloEnSuGrupo", "DescribirGruposParaFlowLogs", "-"])
-        Tags.of(self).add("proyecto", "semana19")
-        Tags.of(self).add("perfil", PERFIL)
 
 
 class Datos(Stack):
@@ -1071,8 +1069,6 @@ class Datos(Stack):
         saltar_checkov(bd, {
             "CKV_AWS_157": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
             "CKV_AWS_118": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base."})
-        Tags.of(self).add("proyecto", "semana19")
-        Tags.of(self).add("perfil", PERFIL)
 
 
 @jsii.implements(IAspect)
@@ -1797,6 +1793,13 @@ class Eval(Stack):
         cdk.CfnOutput(self, "ArnLlave", value=llave.key_arn)
 
 
+def etiquetas(nombre_pila: str) -> dict[str, str]:
+    """The cost allocation tags of every stack (week 20, preparation). `componente` is the stack's part of the name
+    (control, base, datos, ia, computo, gateway, agentes-comparacion, eval); week 20's application inference profiles
+    add agente, juez and enriquecimiento. Before week 20, only base and datos carried `proyecto` and `perfil`."""
+    return {"proyecto": "semana19", "perfil": PERFIL, "componente": nombre_pila.removeprefix("semana19-")}
+
+
 def construir(app: cdk.App) -> None:
     control = Control(app, "semana19-control", env=cdk.Environment(region=REGION))
     base = Base(app, "semana19-base", env=cdk.Environment(region=REGION),
@@ -1823,6 +1826,8 @@ def construir(app: cdk.App) -> None:
                           synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
         pilas += [computo, gateway, agentes, evaluacion]
     for pila in pilas:
+        for clave, valor in etiquetas(pila.stack_name).items():
+            Tags.of(pila).add(clave, valor)
         Aspects.of(pila).add(AplicarLimite())
         Aspects.of(pila).add(RetencionDeLogs())
         Aspects.of(pila).add(OmitirCheckovEnProveedorCdk())

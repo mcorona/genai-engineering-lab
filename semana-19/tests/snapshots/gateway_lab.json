@@ -61,7 +61,21 @@
     "Properties": {
       "Description": "Week 19, activity 7: the gateway's Cedar policies (gateway/politicas/*.cedar).",
       "EncryptionKeyArn": "{import:semana19-base:ExportsOutputFnGetAttLlave0AEC6D4FArn4D8B99D4}",
-      "Name": "semana19_politicas"
+      "Name": "semana19_politicas",
+      "Tags": [
+        {
+          "Key": "componente",
+          "Value": "gateway"
+        },
+        {
+          "Key": "perfil",
+          "Value": "lab"
+        },
+        {
+          "Key": "proyecto",
+          "Value": "semana19"
+        }
+      ]
     },
     "Type": "AWS::BedrockAgentCore::PolicyEngine"
   },

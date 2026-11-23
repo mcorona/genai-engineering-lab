@@ -2,7 +2,7 @@
 
 - The loop is the week 13 one, loaded from its file. Its package names (`agente`, `herramientas`) are the same as this
   lab's own, so they are isolated while it loads and restored afterwards.
-- The model: Bedrock Converse through agente/converse_adaptador.py, with the guardrail of the activity 5 version from the
+- The model: Bedrock Converse through agente/modelo.py (`modelo.invocar`, week 20's seam) and agente/converse_adaptador.py, with the guardrail of the activity 5 version from the
   environment (fail closed: no default).
 - The tools: the tools Lambda, invoked by name with the payload shape its handler reads.
 - Budget: week 17's calibrated task cap, with the USD part converted from Haiku 5.5 to Haiku 4.5 prices (a x11 ratio
@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 from agente import capa_determinista as C
-from agente.converse_adaptador import api_converse
+from agente import modelo
 from agente.presupuesto import Precios
 from agente.sumidero_logs import SumideroCloudWatch
 from herramientas import contrato  # the internal call of the tools Lambda (one contract for its three callers)
@@ -27,6 +27,7 @@ from presupuestos.politica import Limite, Politica
 RAIZ = Path(__file__).resolve().parents[2]
 # The week 13 loop: the repository folder, or the asset folder of the agent Lambda (infra/paquete_agente.py sets it).
 S13 = Path(os.environ.get("S19_RUTA_SEMANA13", RAIZ / "semana-13"))
+# Equal to ia/config.py's MODELO_ID: ia/ is not in the Lambda package, so it is repeated here (test_agente_modelo.py).
 MODELO_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 FUNCION_HERRAMIENTAS = "FUNCION_HERRAMIENTAS"     # environment variable names (no defaults: fail closed)
 GUARDRAIL_ID = "GUARDRAIL_ID"
@@ -135,7 +136,7 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
     def llamar_converse(req: dict) -> dict:
         return cliente_converse.converse(**req)
 
-    api = api_converse(llamar_converse, modelo_id=MODELO_ID, guardrail=guardrail)
+    api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=MODELO_ID, guardrail=guardrail))
     cerrar = None
     if via == "gateway":
         from agente.cliente_gateway import LlamadorGateway
