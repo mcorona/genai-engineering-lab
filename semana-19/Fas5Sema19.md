@@ -693,3 +693,24 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     stack hours 0.296 USD, at the upper bound because of the deploy failures and the two-run teardown. Within the
     upper bound of 0.89 and the cap of 1.00; 41 % over the nominal 0.52.
   - **Activity 9 closed.** Every step is done; see `resultados/seguridad.md`.
+- 2026-11-23: **Activity 10 (CI, README and criterion 19), and the week's closing.** PRs #318 to #321.
+  - **CI (#318):** parliament 1.6.4 lints every policy offline (lab and prod: 50 policies each, 0 unclassified
+    findings), the diagram is checked against the synth both ways, and `sin-aws` reports coverage. The manual
+    `cdk diff` workflow is discarded: the bootstrap and the stacks are destroyed, and it would need a new OIDC role.
+  - **Docs (#319):** `semana-19/README.md`, `resultados/aip_c01.md` by exam domain (D1 to D5), and the handoff to
+    week 20.
+  - **Teardown (#320):** `resultados/inventario_final.json`, `"quedan": "nada"`. Left: the read-only role and 3 KMS
+    keys pending deletion (2026-11-26, 2026-11-28, 2026-11-28).
+  - **Criterion 19: met except two parts.**
+    - Met with evidence: the diagram, least-privilege IAM, private networking, the Guardrail and versioned prompts,
+      the measured cost per query, the teardown.
+    - KMS at rest is partial: 17 of 29 resources on the project key (H10, H14).
+    - The mini eval is in regression, 9/20 (`eval_aws.md`); the fixes go to week 20.
+  - **Cross-cutting cost:** within ±20 % on the model figure (−0.1 %) and per hour (−10.3 %); outside on the upper
+    bound (+24.6 %), which holds the judge's job.
+  - **Cross-cutting security:** met, with open findings. H1, H2, H4 and H10 go to week 20; H3, H5, H8, the H13
+    residual case, H7, H12 and H14 to week 21; H6 and H11 are accepted for the lab.
+  - **The week's cost** (one Cost Explorer call, `resultados/costo_semana.json`, still Estimated): 8.928936 USD gross,
+    net 0.00 USD with credits, under the weekly cap of 10 USD. The fixed part (VPC, RDS, KMS, Secrets Manager) is
+    5.302241 USD.
+  - **Week 19 closed.**
