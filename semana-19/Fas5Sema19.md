@@ -725,6 +725,10 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     week each open finding goes to (`resultados/seguridad.md`).
   - Root README: the week 19 badge, its key-results row and its map entry.
   - **Still open, and not closable without a deploy or a decision:** the mini eval (9/20) and KMS at rest (partial),
-    both in week 20; the access keys of the `default` profile, which are Manuel's decision; the 3 KMS keys pending
+    both in week 20; the 3 KMS keys pending
     deletion, which AWS deletes on 2026-11-26 and 2026-11-28.
+- 2026-11-23: **No long-lived credentials left.** Manuel deleted the `default` profile's key in IAM, the unused
+  `BedrockAPIKey-zs15` user (its Bedrock API key expired on 2026-10-10) and `~/.aws/credentials`, whose `aif` key no
+  longer existed. The account has one IAM user with 0 access keys, and the root has none, with MFA on
+  (`resultados/linea_base.md`, section 10).
 
