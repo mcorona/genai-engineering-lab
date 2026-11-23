@@ -82,3 +82,39 @@ Only tagged resources: inference calls are not resources, so the model lines are
 - The "Amazon Bedrock" line cannot be split between the judge, ApplyGuardrail and Titan; it only enters the upper bound.
 - DAILY granularity: anything else that ran on those UTC days is in the lines. The other activities' runs that are known are set apart above.
 - The days were still Estimated when read: the final bill may move by cents.
+
+## Week 19 total (activity 10)
+
+One GetCostAndUsage call (`costos/costo_semana.py`, `resultados/costo_semana.json`): the whole account, [2026-11-13, 2026-11-24) UTC, MONTHLY, by service and record type. Still Estimated: yes.
+
+- **Gross: 8.928936 USD**; credits -8.928936 USD; net 0.000000 USD. Weekly cap: 10.00 USD.
+- Fixed by the hour (VPC, RDS, KMS, Secrets Manager): 5.302241 USD, 59.4 % of the gross.
+
+| Service | Usage (USD) |
+|---|---|
+| Amazon Virtual Private Cloud | 3.420003 |
+| Claude Haiku 4.5 (Amazon Bedrock Edition) | 2.898466 |
+| Amazon Relational Database Service | 1.661135 |
+| Amazon Bedrock | 0.556655 |
+| AWS Key Management Service | 0.163889 |
+| AWS Cost Explorer | 0.150000 |
+| AWS Secrets Manager | 0.057214 |
+| Amazon Simple Storage Service | 0.017830 |
+| Amazon Bedrock AgentCore | 0.001655 |
+| Amazon API Gateway | 0.001632 |
+| Amazon DynamoDB | 0.000397 |
+| AmazonCloudWatch | 0.000060 |
+
+Against the written estimates of the activities that created resources (3 to 9):
+
+| Activity | Estimate (USD) | What it covered | Source |
+|---|---|---|---|
+| 3 | 0.05000 | about 0.05 USD for about 2 h of the base stack at 0.02273973 USD/h | `resultados/base.md` |
+| 4 | 0.06000 | about 0.06 USD for a planned session | `resultados/costo_actividad4.md` |
+| 5 | — | no written figure: guardrail/prueba_viva.py prints its estimate at run time (cap 5 USD) | `guardrail/prueba_viva.py` |
+| 6 | — | no written figure | `Fas5Sema19.md (Log)` |
+| 7 | 0.90000 | about 0.90 USD | `Fas5Sema19.md (Log, 2026-11-18)` |
+| 8 | 0.14105 | the judge's job only, 0.14105 USD; the eval had caps, not an estimate (1.90, 0.20, 0.45 USD) | `resultados/eval_aws.md` |
+| 9 | 0.52000 | about 0.52 USD nominal, 0.89 USD upper bound | `resultados/seguridad/estimacion.md` |
+
+The written estimates add up to 1.67105 USD (5 of 7 activities); the week's gross is 8.928936 USD. Most of the gap is the fixed part: each estimate priced one session, while the stack stayed up between sessions, across several days. Activities 5 and 6 left no written figure.

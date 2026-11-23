@@ -1,0 +1,62 @@
+{
+  "comando": "semana-19/infra/inventario.py --perfil semana19-lectura --region us-east-1",
+  "hora_utc": "2026-11-23T04:01:40Z",
+  "fecha": "2026-11-22",
+  "region": "us-east-1",
+  "con_control": false,
+  "solo": [],
+  "por_categoria": {
+    "stacks_cloudformation": 0,
+    "roles_iam": 1,
+    "llaves_kms_por_alias": 0,
+    "vpcs": 0,
+    "subredes": 0,
+    "security_groups": 0,
+    "endpoints_vpc": 0,
+    "lambdas": 0,
+    "state_machines": 0,
+    "apis_http": 0,
+    "apis_rest": 0,
+    "user_pools": 0,
+    "rds": 0,
+    "buckets_s3": 0,
+    "vector_buckets_s3vectors": 0,
+    "knowledge_bases": 0,
+    "guardrails": 0,
+    "prompts": 0,
+    "gateways_agentcore": 0,
+    "motores_de_politicas_agentcore": 0,
+    "agentes_bedrock": 0,
+    "trabajos_evaluacion_bedrock": 0,
+    "runtimes_agentcore": 0,
+    "log_groups": 0,
+    "etiquetados_tagging_api": 3,
+    "presupuestos": 0,
+    "acciones_presupuesto": 0,
+    "politicas_iam_locales": 0,
+    "flow_logs": 0,
+    "endpoints_por_vpc": 0,
+    "llaves_pendientes_borrado": 3
+  },
+  "total": 7,
+  "esperados": {
+    "etiquetados_tagging_api_explicados": {
+      "llave_pendiente_de_borrado": [
+        "73c133ef-6e14-4e5c-9776-c3408de60f5c",
+        "35d04092-346e-4cab-b613-7bc763a140d8",
+        "3f3959bd-8c92-4c9e-9653-819b34fe9722"
+      ]
+    },
+    "roles_iam": [
+      "semana19-lectura"
+    ],
+    "llaves_pendientes_borrado": [
+      "35d04092 borrado 2026-11-26",
+      "3f3959bd borrado 2026-11-28",
+      "73c133ef borrado 2026-11-28"
+    ]
+  },
+  "inesperados": {},
+  "no_medido": [],
+  "quedan": "nada"
+}

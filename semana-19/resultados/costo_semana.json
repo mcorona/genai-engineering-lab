@@ -1,0 +1,37 @@
+{
+  "periodo": {
+    "inicio": "2026-11-13",
+    "fin_exclusivo": "2026-11-24"
+  },
+  "granularidad": "MONTHLY",
+  "bruto_usd": 8.928936,
+  "otros_tipos_usd": {
+    "Credit": -8.928936
+  },
+  "neto_usd": 0.0,
+  "uso_por_servicio_usd": {
+    "Amazon Virtual Private Cloud": 3.420003,
+    "Claude Haiku 4.5 (Amazon Bedrock Edition)": 2.898466,
+    "Amazon Relational Database Service": 1.661135,
+    "Amazon Bedrock": 0.556655,
+    "AWS Key Management Service": 0.163889,
+    "AWS Cost Explorer": 0.15,
+    "AWS Secrets Manager": 0.057214,
+    "Amazon Simple Storage Service": 0.01783,
+    "Amazon Bedrock AgentCore": 0.001655,
+    "Amazon API Gateway": 0.001632,
+    "Amazon DynamoDB": 0.000397,
+    "AmazonCloudWatch": 6e-05,
+    "AWS Budgets": 0.0,
+    "AWS CloudFormation": 0.0,
+    "AWS Glue": 0.0,
+    "AWS Lambda": 0.0,
+    "AWS Step Functions": 0.0,
+    "Amazon Cognito": 0.0,
+    "Amazon Simple Notification Service": 0.0,
+    "Amazon Simple Queue Service": 0.0
+  },
+  "estimado": [
+    true
+  ]
+}

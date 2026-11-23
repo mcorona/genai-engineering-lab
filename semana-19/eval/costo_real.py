@@ -328,6 +328,13 @@ def informe_md(r: dict) -> str:
           "- DAILY granularity: anything else that ran on those UTC days is in the lines. The other activities' runs "
           "that are known are set apart above.",
           "- The days were still Estimated when read: the final bill may move by cents."]
+    semana = S19 / "resultados" / "costo_semana.json"
+    if semana.exists():   # activity 10: the week's total, rendered from its own file
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("costo_semana", S19 / "costos" / "costo_semana.py")
+        cs = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cs)
+        l += [""] + cs.informe_md(json.loads(semana.read_text(encoding="utf-8")))
     return "\n".join(l)
 
 
