@@ -688,4 +688,8 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     attached the deny policy to the test role. Then everything was cleaned up.
   - **Teardown (4.6).** Two runs. The first stopped on the known default-SG custom resource of base; the second
     retained it, deleted the bootstrap and control (control on its retry). Inventory: `"quedan": "nada"`.
-  - **Pending:** Cost Explorer (2 calls, approved, at least a day after the teardown) and the final ✅ table.
+  - **Cost (4.7).** Cost Explorer's 2 calls on 2026-11-23 at 03:09 UTC, at Manuel's request (2026-11-22 may be
+    incomplete): about 0.73 USD of usage, net 0.00 with credits. Model 0.367472 USD, which matches the spans;
+    stack hours 0.296 USD, at the upper bound because of the deploy failures and the two-run teardown. Within the
+    upper bound of 0.89 and the cap of 1.00; 41 % over the nominal 0.52.
+  - **Activity 9 closed.** Every step is done; see `resultados/seguridad.md`.
