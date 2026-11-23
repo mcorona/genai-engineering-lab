@@ -1,0 +1,32 @@
+{
+ "semana": 20,
+ "actividad": 1,
+ "autorizacion": "Manuel, 2026-11-23, in chat: one call, 0.01 USD",
+ "llamadas": [
+  {
+   "n": 1,
+   "operacion": "ListCostAllocationTags",
+   "parametros": {
+    "TagKeys": [
+     "componente",
+     "proyecto"
+    ],
+    "MaxResults": 10
+   },
+   "perfil": "semana19-lectura",
+   "hora_utc": "2026-11-23T23:22:26+00:00",
+   "paginas": 1,
+   "siguiente_pagina": false,
+   "resultado": [
+    {
+     "TagKey": "proyecto",
+     "Type": "UserDefined",
+     "Status": "Active",
+     "LastUpdatedDate": "2026-11-14T00:08:28Z",
+     "LastUsedDate": "2026-11-01T00:00:00Z"
+    }
+   ]
+  }
+ ],
+ "costo_usd": 0.01
+}
