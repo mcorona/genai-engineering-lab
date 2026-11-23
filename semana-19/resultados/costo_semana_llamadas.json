@@ -1,0 +1,26 @@
+[
+  {
+    "fecha": "2026-11-23T04:13:01Z",
+    "operacion": "GetCostAndUsage",
+    "solicitud": {
+      "TimePeriod": {
+        "Start": "2026-11-13",
+        "End": "2026-11-24"
+      },
+      "Granularity": "MONTHLY",
+      "Metrics": [
+        "UnblendedCost"
+      ],
+      "GroupBy": [
+        {
+          "Type": "DIMENSION",
+          "Key": "SERVICE"
+        },
+        {
+          "Type": "DIMENSION",
+          "Key": "RECORD_TYPE"
+        }
+      ]
+    }
+  }
+]
