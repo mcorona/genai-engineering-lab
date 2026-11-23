@@ -86,6 +86,21 @@ def test_presupuesto_de_la_tarea_usa_el_tope_calibrado_convertido_a_precio_de_4_
     assert pol.tarea.usd == pytest.approx(0.0063 * 11, rel=1e-6)
 
 
+def test_el_techo_de_la_semana_20_es_un_valor_de_configuracion():
+    assert K.politica_de_la_tarea({}).tarea.tokens == 46000
+    assert K.politica_de_la_tarea({K.PRESUPUESTO_TAREA: "semana17"}).tarea.tokens == 46000
+    techo = K.politica_de_la_tarea({K.PRESUPUESTO_TAREA: "techo_semana20"}).tarea
+    assert (techo.usd, techo.tokens) == (0.12, 100_000)
+    with pytest.raises(RuntimeError):
+        K.politica_de_la_tarea({K.PRESUPUESTO_TAREA: "sin_tope"})
+
+
+def test_construir_usa_el_presupuesto_del_entorno():
+    deps = K.construir(cliente_converse=Converse(), cliente_lambda=Lambda(),
+                       entorno={**ENTORNO, K.PRESUPUESTO_TAREA: "techo_semana20"}, exportar=lambda _: None)
+    assert deps["politica"].tarea.tokens == 100_000
+
+
 def test_herramienta_sin_binding_no_se_llama():
     with pytest.raises(ValueError):
         contrato.entrada_de_herramienta("borrar_todo", {})

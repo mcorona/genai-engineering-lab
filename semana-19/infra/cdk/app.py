@@ -1350,7 +1350,7 @@ class Computo(Stack):
             environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
                          "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name,
-                         **entorno_del_camino()},
+                         **entorno_del_camino(), **entorno_del_presupuesto()},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
         agente.add_to_role_policy(_declaracion(
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
@@ -1529,6 +1529,15 @@ def entorno_del_camino() -> dict:
     if not url.startswith("https://") or not url.endswith("/mcp"):
         raise RuntimeError("CAMINO_HERRAMIENTAS=gateway necesita S19_GATEWAY_URL (salida UrlGateway de semana19-gateway)")
     return {"CAMINO_HERRAMIENTAS": "gateway", "GATEWAY_URL": url}
+
+
+def entorno_del_presupuesto() -> dict:
+    """The agent's per-task budget (week 20, activity 1), chosen at synth time: PRESUPUESTO_TAREA=semana17 (default) |
+    techo_semana20. The default adds no variable, so the week 19 templates do not change."""
+    valor = os.environ.get("PRESUPUESTO_TAREA") or "semana17"
+    if valor not in ("semana17", "techo_semana20"):
+        raise RuntimeError(f"PRESUPUESTO_TAREA desconocido: {valor}")
+    return {} if valor == "semana17" else {"PRESUPUESTO_TAREA": valor}
 
 
 NOMBRE_GATEWAY = "semana19-gateway"

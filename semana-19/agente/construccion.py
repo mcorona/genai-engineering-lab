@@ -36,9 +36,15 @@ GRUPO_SPANS = "GRUPO_SPANS"      # CloudWatch Logs group of the span lines (set 
 CAMINO_HERRAMIENTAS = "CAMINO_HERRAMIENTAS"   # activity 7: directo (lambda.invoke, default) | gateway (MCP)
 GATEWAY_URL = "GATEWAY_URL"      # the gateway's MCP endpoint, required when the path is gateway
 CAMINOS = ("directo", "gateway")
+PRESUPUESTO_TAREA = "PRESUPUESTO_TAREA"   # week 20: semana17 (default, week 17 calibration) | techo_semana20
+PRESUPUESTOS = ("semana17", "techo_semana20")
 
 _PRESUPUESTO_TAREA_HAIKU55 = {"usd": 0.0063, "tokens": 46000}   # week 17 calibration (semana-17/presupuestos/politica_calibrada.json)
 _RAZON_PRECIO = 1.1 / 0.1     # Haiku 4.5 over Haiku 5.5 in week 7's table, input and output alike
+# Week 20, activity 1 (Manuel's OK of 2026-11-23): a per-task ceiling above every week 19 task (at most 0.063 USD and
+# 43,616 tokens), so the corrected run is not cut by the budget and its spend is Haiku 4.5's own distribution. The new
+# calibrated limit is set from that run; this ceiling is not a calibration.
+_TECHO_SEMANA20 = {"usd": 0.12, "tokens": 100_000}
 PRECIOS = Precios(entrada_1m=1.1, salida_1m=5.5)   # Haiku 4.5, USD per million tokens (week 7's table)
 
 
@@ -101,7 +107,17 @@ def _al_contrato_semana13(cuerpo, *, fallo: bool) -> dict:
     return {"ok": True, **cuerpo}
 
 
-def politica_de_la_tarea() -> Politica:
+def presupuesto(entorno) -> str:
+    """The per-task budget in use. Unknown values are an error, never a silent fall back to the default."""
+    valor = entorno.get(PRESUPUESTO_TAREA) or "semana17"
+    if valor not in PRESUPUESTOS:
+        raise RuntimeError(f"{PRESUPUESTO_TAREA} desconocido: {valor}")
+    return valor
+
+
+def politica_de_la_tarea(entorno=None) -> Politica:
+    if presupuesto(os.environ if entorno is None else entorno) == "techo_semana20":
+        return Politica(tarea=Limite(**_TECHO_SEMANA20))
     tope = _PRESUPUESTO_TAREA_HAIKU55
     return Politica(tarea=Limite(usd=round(tope["usd"] * _RAZON_PRECIO, 6), tokens=tope["tokens"]))
 
@@ -151,7 +167,7 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         "llamar_herramienta": llamar_real,
         "definiciones": definiciones,
         "api_modelo": api,
-        "politica": politica_de_la_tarea(),
+        "politica": politica_de_la_tarea(entorno),
         "precios": PRECIOS,
         "exportar": exportar or SumideroCloudWatch(cliente_logs, entorno[GRUPO_SPANS], flujo_spans),
         "camino": via,

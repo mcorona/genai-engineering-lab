@@ -42,7 +42,7 @@ jobs:
       - name: Pruebas sin AWS
         run: |
           set -o pipefail
-          python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --cov=semana-19 --cov-report=term:skip-covered --ignore=semana-19/tests/test_infra_cdk.py --ignore=semana-19/tests/test_infra_computo.py --ignore=semana-19/tests/test_computo_rds_permisos.py --ignore=semana-19/tests/test_infra_gateway.py --ignore=semana-19/tests/test_infra_agentes.py --ignore=semana-19/tests/test_validar_politicas_cobertura.py --ignore=semana-19/tests/test_diagrama_vs_stack.py --ignore=semana-19/tests/test_infra_etiquetas.py | tee "$RUNNER_TEMP/pytest.txt"
+          python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --cov=semana-19 --cov-report=term:skip-covered --ignore=semana-19/tests/test_infra_cdk.py --ignore=semana-19/tests/test_infra_computo.py --ignore=semana-19/tests/test_computo_rds_permisos.py --ignore=semana-19/tests/test_infra_gateway.py --ignore=semana-19/tests/test_infra_agentes.py --ignore=semana-19/tests/test_validar_politicas_cobertura.py --ignore=semana-19/tests/test_diagrama_vs_stack.py --ignore=semana-19/tests/test_infra_etiquetas.py --ignore=semana-19/tests/test_infra_presupuesto.py | tee "$RUNNER_TEMP/pytest.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
 
   spike-iac:
@@ -78,7 +78,7 @@ jobs:
       - name: Pruebas de la fundación (CDK, lab y prod, sin AWS)
         run: |
           set -o pipefail
-          python -m pytest -q semana-19/tests/test_infra_cdk.py semana-19/tests/test_infra_computo.py semana-19/tests/test_computo_rds_permisos.py semana-19/tests/test_infra_gateway.py semana-19/tests/test_infra_agentes.py semana-19/tests/test_validar_politicas_cobertura.py semana-19/tests/test_diagrama_vs_stack.py semana-19/tests/test_infra_etiquetas.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
+          python -m pytest -q semana-19/tests/test_infra_cdk.py semana-19/tests/test_infra_computo.py semana-19/tests/test_computo_rds_permisos.py semana-19/tests/test_infra_gateway.py semana-19/tests/test_infra_agentes.py semana-19/tests/test_validar_politicas_cobertura.py semana-19/tests/test_diagrama_vs_stack.py semana-19/tests/test_infra_etiquetas.py semana-19/tests/test_infra_presupuesto.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest_infra.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
 
       - name: Sintetizar la fundación de la actividad 3 y escanearla con checkov
