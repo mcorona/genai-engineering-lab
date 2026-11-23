@@ -384,10 +384,13 @@ def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
         _declaracion(sid="PasarRolDelCreadorDeGuardrail", actions=["iam:PassRole"],
                      resources=[arn_iam("role/semana19-ia-*")],
                      conditions={"StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"}}),
-        # The guardrail creator's role (stack semana19-ia): its inline policies and deletion, same shape as the base.
+        # The guardrail creator's role (stack semana19-ia): its inline policies, tags and deletion, same shape as the base.
+        # Week 20 (2026-11-23): #322 tagged every stack, and ia's first deploy with tags failed on iam:TagRole
+        # (UnauthorizedTaggingOperation), as base did on 2026-11-21. Its TagRole call carries no boundary key.
         _declaracion(sid="PoliticasYAdjuntosDelRolDeIa", actions=[
             "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
-            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags"],
+            "iam:AttachRolePolicy", "iam:DetachRolePolicy", "iam:ListAttachedRolePolicies", "iam:ListRoleTags",
+            "iam:TagRole", "iam:UntagRole"],
             resources=[arn_iam("role/semana19-ia-*")]),
         _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
                      resources=[arn_iam("role/semana19-ia-*")]),
