@@ -208,13 +208,20 @@ Neither job may use tools, which fits both.
 |---|---|---|---|---|
 | Nova Micro | 0.035 / 0.14 | M, XAR69MSGZSU6FEM9, YUSGHKDUPQRC75RK | 8,000,000 / 400 | L-DC7FF66C, L-3F110E0F |
 | Nova Lite | 0.06 / 0.24 | M, QRGWJ3P8FT28EYX2, CBZ6A6U7XK8WJ3KA | 8,000,000 / 400 | L-7C42E72A, L-89F8391A |
-| Nova 2 Lite | N (not in the rows read) | — | 8,000,000 / 200 | L-C6F5908D, L-F06F1187 |
+| Nova 2 Lite | 0.33 / 2.75 | M, FY8T82UUN7VZR55K, DY69Q8C3F88CHA2Q | 8,000,000 / 200 | L-C6F5908D, L-F06F1187 |
 | Nova Pro | 0.80 / 3.20 | M, 8X836UXRHN5Q5T2H, ARFVY95XGU794VBG | 2,000,000 / 50 | L-C0326783, L-ED46B8C5 |
 | Haiku 4.5 (today) | 1.10 / 5.50 | M, §4.1 | 5,000,000 / 50 | L-58BE175A, L-CCA5DF70 |
 | Sonnet 4.5 | 3.30 / 16.50 | M, SSK4DT4JBRUQJYP5, 3YN5KGC2HJU9VC5A | 5,000,000 / 50 | L-F4DDD3EB, L-4A6BFAB1 |
 | Sonnet 4.6 | 3.30 / 16.50 | M, KPFGPZJ8VWMREGAV, GMB9AQ5DYNAGYZEC | 6,000,000 / 50 | L-15B8E632, L-00FF3314 |
 
 Haiku 5.5 is still at 0 (week 19, `semana-19/resultados/linea_base.md` §10). The cheaper tier is Nova (Micro, Lite), and the stronger one is Sonnet.
+
+Nova 2 Lite's usage type is `Nova2.0Lite`, so `precios.py` missed it until it matched that name too. Its output is priced 2.75 per 1M, half of Haiku 4.5's and 11 times Nova Lite's. Its rows also show:
+- a global cross-region price of 0.30 / 2.50 (EPMQ24NAG4R6FPX8, PT8HC9XDED4UMEZX);
+- batch and flex at 0.165 / 1.375 (5UDDRHH997B9FJ63, 9695KVZFNHZKXKKM);
+- priority at 0.5775 / 4.8125 (5ATX9W7RD5XA8J66, R8KFTUX2HDGAD9J3);
+- cache reads at 0.0825 (NZS2WHKW9KB4K2QH);
+- provisioned throughput with no commitment, at 60.50 per model unit per hour (RAXDRDKBA5JXTZUR).
 
 A quota alone does not prove the model can be called. Activity 4 checks each candidate with one call, estimated first.
 
@@ -240,7 +247,7 @@ A quota alone does not prove the model can be called. Activity 4 checks each can
 |---|---|---|---|
 | Custom metrics (EMF too) | 0.30 per metric-month for the first 10,000 | 10 metrics | M, KG586CTNGQ4VRZKZ |
 | Standard / high-resolution alarm | 0.10 / 0.30 per alarm-month | 10 standard alarms | M, EVETVUGEN3MUTMXM, 7BK9TRWG8E43D4AJ |
-| Dashboards | N (not on the parts of the page read, nor in the rows read) | 3 dashboards of up to 50 metrics | D for the free tier |
+| Dashboards | 3.00 per dashboard-month, beyond the free ones | 3 dashboards of up to 50 metrics; the Price List has a global 0–3 tier at 0 | M, ZXHCNVUBD6E8UPH8 (free tier), 5P8PBB6MXV325TDC, 8AWBXE5MPQY58BK4 (over 50 metrics) |
 | Log ingestion | 0.50 per GB | 5 GB (ingestion, archive and Logs Insights scans together) | M, S8QGXX5R2BKKMDSJ |
 | Logs Insights | 0.005 per GB scanned | in the 5 GB above | M, 466C636KV6VS3849 |
 | X-Ray traces stored / accessed | 0.000005 / 0.0000005 per trace | 100,000 recorded and 1,000,000 accessed per month | M, Y6TW3M2TDT7SJYK8, 3TP6FV8W3FH2HE28 |
@@ -248,6 +255,7 @@ A quota alone does not prove the model can be called. Activity 4 checks each can
 | Application Signals ingestion | 0.35 per GB for the first 10 TB | 100 GB in the same 3 months | M, 4DAN5Z24DZ67DTM2 |
 
 - **EMF:** the metrics a log line declares are charged as custom metrics, and the line itself as log ingestion. The page states this only for Container Insights; for EMF in general it is not stated, so the design assumes both.
+- **Dashboards** are priced globally, with location `Any` and no `regionCode`, so `precios.py` reads them by usage type.
 - **For activity 8:** stay at 10 metrics or fewer, counted as metric name × dimension values, plus 3 dashboards or fewer. The metric list is written before the stack.
 
 ### 4.8 CloudWatch generative AI observability
@@ -264,7 +272,7 @@ A quota alone does not prove the model can be called. Activity 4 checks each can
 
 - Activity 2: application inference profiles and their tags; the first Cost Explorer check of the split.
 - Activity 3: the cache point at the end of the history, with the 4,096-token minimum tested; the budget counting cache tokens.
-- Activity 4: R1 between Nova (Micro and Lite) and Sonnet, around Haiku 4.5. R2 only as the Nova router, measured separately. c02 and c06-en are its first escalation cases.
+- Activity 4: R1 between Nova (Micro and Lite) and Sonnet, around Haiku 4.5. R2 only as the Nova router, measured separately. c02 and r05 are its first escalation cases (c06-en passed in the corrected run).
 - Activity 5: batch jobs of at least 100 records, without tools.
 - Activity 6: provisioned throughput priced with a commitment only; no purchase.
 - Activities 7 and 8: at most 10 metrics and 3 dashboards, inside the free tier.

@@ -121,6 +121,17 @@ def test_el_lector_de_precios_elige_las_filas_de_la_semana_y_quita_duplicados():
     assert sorted(f["sku"] for f in precios.elegir(fm, br, cw, xr)) == ["A", "C", "E", "G"]
 
 
+def test_nova_2_lite_y_los_dashboards_globales_entran_y_la_dimension_en_cny_no():
+    br = [_producto("N2", {"usagetype": "USE1-Nova2.0Lite-input-tokens"}),
+          _producto("X", {"usagetype": "USE1-Nova2X0Lite-input-tokens"})]
+    gratis = _producto("D0", {"usagetype": "Global-DashboardsUsageHour-Basic"}, usd="0")
+    gratis["terms"]["OnDemand"]["t"]["priceDimensions"]["cny"] = {"unit": "Dashboards", "pricePerUnit": {"CNY": "0"}}
+    cw = [gratis, _producto("D1", {"usagetype": "DashboardsUsageHour-Basic"}, usd="3.0")]
+    filas = precios.elegir([], br, cw, [])
+    assert sorted(f["sku"] for f in filas) == ["D0", "D1", "N2"]
+    assert [d["usd"] for f in filas if f["sku"] == "D0" for d in f["precios"]] == [0.0]
+
+
 def test_las_cuotas_salen_por_nombre():
     q = [{"QuotaName": "Cross-region model inference tokens per minute for Amazon Nova Micro", "Value": 8e6,
           "QuotaCode": "L-1"},

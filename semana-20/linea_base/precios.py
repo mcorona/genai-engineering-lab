@@ -26,7 +26,7 @@ REGION = "us-east-1"
 
 # The models week 20 can route between or batch with, by their Price List and Service Quotas names.
 MODELOS_FM = ("Claude Haiku 4.5", "Claude Sonnet 4.5", "Claude Sonnet 4.6")   # AmazonBedrockFoundationModels
-MODELOS_NOVA = ("NovaMicro", "NovaLite", "NovaPro")                            # AmazonBedrock, by usage type
+MODELOS_NOVA = ("NovaMicro", "NovaLite", "Nova2.0Lite", "NovaPro")             # AmazonBedrock, by usage type
 CUOTAS_CANDIDATOS = ("Anthropic Claude Haiku 4.5", "Anthropic Claude Sonnet 4.5 V1", "Anthropic Claude Sonnet 4.6",
                      "Amazon Nova Micro", "Amazon Nova Lite", "Amazon Nova 2 Lite", "Amazon Nova Pro")
 LOTE_MODELOS = ("Claude Haiku 4.5", "Nova Micro V1", "Nova Lite V1", "Nova 2 Lite", "Nova Pro V1")
@@ -34,12 +34,16 @@ LOTE_MODELOS = ("Claude Haiku 4.5", "Nova Micro V1", "Nova Lite V1", "Nova 2 Lit
 USOS_CW = ("CW:MetricMonitorUsage", "CW:AlarmMonitorUsage", "CW:HighResAlarmMonitorUsage", "USE1-DataProcessing-Bytes",
            "USE1-DataScanned-Bytes", "USE1-XRay-Spans-Indexed", "USE1-Application-Signals-Bytes")
 USOS_XRAY = ("USE1-XRay-TracesStored", "USE1-XRay-TracesAccessed")
+# Dashboards are priced globally (location "Any", no regionCode), so they are read by usage type, not by region.
+USOS_CW_GLOBALES = ("Global-DashboardsUsageHour-Basic", "DashboardsUsageHour-Basic", "DashboardsUsageHour")
 
 
 def _dimensiones(producto: dict) -> list[dict]:
+    """The USD dimensions only: some rows also carry a CNY dimension (the dashboards' free tier)."""
     return [{"unidad": d["unit"], "usd": float(d["pricePerUnit"]["USD"]), "desde": d.get("beginRange"),
              "hasta": d.get("endRange"), "descripcion": d.get("description", "")}
-            for t in producto["terms"].get("OnDemand", {}).values() for d in t["priceDimensions"].values()]
+            for t in producto["terms"].get("OnDemand", {}).values() for d in t["priceDimensions"].values()
+            if "USD" in d["pricePerUnit"]]
 
 
 def fila(producto: dict, servicio: str) -> dict:
@@ -49,11 +53,11 @@ def fila(producto: dict, servicio: str) -> dict:
             "precios": _dimensiones(producto)}
 
 
-def _productos(cliente, servicio: str) -> list[dict]:
+def _productos(cliente, servicio: str, campo: str = "regionCode", valor: str = REGION) -> list[dict]:
     salida, token = [], None
     while True:
         kw = {"ServiceCode": servicio, "MaxResults": 100,
-              "Filters": [{"Type": "TERM_MATCH", "Field": "regionCode", "Value": REGION}]}
+              "Filters": [{"Type": "TERM_MATCH", "Field": campo, "Value": valor}]}
         if token:
             kw["NextToken"] = token
         r = cliente.get_products(**kw)
@@ -68,10 +72,10 @@ def elegir(productos_fm: list, productos_br: list, productos_cw: list, productos
     filas = [fila(p, "AmazonBedrockFoundationModels") for p in productos_fm
              if p["product"]["attributes"].get("model") in MODELOS_FM]
     filas += [fila(p, "AmazonBedrock") for p in productos_br
-              if re.match(rf"USE1-({'|'.join(MODELOS_NOVA)})-", p["product"]["attributes"].get("usagetype", ""))
+              if re.match(rf"USE1-({'|'.join(map(re.escape, MODELOS_NOVA))})-", p["product"]["attributes"].get("usagetype", ""))
               and "custom-model" not in p["product"]["attributes"].get("usagetype", "")]
     filas += [fila(p, "AmazonCloudWatch") for p in productos_cw
-              if p["product"]["attributes"].get("usagetype") in USOS_CW]
+              if p["product"]["attributes"].get("usagetype") in USOS_CW + USOS_CW_GLOBALES]
     filas += [fila(p, "AWSXRay") for p in productos_xr if p["product"]["attributes"].get("usagetype") in USOS_XRAY]
     vistos, unicas = set(), []
     for f in sorted(filas, key=lambda f: (f["servicio"], f["modelo"] or "", f["uso"] or "")):
@@ -137,8 +141,10 @@ def main(argv=None, sesion=None) -> int:
         sesion = boto3.Session(profile_name=os.environ.get("S20_PERFIL", "semana19-lectura"), region_name=REGION)
     p = sesion.client("pricing", region_name="us-east-1")
     datos = {"fecha": date.today().isoformat(), "region": REGION, "fuente": "M",
-             "precios": elegir(*(_productos(p, s) for s in ("AmazonBedrockFoundationModels", "AmazonBedrock",
-                                                            "AmazonCloudWatch", "AWSXRay"))),
+             "precios": elegir(_productos(p, "AmazonBedrockFoundationModels"), _productos(p, "AmazonBedrock"),
+                               _productos(p, "AmazonCloudWatch")
+                               + [x for u in USOS_CW_GLOBALES for x in _productos(p, "AmazonCloudWatch", "usagetype", u)],
+                               _productos(p, "AWSXRay")),
              "cuotas": cuotas(sesion.client("service-quotas")),
              "enrutadores": enrutadores(sesion.client("bedrock"))}
     SALIDA.parent.mkdir(parents=True, exist_ok=True)

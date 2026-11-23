@@ -449,4 +449,5 @@ README (last).
   model quality. Manuel accepted the run as week 20's baseline, stated as not passing; activity 4 escalates those
   cases. The deploy needed #327 (`iam:TagRole` for ia, broken by #322's tags). Week 20 keeps the 0.12 USD and 100,000
   token ceiling as its cap until activity 9 calibrates one on repeated runs.
+- 2026-11-23: the two missing prices, read at $0 from the Price List (`precios.py`, 157 rows, all of them added). Nova 2 Lite is 0.33 / 2.75 USD per 1M; its usage type is `Nova2.0Lite`. A CloudWatch dashboard is 3.00 USD per month beyond the 3 free, a global price with no region.
 
