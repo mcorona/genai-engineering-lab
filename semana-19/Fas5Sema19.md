@@ -269,7 +269,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   It runs before anything is created and must report 0.
 - **Deliverable:** `resultados/linea_base.md` (matrix and prices table with catalog ids) and
   `linea_base/verificar.py` ($0 checks).
-- **AIP-C01:** D1 (modelos, inference profiles, cuotas) y D3 (gobernanza: presupuesto, Free Tier, créditos)
+- **AIP-C01:** D1 (models, inference profiles, quotas) and D3 (governance: budget, Free Tier, credits)
 - **Time:** ~1.5 h. **Cost:** $0 (read-only API calls).
 
 ### 2. Reference architecture and the IaC decision
@@ -295,7 +295,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 
   The output is the estimate Manuel authorizes before activity 3.
 - **Deliverable:** `arquitectura/` (diagram, ADRs), `resultados/arquitectura.md`, `costos/modelo.py` with tests.
-- **AIP-C01:** D2 (IaC e implementación) y D3 (arquitectura de seguridad: IAM, KMS, endpoints privados)
+- **AIP-C01:** D2 (IaC and implementation) and D3 (security architecture: IAM, KMS, private endpoints)
 - **Time:** ~2 h. **Cost:** $0.
 
 ### 3. Foundation stack: KMS, VPC, endpoints, IAM and spend controls
@@ -329,7 +329,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - no security group allows `0.0.0.0/0` inbound.
 - One real deploy and teardown, measured: the time to `CREATE_COMPLETE`, the time to delete, the inventory after,
   and the real cost from Cost Explorer the next day.
-- **AIP-C01:** D3 (IAM con permission boundary, KMS, VPC sin internet, endpoints, controles de gasto) y D2 (despliegue reproducible)
+- **AIP-C01:** D3 (IAM with a permissions boundary, KMS, a VPC with no internet, endpoints, spend controls) and D2 (reproducible deployment)
 - **Time:** ~2.5 h. **Cost:** cents (endpoint hours while up), estimated and authorized first.
 
 ### 4. Data: RDS with the legacy schema, and the Knowledge Base
@@ -358,7 +358,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - `copilot_ro` cannot write (an `INSERT` fails);
   - a `Retrieve` for 5 column-meaning questions returns the right document (recall@5 measured);
   - no tenant leakage on the week 12 style filter, if tenants are used.
-- **AIP-C01:** D1 (Knowledge Base sobre S3 Vectors, recuperación) y D3 (RDS con autenticación IAM, rol de solo lectura)
+- **AIP-C01:** D1 (Knowledge Base on S3 Vectors, retrieval) and D3 (RDS with IAM authentication, a read-only role)
 - **Time:** ~2 h. **Cost:** cents (DB hours while up, embeddings for a few KB of text).
 
 ### 5. Bedrock: model access, Guardrail and Prompt Management as code
@@ -384,7 +384,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     - its false positives on the 20 CI golden tasks, compared with the week 17 deterministic layer on the same
       cases (`ApplyGuardrail`, no model generation needed);
   - record the cost per `ApplyGuardrail` call from the bill.
-- **AIP-C01:** D1 (Prompt Management con versiones fijadas) y D3 (Guardrails como capa de defensa en profundidad)
+- **AIP-C01:** D1 (Prompt Management with pinned versions) and D3 (Guardrails as a defense-in-depth layer)
 - **Time:** ~2 h. **Cost:** cents (`ApplyGuardrail` text units), authorized first.
 
 ### 6. Compute: the agent Lambda, the API and the approval workflow
@@ -424,7 +424,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - a token without the scope gets 403;
   - the read-only guard blocks the week 13 write attempts before the DB;
   - the API rejects requests without a token.
-- **AIP-C01:** D2 (implementación: Lambda, Step Functions, API Gateway con autorizador JWT)
+- **AIP-C01:** D2 (implementation: Lambda, Step Functions, API Gateway with a JWT authorizer)
 - **Time:** ~3 h. **Cost:** $0 offline. Live checks in activity 8.
 
 ### 7. AgentCore Gateway over the tools, and Bedrock Agents as a comparison
@@ -446,7 +446,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - what you cannot see in the trace.
 - **Deliverable:** `resultados/agentes.md`, a 3-way table: Lambda loop, Lambda through AgentCore Gateway, Bedrock
   Agents. The decision for LegacyBridge is written with its reason.
-- **AIP-C01:** D1 (integración de agentes y herramientas) y D2 (AgentCore Gateway y Policy)
+- **AIP-C01:** D1 (agent and tool integration) and D2 (AgentCore Gateway and Policy)
 - **Time:** ~2.5 h. **Cost:** cents to about a dollar (model tokens of 3 × 10 tasks + gateway calls), estimated and
   authorized first.
 
@@ -479,7 +479,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - **Real cost:** Cost Explorer by the `proyecto` tag (activated as a cost allocation tag in preparation), per
   service, the day after. Cost per query = real cost / queries, compared with the activity 2 model.
 - **Deliverable:** `resultados/eval_aws.md`, `resultados/costo_real.md`.
-- **AIP-C01:** D5 (pruebas y diagnóstico: evaluación contra el endpoint) y D4 (eficiencia: costo por consulta)
+- **AIP-C01:** D5 (testing and troubleshooting: evaluation against the endpoint) and D4 (efficiency: cost per query)
 - **Time:** ~2.5 h. **Cost:** about $1 to $3 (model tokens for 20 tasks and the judge, plus the hours the stack is
   up), estimated and authorized first, with a hard cap in the eval script.
 
@@ -510,7 +510,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - **Budget action test:** in a sandbox budget, set a $0.01 threshold, confirm the deny policy attaches to a test
   role, then detach it.
 - **Deliverable:** `resultados/seguridad.md`, with findings and mitigations (a preview of week 21's report).
-- **AIP-C01:** D3 (seguridad y gobernanza: modelo de amenazas, escáneres, Access Analyzer)
+- **AIP-C01:** D3 (security and governance: threat model, scanners, Access Analyzer)
 - **Time:** ~2 h. **Cost:** cents (the stack up during the checks).
 
 ### 10. CI, README and criterion 19
@@ -537,7 +537,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - **Root README:** criterion 19 checked with links to evidence; the Phase 5 status.
 - **Teardown proof:** the final inventory (`"quedan": "nada"` except the listed budget and the key pending deletion)
   and the Cost Explorer total for the week.
-- **AIP-C01:** D5 (pruebas en CI sin AWS) y D2 (documentación y arquitectura desplegable)
+- **AIP-C01:** D5 (tests in CI without AWS) and D2 (documentation and a deployable architecture)
 - **Time:** ~1.5 h. **Cost:** $0.
 
 ## Summary
@@ -554,16 +554,16 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - 2026-11-03: plan created, to be handed to Claude CLI. Week 17 closed on `main` (`ce6221d`, PR #139).
 
 ---
-- 2026-11-12: actividad 1 medida (`resultados/linea_base.md`). Cuenta PAID y ACTIVE; gasto del mes -0.0000000012 USD (una llamada de Cost Explorer, autorizada). Haiku 5.5 con cuota 0 de tokens; Haiku 4.5 con 5 000 000 tokens/min y 50 solicitudes/min cross-region (propuesta de modelo, pendiente de Manuel). Precios: 14 medidos, 7 documentados, 1 sin verificar. Inventario en 0 (`quedan: nada`). Pendientes: créditos (Billing), rol de operador separado del admin, llaves en el perfil `default`.
-- 2026-11-12: decisiones de Manuel. (1) Modelo de las actividades 5 a 8: Haiku 4.5 con el perfil `us.` (cuota vigente); Haiku 5.5 queda pendiente de cuota. (2) Operador y admin son la misma identidad (`manuel-admin`): excepción registrada hasta crear un rol de solo lectura. (3) Corrida pagada de `sin-api` autorizada para el PR de la actividad 1.
-- 2026-11-13: actividad 1 con operador de solo lectura (`semana19-lectura`, ReadOnlyAccess). Inventario: 1 recurso, el rol de lectura, registrado como excepción. Cuota de Haiku 5.5 con solicitudes de aumento en CASE_OPENED (cross-region y global, 10 500 000 tokens/min).
-- 2026-11-13: actividad 2 (parte 2). Decisión de IaC: **CDK en Python** (ADR 0001, por omisión: los constructos de Bedrock y AgentCore existen en el L1 estable). Modelo confirmado por Manuel: **Haiku 4.5 con el perfil `us.`** (Haiku 5.5 tiene cuota 0; su aumento está en CASE_OPENED). ADRs 0002 a 0006, diagrama, modelo de costos, cotización y CI sin AWS escritos. Precios de Lambda por solicitud, endpoints de VPC por hora y Multi-AZ quedan N; las transiciones de Step Functions quedan D por el ejemplo oficial.
-- Estimación para la actividad 3 (base: llave KMS, VPC, endpoints, IAM y presupuesto), **sin cifra final todavía**: KMS, 2 llaves = 0.0027397 USD por hora (M). Endpoints de interfaz: N por AZ-hora. Presupuesto: N. Con 1 AZ y 2 endpoints, la sesión de N horas = 0.0027397 × N USD + la partida de endpoints (N). Se cierra cuando el Price List confirme el precio de endpoints (requiere `aws login`).
-- 2026-11-13: cierre de la actividad 2 (parte final). Decisión de IaC: CDK en Python (ADR 0001), con cdk-nag **2.38.2** (desviación del candidato 3.0.2: esa versión falla al sintetizar con `aws-cdk-lib` 2.276.0; documentado en el ADR). Perfil prod en `spike/perfiles.json`, sintetizado y escaneado. Modelo confirmado: Haiku 4.5 `us.`. Presupuesto medido: 0.00 USD dentro de 62 budget-days al mes.
-- Estimación para autorizar la actividad 3 (stack base, lab, 1 AZ): **0.02273973 USD por hora** (KMS 2 llaves + 2 endpoints de interfaz + presupuesto). Sesión de N horas = 0.02273973 × N USD. Pendiente de tu autorización; no la apruebo yo.
-- Pendiente sin cerrar: RDS Multi-AZ (N, prod queda parcial) y Step Functions (D, sin código de servicio en el Price List).
-- 2026-11-13: **Manuel autoriza la estimación de la actividad 3**: stack base en lab = 0.02273973 USD por hora (KMS 2 llaves + 2 endpoints de interfaz en 1 AZ + presupuesto de 0.00 USD). Sesión de N horas = 0.02273973 × N USD. Cierre de la actividad 2.
-- 2026-11-13: **actividad 3 (fundación): código y pruebas sin AWS.** Dos stacks por perfil: `semana19-control` (presupuesto $5, acción al 100 %, anomalías, rol de despliegue, límite, congelación, política de ejecución de CDK) y `semana19-base` (llave KMS, VPC sin internet ni NAT, endpoints del ADR 0005 con 1 AZ en lab y 3 en prod, flow logs). Bootstrap `semana19-cdktoolkit` con qualifier `s19`. Pruebas: 54 de infraestructura + 11 de scripts; cdk-nag sin incumplimientos; checkov sin fallos. **Sin despliegue real:** pendiente tu OK del diff, tu cuenta de correo en `ALERTA_EMAIL`, activar la etiqueta de costo `proyecto` y el perfil que asume `semana19-despliegue`. Brecha documentada: la congelación no alcanza a los roles `cdk-s19-*` (ver `resultados/base.md`). Cost Anomaly Detection: precio N (no está en el Price List ni confirmado en la página oficial). Flow logs: 0.50 USD/GB (M), volumen N.
+- 2026-11-12: activity 1 measured (`resultados/linea_base.md`). Account PAID and ACTIVE; spend this month -0.0000000012 USD (one authorized Cost Explorer call). Haiku 5.5 with a token quota of 0; Haiku 4.5 with 5,000,000 tokens/min and 50 requests/min cross-region (proposed model, pending Manuel). Prices: 14 measured, 7 documented, 1 not verified. Inventory at 0 (`quedan: nada`). Pending: credits (Billing), an operator role separate from the admin, the keys in the `default` profile.
+- 2026-11-12: Manuel's decisions. (1) The model of activities 5 to 8: Haiku 4.5 with the `us.` profile (quota in place); Haiku 5.5 waits for quota. (2) Operator and admin are the same identity (`manuel-admin`): a recorded exception until a read-only role is created. (3) A paid `sin-api` run authorized for the activity 1 PR.
+- 2026-11-13: activity 1 with a read-only operator (`semana19-lectura`, ReadOnlyAccess). Inventory: 1 resource, the read-only role, recorded as an exception. Haiku 5.5 quota with increase requests in CASE_OPENED (cross-region and global, 10,500,000 tokens/min).
+- 2026-11-13: activity 2 (part 2). IaC decision: **CDK in Python** (ADR 0001, by default: the Bedrock and AgentCore constructs exist in the stable L1). Model confirmed by Manuel: **Haiku 4.5 with the `us.` profile** (Haiku 5.5 has a quota of 0; its increase is in CASE_OPENED). ADRs 0002 to 0006, the diagram, the cost model, the quote and the CI without AWS written. Lambda per-request prices, VPC endpoints per hour and Multi-AZ stay N; Step Functions transitions stay D, from the official example.
+- Estimate for activity 3 (base: KMS key, VPC, endpoints, IAM and budget), **no final figure yet**: KMS, 2 keys = 0.0027397 USD per hour (M). Interface endpoints: N per AZ-hour. Budget: N. With 1 AZ and 2 endpoints, a session of N hours = 0.0027397 × N USD + the endpoints line (N). It closes when the Price List confirms the endpoint price (needs `aws login`).
+- 2026-11-13: activity 2 closed (final part). IaC decision: CDK in Python (ADR 0001), with cdk-nag **2.38.2** (a deviation from the candidate 3.0.2: that version fails to synthesize with `aws-cdk-lib` 2.276.0; documented in the ADR). Prod profile in `spike/perfiles.json`, synthesized and scanned. Model confirmed: Haiku 4.5 `us.`. Budget measured: 0.00 USD within 62 budget-days a month.
+- Estimate to authorize activity 3 (base stack, lab, 1 AZ): **0.02273973 USD per hour** (KMS 2 keys + 2 interface endpoints + budget). A session of N hours = 0.02273973 × N USD. Pending Manuel's authorization.
+- Still open: RDS Multi-AZ (N, prod stays partial) and Step Functions (D, no service code in the Price List).
+- 2026-11-13: **Manuel authorizes the activity 3 estimate**: base stack in lab = 0.02273973 USD per hour (KMS 2 keys + 2 interface endpoints in 1 AZ + a budget of 0.00 USD). A session of N hours = 0.02273973 × N USD. Activity 2 closed.
+- 2026-11-13: **activity 3 (foundation): code and tests without AWS.** Two stacks per profile: `semana19-control` (a $5 budget, the action at 100 %, anomalies, the deploy role, the boundary, the freeze, the CDK execution policy) and `semana19-base` (the KMS key, a VPC with no internet and no NAT, the ADR 0005 endpoints with 1 AZ in lab and 3 in prod, flow logs). Bootstrap `semana19-cdktoolkit` with qualifier `s19`. Tests: 54 infrastructure + 11 scripts; cdk-nag with no violations; checkov with no failures. **No real deploy yet:** pending Manuel's OK of the diff, his address in `ALERTA_EMAIL`, activating the `proyecto` cost tag, and the profile that assumes `semana19-despliegue`. Documented gap: the freeze does not reach the `cdk-s19-*` roles (see `resultados/base.md`). Cost Anomaly Detection: price N (not in the Price List, not confirmed on the official page); the monitor was later left out of the stack (decision b). Flow logs: 0.50 USD/GB (M), volume N.
 - 2026-11-15: **Activity 1 (baseline).** Read-only inventory runs with the read-only role once `semana19-lectura`
   gets its source profile from `manuel-admin` (the operator role lacks `sts:AssumeRole` on it; the role's trust
   already names the account). Result: no errors; the lab items present are the ones kept on purpose (base,
@@ -714,3 +714,17 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
     net 0.00 USD with credits, under the weekly cap of 10 USD. The fixed part (VPC, RDS, KMS, Secrets Manager) is
     5.302241 USD.
   - **Week 19 closed.**
+- 2026-11-23: **Closing review of the week** (every activity checked against this plan, $0; read-only Service Quotas
+  calls only).
+  - Corrected: the hand-off of `README.md` claimed every stack carried `proyecto`; only base and datos did (fixed in
+    the code by #322). The hand-off now also points to `modelo.invocar`.
+  - Closed with evidence: activity 3's open DNS item (`actividad-3.md`), by the in-VPC Step Functions and Secrets
+    Manager calls of activities 4 and 8.
+  - Translated into English: `resultados/linea_base.md` and the Spanish entries of this Log.
+  - Recorded: the Haiku 5.5 quota requests closed with the quota still at 0 (`linea_base.md`, section 10), and the
+    week each open finding goes to (`resultados/seguridad.md`).
+  - Root README: the week 19 badge, its key-results row and its map entry.
+  - **Still open, and not closable without a deploy or a decision:** the mini eval (9/20) and KMS at rest (partial),
+    both in week 20; the access keys of the `default` profile, which are Manuel's decision; the 3 KMS keys pending
+    deletion, which AWS deletes on 2026-11-26 and 2026-11-28.
+

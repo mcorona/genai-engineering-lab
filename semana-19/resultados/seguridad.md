@@ -225,22 +225,24 @@ OWASP Top 10 for LLM Applications (2025):
 
 "—" marks a finding that is a cloud control, not an LLM-specific risk.
 
-| ID | Finding | Severity | OWASP LLM | Status |
-|---|---|---|---|---|
-| H1 | No throttling on the HTTP API stage | medium | LLM10 | open |
-| H2 | No code calls `Retrieve`; the KB would serve poisoned chunks (step 4.4) | low (design drift) | LLM08, LLM04 | open; measured |
-| H3 | Path (b): a user can call the gateway's read tools directly, skipping the Guardrail, the layer and the budgets | low in the lab; medium in prod | LLM06 | open |
-| H4 | A timeout or crash of the asynchronous agent leaves the question `pendiente` until its TTL | low | LLM10 | open |
-| H5 | One database role (`copilot_ro`) for every reader; scope enforcement in the application only | low in the lab; medium in prod | LLM06, LLM02 | open |
-| H6 | Admin password login and no MFA for the test users | low in the lab; high in prod | — | accepted for the lab |
-| H7 | Key policy statement without `aws:SourceAccount` (confused deputy) | low | — | open |
-| H8 | Vendored packages pinned but not scanned for known vulnerabilities | medium | LLM03 | open, for week 21 |
-| H9 | 24 checkov failures and 2 ValidatePolicy errors | — | — | fixed (#297, #298, #306) |
-| H10 | State machine, vector bucket, KB data source, two runtime log groups and the Lambda environments not on the CMK | low | LLM02 | open |
-| H11 | Bedrock data events and gateway calls not recorded (no trail) | low in the lab; medium in prod | — | accepted for the lab |
-| H12 | S3 endpoint policy without `aws:ResourceAccount` | low | LLM02 | open |
-| H13 | The deployed layer did not sanitize tool results | medium | LLM01, LLM04 | fixed (#310), measured twice; residual: the iny-d3 pattern |
-| H14 | The bootstrap's assets bucket (templates and Lambda code) is on `aws/s3`, not the project CMK | low | LLM03 | open (new in step 4.2) |
+| ID | Finding | Severity | OWASP LLM | Status | Goes to |
+|---|---|---|---|---|---|
+| H1 | No throttling on the HTTP API stage | medium | LLM10 | open | week 20 |
+| H2 | No code calls `Retrieve`; the KB would serve poisoned chunks (step 4.4) | low (design drift) | LLM08, LLM04 | open; measured | week 20 |
+| H3 | Path (b): a user can call the gateway's read tools directly, skipping the Guardrail, the layer and the budgets | low in the lab; medium in prod | LLM06 | open | week 21 |
+| H4 | A timeout or crash of the asynchronous agent leaves the question `pendiente` until its TTL | low | LLM10 | open | week 20 |
+| H5 | One database role (`copilot_ro`) for every reader; scope enforcement in the application only | low in the lab; medium in prod | LLM06, LLM02 | open | week 21 |
+| H6 | Admin password login and no MFA for the test users | low in the lab; high in prod | — | accepted for the lab | — (accepted) |
+| H7 | Key policy statement without `aws:SourceAccount` (confused deputy) | low | — | open | week 21 |
+| H8 | Vendored packages pinned but not scanned for known vulnerabilities | medium | LLM03 | open, for week 21 | week 21 |
+| H9 | 24 checkov failures and 2 ValidatePolicy errors | — | — | fixed (#297, #298, #306) | — |
+| H10 | State machine, vector bucket, KB data source, two runtime log groups and the Lambda environments not on the CMK | low | LLM02 | open | week 20 |
+| H11 | Bedrock data events and gateway calls not recorded (no trail) | low in the lab; medium in prod | — | accepted for the lab | — (accepted) |
+| H12 | S3 endpoint policy without `aws:ResourceAccount` | low | LLM02 | open | week 21 |
+| H13 | The deployed layer did not sanitize tool results | medium | LLM01, LLM04 | fixed (#310), measured twice; residual: the iny-d3 pattern | week 21 (the residual case) |
+| H14 | The bootstrap's assets bucket (templates and Lambda code) is on `aws/s3`, not the project CMK | low | LLM03 | open (new in step 4.2) | week 21 |
+
+"Goes to" is the week that fixes each open finding, as Manuel decided on 2026-11-23 (week 19, activity 10).
 
 The procedural failures of the deploy (five computo attempts, the bad alert address, the TagRole and exports gaps,
 the passwords path) are in the Log of `Fas5Sema19.md`. Each one was fixed by a PR (#304 to #309) before the run went on.
