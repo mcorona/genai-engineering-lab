@@ -55,9 +55,32 @@ def test_las_fallas_se_agrupan_por_causa():
 def test_la_compuerta_sigue_abierta_mientras_la_semana_19_diga_regresion(tmp_path):
     md = tmp_path / "eval_aws.md"
     md.write_text("x\n**Regression: yes.**\n", encoding="utf-8")
-    assert verificar.compuerta(md)["estado"] == "abierta"
+    assert verificar.compuerta(md, tmp_path / "no.json")["estado"] == "abierta"
     md.write_text("x\n**Regression: no.**\n", encoding="utf-8")
-    assert verificar.compuerta(md)["estado"] == "cerrada"
+    assert verificar.compuerta(md, tmp_path / "no.json")["estado"] == "cerrada"
+
+
+def _corrida(tmp_path, regresion, motivos=("responder",)):
+    ruta = tmp_path / "crudo_eval.json"
+    ruta.write_text(json.dumps({"resumen": {"comparacion": {"regresion": regresion},
+                                            "exito": {"total": {"exito": 16, "n": 20}}},
+                                "filas": [{"motivo": m} for m in motivos]}), encoding="utf-8")
+    return ruta
+
+
+def test_la_corrida_corregida_decide_la_compuerta(tmp_path):
+    md = tmp_path / "eval_aws.md"
+    md.write_text("**Regression: yes.**", encoding="utf-8")
+    assert verificar.compuerta(md, _corrida(tmp_path, False))["estado"] == "cerrada"
+    r = verificar.compuerta(md, _corrida(tmp_path, True, ("responder", "presupuesto_tarea")))
+    assert r["estado"] == "aceptada_sin_pasar" and r["decision"]["por"] == "Manuel"
+    assert (r["exitos"], r["tareas"], r["cortes_por_presupuesto"]) == (16, 20, 1)
+
+
+def test_la_compuerta_del_repositorio_refleja_la_corrida_de_la_semana_20():
+    r = verificar.compuerta()
+    assert r["corrida_corregida"] and (r["exitos"], r["tareas"]) == (16, 20)
+    assert r["regresion"] and r["estado"] == "aceptada_sin_pasar" and r["cortes_por_presupuesto"] == 0
 
 
 def test_precios_de_haiku_y_sus_razones(tmp_path):

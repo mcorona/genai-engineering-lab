@@ -31,6 +31,12 @@ LINEA_BASE = S19 / "resultados" / "eval_aws_detalle.jsonl"
 EVAL_MD = S19 / "resultados" / "eval_aws.md"
 PRECIOS = S20 / "resultados" / "precios.json"
 SALIDA = S20 / "resultados" / "linea_base_verificacion.json"
+CORRIDA = S20 / "resultados" / "corrida_corregida" / "crudo_eval.json"
+# Manuel's decision of 2026-11-23 on the corrected run (16/20, still a regression under week 10's rule): it becomes
+# week 20's baseline, stated as not passing; the remaining failures are model quality and go to activity 4.
+DECISION_COMPUERTA = {"estado": "aceptada_sin_pasar", "fecha": "2026-11-23", "por": "Manuel",
+                      "motivo": "c02 (both languages) and r05 (both languages) fail on model quality, not on the "
+                                "budget; activity 4 escalates them to a stronger model, measured against this run"}
 
 # The plan's table, as written in Fas5Sema20.md. A change here is a change of the plan, with its Log entry.
 PLAN = {"con_costo": 19, "costo_mediana": 0.03708, "costo_max": 0.06301, "entrada_mediana": 26266,
@@ -81,13 +87,20 @@ def fallas(fs: list[dict]) -> dict:
     return grupos
 
 
-def compuerta(ruta_md: Path = EVAL_MD) -> dict:
-    """The regression gate. A corrected run would replace week 19's eval_aws.md verdict; today the verdict is 'yes'."""
-    texto = ruta_md.read_text(encoding="utf-8")
-    regresion = "**Regression: yes.**" in texto
-    return {"regresion_semana19": regresion, "corrida_corregida": False,
-            "estado": "abierta" if regresion else "cerrada",
-            "nota": "week 20 fixes the cause and re-runs the 20 tasks, estimated and capped, with Manuel's OK"}
+def compuerta(ruta_md: Path = EVAL_MD, ruta_corrida: Path = CORRIDA) -> dict:
+    """The regression gate: week 19's verdict, then the corrected run's (corrida.py), then Manuel's decision on it."""
+    regresion19 = "**Regression: yes.**" in ruta_md.read_text(encoding="utf-8")
+    salida = {"regresion_semana19": regresion19, "corrida_corregida": ruta_corrida.exists()}
+    if not ruta_corrida.exists():
+        return {**salida, "estado": "abierta" if regresion19 else "cerrada",
+                "nota": "week 20 fixes the cause and re-runs the 20 tasks, estimated and capped, with Manuel's OK"}
+    d = json.loads(ruta_corrida.read_text(encoding="utf-8"))
+    comparacion, exito = d["resumen"]["comparacion"], d["resumen"]["exito"]["total"]
+    salida.update({"exitos": exito["exito"], "tareas": exito["n"], "regresion": comparacion["regresion"],
+                   "cortes_por_presupuesto": sum(1 for f in d["filas"] if f.get("motivo") == "presupuesto_tarea")})
+    if not comparacion["regresion"]:
+        return {**salida, "estado": "cerrada"}
+    return {**salida, "estado": DECISION_COMPUERTA["estado"], "decision": DECISION_COMPUERTA}
 
 
 def precios(ruta: Path = PRECIOS) -> dict:

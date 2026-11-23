@@ -49,3 +49,15 @@
 {"fecha": "2026-11-22", "paso": "destruir-base-retenido", "segundos": 34, "modo": "destruir-si"}
 {"fecha": "2026-11-22", "paso": "destruir-bootstrap", "segundos": 32, "modo": "destruir-si"}
 {"fecha": "2026-11-22", "paso": "destruir-control", "segundos": 66, "modo": "destruir-si"}
+{"fecha": "2026-11-23", "paso": "control", "segundos": 69, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "bootstrap", "segundos": 55, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "base", "segundos": 101, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "datos", "segundos": 755, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "control", "segundos": 45, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "bootstrap", "segundos": 4, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "control", "segundos": 3, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "bootstrap", "segundos": 3, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "base", "segundos": 10, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "datos", "segundos": 14, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "ia", "segundos": 82, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "cargar-e-ingerir", "segundos": 7, "modo": "si"}

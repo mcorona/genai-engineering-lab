@@ -75,9 +75,18 @@
  },
  "compuerta": {
   "regresion_semana19": true,
-  "corrida_corregida": false,
-  "estado": "abierta",
-  "nota": "week 20 fixes the cause and re-runs the 20 tasks, estimated and capped, with Manuel's OK"
+  "corrida_corregida": true,
+  "exitos": 16,
+  "tareas": 20,
+  "regresion": true,
+  "cortes_por_presupuesto": 0,
+  "estado": "aceptada_sin_pasar",
+  "decision": {
+   "estado": "aceptada_sin_pasar",
+   "fecha": "2026-11-23",
+   "por": "Manuel",
+   "motivo": "c02 (both languages) and r05 (both languages) fail on model quality, not on the budget; activity 4 escalates them to a stronger model, measured against this run"
+  }
  },
  "precios": {
   "ok": true,

@@ -444,3 +444,9 @@ README (last).
   (`PRESUPUESTO_TAREA=techo_semana20`, a config value), its own cap of 2.50 USD, no prompt change for c02 or c06-en
   (they go to activity 4), about 1.05 USD expected. `linea_base/corrida.py` runs it. The week 19 README said
   `desplegar.sh` deploys computo; it does not, and the README now gives the computo command.
+- 2026-11-23: **corrected run: 16/20**, 0 tasks cut by the budget, 1.008147 USD of model (cap 2.50). Under week 10's
+  rule it is still a regression (0.8 in each language). The four failures (c02 in both languages, r05 in both) are
+  model quality. Manuel accepted the run as week 20's baseline, stated as not passing; activity 4 escalates those
+  cases. The deploy needed #327 (`iam:TagRole` for ia, broken by #322's tags). Week 20 keeps the 0.12 USD and 100,000
+  token ceiling as its cap until activity 9 calibrates one on repeated runs.
+
