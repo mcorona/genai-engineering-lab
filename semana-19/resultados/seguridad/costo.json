@@ -1,0 +1,40 @@
+{
+  "periodo": {
+    "inicio": "2026-11-21",
+    "fin_exclusivo": "2026-11-23"
+  },
+  "etiquetado_proyecto_usd": 0.297589,
+  "uso_total_de_la_cuenta_usd": 0.733254,
+  "uso_por_servicio_usd": {
+    "Claude Haiku 4.5 (Amazon Bedrock Edition)": 0.367472,
+    "Amazon Virtual Private Cloud": 0.18,
+    "Amazon Relational Database Service": 0.104711,
+    "Amazon Bedrock": 0.04722,
+    "AWS Cost Explorer": 0.02,
+    "AWS Key Management Service": 0.008333,
+    "AWS Secrets Manager": 0.003325,
+    "Amazon Simple Storage Service": 0.001963,
+    "Amazon API Gateway": 0.000172,
+    "Amazon DynamoDB": 5.7e-05,
+    "AWS Budgets": 0.0,
+    "AWS CloudFormation": 0.0,
+    "AWS Glue": 0.0,
+    "AWS Lambda": 0.0,
+    "AWS Step Functions": 0.0,
+    "AmazonCloudWatch": 0.0,
+    "Amazon Cognito": 0.0,
+    "Amazon Simple Notification Service": 0.0,
+    "Amazon Simple Queue Service": 0.0
+  },
+  "creditos_usd": -0.733254,
+  "neto_usd": 0.0,
+  "spans_envenenamiento_usd": 0.367471,
+  "estimacion": {
+    "nominal_usd": 0.52,
+    "cota_usd": 0.89,
+    "tope_usd": 1.0
+  },
+  "dentro_de_la_cota": true,
+  "dentro_del_tope": true,
+  "nota": "DAILY: the totals hold everything that ran in the account on those UTC days, an upper bound for the activity."
+}

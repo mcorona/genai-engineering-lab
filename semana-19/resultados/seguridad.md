@@ -18,6 +18,7 @@ and previews week 21's report.
 | Indirect prompt injection, KB | The poisoned documents ranked first in a direct `Retrieve`; the agent cannot call `Retrieve` (H2) | `seguridad/kb_retrieve_*.json` |
 | Budget action | Sandbox budget of USD 0.01: the action attached the deny policy to the test role (EXECUTION_SUCCESS), after a first budget that subtracted credits never fired | `seguridad/accion_presupuesto.jsonl` |
 | Teardown | Inventory `"quedan": "nada"` | step 4.6 |
+| Cost | About 0.73 USD of usage (net 0.00 with credits): within the upper bound of 0.89 and the cap of 1.00; 41 % over the nominal 0.52 | `seguridad/costo.json` |
 
 ## Step 1: scanners
 
@@ -167,14 +168,46 @@ Evidence: `seguridad/accion_presupuesto.jsonl`.
   unmeasured. What is left is allowed: the `semana19-lectura` role, and 6 KMS keys pending deletion, each with its
   Tagging API entry.
 
-## Step 4.7: cost (pending)
+## Step 4.7: cost
 
-At most 2 Cost Explorer calls, already approved, at least one day after the teardown. Until then, the approximate
-spend of the activity is about 0.61 USD:
-- about 6.5 hours of the full stack at 0.037562 USD/h, about 0.24 USD (not measured);
-- the two poisoning runs, 0.367471 USD by their spans.
+`seguridad/costo_actividad9.py` (#316) made the 2 approved Cost Explorer calls (GetCostAndUsage, DAILY,
+UnblendedCost) on 2026-11-23 at 03:09 UTC, over the UTC days 2026-11-21 and 2026-11-22. Manuel asked for them then,
+instead of waiting a full day after the teardown, which ended about 20:00 UTC on 2026-11-22. Cost Explorer can take
+up to a day to show a day's charges, so 2026-11-22 may be incomplete.
 
-That is within the estimate (≤ 0.89 USD) and the activity's cap (1.00 USD).
+| Service | Usage (USD) | Note |
+|---|---|---|
+| Claude Haiku 4.5 (Amazon Bedrock Edition) | 0.367472 | The two poisoning runs. Their spans add up to 0.367471 USD: it reconciles to the micro-dollar |
+| Amazon Virtual Private Cloud | 0.180000 | Interface endpoints, by the hour |
+| Amazon Relational Database Service | 0.104711 | By the hour |
+| Amazon Bedrock | 0.047220 | ApplyGuardrail, Titan embeddings (2 ingestions, 4 Retrieve calls) |
+| AWS Cost Explorer | 0.020000 | Activity 8's 2 calls of 2026-11-21 06:41 UTC (its ledger), not this activity's |
+| AWS Key Management Service | 0.008333 | |
+| AWS Secrets Manager | 0.003325 | |
+| Amazon S3, API Gateway, DynamoDB | 0.002192 | |
+| Everything else (Lambda, Step Functions, Cognito, CloudWatch, Budgets, …) | 0.000000 | |
+| **Account usage, both days** | **0.733254** | Credits −0.733254: net 0.00 USD |
+
+- Resources tagged `proyecto=semana19`: 0.297589 USD (the stack's hourly charges; the model tokens are not a tagged
+  resource).
+- **This activity:** 0.733254 − 0.02 (activity 8's Cost Explorer) + 0.02 (this step's 2 calls, billed on 2026-11-23)
+  = **about 0.73 USD**, as an upper bound (DAILY: anything else in the account on those days counts too).
+
+Against the estimate (`seguridad/estimacion.md`):
+
+| | Estimate nominal (USD) | Estimate upper bound (USD) | Measured (USD) |
+|---|---|---|---|
+| Stack hours (VPC, RDS, KMS, Secrets Manager) | 0.150 | 0.300 | 0.296369 |
+| Poisoning (model) | — | — | 0.367472 |
+| Bedrock other | ≤ 0.061 | 0.061 | 0.047220 |
+| **Activity** | **≈ 0.52** | **≈ 0.89** | **≈ 0.73** |
+
+The activity is 41 % over the nominal estimate, within its upper bound, and within its cap of 1.00 USD. The stack
+hours land at the upper bound: the deploy failures (#304 to #309, including the 1,577 s destroy of a ROLLBACK_FAILED
+stack) and the two-run teardown kept it up about twice the nominal 4 hours. The model line was the poisoning, as
+planned.
+
+Evidence: `seguridad/costo.json` and the ledger `seguridad/cost_explorer.json`.
 
 ## Findings and their OWASP LLM category
 
