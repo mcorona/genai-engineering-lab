@@ -440,3 +440,7 @@ README (last).
   Week 20 compares against the 20 main tasks (`resultados/linea_base.md`, section 2). The regression gate is open, and
   its re-run waits for Manuel's OK. Haiku 4.5 caches only from 4,096 tokens per cache point, more than the system prompt
   and the tools (about 2,800), so activity 3 puts the cache point at the end of the history.
+- 2026-11-23: Manuel approved the corrected run: no `cachePoint`, a per-task ceiling of 0.12 USD and 100,000 tokens
+  (`PRESUPUESTO_TAREA=techo_semana20`, a config value), its own cap of 2.50 USD, no prompt change for c02 or c06-en
+  (they go to activity 4), about 1.05 USD expected. `linea_base/corrida.py` runs it. The week 19 README said
+  `desplegar.sh` deploys computo; it does not, and the README now gives the computo command.

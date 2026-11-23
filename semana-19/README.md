@@ -75,7 +75,7 @@ semana-19/infra/destruir.sh --si --todo
 semana-19/infra/destruir.sh --inventario
 ```
 
-- **`desplegar.sh`** deploys control, then the bootstrap, base, datos, ia, the loader with the KB ingestion, and computo. `--diff` is read-only.
+- **`desplegar.sh`** deploys control, then the bootstrap, base, datos, ia, and the loader with the KB ingestion. `--diff` is read-only. Computo is deployed after it, on its own: `COMPUTO=1 CAMINO_HERRAMIENTAS=directo cdk deploy semana19-computo --exclusively` with the `semana19-despliegue` profile and the `semana19-cdktoolkit` toolkit stack.
 - **`usuarios.py`** creates one test user per Cognito group. Their passwords go only to `~/s19-secretos/usuarios-prueba.env` (ADR 0013).
 - **`destruir.sh --si --todo`** deletes everything in reverse order, then runs the inventory. Without `--todo`, the control stack stays; it costs $0/h.
 - **`destruir.sh --inventario`** lists what is left, using the read-only role. The proof of an empty account is `"quedan": "nada"`, apart from an explicit list:

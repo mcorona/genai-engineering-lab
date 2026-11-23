@@ -65,7 +65,7 @@ These figures compare the same tasks: the 3 week 13 runs per task (`semana-13/re
   - At 37–43k tokens spent, the 46,000-token cap can no longer reserve the next call plus the minimum output of 1,300 tokens.
 - **The cap was calibrated on another model.** The 46,000 tokens are the p99 of 252 Haiku 5.5 runs. The port scaled the USD part by the price ratio (0.0063 × 11 = 0.0693 USD) and kept the token part unchanged.
 
-### Proposal (needs Manuel's OK: it is a paid run)
+### The fix (approved by Manuel on 2026-11-23)
 
 1. **Baseline fixes with no `cachePoint`.**
    - Caching is activity 3's lever, measured alone against this baseline. If the baseline already had it, there would be nothing to measure it against.
@@ -82,6 +82,26 @@ These figures compare the same tasks: the 3 week 13 runs per task (`semana-13/re
    - Model: about 0.90 USD expected (20 tasks at about 0.045 USD each), with the hard cap at 2.50 USD.
    - **Expected total: about 1.05 USD**, against the weekly cap of 10 USD.
    - Then `destruir.sh --si --todo`, and the inventory at "nada".
+
+### How it runs
+
+The code, at $0:
+- The agent's per-task budget is a config value, `PRESUPUESTO_TAREA`:
+  - `semana17` (the default) keeps week 17's calibration and leaves the week 19 templates unchanged;
+  - `techo_semana20` sets the ceiling;
+  - an unknown value stops the agent and the synth.
+  - Code: `semana-19/agente/construccion.py` and `infra/cdk/app.py`; tests: `test_agente_construccion.py` and `test_infra_presupuesto.py`.
+- [`linea_base/corrida.py`](../linea_base/corrida.py) is week 19's eval with its own caps (2.50 USD and 2,200,000 tokens), counting only its own files.
+  - It checks that the deployed agent runs `techo_semana20`, and sends no task otherwise.
+  - Output: `corrida_corregida/` and `corrida_corregida_detalle.jsonl`.
+
+The session, from the week 19 worktree:
+1. `desplegar.sh --si` (Manuel): control, bootstrap, base, datos, ia, then the loader and the ingestion.
+2. `computo` with `PRESUPUESTO_TAREA=techo_semana20`, deployed with the deploy profile.
+3. `usuarios.py` and `corrida.py --si` (Manuel, admin profile).
+4. `destruir.sh --si --todo`, and the inventory at "nada".
+
+The verdict, the uncut distribution and the new calibrated cap go in the section that follows, once the run is done.
 
 ## 4. Prices and limits
 
