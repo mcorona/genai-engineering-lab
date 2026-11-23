@@ -135,7 +135,7 @@ Each week's test suite runs on its own, because the suites use separate `conftes
 | 2. Prompts, evals and NLQ | 5–7 | Complete |
 | 3. RAG and data | 8–12 | Complete, with all 11 exit criteria verified |
 | 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 17 complete (exit criteria 13 to 17 verified); week 18 has the LegacyBridge v1 scope, bring-up and command merged |
-| 5. LLMOps and multicloud production | 19–24 | In progress: week 19 has the account baseline, the IaC decision (six ADRs) and the foundation stack merged; no exit criterion verified yet |
+| 5. LLMOps and multicloud production | 19–24 | In progress: week 19 complete. Criterion 19 is met except the mini eval (regression, 9/20) and KMS at rest (partial: 17 of 29 resources on the project key); weeks 20 to 24 pending |
 
 The exit criteria of every phase, each with the PR that verified it, are listed in [docs/exit-criteria.md](docs/exit-criteria.md).
 
@@ -145,15 +145,40 @@ LegacyBridge goes from demo to production in the client's cloud, with IaC, secur
 
 | Criterion | Week | Status |
 |---|---|---|
-| 19. LegacyBridge deployed on AWS from IaC: a reference architecture diagram, least-privilege IAM, KMS encryption at rest, private networking through VPC endpoints, a Bedrock Guardrail and versioned prompts, the golden mini eval passing against the deployed endpoint, measured cost per query, and a verified teardown | 19 | Pending (in progress) |
+| 19. LegacyBridge deployed on AWS from IaC: a reference architecture diagram, least-privilege IAM, KMS encryption at rest, private networking through VPC endpoints, a Bedrock Guardrail and versioned prompts, the golden mini eval passing against the deployed endpoint, measured cost per query, and a verified teardown | 19 | **Met except two parts:** the mini eval (regression, 9/20) and KMS at rest (partial). See the parts below and [semana-19/README.md](semana-19/README.md) |
 | 20. A cost-per-query dashboard and a budget alarm, with prompt caching, batch inference and model routing measured against the week 19 baseline | 20 | Pending |
 | 21. A red-teaming report for the deployed API, with findings and mitigations (OWASP Top 10 for LLM Applications) | 21 | Pending |
 | 22. An AWS ↔ Azure ↔ GCP service matrix and a minimal deployment in a second cloud | 22 | Pending |
 
+Criterion 19, part by part:
+
+- [x] **Reference architecture diagram:** [diagrama.svg](semana-19/arquitectura/diagrama.svg), checked against the synth both ways in CI ([test_diagrama_vs_stack.py](semana-19/tests/test_diagrama_vs_stack.py), #318).
+- [x] **Least-privilege IAM:**
+  - a permissions boundary on every role the stacks create ([base.md](semana-19/resultados/base.md));
+  - ValidatePolicy on 100 documents (50 per profile): its 4 errors were disproved by a deployment, and no security error or warning is left ([validate_policy.json](semana-19/resultados/seguridad/validate_policy.json));
+  - parliament in CI, 0 unclassified findings ([parliament.json](semana-19/resultados/seguridad/parliament.json)).
+- [ ] **KMS encryption at rest, partial:** 17 of 29 resources are on the project key. The other 12 are encrypted, but with AWS-owned or AWS-managed keys, SSE-S3 or CloudWatch Logs' default encryption. They are findings H10 (11 resources) and H14 (the bootstrap's assets bucket), both open ([verificacion.json](semana-19/resultados/seguridad/verificacion.json), check `cifrado`).
+- [x] **Private networking through VPC endpoints:** the network and endpoints checks pass; RDS has no public IP ([verificacion.json](semana-19/resultados/seguridad/verificacion.json); [ADR 0005](semana-19/arquitectura/adr/0005-interface-endpoints.md)).
+- [x] **Bedrock Guardrail and versioned prompts:** the Guardrail ran live at its pinned version 3 on 24 inputs ([apply_guardrail.json](semana-19/resultados/apply_guardrail.json), compared with the deterministic guardrails in [comparacion_determinista.json](semana-19/resultados/comparacion_determinista.json)). The ES and EN prompts were deployed with their prompt versions (`AWS::Bedrock::PromptVersion` in [verificacion.json](semana-19/resultados/seguridad/verificacion.json)).
+- [ ] **Golden mini eval passing against the deployed endpoint: regression, 9/20.**
+  - Wilson 95 % [0.258, 0.658], against week 17's local 20/20.
+  - The diagnosis: the per-task token budget, no prompt cache, c02 and c06-en. The 20/20 baseline ran Haiku 5.5, and the endpoint runs Haiku 4.5.
+  - The fixes go to week 20 ([eval_aws.md](semana-19/resultados/eval_aws.md)).
+- [x] **Measured cost per query:** 0.030913 USD for the model alone, and 0.037562 USD per hour of stack, from the bill ([costo_real.md](semana-19/resultados/costo_real.md)).
+- [x] **Verified teardown:** `"quedan": "nada"`. Left: the read-only role and 3 KMS keys pending deletion, with their dates ([inventario_final.json](semana-19/resultados/inventario_final.json)).
+
 Two cross-cutting criteria apply to every week:
 
-- **Cost:** the error of the monthly quote against the real cost is measured and must stay within ±20%. Pending: the first measurement comes with the week 19 deployment.
-- **Security:** no unsuppressed scanner finding, and no public resource except the API. Pending: the first check comes with the week 19 IaC.
+- **Cost:** the error of the monthly quote against the real cost is measured and must stay within ±20%.
+  - Week 19: within ±20% on the model figure (−0.1 %) and per hour (−10.3 %).
+  - Outside on the upper bound (+24.6 %). That bound also holds the Bedrock judge's job, which Cost Explorer cannot split by query ([cotizacion.md](semana-19/resultados/cotizacion.md), [costo_real.md](semana-19/resultados/costo_real.md)).
+  - The week cost 8.928936 USD gross, 0.00 USD net with credits ([costo_semana.json](semana-19/resultados/costo_semana.json)).
+- **Security:** no unsuppressed scanner finding, and no public resource except the API.
+  - Week 19: **met, with open findings.**
+  - gitleaks 0 unclassified findings; checkov 0 failed (38 skipped with a reason); cdk-nag 0 unsuppressed (55 suppressed with a reason); only the API is public, and every route has the JWT authorizer ([seguridad.md](semana-19/resultados/seguridad.md), [verificacion.json](semana-19/resultados/seguridad/verificacion.json)).
+  - Open: H1, H2, H4 and H10 for week 20; H3, H5, H8, the H13 residual case, and H7, H12 and H14 for week 21. H6 and H11 are accepted for the lab ([threat_model.md](semana-19/seguridad/threat_model.md)).
+
+**AIP-C01:** the target is the week of 3 May 2027, scheduled only after 3 practice exams of at least 85 %. The concepts the lab shows, by exam domain, and the gaps are in [semana-19/resultados/aip_c01.md](semana-19/resultados/aip_c01.md).
 
 ## Security and credentials
 

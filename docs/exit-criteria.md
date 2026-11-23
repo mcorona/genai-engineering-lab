@@ -60,7 +60,20 @@ Phase 4 covers weeks 13 to 18: agents, MCP and orchestration over legacy systems
 
 ## Phase 5 exit criteria
 
-The Phase 5 criteria (19 to 22, plus the cost and security cross-cutting criteria) are listed in the [root README](../README.md#phase-5-llmops-and-multicloud-production). None is verified yet.
+Phase 5 covers weeks 19 to 24: LLMOps and multicloud production. The criteria (19 to 22, plus the cost and security cross-cutting criteria) and their full evidence are in the [root README](../README.md#phase-5-llmops-and-multicloud-production).
+
+- [ ] **19.** LegacyBridge deployed on AWS from IaC. **Met except two parts**, the week closed on 2026-11-23 ([semana-19/README.md](../semana-19/README.md)).
+  - [x] The diagram, checked against the synth in CI (#318).
+  - [x] Least-privilege IAM: the boundary on every role; ValidatePolicy with no security error or warning left; parliament with 0 unclassified findings.
+  - [ ] KMS at rest, **partial**: 17 of 29 resources on the project key; the other 12 are encrypted with AWS keys (H10 and H14, open).
+  - [x] Private networking through VPC endpoints (`verificacion.json`, ADR 0005).
+  - [x] The Guardrail and the prompts, at pinned versions.
+  - [ ] The golden mini eval against the deployed endpoint: **regression, 9/20**. The diagnosis is in `eval_aws.md`, and the fixes go to week 20.
+  - [x] Measured cost per query: 0.030913 USD (model), and 0.037562 USD per hour.
+  - [x] Verified teardown (`inventario_final.json`).
+- [ ] **20.** Pending. **21.** Pending. **22.** Pending.
+- **Cross-cutting cost:** within ±20% on the model figure (−0.1 %) and per hour (−10.3 %); outside on the upper bound (+24.6 %), which holds the judge's job.
+- **Cross-cutting security:** met, with open findings (which week each one goes to is in the root README).
 
 ## Status
 
@@ -68,4 +81,4 @@ The Phase 5 criteria (19 to 22, plus the cost and security cross-cutting criteri
 - **Phase 2 (weeks 5 to 7): complete.** Versioned prompts, regression evals in CI with branch protection, bilingual NLQ measured by execution.
 - **Phase 3 (weeks 8 to 12): closed.** All 11 criteria verified with evidence. The real cost of week 12 according to the invoices: AWS $1.50 (covered by credits), Google Cloud MXN 16.64 and Anthropic $4.94 at most (`semana-12/resultados/costo_real.md`).
 - **Phase 4 (weeks 13 to 18): in progress.** Week 13 complete (the agent with its own loop 0.921 and with the Claude Agent SDK 0.889 vs. 0.504 for the workflow; security 140/140). Week 14 complete: a remote MCP server with OAuth and least privilege, 13/13 threats covered, tool poisoning 38/38 with defenses, and the agent eval in CI with Keycloak (criterion 14). Week 15 complete: the same agent in LangGraph and Strands (0.900 and 0.900), spikes in OpenAI Agents SDK and Google ADK, multi-agent over A2A, deployment on Bedrock AgentCore and a decision matrix for clients (criterion 15). Week 16 complete: the `legacy-schema-audit` client plugin with its own eval, security 14/14, browser and computer-use spikes, a marketplace and CI with calibrated thresholds (criterion 16). Week 17 complete: production reliability with OpenTelemetry GenAI traces and Langfuse, budgets (0 caps crossed), guardrails (0 obeyed in 38 attacks), human approval with Keycloak levels (0 orders without approval), a trajectory eval (91.7%) and a dashboard, with a CI mini eval (criterion 17). Week 18 in progress: the LegacyBridge v1 scope (PR #142), its bring-up and command (PR #143) and the whiteboard kit (PR #141) are merged.
-- **Phase 5 (weeks 19 to 24): in progress.** Week 19 in progress.
+- **Phase 5 (weeks 19 to 24): in progress.** Week 19 complete on 2026-11-23. Criterion 19 is met except the mini eval (regression, 9/20) and KMS at rest (partial). The week cost 8.93 USD gross, 0 net with credits.

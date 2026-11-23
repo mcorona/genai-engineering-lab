@@ -36,7 +36,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | AgentCore charges: gateway invocations and Policy authorizations | 7 | Cost Explorer | `agentes.md`: 56 invocations 0.00028 USD, 55 authorizations 0.001375 USD; total 0.001655 USD | measured 2026-11-19 |
 | Keyless CI to AWS with GitHub OIDC, and why the required check stays AWS-free | 10 | week 12's `semana-12/infra/aws_ci_oidc.sh`; decision 1.4 of activity 10 | not used in week 19: an OIDC failure would block the required check, and PRs from forks get no OIDC token | documented |
 | A deploy and teardown runbook with measured times | 10 | `semana-19/README.md` | `tiempos_despliegue.jsonl`, `base.md` | measured |
-| Verifiable exit criteria: each part of criterion 19 linked to its evidence | 10 | root `README.md`, `docs/exit-criteria.md` | step 6 of activity 10 | pending (step 6) |
+| Verifiable exit criteria: each part of criterion 19 linked to its evidence | 10 | root `README.md`, `docs/exit-criteria.md` | 8 parts, each with its evidence file: 6 met; KMS at rest partial (H10, H14); the mini eval in regression, 9/20 | done 2026-11-23 |
 
 ## D3: AI safety, security and governance (20 %)
 
