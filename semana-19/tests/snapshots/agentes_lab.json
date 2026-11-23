@@ -127,7 +127,12 @@
       },
       "IdleSessionTTLInSeconds": 600,
       "Instruction": "<1626 caracteres>",
-      "SkipResourceInUseCheckOnDelete": true
+      "SkipResourceInUseCheckOnDelete": true,
+      "Tags": {
+        "componente": "agentes-comparacion",
+        "perfil": "lab",
+        "proyecto": "semana19"
+      }
     },
     "Type": "AWS::Bedrock::Agent"
   },
@@ -145,7 +150,12 @@
     "Properties": {
       "AgentAliasName": "comparacion",
       "AgentId": "{Agente.AgentId}",
-      "Description": "The prepared agent, as invoked by agentes/comparar.py."
+      "Description": "The prepared agent, as invoked by agentes/comparar.py.",
+      "Tags": {
+        "componente": "agentes-comparacion",
+        "perfil": "lab",
+        "proyecto": "semana19"
+      }
     },
     "Type": "AWS::Bedrock::AgentAlias"
   },
@@ -172,7 +182,21 @@
         "Version": "2012-10-17"
       },
       "Description": "Service role of the comparison agent: model, guardrail and key only.",
-      "PermissionsBoundary": "arn:{AWS::Partition}:iam::{AWS::AccountId}:policy/semana19-limite"
+      "PermissionsBoundary": "arn:{AWS::Partition}:iam::{AWS::AccountId}:policy/semana19-limite",
+      "Tags": [
+        {
+          "Key": "componente",
+          "Value": "agentes-comparacion"
+        },
+        {
+          "Key": "perfil",
+          "Value": "lab"
+        },
+        {
+          "Key": "proyecto",
+          "Value": "semana19"
+        }
+      ]
     },
     "Type": "AWS::IAM::Role"
   },

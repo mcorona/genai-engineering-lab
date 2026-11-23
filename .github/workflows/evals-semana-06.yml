@@ -22,6 +22,7 @@ on:
       - "semana-17/**"
       - "semana-18/**"
       - "semana-19/**"
+      - "semana-20/**"
       - "README.md"
       - "pyproject.toml"
       - "uv.lock"

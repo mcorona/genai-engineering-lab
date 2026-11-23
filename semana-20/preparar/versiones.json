@@ -1,0 +1,24 @@
+{
+  "consultado": "2026-11-23",
+  "criterio": "The week 20 preparation reuses pins already verified and locked in the repository: boto3, botocore, moto, pytest, pytest-cov and coverage from the semana19 group (verified in week 19, activity 1), and the OpenTelemetry API, SDK and semantic conventions from the semana17 group (verified in week 17, activity 1). The tracing exporter (ADOT layer or OTLP with SigV4) is chosen in activity 7 and pinned then. No pin is 'latest'.",
+  "python": {
+    "boto3": "1.43.122",
+    "botocore": "1.43.122",
+    "moto": "5.2.5",
+    "pytest": "9.2.0",
+    "pytest-cov": "7.1.0",
+    "coverage": "7.17.4",
+    "opentelemetry-api": "1.45.2",
+    "opentelemetry-sdk": "1.45.2",
+    "opentelemetry-semantic-conventions": "0.66b2"
+  },
+  "origen": {
+    "boto3": "semana19", "botocore": "semana19", "moto": "semana19", "pytest": "semana19",
+    "pytest-cov": "semana19", "coverage": "semana19",
+    "opentelemetry-api": "semana17", "opentelemetry-sdk": "semana17", "opentelemetry-semantic-conventions": "semana17"
+  },
+  "pendientes": {
+    "exportador_de_trazas": "activity 7 (ADR): the ADOT Lambda layer, or opentelemetry-exporter-otlp-proto-http with SigV4 to X-Ray",
+    "cdk": "the week 19 CDK pins (aws-cdk-lib 2.276.0, constructs 10.8.1, cdk-nag 2.38.2) stay in the semana19 group; week 20's new constructs use them"
+  }
+}

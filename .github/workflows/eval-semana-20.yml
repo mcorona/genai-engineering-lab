@@ -1,0 +1,48 @@
+name: eval-semana-20
+
+# Week 20 (costs and performance), preparation. No AWS ($0): the readiness check in CI mode (the semana20 pins, the
+# week 19 baseline file, the hand-off, the CI paths) and the tests of semana-20/tests. No job calls AWS or a model;
+# paid runs are made from the Mac, estimated and authorized first. No skipped tests. The synth and cdk-nag of the new
+# constructs join when the first one exists (activity 2); the week 19 stacks, tags included, stay in eval-semana-19.
+on:
+  pull_request:
+    paths:
+      - "semana-20/**"
+      - "!semana-20/**/*.md"          # documentation and results do not run the CI
+      - "!semana-20/resultados/**"
+      - "semana-19/resultados/eval_aws_detalle.jsonl"   # the baseline the readiness check parses
+      - "semana-19/agente/**"
+      - "semana-19/costos/**"
+      - "semana-19/ia/**"
+      - "semana-19/infra/cdk/app.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/eval-semana-20.yml"
+      - ".github/workflows/evals-semana-06.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-semana-20-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sin-aws:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Dependencies (the semana20 group pins of pyproject.toml)
+        run: |
+          pip install "boto3==1.43.122" "botocore==1.43.122" "moto==5.2.5" "pytest==9.2.0" "pytest-cov==7.1.0" "coverage==7.17.4" "opentelemetry-api==1.45.2" "opentelemetry-sdk==1.45.2" "opentelemetry-semantic-conventions==0.66b2"
+      - name: Readiness check in CI mode (no AWS)
+        run: python semana-20/preparar/verificar_entorno.py --ci
+      - name: Tests without AWS
+        run: |
+          set -o pipefail
+          python -m pytest -q semana-20/tests -p no:cacheprovider -rs --cov=semana-20 --cov-report=term:skip-covered | tee "$RUNNER_TEMP/pytest.txt"
+          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::skipped tests"; exit 1; fi
