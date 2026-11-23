@@ -61,7 +61,7 @@ Around them:
   - `semana19-lectura`, which is read-only (inventory, verification, Cost Explorer).
 - `.venv` and `.venv-cdk` built with the pins of the `semana19` group (`pyproject.toml`, [preparar/versiones.json](preparar/versiones.json)).
 - `ALERTA_EMAIL` exported in the shell. It is never written to the repository.
-- Access to Haiku 4.5 through the `us.` inference profile. Haiku 5.5 has an on-demand quota of 0.
+- Access to Haiku 4.5 through the `us.` inference profile. Haiku 5.5 has an on-demand quota of 0: its increase requests were closed without a change ([resultados/linea_base.md](resultados/linea_base.md), section 10).
 - The `proyecto` cost allocation tag active.
 
 **Commands**, from the worktree root. Each script only simulates unless it gets `--si`:
@@ -192,13 +192,13 @@ Prod is synthesized and costed, never deployed.
    - 0.035544 USD per task from the agent spans, row by row in [resultados/eval_aws_detalle.jsonl](resultados/eval_aws_detalle.jsonl) (19 tasks);
    - 0.030913 USD per task for the model, from the bill ([costo_real.md](resultados/costo_real.md)).
 2. **Tags.**
-   - Every stack is tagged `proyecto=semana19` and `perfil=lab|prod` (`infra/cdk/app.py`).
-   - `proyecto` is active as a cost allocation tag. It read `Active` in [resultados/eval_aws/cost_explorer.json](resultados/eval_aws/cost_explorer.json) (call 1, 2026-11-19). Whether `perfil` is active was not checked.
-   - There is **no `componente` tag**. Week 20 adds it if the dashboard needs a split by component.
+   - During week 19 only the base and datos stacks were tagged `proyecto=semana19` and `perfil=lab|prod`. The control, ia, computo, gateway and eval stacks carried no tags, so their costs never appeared under `proyecto`. The model lines are not tagged resources in any case.
+   - Since week 20's preparation (#322), every stack carries `proyecto`, `perfil` and `componente`, from `etiquetas()` in `infra/cdk/app.py`, checked by `tests/test_infra_etiquetas.py`.
+   - `proyecto` is active as a cost allocation tag. It read `Active` in [resultados/eval_aws/cost_explorer.json](resultados/eval_aws/cost_explorer.json) (call 1, 2026-11-19). Whether `perfil` is active was not checked. `componente` can be activated only after a deployed resource carries it.
 3. **The model interface.**
    - `MODELO_ID` lives in [ia/config.py](ia/config.py).
-   - The agent builds its Converse call in `agente/construccion.py`: `api_converse(llamar_converse, modelo_id=MODELO_ID, guardrail=...)`. That is where routing or a cascade goes in.
-   - `agente/construccion.py` also repeats `MODELO_ID` as a literal. Remove that duplicate first.
+   - Since #322 the agent calls the model through `modelo.invocar` ([agente/modelo.py](agente/modelo.py)), a thin seam over the Converse adapter with no change in the request. Caching and routing go in there.
+   - `agente/construccion.py` still repeats `MODELO_ID`, because `ia/` is not in the Lambda package. `tests/test_agente_modelo.py` checks that the two are equal.
 4. **Spans.** They follow week 17's locked schema (`semana-17/instrumentacion/esquema.py`). `agente/exportador.py` writes them as JSON lines to the agent Lambda's CloudWatch Logs group. Week 20 adds X-Ray.
 5. **Prod window.** Prod has never been deployed, so there is no measured per-hour figure for it ([cotizacion.md](resultados/cotizacion.md)). The window is still to schedule.
 6. **Inherited:**
