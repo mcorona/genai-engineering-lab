@@ -203,7 +203,7 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # (bedrock/latest/userguide/agents-permissions.html, inference profiles).
         _declaracion(sid="ModeloDelAgenteDelLimite", actions=[
             "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:GetInferenceProfile",
-            "bedrock:GetFoundationModel"], resources=arns_en_el_limite(modelo_agente())),
+            "bedrock:GetFoundationModel"], resources=[*arns_en_el_limite(modelo_agente()), ARN_PERFILES_DE_APLICACION]),
         # The profile in any Region (activity 8, for room): a ceiling over the three destinations the role names.
         _declaracion(sid="GuardrailDelAgenteDelLimite", actions=["bedrock:ApplyGuardrail"],
                      resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
@@ -249,6 +249,26 @@ def modelo_agente() -> str:
 
 def modelo_juez() -> str:
     return _config().MODELO_JUEZ_ID
+
+
+def perfiles_de_aplicacion() -> dict[str, str]:
+    """Week 20, activity 2: component -> the system profile its application inference profile copies (ia/config.py)."""
+    return dict(_config().PERFILES_DE_APLICACION)
+
+
+def usar_perfil_de_aplicacion() -> bool:
+    return bool(_config().USAR_PERFIL_DE_APLICACION)
+
+
+def nombre_perfil_de_aplicacion(componente: str) -> str:
+    return f"semana19-{componente}"
+
+
+def arn_perfil_de_sistema(perfil: str) -> str:
+    return f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil}"
+
+
+ARN_PERFILES_DE_APLICACION = f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:application-inference-profile/*"
 
 
 def arns_en_el_limite(perfil: str) -> list[str]:
@@ -394,6 +414,17 @@ def politica_ejecucion_ia() -> list[iam.PolicyStatement]:
             resources=[arn_iam("role/semana19-ia-*")]),
         _declaracion(sid="BorrarRolDeIa", actions=["iam:DeleteRole", "iam:GetRole"],
                      resources=[arn_iam("role/semana19-ia-*")]),
+        # Week 20, activity 2: the application inference profiles (stack semana19-ia). CreateInferenceProfile is
+        # authorized on the new profile and on its source, the system profile and its foundation model (Service
+        # Authorization Reference, bedrock.json); the tags go with the create call and with TagResource.
+        _declaracion(sid="PerfilesDeAplicacionPorCfn", actions=[
+            "bedrock:CreateInferenceProfile", "bedrock:DeleteInferenceProfile", "bedrock:GetInferenceProfile",
+            "bedrock:TagResource", "bedrock:UntagResource", "bedrock:ListTagsForResource"],
+            resources=[ARN_PERFILES_DE_APLICACION]),
+        _declaracion(sid="OrigenDeLosPerfilesPorCfn", actions=["bedrock:CreateInferenceProfile",
+                                                               "bedrock:GetInferenceProfile"],
+                     resources=sorted({a for origen in set(perfiles_de_aplicacion().values())
+                                       for a in arns_en_el_limite(origen)})),
         # Activity 8, stack semana19-eval: the judge's bucket and its service role. Creating the role needs the
         # boundary (RolesConLimite); its inline policy and deletion carry no boundary key, so they are listed here.
         _declaracion(sid="BucketDelJuezPorCfn", actions=[
@@ -1175,6 +1206,18 @@ class Ia(Stack):
         self.guardrail_version = recurso.get_att_string("Version")
         cdk.CfnOutput(self, "IdGuardrail", value=recurso.get_att_string("GuardrailId"))
         cdk.CfnOutput(self, "VersionGuardrail", value=recurso.get_att_string("Version"))
+        # Week 20, activity 2: one application inference profile per component, a copy of its system profile, tagged
+        # componente with the component's name (over the stack's own componente=ia), so Cost Explorer splits by it.
+        self.perfiles: dict[str, str] = {}
+        for componente, origen in perfiles_de_aplicacion().items():
+            perfil = bedrock.CfnApplicationInferenceProfile(
+                self, f"Perfil{componente.capitalize()}", inference_profile_name=nombre_perfil_de_aplicacion(componente),
+                description=f"Week 20: model cost of the {componente} component, by tag.",
+                model_source=bedrock.CfnApplicationInferenceProfile.InferenceProfileModelSourceProperty(
+                    copy_from=arn_perfil_de_sistema(origen)))
+            Tags.of(perfil).add("componente", componente, priority=200)
+            self.perfiles[componente] = perfil.attr_inference_profile_arn
+            cdk.CfnOutput(self, f"ArnPerfil{componente.capitalize()}", value=perfil.attr_inference_profile_arn)
 
 
 class Computo(Stack):
@@ -1189,7 +1232,7 @@ class Computo(Stack):
 
     def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, red: ec2.Vpc, bd: rds.DatabaseInstance,
                  sg_bd: ec2.SecurityGroup, sg_endpoints: ec2.SecurityGroup, guardrail_id: str, guardrail_version: str,
-                 **kwargs) -> None:
+                 perfil_agente: str | None = None, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         codigo = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "computo"), exclude=["tests", "__pycache__"])
 
@@ -1353,11 +1396,15 @@ class Computo(Stack):
             environment={"FUNCION_HERRAMIENTAS": herramientas.function_name, "GUARDRAIL_ID": guardrail_id,
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
                          "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name,
+                         "MODELO": perfil_agente or perfil_modelo,
                          **entorno_del_camino(), **entorno_del_presupuesto()},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
+        # Week 20, activity 2: with the application profile, the role names that profile in place of the system one;
+        # the foundation model behind it stays the only model (inference-profiles-prereq: the profile and the
+        # foundation model in each Region it routes to). Any other model or profile is still denied.
         agente.add_to_role_policy(_declaracion(
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
-            resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil_modelo}",
+            resources=[perfil_agente or f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil_modelo}",
                        f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{modelo_fundacion}"]))
         # The guardrail uses the cross-Region profile us.guardrail.v1:0: ApplyGuardrail needs the guardrail and the
         # profile in each destination Region (Bedrock guide, guardrail profile permissions).
@@ -1824,8 +1871,9 @@ def construir(app: cdk.App) -> None:
     if os.environ.get("COMPUTO") == "1":
         computo = Computo(app, "semana19-computo", llave=base.llave, red=base.red, bd=datos.bd, sg_bd=datos.sg_bd,
                           sg_endpoints=base.sg_endpoints, guardrail_id=ia.guardrail_id,
-                          guardrail_version=ia.guardrail_version, env=cdk.Environment(region=REGION),
-                          synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
+                          guardrail_version=ia.guardrail_version,
+                          perfil_agente=ia.perfiles["agente"] if usar_perfil_de_aplicacion() else None,
+                          env=cdk.Environment(region=REGION), synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
         gateway = Gateway(app, "semana19-gateway", llave=base.llave, herramientas=computo.herramientas,
                           id_usuarios=computo.id_usuarios, id_cliente=computo.id_cliente,
                           con_motor=fase_del_gateway() != "1",

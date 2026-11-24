@@ -452,3 +452,10 @@ README (last).
 - 2026-11-23: the two missing prices, read at $0 from the Price List (`precios.py`, 157 rows, all of them added). Nova 2 Lite is 0.33 / 2.75 USD per 1M; its usage type is `Nova2.0Lite`. A CloudWatch dashboard is 3.00 USD per month beyond the 3 free, a global price with no region.
 - 2026-11-23: one Cost Explorer call (`ListCostAllocationTags`, 0.01 USD, Manuel's OK). `proyecto` is Active; `componente` is not listed yet, so Manuel activates it once Billing shows it, before activity 2 (`resultados/etiquetas_costo.json`).
 
+- 2026-11-23: activity 2, code ($0). The three application inference profiles are in the ia stack, tagged with their
+  component. The judge's copies Nova Pro, its week 19 model, not Haiku 4.5. `MODELO_ID` stays the copied system
+  profile: the profile's ARN holds the account, so the stack passes it to the Lambda (`MODELO`), and
+  `USAR_PERFIL_DE_APLICACION` in `ia/config.py` is the off switch. The EMF metrics ride on the agent span's line: 8
+  metrics with dimensions model and route. Language is out, because the agent never receives it. The small run
+  (`atribucion/corrida.py`, 4 tasks, cap 0.40 USD, about 0.30 USD with the stacks) waits for Manuel's OK and for
+  `componente` to be active (`resultados/atribucion.md`).

@@ -16,7 +16,8 @@ from agente import handler as H  # noqa: E402
 from agente.presupuesto import Precios  # noqa: E402
 from herramientas import contrato  # noqa: E402
 
-ENTORNO = {"FUNCION_HERRAMIENTAS": "fn-herramientas", "GUARDRAIL_ID": "gid-prueba", "GUARDRAIL_VERSION": "1",
+ENTORNO = {"MODELO": "us.anthropic.claude-haiku-4-5-20251001-v1:0", "FUNCION_HERRAMIENTAS": "fn-herramientas",
+            "GUARDRAIL_ID": "gid-prueba", "GUARDRAIL_VERSION": "1",
             "GRUPO_SPANS": "/semana19/agente/spans"}
 CLAIMS = {"sub": "usuario-prueba-1", "tenant": "lab",
           "scope": "legado/leer legado/proveedores legado/ventas legado/compras_proponer"}

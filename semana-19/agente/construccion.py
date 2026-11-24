@@ -28,7 +28,10 @@ RAIZ = Path(__file__).resolve().parents[2]
 # The week 13 loop: the repository folder, or the asset folder of the agent Lambda (infra/paquete_agente.py sets it).
 S13 = Path(os.environ.get("S19_RUTA_SEMANA13", RAIZ / "semana-13"))
 # Equal to ia/config.py's MODELO_ID: ia/ is not in the Lambda package, so it is repeated here (test_agente_modelo.py).
+# Week 20, activity 2: the system profile the agent's application profile copies; the Lambda calls what the stack puts
+# in MODELO (the application profile's ARN, or this id when ia/config.py turns the profile off).
 MODELO_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+MODELO = "MODELO"     # the model id or inference profile ARN the agent calls (set by the stack, from ia/config.py)
 FUNCION_HERRAMIENTAS = "FUNCION_HERRAMIENTAS"     # environment variable names (no defaults: fail closed)
 GUARDRAIL_ID = "GUARDRAIL_ID"
 GUARDRAIL_VERSION = "GUARDRAIL_VERSION"
@@ -131,7 +134,7 @@ def camino(entorno) -> str:
 
 
 def exigir_entorno(entorno) -> None:
-    requeridas = [FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION, GRUPO_SPANS]
+    requeridas = [MODELO, FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION, GRUPO_SPANS]
     if camino(entorno) == "gateway":
         requeridas.append(GATEWAY_URL)
     faltan = [n for n in requeridas if not entorno.get(n)]
@@ -152,7 +155,7 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
     def llamar_converse(req: dict) -> dict:
         return cliente_converse.converse(**req)
 
-    api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=MODELO_ID, guardrail=guardrail))
+    api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=entorno[MODELO], guardrail=guardrail))
     cerrar = None
     if via == "gateway":
         from agente.cliente_gateway import LlamadorGateway
