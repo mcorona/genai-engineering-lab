@@ -267,6 +267,12 @@ README (last).
 
   It is a reference, not a deployed path. The report says why: data residency, the client's account, the network path
   from Lambda.
+- **(R0) local Haiku 4.5 baseline** (week 19 hand-off, item 6; Manuel's decision of 2026-11-23):
+  - the same 20 tasks with week 17's local harness, run with Haiku 4.5 instead of Haiku 5.5;
+  - it separates the model's effect from the port's: week 17's 20/20 was Haiku 5.5 run locally, and week 20's
+    baseline (16/20) is Haiku 4.5 on AWS;
+  - it is run before R1, from the Mac, estimated and capped (about 1 USD of model, like week 20's corrected run), and
+    its four failures are compared with the deployed run's (c02 and r05 in both languages).
 - **Live (R1, and R2 if it applies):** the 20 tasks. Report, per variant:
   - success;
   - silently-wrong rate;
@@ -459,3 +465,8 @@ README (last).
   metrics with dimensions model and route. Language is out, because the agent never receives it. The small run
   (`atribucion/corrida.py`, 4 tasks, cap 0.40 USD, about 0.30 USD with the stacks) waits for Manuel's OK and for
   `componente` to be active (`resultados/atribucion.md`).
+- 2026-11-23: two items of week 19's hand-off had no activity (Manuel's decision):
+  - the local Haiku 4.5 baseline goes to activity 4, as R0;
+  - the prod window stays out of week 20. Prod is still only synthesized and quoted from the model (activity 9), as
+    the default decisions say, and its per-hour figure stays unmeasured. Deploying prod would be its own session, with
+    its own estimate and OK.
