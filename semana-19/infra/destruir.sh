@@ -148,11 +148,12 @@ else
   echo "== Paso 0b: semana19-ia no existe"
 fi
 
-if [[ "$ESTADO_BASE" == "DELETE_FAILED" ]]; then
-  # Known case (2026-11-13): the custom resource that restricts the default SG cannot be deleted, because its Lambda
-  # role has no Authorize* rights under the permissions boundary. It is an AWS-less CloudFormation resource: retaining
-  # it leaves nothing in the account. Only that resource is retained; the rest of the stack is deleted.
-  echo "== Paso 1b: semana19-base en DELETE_FAILED: se retiene solo el custom resource del SG por defecto"
+# Known case (2026-11-13): the custom resource that restricts the default SG cannot be deleted, because its Lambda
+# role has no Authorize* rights under the permissions boundary. It is an AWS-less CloudFormation resource: retaining
+# it leaves nothing in the account. Only that resource is retained; the rest of the stack is deleted. Any other
+# failed resource stops the script.
+retener_sg_por_defecto() {
+  local inicio retenidos
   inicio=$(date +%s)
   retenidos="$(aws cloudformation describe-stack-events --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
     --query "StackEvents[?ResourceStatus=='DELETE_FAILED' && ResourceType=='Custom::VpcRestrictDefaultSG'].LogicalResourceId" \
@@ -165,11 +166,28 @@ if [[ "$ESTADO_BASE" == "DELETE_FAILED" ]]; then
     --retain-resources "$retenidos"
   aws cloudformation wait stack-delete-complete --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN"
   registrar "destruir-base-retenido" $(( $(date +%s) - inicio ))
+}
+
+if [[ "$ESTADO_BASE" == "DELETE_FAILED" ]]; then
+  echo "== Paso 1b: semana19-base en DELETE_FAILED: se retiene solo el custom resource del SG por defecto"
+  retener_sg_por_defecto
 elif [[ "$ESTADO_BASE" != "NO_EXISTE" ]]; then
   inicio=$(date +%s)
   echo "== Paso 1: cdk destroy semana19-base"
-  cdk destroy semana19-base --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
-  registrar "destruir-base" $(( $(date +%s) - inicio ))
+  # Week 20 (2026-11-23): the first delete of a fresh base always ends in DELETE_FAILED on that custom resource, so
+  # the script goes on to step 1b in the same run instead of stopping and needing a second one.
+  if cdk destroy semana19-base --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"; then
+    registrar "destruir-base" $(( $(date +%s) - inicio ))
+  else
+    estado="$(aws cloudformation describe-stacks --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
+      --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo NO_EXISTE)"
+    if [[ "$estado" != "DELETE_FAILED" ]]; then
+      echo "cdk destroy semana19-base falló y el stack quedó en $estado; revisa los eventos antes de continuar." >&2
+      exit 1
+    fi
+    echo "== Paso 1b: semana19-base quedó en DELETE_FAILED: se retiene solo el custom resource del SG por defecto"
+    retener_sg_por_defecto
+  fi
 else
   echo "== Paso 1: semana19-base no existe"
 fi
