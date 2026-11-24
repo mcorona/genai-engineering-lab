@@ -26,8 +26,8 @@ The full table, with every capability, is under [Detailed results](#detailed-res
 |---|---|---|
 | **AI Opportunity & Risk Assessment: Snapshot** | A read-only audit of a small legacy schema (up to ~10 objects): data dictionary, ER diagram, risk report and summary, with one validation session | USD 1,500, fixed fee |
 | **AI Opportunity & Risk Assessment: Assessment** | The same audit on up to ~50 objects, with all 7 deliverables, including the map of AI opportunities | USD 3,500, fixed fee |
-| **Agent and MCP architecture** | Design and review of agents, MCP servers, permissions, budgets and evals for your systems | USD 100 per hour |
-| **Deployment on AWS** | The reference architecture of [week 19](semana-19/README.md) in your account, from IaC, with cost per query and teardown | USD 100 per hour |
+| **Agent and MCP architecture** | Design and review of agents, MCP servers, permissions, budgets and evals for your systems | USD 150–200 per hour |
+| **Deployment on AWS** | The reference architecture of [week 19](semana-19/README.md) in your account, from IaC, with cost per query and teardown | USD 150–200 per hour |
 
 - Scope and deliverables of the assessment: [semana-16/oferta.md](semana-16/oferta.md).
 - **Product:** [`legacy-schema-audit`](semana-16/legacy-schema-audit/README.md), a Claude Code plugin that audits a legacy schema read-only. It is the technical basis of the assessment.
