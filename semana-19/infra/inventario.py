@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import date
 
@@ -210,7 +211,7 @@ def categorias(sesion, region: str) -> dict:
         out = []
         for p in cli.get_paginator("get_resources").paginate(
                 TagFilters=[{"Key": ETIQUETA[0], "Values": [ETIQUETA[1]]}]):
-            out += [r["ResourceARN"].split(":")[-1].split("/")[-1] for r in p["ResourceTagMappingList"]]
+            out += [id_de_arn(r["ResourceARN"]) for r in p["ResourceTagMappingList"]]
         return out
 
     def presupuestos():
@@ -319,12 +320,17 @@ def permitidos(con_control: bool, con_base: bool = False) -> dict:
     return base
 
 
+def id_de_arn(arn: str) -> str:
+    """The resource id at the end of an ARN, keeping a version suffix: prompt/ZF4KNSIULX:1 is ZF4KNSIULX:1, not 1."""
+    return arn.split(":", 5)[-1].split("/")[-1]
+
+
 def explicar_etiquetados(ids: list[str], llaves_pendientes: list[str], vigente) -> tuple[list[str], dict[str, list[str]]]:
     """Activity 8 (teardown of 2026-11-19): the Tagging API keeps listing what is gone or pending deletion.
 
     A tagged id is explained, and not judged, when it is a project key already pending deletion (the
     llaves_pendientes_borrado category, by its first 8 characters) or when its own service says it no longer exists
-    (`vigente(id)` is False: a VPC endpoint or a flow log). Anything else, and anything `vigente` cannot check (None),
+    (`vigente(id)` is False: see `vigente_por_id`). Anything else, and anything `vigente` cannot check (None),
     stays unexpected. Returns (still unexpected, explained by reason)."""
     pendientes = {n.split(" ", 1)[0] for n in llaves_pendientes}
     quedan, explicados = [], {"llave_pendiente_de_borrado": [], "ya_no_existe": []}
@@ -355,6 +361,51 @@ def vigente_ec2(sesion, region: str):
     return vigente
 
 
+PROMPT_ID = re.compile(r"^[A-Z0-9]{10}(:(\d+|DRAFT))?$")
+UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+
+
+def _no_existe(exc: Exception) -> bool:
+    return "NotFound" in type(exc).__name__ + str(exc)
+
+
+def vigente_por_id(sesion, region: str, ec2=None):
+    """Week 20 (teardown of 2026-11-23): the ids the ia and computo stacks leave in the Tagging API, besides EC2's.
+
+    True or False, asked to each service by id: Bedrock prompts and their versions, Cognito user pools, and a UUID as
+    a KMS key (False only when KMS does not know it) and then as a budget action. None for any other id, and on any
+    error other than "not found", so an id that cannot be checked stays unexpected."""
+    ec2 = ec2 or vigente_ec2(sesion, region)
+
+    def vigente(i: str):
+        if i.startswith(("vpce-", "fl-")):
+            return ec2(i)
+        try:
+            if PROMPT_ID.match(i):
+                ident, _, version = i.partition(":")
+                kw = {"promptIdentifier": ident, **({"promptVersion": version} if version else {})}
+                sesion.client("bedrock-agent", region_name=region).get_prompt(**kw)
+                return True
+            if i.startswith(f"{region}_"):
+                sesion.client("cognito-idp", region_name=region).describe_user_pool(UserPoolId=i)
+                return True
+            if UUID.match(i):
+                try:
+                    estado = sesion.client("kms", region_name=region).describe_key(KeyId=i)["KeyMetadata"]["KeyState"]
+                    return None if estado == "PendingDeletion" else True   # pending keys are explained by name
+                except Exception as exc:  # noqa: BLE001
+                    if not _no_existe(exc):
+                        return None
+                cuenta = sesion.client("sts").get_caller_identity()["Account"]
+                acciones = sesion.client("budgets", region_name="us-east-1").get_paginator(
+                    "describe_budget_actions_for_account").paginate(AccountId=cuenta)
+                return i in {a["ActionId"] for p in acciones for a in p["Actions"]}
+        except Exception as exc:  # noqa: BLE001 - only "not found" means gone; any other error is not a proof
+            return False if _no_existe(exc) else None
+        return None
+    return vigente
+
+
 # Activity 7's disposable stacks: after destruir.sh --solo-actividad7 these categories must be empty.
 CATEGORIAS_ACTIVIDAD7 = ("gateways_agentcore", "motores_de_politicas_agentcore", "agentes_bedrock")
 
@@ -376,7 +427,7 @@ def inventario(sesion, region: str, con_control: bool = False, con_base: bool = 
     etiquetados = resultado.get("etiquetados_tagging_api")
     if etiquetados and etiquetados["conteo"] and reglas.get("etiquetados_tagging_api", ()) is not None:
         llaves = (resultado.get("llaves_pendientes_borrado") or {}).get("nombres") or []
-        quedan_ids, explicados = explicar_etiquetados(etiquetados["nombres"], llaves, vigente_ec2(sesion, region))
+        quedan_ids, explicados = explicar_etiquetados(etiquetados["nombres"], llaves, vigente_por_id(sesion, region))
         if explicados:
             esperados["etiquetados_tagging_api_explicados"] = explicados
         a_juzgar = {**resultado, "etiquetados_tagging_api": {"conteo": len(quedan_ids), "nombres": quedan_ids}}

@@ -197,3 +197,81 @@ def test_vigente_ec2_pregunta_por_id_y_un_id_que_no_existe_es_falso():
     assert vigente("vpce-0123456789abcdef0") is False
     assert vigente("fl-0123456789abcdef0") is False
     assert vigente("0906507d-407e-4410-b5d1-caf3578dc52b") is None
+
+
+# ---------- week 20: the ids the ia and computo stacks leave in the Tagging API ----------
+
+def test_id_de_arn_conserva_la_version_del_prompt():
+    assert inv.id_de_arn("arn:aws:bedrock:us-east-1:000000000000:prompt/ZF4KNSIULX:1") == "ZF4KNSIULX:1"
+    assert inv.id_de_arn("arn:aws:bedrock:us-east-1:000000000000:prompt/ZF4KNSIULX") == "ZF4KNSIULX"
+    assert inv.id_de_arn("arn:aws:cognito-idp:us-east-1:000000000000:userpool/us-east-1_AbC") == "us-east-1_AbC"
+    assert inv.id_de_arn("arn:aws:budgets::000000000000:budget/semana19/action/b0859efb-f017-47b6-ac3f-bc8ecbc17e87") \
+        == "b0859efb-f017-47b6-ac3f-bc8ecbc17e87"
+    assert inv.id_de_arn("arn:aws:ec2:us-east-1:000000000000:vpc-endpoint/vpce-0abc") == "vpce-0abc"
+
+
+class _NoExiste(Exception):
+    pass
+
+
+class _ResourceNotFoundException(Exception):
+    pass
+
+
+class _Cliente:
+    def __init__(self, vivos, acciones=()):
+        self.vivos, self.acciones = vivos, acciones
+
+    def get_prompt(self, promptIdentifier, promptVersion=None):
+        if (promptIdentifier, promptVersion) not in self.vivos:
+            raise _ResourceNotFoundException("prompt")
+
+    def describe_user_pool(self, UserPoolId):
+        if UserPoolId not in self.vivos:
+            raise _ResourceNotFoundException("pool")
+
+    def describe_key(self, KeyId):
+        if KeyId == "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa":
+            raise RuntimeError("AccessDenied")
+        if KeyId not in self.vivos:
+            raise _ResourceNotFoundException("NotFoundException")
+        return {"KeyMetadata": {"KeyState": self.vivos[KeyId]}}
+
+    def get_caller_identity(self):
+        return {"Account": "000000000000"}
+
+    def get_paginator(self, _):
+        acciones = self.acciones
+        return type("P", (), {"paginate": lambda self, **kw: [{"Actions": [{"ActionId": a} for a in acciones]}]})()
+
+
+class _Sesion:
+    def __init__(self, cliente):
+        self.cliente = cliente
+
+    def client(self, *_a, **_k):
+        return self.cliente
+
+
+def test_vigente_por_id_pregunta_a_cada_servicio_y_lo_que_no_puede_comprobar_queda_sin_juzgar():
+    viva = "11111111-1111-1111-1111-111111111111"
+    accion = "b0859efb-f017-47b6-ac3f-bc8ecbc17e87"
+    vivos = {("VIVO000001", None): 1, ("VIVO000001", "2"): 1, f"{REGION}_Vivo": 1, viva: "Enabled",
+             "22222222-2222-2222-2222-222222222222": "PendingDeletion"}
+    v = inv.vigente_por_id(_Sesion(_Cliente(vivos, acciones=[accion])), REGION, ec2=lambda i: "ec2")
+    assert v("vpce-0abc") == "ec2" and v("fl-0abc") == "ec2"
+    assert v("VIVO000001") is True and v("VIVO000001:2") is True
+    assert v("ZF4KNSIULX") is False and v("ZF4KNSIULX:1") is False
+    assert v(f"{REGION}_Vivo") is True and v(f"{REGION}_Borrado") is False
+    assert v(viva) is True
+    assert v("22222222-2222-2222-2222-222222222222") is None     # pending: explained by name, not here
+    assert v(accion) is True
+    assert v("33333333-3333-3333-3333-333333333333") is False     # neither a key nor an action
+    assert v("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") is None      # KMS error other than not found
+    assert v("otro-recurso") is None and v("1") is None
+
+
+def test_el_inventario_usa_vigente_por_id():
+    texto = (S19 / "infra" / "inventario.py").read_text(encoding="utf-8")
+    assert "vigente_por_id(sesion, region))" in texto
+

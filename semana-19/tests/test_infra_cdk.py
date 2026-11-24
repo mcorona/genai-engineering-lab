@@ -586,6 +586,12 @@ def test_scripts_de_infra_son_ejecutables_en_git():
         modo = subprocess.run(["git", "ls-files", "-s", script], capture_output=True, text=True,
                               cwd=S19.parent).stdout.split()[0]
         assert modo == "100755", script
+def test_destruir_pasa_al_paso_1b_si_el_cdk_destroy_de_base_queda_en_delete_failed():
+    texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
+    assert texto.count("retener_sg_por_defecto") == 3      # the function, and its two callers
+    assert 'if cdk destroy semana19-base' in texto and '"$estado" != "DELETE_FAILED"' in texto
+
+
 def test_destruir_no_pasa_toolkit_a_cdk_destroy_y_usa_python_con_boto():
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     destroy = [l for l in texto.splitlines() if "cdk destroy" in l]
