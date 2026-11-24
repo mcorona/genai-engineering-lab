@@ -68,10 +68,10 @@ Phase 5 covers weeks 19 to 24: LLMOps and multicloud production. The criteria (1
   - [ ] KMS at rest, **partial**: 17 of 29 resources on the project key; the other 12 are encrypted with AWS keys (H10 and H14, open).
   - [x] Private networking through VPC endpoints (`verificacion.json`, ADR 0005).
   - [x] The Guardrail and the prompts, at pinned versions.
-  - [ ] The golden mini eval against the deployed endpoint: **regression, 9/20**. The diagnosis is in `eval_aws.md`, and the fixes go to week 20.
+  - [ ] The golden mini eval against the deployed endpoint: **regression, 9/20**. The diagnosis is in `eval_aws.md`, and the fixes go to week 20. Week 20's corrected run reached 16/20, still a regression (`semana-20/resultados/linea_base.md`).
   - [x] Measured cost per query: 0.030913 USD (model), and 0.037562 USD per hour.
   - [x] Verified teardown (`inventario_final.json`).
-- [ ] **20.** Pending. **21.** Pending. **22.** Pending.
+- [ ] **20.** In progress: the corrected baseline (#325–#332) and the cost attribution by component (#333) are merged. **21.** Pending. **22.** Pending.
 - **Cross-cutting cost:** within ±20% on the model figure (−0.1 %) and per hour (−10.3 %); outside on the upper bound (+24.6 %), which holds the judge's job.
 - **Cross-cutting security:** met, with open findings (which week each one goes to is in the root README).
 

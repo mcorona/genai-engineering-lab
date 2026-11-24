@@ -12,17 +12,27 @@ The week is for whoever deploys it, reviews it, or picks it up in week 20. The p
 
 Every figure below links to the results file it comes from.
 
-## Architecture
+## For decision-makers
+
+- **It runs in your AWS account, built from code.** Four layers deployed with CDK, with 0 unsuppressed cdk-nag findings and 0 failed checkov checks ([seguridad.md](resultados/seguridad.md)).
+- **Your data stays on a private network.** The tools and the database sit in a VPC with no internet path; RDS has no public IP, and the API is the only public resource, with a JWT authorizer on every route ([verificacion.json](resultados/seguridad/verificacion.json)).
+- **The cost is measured, and so is the quote.** 0.030913 USD per query for the model and 0.037562 USD per hour of stack, from the bill ([costo_real.md](resultados/costo_real.md)). The quote model missed by −0.1 % per query and −10.3 % per hour ([cotizacion.md](resultados/cotizacion.md)).
+- **Nothing is left running after a session.** The teardown is checked by a read-only inventory that must end in `"quedan": "nada"` ("left: nothing") ([inventario_final.json](resultados/inventario_final.json)).
+- **The security findings are open and planned, not hidden.** Each one has its risk and its fix: throttling (H1) and the async timeout (H4) are in week 20, red teaming in week 21 ([threat_model.md](seguridad/threat_model.md)).
+
+![LegacyBridge on AWS](arquitectura/diagrama_simple.svg)
+
+## Detailed architecture
 
 ![Reference architecture](arquitectura/diagrama.svg)
 
-Source: [arquitectura/diagrama.mmd](arquitectura/diagrama.mmd). [tests/test_diagrama_vs_stack.py](tests/test_diagrama_vs_stack.py) checks it against the synth, both ways.
+Source: [arquitectura/diagrama.mmd](arquitectura/diagrama.mmd). [tests/test_diagrama_vs_stack.py](tests/test_diagrama_vs_stack.py) checks it against the synth, both ways. The client view above ([arquitectura/diagrama_simple.mmd](arquitectura/diagrama_simple.mmd), 8 boxes) is a summary of this one, and that test does not check it.
 
 **Four layers**, one stack each, deployed in this order:
 
 | Layer | Stack | What it holds |
 |---|---|---|
-| Network and key | `semana19-base` | the VPC (isolated subnets, no internet gateway, no NAT), the endpoints of ADR 0005, the project's KMS key, the flow logs |
+| Network and key | `semana19-base` (stack names start with `semana19-`, "week19-") | the VPC (isolated subnets, no internet gateway, no NAT), the endpoints of ADR 0005, the project's KMS key, the flow logs |
 | Data | `semana19-datos` | RDS PostgreSQL with the legacy schema, the KB's documents bucket, the Knowledge Base on S3 Vectors |
 | AI | `semana19-ia` | the Bedrock Guardrail and the Prompt Management prompts (ES and EN), each at a fixed version |
 | Compute | `semana19-computo` | Cognito, the HTTP API, the Lambdas (queries, agent, tools, approver, order writer), DynamoDB, the Step Functions approval |
@@ -55,7 +65,7 @@ Around them:
 ## Deploy and destroy
 
 **Before you start:**
-- An `aws login --profile manuel-admin` session. Every profile chains from it.
+- An `aws login --profile <admin-profile>` session. Every profile chains from it.
 - The two other profiles:
   - `semana19-despliegue`, which assumes the deploy role for `cdk deploy` and `cdk destroy`;
   - `semana19-lectura`, which is read-only (inventory, verification, Cost Explorer).
@@ -64,19 +74,19 @@ Around them:
 - Access to Haiku 4.5 through the `us.` inference profile. Haiku 5.5 has an on-demand quota of 0: its increase requests were closed without a change ([resultados/linea_base.md](resultados/linea_base.md), section 10).
 - The `proyecto` cost allocation tag active.
 
-**Commands**, from the worktree root. Each script only simulates unless it gets `--si`:
+**Commands**, from the worktree root. Each script only simulates unless it gets `--si` ("yes": act). `desplegar.sh` deploys and `destruir.sh` destroys:
 
 ```
 semana-19/infra/desplegar.sh
 semana-19/infra/desplegar.sh --diff
 semana-19/infra/desplegar.sh --si
-.venv/bin/python semana-19/infra/usuarios.py --pool <pool-id> --perfil manuel-admin --si
+.venv/bin/python semana-19/infra/usuarios.py --pool <pool-id> --perfil <admin-profile> --si
 semana-19/infra/destruir.sh --si --todo
 semana-19/infra/destruir.sh --inventario
 ```
 
 - **`desplegar.sh`** deploys control, then the bootstrap, base, datos, ia, and the loader with the KB ingestion. `--diff` is read-only. Computo is deployed after it, on its own: `COMPUTO=1 CAMINO_HERRAMIENTAS=directo cdk deploy semana19-computo --exclusively` with the `semana19-despliegue` profile and the `semana19-cdktoolkit` toolkit stack.
-- **`usuarios.py`** creates one test user per Cognito group. It takes the profile from `--perfil` (or `S19_PERFIL_DESPLIEGUE`), not from `S19_PERFIL`. Their passwords go only to `~/s19-secretos/usuarios-prueba.env` (ADR 0013).
+- **`usuarios.py`** creates one test user per Cognito group. It takes the profile from `--perfil` (or `S19_PERFIL_DESPLIEGUE`), not from `S19_PERFIL`. Their passwords go only to `<secrets-dir>/usuarios-prueba.env`, outside the repository (ADR 0013).
 - **`destruir.sh --si --todo`** deletes everything in reverse order, then runs the inventory. Without `--todo`, the control stack stays; it costs $0/h.
 - **`destruir.sh --inventario`** lists what is left, using the read-only role. The proof of an empty account is `"quedan": "nada"`, apart from an explicit list:
   - the read-only role;
