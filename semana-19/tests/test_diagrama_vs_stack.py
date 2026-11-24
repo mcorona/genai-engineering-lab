@@ -89,6 +89,7 @@ TIPOS_IGNORADOS = {
     "AWS::S3Vectors::Index": "part of the KB's vector bucket",
     "AWS::Bedrock::DataSource": "the edge docs -> kb",
     "AWS::Bedrock::PromptVersion": "the fixed prompt version of the converse node",
+    "AWS::Bedrock::ApplicationInferenceProfile": "week 20: the cost tag on the converse node's model call (no new flow)",
     "AWS::Bedrock::AgentAlias": "part of activity 7's comparison agent, out of the diagram",
     "AWS::BedrockAgentCore::GatewayTarget": "the edge gw -> tools",
     "AWS::BedrockAgentCore::Policy": "the Cedar policies of the gateway node",

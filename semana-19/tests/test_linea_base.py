@@ -237,6 +237,10 @@ class _Cliente:
             raise _ResourceNotFoundException("NotFoundException")
         return {"KeyMetadata": {"KeyState": self.vivos[KeyId]}}
 
+    def get_inference_profile(self, inferenceProfileIdentifier):
+        if inferenceProfileIdentifier not in self.vivos:
+            raise _ResourceNotFoundException("profile")
+
     def get_caller_identity(self):
         return {"Account": "<account>"}
 
@@ -269,6 +273,12 @@ def test_vigente_por_id_pregunta_a_cada_servicio_y_lo_que_no_puede_comprobar_que
     assert v("33333333-3333-3333-3333-333333333333") is False     # neither a key nor an action
     assert v("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") is None      # KMS error other than not found
     assert v("otro-recurso") is None and v("1") is None
+
+
+def test_vigente_por_id_comprueba_los_perfiles_de_aplicacion():
+    # Week 20, activity 2: an application inference profile's id (12 lowercase letters and digits) is asked to Bedrock.
+    v = inv.vigente_por_id(_Sesion(_Cliente({"a1b2c3d4e5f6": 1})), REGION, ec2=lambda i: "ec2")
+    assert v("a1b2c3d4e5f6") is True and v("z9y8x7w6v5u4") is False
 
 
 def test_el_inventario_usa_vigente_por_id():

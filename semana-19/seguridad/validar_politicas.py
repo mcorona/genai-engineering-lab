@@ -134,6 +134,7 @@ class Resolutor:
             "AWS::BedrockAgentCore::Gateway": f"arn:{p}:bedrock-agentcore:{r}:{c}:gateway/{n}-abcdefghij",
             "AWS::BedrockAgentCore::PolicyEngine": f"arn:{p}:bedrock-agentcore:{r}:{c}:policy-engine/{n}-abcdefghij",
             "AWS::Bedrock::Guardrail": f"arn:{p}:bedrock:{r}:{c}:guardrail/gexample01",
+            "AWS::Bedrock::ApplicationInferenceProfile": f"arn:{p}:bedrock:{r}:{c}:application-inference-profile/aipexample01",
             "AWS::SQS::Queue": f"arn:{p}:sqs:{r}:{c}:{n}",
             "AWS::SNS::Topic": f"arn:{p}:sns:{r}:{c}:{n}",
         }
@@ -162,7 +163,8 @@ class Resolutor:
 
     def getatt(self, pila: str, logico: str, atributo: str):
         tipo = self.plantillas[pila]["Resources"][logico]["Type"]
-        if atributo in ("Arn", "GatewayArn", "PolicyEngineArn", "KnowledgeBaseArn", "IndexArn", "VectorBucketArn"):
+        if atributo in ("Arn", "GatewayArn", "PolicyEngineArn", "KnowledgeBaseArn", "IndexArn", "VectorBucketArn",
+                        "InferenceProfileArn"):
             return self.arn(pila, logico)
         fijos = {"GroupId": "sg-0123456789abcdef0", "DefaultSecurityGroup": "sg-0fedcba9876543210",
                  "DbiResourceId": "db-ABCDEFGHIJKLMNOPQRSTUVWXY0", "Endpoint.Address": "db.example.us-east-1.rds.amazonaws.com",

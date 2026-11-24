@@ -5,6 +5,9 @@ attributes that are not in the shape, or whose value does not validate, are DROP
 In tests (`ESTRICTO`) the same violation raises, so a new attribute cannot appear without being declared first.
 
 Output: one JSON line per span on the sink (in Lambda, stdout goes to CloudWatch Logs). No lists of text, no free text.
+
+Week 20, activity 2: the agent span's line may also carry the query's EMF members (agente/metricas.py) at its top
+level, beside the span's own keys and never in place of them. The span's attributes are checked as before.
 """
 from __future__ import annotations
 
@@ -41,12 +44,18 @@ class ExportadorSpans:
         self.escribir = escribir or (lambda linea: print(linea, flush=True))
         self.exportados = 0
 
-    def exportar(self, spans: list[dict]) -> int:
-        """spans: [{"name", "tipo", "attrs"}]. Returns how many were written."""
+    def exportar(self, spans: list[dict], emf: dict | None = None) -> int:
+        """spans: [{"name", "tipo", "attrs"}]. `emf`: the EMF members of the invoke_agent line (or None). Returns how
+        many were written."""
         for span in spans:
             kept, dropped = _limpio(span)
             linea = {"schema": esquema.SCHEMA_VERSION, "span": span["name"], "tipo": span["tipo"],
                      "attrs": kept, "omitidos": dropped}
+            if emf and span["tipo"] == "invoke_agent":
+                choque = set(emf) & set(linea)
+                if choque:
+                    raise ValueError(f"EMF no puede reemplazar claves del span: {sorted(choque)}")
+                linea.update(emf)
             self.escribir(json.dumps(linea, ensure_ascii=False, sort_keys=True))
             self.exportados += 1
         return len(spans)

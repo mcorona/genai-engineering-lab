@@ -6,7 +6,8 @@ Order of one request (each step is a guard of the lab's plan):
   3. the week 17 budget around the model calls (`Presupuesto`);
   4. the agent loop (week 13, reused through `agente_factory`), its tools wrapped by the deterministic layer;
   5. output guardrail on the final answer (audit mode, the shipped mode of week 17);
-  6. one `invoke_agent` span through the exporter (locked shape), with the subject as a keyed hash, never the token.
+  6. one `invoke_agent` span through the exporter (locked shape), with the subject as a keyed hash, never the token,
+     and on the same line the query's EMF metrics (week 20, activity 2: agente/metricas.py).
 
 The Lambda binding to the real loop and tools is `construir_deps()`; it is not written yet and raises until it is.
 Everything here is pure orchestration and is tested offline with fakes.
@@ -14,12 +15,14 @@ Everything here is pure orchestration and is tested offline with fakes.
 from __future__ import annotations
 
 import re
+import time
 import uuid
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 from typing import Callable
 
 from agente import capa_determinista as C
+from agente import metricas
 from agente.cliente_gateway import TokenVencido
 from agente.exportador import ExportadorSpans
 from agente.presupuesto import Politica, Precios, Presupuesto
@@ -28,6 +31,7 @@ from instrumentacion import esquema
 N = C.N
 MODELO = "claude-haiku-4-5-20251001"
 AGENTE = "legadobridge"
+RUTA = "fija"      # week 20, activity 2: the route dimension of the metrics; activity 4's router sets it per call
 MOTIVO_PRESUPUESTO = {"presupuesto_usd": "presupuesto_tarea", "presupuesto_tokens": "presupuesto_tarea"}
 # The tools path in the execute_tool span, with week 17's locked attribute and values (no new key): OpenTelemetry's
 # gen_ai.tool.type "function" for the direct call, "extension" for a tool reached through the gateway (agent side,
@@ -130,20 +134,22 @@ def tratar_pregunta(pregunta: str, alcance, *, agente_factory: Callable, llamar_
     try:
         return _tratar(pregunta, alcance, agente_factory=agente_factory, llamar_herramienta=llamar_herramienta,
                        definiciones=definiciones, api_modelo=api_modelo, politica=politica, precios=precios,
-                       exportar=exportar, run_id=run_id or uuid.uuid4().hex[:12], camino=camino)
+                       exportar=exportar, run_id=run_id or uuid.uuid4().hex[:12], camino=camino,
+                       inicio=time.monotonic())
     finally:
         if cerrar is not None:
             cerrar()
 
 
 def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definiciones, api_modelo, politica, precios,
-            exportar, run_id, camino) -> Resultado:
+            exportar, run_id, camino, inicio) -> Resultado:
     decisiones: list = []
     motivo, de_entrada = C.revisar_entrada(pregunta)
     decisiones.extend(de_entrada)
     if motivo is not None:
         texto = N.texto_de_rechazo_de_entrada(motivo, "es")
-        return _cerrar(run_id, alcance, "abstenida", texto, decisiones, None, None, exportar, politica, "guardrail_entrada")
+        return _cerrar(run_id, alcance, "abstenida", texto, decisiones, None, None, exportar, politica, "guardrail_entrada",
+                       inicio=inicio)
 
     presupuesto = Presupuesto(politica, MODELO, precios)
     herramientas = HerramientasCapadas(llamar_herramienta, definiciones, alcance, pregunta, decisiones, camino)
@@ -153,7 +159,7 @@ def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definicion
         r = agente.resolver(tarea)
     except TokenVencido:   # fail closed: the loop stops here, with week 17's state for a run that could not finish
         return _cerrar(run_id, alcance, "error", TEXTO_TOKEN_VENCIDO, decisiones, None, presupuesto, exportar, politica,
-                       "otro", herramientas=herramientas)
+                       "otro", herramientas=herramientas, inicio=inicio)
 
     final = r.final
     if final is not None:
@@ -167,11 +173,11 @@ def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definicion
         estado, motivo_fin = "limite_alcanzado", MOTIVO_PRESUPUESTO[presupuesto.motivo]
     resultados = list((final or {}).get("resultados") or []) if estado == "respondida" else []
     return _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo_fin,
-                   herramientas=herramientas, resultados=resultados)
+                   herramientas=herramientas, resultados=resultados, inicio=inicio)
 
 
 def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo, herramientas=None,
-            resultados=None):
+            resultados=None, inicio=None):
     atributos = {
         "gen_ai.operation.name": "invoke_agent",
         "gen_ai.agent.name": AGENTE,
@@ -197,7 +203,10 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
     spans = [*(herramientas.spans if herramientas else []),
              {"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",
               "attrs": {k: v for k, v in atributos.items() if v is not None}}]
-    ExportadorSpans(escribir=exportar).exportar(spans)
+    latencia_ms = (time.monotonic() - inicio) * 1000 if inicio is not None else 0.0
+    emf = metricas.miembros_emf(atributos, latencia_ms=latencia_ms, modelo=MODELO, ruta=RUTA,
+                                ahora_ms=int(time.time() * 1000))
+    ExportadorSpans(escribir=exportar).exportar(spans, emf=emf)
     return Resultado(estado, texto, [_decision(d) for d in decisiones], spans, resultados or [])
 
 

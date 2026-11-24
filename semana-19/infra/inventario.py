@@ -186,6 +186,12 @@ def categorias(sesion, region: str) -> dict:
         return [a["agentName"] for p in cli.get_paginator("list_agents").paginate()
                 for a in p["agentSummaries"] if a["agentName"].startswith(PREFIJO)]
 
+    def perfiles_de_aplicacion():   # week 20, activity 2: the application inference profiles of stack semana19-ia
+        cli = sesion.client("bedrock", region_name=region)
+        return [p_["inferenceProfileName"] for p in cli.get_paginator("list_inference_profiles").paginate(
+                typeEquals="APPLICATION") for p_ in p["inferenceProfileSummaries"]
+                if p_["inferenceProfileName"].startswith(PREFIJO)]
+
     def trabajos_de_evaluacion():   # activity 8: the judge's jobs (juez_bedrock.py), deleted by vaciar_eval.py
         cli = sesion.client("bedrock", region_name=region)
         return [j["jobName"] for p in cli.get_paginator("list_evaluation_jobs").paginate(nameContains=PREFIJO)
@@ -274,7 +280,7 @@ def categorias(sesion, region: str) -> dict:
         "user_pools": user_pools, "rds": rds, "buckets_s3": buckets, "vector_buckets_s3vectors": vector_buckets,
         "knowledge_bases": kbs, "guardrails": guardrails, "prompts": prompts, "gateways_agentcore": gateways,
         "motores_de_politicas_agentcore": motores_de_politicas, "agentes_bedrock": agentes_bedrock,
-        "trabajos_evaluacion_bedrock": trabajos_de_evaluacion, "runtimes_agentcore": runtimes, "log_groups": log_groups,
+        "trabajos_evaluacion_bedrock": trabajos_de_evaluacion, "perfiles_inferencia_aplicacion": perfiles_de_aplicacion, "runtimes_agentcore": runtimes, "log_groups": log_groups,
         "etiquetados_tagging_api": etiquetados,
         "presupuestos": presupuestos, "acciones_presupuesto": acciones_presupuesto,
         "politicas_iam_locales": politicas_iam, "flow_logs": flow_logs,
@@ -362,6 +368,7 @@ def vigente_ec2(sesion, region: str):
 
 
 PROMPT_ID = re.compile(r"^[A-Z0-9]{10}(:(\d+|DRAFT))?$")
+PERFIL_APLICACION_ID = re.compile(r"^[a-z0-9]{12}$")   # an application inference profile's id (week 20)
 UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
 
@@ -385,6 +392,9 @@ def vigente_por_id(sesion, region: str, ec2=None):
                 ident, _, version = i.partition(":")
                 kw = {"promptIdentifier": ident, **({"promptVersion": version} if version else {})}
                 sesion.client("bedrock-agent", region_name=region).get_prompt(**kw)
+                return True
+            if PERFIL_APLICACION_ID.match(i):
+                sesion.client("bedrock", region_name=region).get_inference_profile(inferenceProfileIdentifier=i)
                 return True
             if i.startswith(f"{region}_"):
                 sesion.client("cognito-idp", region_name=region).describe_user_pool(UserPoolId=i)

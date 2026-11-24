@@ -20,3 +20,13 @@ REGIONES_DEL_JUEZ = ("us-east-1", "us-east-2", "us-west-2")
 # The company in the system prompt's variable nombre_empresa (ia/prompts_sistema.py), per language: week 13's prompt
 # said "a distribution company". Used where the prompt is rendered outside the loop (activity 7, Bedrock Agents).
 NOMBRE_EMPRESA = {"es": "una empresa distribuidora", "en": "a distribution company"}
+
+# Week 20, activity 2: one Bedrock application inference profile per component, each a copy of a system profile above
+# and tagged proyecto and componente, so Cost Explorer splits the model cost by component. The ARNs exist only after
+# the deploy (they hold the account and a generated id), so this file keeps the switch and the sources: the ia stack
+# creates the profiles and the agent's stack passes the agent profile's ARN to the Lambda (variable MODELO).
+# False: the agent calls MODELO_ID itself, as in week 19 (a test checks both values).
+USAR_PERFIL_DE_APLICACION = True
+# Component -> the system profile it copies. The judge keeps its own model (a model other than the agent's, week 19
+# activity 8); batch enrichment (activity 5) runs on Haiku 4.5. Only the agent's profile is called in activity 2.
+PERFILES_DE_APLICACION = {"agente": MODELO_ID, "juez": MODELO_JUEZ_ID, "enriquecimiento": MODELO_ID}
