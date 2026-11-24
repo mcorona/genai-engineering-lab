@@ -436,6 +436,17 @@ def test_scripts_tienen_sintaxis_valida(script):
     assert r.returncode == 0, r.stderr
 
 
+@pytest.mark.parametrize("script", ["desplegar.sh", "destruir.sh"])
+def test_ningun_echo_imprime_un_arn_con_la_cuenta(script):
+    # 2026-11-24: step 2 of desplegar.sh printed the deploy role's ARN, account included. An ARN variable in an echo
+    # must go through ${VAR//$CUENTA/<account>}.
+    import re
+    malas = [l for l in (SCRIPTS / script).read_text(encoding="utf-8").splitlines()
+             if l.strip().startswith("echo") and re.search(r"\$\{?(ARN_[A-Z_]+|CUENTA)\}?(?!/)", l)
+             and "//$CUENTA/<account>" not in l]
+    assert not malas, malas
+
+
 def test_desplegar_sin_si_no_llama_a_aws(tmp_path):
     entorno, marcas = _entorno_falso(tmp_path)
     r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh")], env=entorno, capture_output=True, text=True)

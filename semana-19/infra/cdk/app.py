@@ -1212,7 +1212,7 @@ class Ia(Stack):
         for componente, origen in perfiles_de_aplicacion().items():
             perfil = bedrock.CfnApplicationInferenceProfile(
                 self, f"Perfil{componente.capitalize()}", inference_profile_name=nombre_perfil_de_aplicacion(componente),
-                description=f"Week 20: model cost of the {componente} component, by tag.",
+                description=f"Week 20: model cost of the {componente} component by tag",   # no commas: ^([0-9a-zA-Z:.][ _-]?)+$
                 model_source=bedrock.CfnApplicationInferenceProfile.InferenceProfileModelSourceProperty(
                     copy_from=arn_perfil_de_sistema(origen)))
             Tags.of(perfil).add("componente", componente, priority=200)
