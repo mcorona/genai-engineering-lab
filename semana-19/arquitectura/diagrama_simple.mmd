@@ -1,0 +1,24 @@
+%% Week 19: LegacyBridge on AWS, the client view (8 boxes). The detailed diagram is diagrama.mmd, the one
+%% tests/test_diagrama_vs_stack.py checks against the synth; this one is a summary and is not checked by that test.
+%% Render with mermaid-cli 11.17.1 (the same version as diagrama.svg): mmdc -i diagrama_simple.mmd -o diagrama_simple.svg -c mermaid-config.json
+flowchart LR
+  usuario([User<br/>analyst, buyer or approver])
+  api[API Gateway<br/>with Cognito sign-in]
+  agente[Agent in Lambda<br/>Bedrock model + Guardrail]
+  aprobacion[[Human approval<br/>Step Functions]]
+
+  subgraph vpc["Private VPC: no internet path"]
+    funciones[Read-only tools and<br/>order writer, in Lambda]
+    rds[(Legacy database<br/>RDS PostgreSQL)]
+  end
+
+  kms[(KMS keys<br/>encryption at rest)]
+  logs[(CloudWatch<br/>spans and cost per query)]
+
+  usuario --> api --> agente
+  agente -- SQL tools --> funciones
+  agente -- proposed order --> aprobacion
+  aprobacion -- approved or rejected --> funciones
+  funciones --> rds
+  agente -.-> logs
+  kms -.-> vpc
