@@ -202,12 +202,12 @@ def test_vigente_ec2_pregunta_por_id_y_un_id_que_no_existe_es_falso():
 # ---------- week 20: the ids the ia and computo stacks leave in the Tagging API ----------
 
 def test_id_de_arn_conserva_la_version_del_prompt():
-    assert inv.id_de_arn("arn:aws:bedrock:us-east-1:000000000000:prompt/ZF4KNSIULX:1") == "ZF4KNSIULX:1"
-    assert inv.id_de_arn("arn:aws:bedrock:us-east-1:000000000000:prompt/ZF4KNSIULX") == "ZF4KNSIULX"
-    assert inv.id_de_arn("arn:aws:cognito-idp:us-east-1:000000000000:userpool/us-east-1_AbC") == "us-east-1_AbC"
-    assert inv.id_de_arn("arn:aws:budgets::000000000000:budget/semana19/action/b0859efb-f017-47b6-ac3f-bc8ecbc17e87") \
+    assert inv.id_de_arn("arn:aws:bedrock:us-east-1:<account>:prompt/ZF4KNSIULX:1") == "ZF4KNSIULX:1"
+    assert inv.id_de_arn("arn:aws:bedrock:us-east-1:<account>:prompt/ZF4KNSIULX") == "ZF4KNSIULX"
+    assert inv.id_de_arn("arn:aws:cognito-idp:us-east-1:<account>:userpool/us-east-1_AbC") == "us-east-1_AbC"
+    assert inv.id_de_arn("arn:aws:budgets::<account>:budget/semana19/action/b0859efb-f017-47b6-ac3f-bc8ecbc17e87") \
         == "b0859efb-f017-47b6-ac3f-bc8ecbc17e87"
-    assert inv.id_de_arn("arn:aws:ec2:us-east-1:000000000000:vpc-endpoint/vpce-0abc") == "vpce-0abc"
+    assert inv.id_de_arn("arn:aws:ec2:us-east-1:<account>:vpc-endpoint/vpce-0abc") == "vpce-0abc"
 
 
 class _NoExiste(Exception):
@@ -238,7 +238,7 @@ class _Cliente:
         return {"KeyMetadata": {"KeyState": self.vivos[KeyId]}}
 
     def get_caller_identity(self):
-        return {"Account": "000000000000"}
+        return {"Account": "<account>"}
 
     def get_paginator(self, _):
         acciones = self.acciones
