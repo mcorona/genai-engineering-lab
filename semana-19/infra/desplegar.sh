@@ -205,7 +205,7 @@ inicio=$(date +%s)
 if existe_stack semana19-cdktoolkit "$PERFIL_ADMIN"; then
   echo "== Paso 2: bootstrap s19 (actualiza la lista de políticas del rol de ejecución)"
 else
-  echo "== Paso 2: bootstrap s19 (crea; confía solo en $ARN_DESPLIEGUE)"
+  echo "== Paso 2: bootstrap s19 (crea; confía solo en ${ARN_DESPLIEGUE//$CUENTA/<account>})"
 fi
 cdk bootstrap "aws://$CUENTA/$REGION" --profile "$PERFIL_ADMIN" --qualifier s19 \
   --toolkit-stack-name semana19-cdktoolkit \

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -115,6 +116,9 @@ def test_un_perfil_de_aplicacion_por_componente_copia_su_perfil_de_sistema():
         assert origen.endswith(f':inference-profile/{config.PERFILES_DE_APLICACION[componente]}"]]}}'), origen
         etiquetas = {e["Key"]: e["Value"] for e in p["Tags"]}
         assert etiquetas["componente"] == componente and etiquetas["proyecto"] == "semana19"
+        # The resource schema's patterns (2026-11-24: a comma in Description failed ia's early validation).
+        assert re.fullmatch(r"([0-9a-zA-Z:.][ _-]?)+", p["Description"]), p["Description"]
+        assert re.fullmatch(r"([0-9a-zA-Z][ _-]?)+", p["InferenceProfileName"]), p["InferenceProfileName"]
 
 
 def test_el_agente_llama_su_perfil_de_aplicacion_y_ningun_otro_modelo():
