@@ -61,3 +61,8 @@
 {"fecha": "2026-11-23", "paso": "datos", "segundos": 14, "modo": "si"}
 {"fecha": "2026-11-23", "paso": "ia", "segundos": 82, "modo": "si"}
 {"fecha": "2026-11-23", "paso": "cargar-e-ingerir", "segundos": 7, "modo": "si"}
+{"fecha": "2026-11-23", "paso": "destruir-computo", "segundos": 2457, "modo": "destruir-si"}
+{"fecha": "2026-11-23", "paso": "destruir-datos", "segundos": 1292, "modo": "destruir-si"}
+{"fecha": "2026-11-23", "paso": "destruir-base-retenido", "segundos": 34, "modo": "destruir-si"}
+{"fecha": "2026-11-23", "paso": "destruir-bootstrap", "segundos": 33, "modo": "destruir-si"}
+{"fecha": "2026-11-23", "paso": "destruir-control", "segundos": 66, "modo": "destruir-si"}
