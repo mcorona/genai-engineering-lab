@@ -1397,7 +1397,7 @@ class Computo(Stack):
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
                          "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name,
                          "MODELO": perfil_agente or perfil_modelo,
-                         **entorno_del_camino(), **entorno_del_presupuesto()},
+                         **entorno_del_camino(), **entorno_del_presupuesto(), **entorno_de_la_cache()},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
         # Week 20, activity 2: with the application profile, the role names that profile in place of the system one;
         # the foundation model behind it stays the only model (inference-profiles-prereq: the profile and the
@@ -1588,6 +1588,20 @@ def entorno_del_presupuesto() -> dict:
     if valor not in ("semana17", "techo_semana20"):
         raise RuntimeError(f"unknown PRESUPUESTO_TAREA: {valor}")
     return {} if valor == "semana17" else {"PRESUPUESTO_TAREA": valor}
+
+
+def entorno_de_la_cache() -> dict:
+    """Prompt caching for the agent (week 20, activity 3; ADR 0014), chosen at synth time: CACHE_PROMPT and CACHE_TTL
+    override ia/config.py for one deploy (the activity 3 run: CACHE_PROMPT=historial). The defaults (off, 5m) add no
+    variable, so the week 19 templates do not change."""
+    c = _config()
+    modo = os.environ.get("CACHE_PROMPT") or c.CACHE_PROMPT
+    ttl = os.environ.get("CACHE_TTL") or c.CACHE_TTL
+    if modo not in c.MODOS_CACHE:
+        raise RuntimeError(f"unknown CACHE_PROMPT: {modo}")
+    if ttl not in c.TTLS_CACHE:
+        raise RuntimeError(f"unknown CACHE_TTL: {ttl}")
+    return {**({} if modo == "off" else {"CACHE_PROMPT": modo}), **({} if ttl == "5m" else {"CACHE_TTL": ttl})}
 
 
 NOMBRE_GATEWAY = "semana19-gateway"

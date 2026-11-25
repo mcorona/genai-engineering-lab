@@ -199,7 +199,7 @@ def test_el_bucle_no_cambia_y_las_herramientas_van_por_el_gateway():
     assert res.estado == "respondida" and res.respuesta == "Hay 12 proveedores"
     assert s.llamadas == [("herramientas___ejecutar_sql", {"sql": "SELECT COUNT(*) FROM legado.prvmst"})]
     assert lam.cargas == [] and s.cerradas == 1   # nothing by lambda.invoke; the session ends with the question
-    herramienta, agente = res.spans
+    herramienta, agente = [x for x in res.spans if x["tipo"] != "chat"]   # week 20: chat spans per model call
     assert herramienta["attrs"]["gen_ai.tool.type"] == "extension" and agente["tipo"] == "invoke_agent"
 
 
@@ -231,7 +231,7 @@ def test_un_token_que_vence_a_mitad_del_bucle_cierra_con_error_y_no_sigue():
     res = H.tratar_pregunta(PREGUNTA, H.alcance_desde_claims(CLAIMS), **deps)
     assert res.estado == "error" and res.respuesta == H.TEXTO_TOKEN_VENCIDO
     assert len(s.llamadas) == 1 and modelo.turno == 2 and s.cerradas == 1
-    ok, vencida, agente = res.spans
+    ok, vencida, agente = [x for x in res.spans if x["tipo"] != "chat"]
     assert ok["attrs"]["lab.tool.status"] == "ok"
     assert vencida["attrs"]["error.type"] == "token_vencido" and agente["attrs"]["lab.outcome.status"] == "error"
 
@@ -256,5 +256,6 @@ def test_los_spans_execute_tool_cumplen_el_esquema_bloqueado_de_la_semana_17(mon
         deps["llamar_herramienta"]._reloj = lambda: AHORA
     H.tratar_pregunta(PREGUNTA, H.alcance_desde_claims(CLAIMS), **deps)
     exportadas = [json.loads(l) for l in lineas]
-    assert [e["tipo"] for e in exportadas] == ["execute_tool", "invoke_agent"]
+    # week 20, activity 3: one chat span per model call, also inside the locked shape (strict mode raised nothing)
+    assert [e["tipo"] for e in exportadas] == ["execute_tool", "chat", "chat", "invoke_agent"]
     assert all(e["omitidos"] == [] for e in exportadas)

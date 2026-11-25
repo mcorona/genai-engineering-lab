@@ -13,6 +13,9 @@ differences, from `resultados/linea_base.md` section 3:
 - no `cachePoint` (week 20 measures caching alone, in activity 3).
 
 Its output goes to `resultados/corrida_corregida/`, and the detail to `resultados/corrida_corregida_detalle.jsonl`.
+
+Week 20, activity 3 reuses this run as it is (`cache/corrida.py`): `Corrida` holds what changes from one run to the
+next (its folder, caps, expected cost, the agent environment it requires, extra detail columns), and `main` takes one.
 """
 from __future__ import annotations
 
@@ -23,6 +26,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Callable
 
 S20 = Path(__file__).resolve().parents[1]
 RAIZ = S20.parent
@@ -35,6 +39,23 @@ PRESUPUESTO = "techo_semana20"
 TOPE_USD = 2.50
 TOPE_TOKENS = 2_200_000
 COSTO_ESPERADO_TAREA = 0.045   # USD: week 19's median 0.037, plus the steps the cut tasks still needed
+
+
+class Corrida:
+    """One run of the 20 tasks: where it writes, its caps over its own files, and what the agent must be running.
+    A plain class, not a dataclass: this module is loaded from its file without a sys.modules entry."""
+
+    def __init__(self, *, salida: Path, detalle: Path, tope_usd: float, tope_tokens: int, costo_esperado_tarea: float,
+                 exigir: dict | None = None,
+                 columnas_detalle: Callable[[dict, list[dict]], list[dict]] | None = None):
+        self.salida, self.detalle = salida, detalle
+        self.tope_usd, self.tope_tokens, self.costo_esperado_tarea = tope_usd, tope_tokens, costo_esperado_tarea
+        self.exigir = dict(exigir or {"PRESUPUESTO_TAREA": PRESUPUESTO})
+        self.columnas_detalle = columnas_detalle   # (raw run, detail lines) -> lines with the run's own columns
+
+
+CORREGIDA = Corrida(salida=SALIDA, detalle=DETALLE, tope_usd=TOPE_USD, tope_tokens=TOPE_TOKENS,
+                    costo_esperado_tarea=COSTO_ESPERADO_TAREA)
 
 
 def _eval_aws():
@@ -50,23 +71,24 @@ def _eval_aws():
     return m
 
 
-def tope(E, carpeta: Path = SALIDA):
+def tope(E, carpeta: Path = SALIDA, corrida: Corrida = CORREGIDA):
     """This run's cap minus what its earlier attempts spent (their raw files, discarded ones included)."""
-    t = E.C.Tope(usd=TOPE_USD, tokens=TOPE_TOKENS)
+    t = E.C.Tope(usd=corrida.tope_usd, tokens=corrida.tope_tokens)
     for archivo in sorted(carpeta.glob("crudo_eval*.json")):
         g = json.loads(archivo.read_text(encoding="utf-8"))["gasto"]
         t.sumar(g["usd"], g["tokens"])
     return t
 
 
-def plan(E, tareas: list[dict], calentamiento: list[dict]) -> dict:
-    t = tope(E)
+def plan(E, tareas: list[dict], calentamiento: list[dict], corrida: Corrida = CORREGIDA) -> dict:
+    t = tope(E, corrida.salida, corrida)
     lim = E.C.limite_de_tarea()
     return {"tareas": [x["id"] for x in tareas], "calentamiento": [x["id"] for x in calentamiento],
             "presupuesto_del_agente": {"valor": PRESUPUESTO, "usd": lim.usd, "tokens": lim.tokens},
-            "tope": {"usd": TOPE_USD, "tokens": TOPE_TOKENS},
+            "entorno_exigido": dict(corrida.exigir),
+            "tope": {"usd": corrida.tope_usd, "tokens": corrida.tope_tokens},
             "gastado_antes": {"usd": round(t.gastado_usd, 6), "tokens": t.gastado_tokens},
-            "esperado_usd_modelo": round(COSTO_ESPERADO_TAREA * (len(tareas) + len(calentamiento)), 2)}
+            "esperado_usd_modelo": round(corrida.costo_esperado_tarea * (len(tareas) + len(calentamiento)), 2)}
 
 
 def exigir_presupuesto(variables: dict) -> None:
@@ -74,6 +96,28 @@ def exigir_presupuesto(variables: dict) -> None:
     if valor != PRESUPUESTO:
         raise SystemExit(f"the deployed agent uses PRESUPUESTO_TAREA={valor}: deploy computo with "
                          f"PRESUPUESTO_TAREA={PRESUPUESTO}; no task is sent")
+
+
+def exigir_entorno(variables: dict, corrida: Corrida = CORREGIDA) -> None:
+    """Nothing is sent unless the deployed agent runs every value the run requires."""
+    exigir_presupuesto(variables)
+    for clave, valor in corrida.exigir.items():
+        if variables.get(clave) != valor:
+            raise SystemExit(f"the deployed agent has {clave}={variables.get(clave)}: deploy computo with "
+                             f"{clave}={valor}; no task is sent")
+
+
+def escribir_detalle(E, datos: dict, corrida: Corrida = CORREGIDA) -> Path:
+    lineas = E.detalle(datos)
+    if corrida.columnas_detalle is None:
+        return E.escribir_detalle(lineas, corrida.detalle)
+    for l in lineas:   # the base columns keep week 19's schema; the run's own columns are added after the check
+        errores = E.validar_detalle(l)
+        if errores:
+            raise ValueError(f"line outside the schema: {l['id']}: {errores}")
+    extendidas = corrida.columnas_detalle(datos, lineas)
+    corrida.detalle.write_text("".join(json.dumps(l, ensure_ascii=False) + "\n" for l in extendidas), encoding="utf-8")
+    return corrida.detalle
 
 
 def descartar_previa(carpeta: Path = SALIDA) -> Path | None:
@@ -85,7 +129,7 @@ def descartar_previa(carpeta: Path = SALIDA) -> Path | None:
     return destino
 
 
-def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
+def main(argv=None, corrida: Corrida = CORREGIDA) -> int:  # pragma: no cover - the CLI around the tested functions
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
     ap.add_argument("--informe", "--report", action="store_true", help="writes the detail from the raw file, without AWS")
@@ -93,19 +137,19 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     E = _eval_aws()
     tareas, calentamiento = E.tareas_ci(), E.tareas_de_calentamiento()
     if a.informe:
-        datos = json.loads((SALIDA / "crudo_eval.json").read_text(encoding="utf-8"))
-        print(E.escribir_detalle(E.detalle(datos), DETALLE))
+        datos = json.loads((corrida.salida / "crudo_eval.json").read_text(encoding="utf-8"))
+        print(escribir_detalle(E, datos, corrida))
         print(json.dumps({k: datos[k] for k in ("resumen", "gasto", "acceso")}, ensure_ascii=False, indent=2))
         return 0
     if not a.si:
-        print(json.dumps(plan(E, tareas, calentamiento), ensure_ascii=False, indent=2))
+        print(json.dumps(plan(E, tareas, calentamiento, corrida), ensure_ascii=False, indent=2))
         print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = E.AwsEval(os.environ.get("S19_PERFIL", "manuel-admin"))
     if aws.camino_desplegado != "directo":
         raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; the run goes through the direct path")
-    exigir_presupuesto(aws.lam.get_function_configuration(FunctionName=aws.computo["ArnAgente"])
-                       ["Environment"]["Variables"])
+    exigir_entorno(aws.lam.get_function_configuration(FunctionName=aws.computo["ArnAgente"])
+                   ["Environment"]["Variables"], corrida)
     todas = tareas + calentamiento
     esperados = aws.cargador_invoca({"modo": "esperados", "consultas": E.consultas_esperadas(todas)})["esperados"]
     tareas, calentamiento = E.con_esperados(tareas, esperados), E.con_esperados(calentamiento, esperados)
@@ -114,22 +158,23 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     if not all(c["ok"] for c in acceso):
         print(json.dumps(acceso, ensure_ascii=False, indent=2))
         raise SystemExit("the access checks did not return 401 and 403: no task is sent")
-    previa = descartar_previa()
+    previa = descartar_previa(corrida.salida)
     if previa:
         print(f"previous run kept as {previa.name}; its spend still counts toward the cap")
-    t = tope(E)
+    t = tope(E, corrida.salida, corrida)
     medir = lambda x: E.C.medir_api(x, "directo", token=token, http=aws.http, spans_entre=aws.spans_entre,  # noqa: E731
                                     largo_respuesta=E.LARGO_RESPUESTA)
     comun = dict(medir=medir, ejecutar_sql=aws.ejecutar_sql, reportes=aws.reportes, tope=t, referencias=E.CR.cargar())
     frio = E.correr(calentamiento, en_paralelo=True, **comun)
     principal = E.correr(tareas, **comun)
-    datos = {"fecha": time.strftime("%Y-%m-%d"), "presupuesto_del_agente": PRESUPUESTO, "acceso": acceso,
-             "calentamiento": frio, "filas": principal, "esperados": esperados,
-             "gasto": E.gasto(frio + principal), "tope": {"usd": TOPE_USD, "tokens": TOPE_TOKENS},
+    datos = {"fecha": time.strftime("%Y-%m-%d"), "presupuesto_del_agente": PRESUPUESTO, "entorno": dict(corrida.exigir),
+             "acceso": acceso, "calentamiento": frio, "filas": principal, "esperados": esperados,
+             "gasto": E.gasto(frio + principal), "tope": {"usd": corrida.tope_usd, "tokens": corrida.tope_tokens},
              "resumen": {"exito": E.resumen_exito(principal), "latencia": E.resumen_latencia(frio + principal),
                          "trayectoria": E.resumen_trayectoria(principal), "costo": E.resumen_costo(frio + principal),
                          "comparacion": E.comparar_con_lineas_base(principal)}}
-    print(E.escribir("crudo_eval.json", datos, [aws.cuenta], carpeta=SALIDA))
+    print(E.escribir("crudo_eval.json", datos, [aws.cuenta], carpeta=corrida.salida))
+    print(escribir_detalle(E, datos, corrida))
     print(json.dumps(datos["resumen"], ensure_ascii=False, indent=2))
     return 0
 

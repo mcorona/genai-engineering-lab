@@ -30,3 +30,18 @@ USAR_PERFIL_DE_APLICACION = True
 # Component -> the system profile it copies. The judge keeps its own model (a model other than the agent's, week 19
 # activity 8); batch enrichment (activity 5) runs on Haiku 4.5. Only the agent's profile is called in activity 2.
 PERFILES_DE_APLICACION = {"agente": MODELO_ID, "juez": MODELO_JUEZ_ID, "enriquecimiento": MODELO_ID}
+
+# Week 20, activity 3: prompt caching, one value (ADR 0014). The modes, with what they cache on Haiku 4.5:
+# - "off": no cache point, week 19's request (default, so each optimization is measured alone);
+# - "sistema": a point after the system prompt and the tools. About 2,800 tokens, under Haiku 4.5's minimum of 4,096
+#   per point, so it caches nothing here (a test says so); it would on a model with a lower minimum;
+# - "historial": the point at the end of the history, from the second call on, plus one on the previous call's;
+# - "historial+sistema": both (on Haiku 4.5 the same tokens as "historial").
+# The activity 3 run deploys computo with CACHE_PROMPT=historial at synth time; activity 9 decides the combined value.
+# agente/construccion.py repeats the default (ia/ is not in the Lambda package; a test checks they are equal).
+MODOS_CACHE = ("off", "sistema", "historial", "historial+sistema")
+CACHE_PROMPT = "off"
+# "5m" (write at 1.25x input) or "1h" (write at 2x). The steps of a query are seconds apart, and no two queries share
+# a cached prefix, so 5 minutes is enough (ADR 0014).
+TTLS_CACHE = ("5m", "1h")
+CACHE_TTL = "5m"
