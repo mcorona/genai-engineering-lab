@@ -47,6 +47,13 @@ def test_sin_la_cache_desplegada_no_se_manda_nada(LB, variables):
     LB.exigir_entorno({"PRESUPUESTO_TAREA": "techo_semana20", "CACHE_PROMPT": "historial"}, CORR.corrida(LB))
 
 
+def test_el_ttl_de_la_cache_es_el_de_omision(LB):
+    entorno = {"PRESUPUESTO_TAREA": "techo_semana20", "CACHE_PROMPT": "historial"}
+    with pytest.raises(SystemExit, match="CACHE_TTL=1h"):
+        LB.exigir_entorno({**entorno, "CACHE_TTL": "1h"}, CORR.corrida(LB))
+    LB.exigir_entorno(entorno, CORR.corrida(LB))
+
+
 def test_la_corrida_corregida_sigue_igual(LB):
     assert LB.CORREGIDA.exigir == {"PRESUPUESTO_TAREA": "techo_semana20"} and LB.CORREGIDA.tope_usd == 2.50
     LB.exigir_entorno({"PRESUPUESTO_TAREA": "techo_semana20"})
@@ -102,7 +109,7 @@ def test_el_tope_del_script_cuenta_los_tokens_de_cache(LB):
     assert E.tokens_de({"tokens_entrada": 10, "tokens_salida": 5}) == 15
 
 
-FILA = {"id_tarea": "s03-es", "duracion_pasos_ms": [900.0, 600.0, 500.0], "spans_modelo": [
+FILA = {"id_tarea": "s03-es", "pasos": 3, "spans_completos": True, "duracion_pasos_ms": [900.0, 600.0, 500.0], "spans_modelo": [
     {"lab.step": 2, "gen_ai.usage.input_tokens": 40, "gen_ai.usage.output_tokens": 30,
      "gen_ai.usage.cache_read.input_tokens": 0, "gen_ai.usage.cache_creation.input_tokens": 4300, "lab.cost.usd": 0.006},
     {"lab.step": 1, "gen_ai.usage.input_tokens": 2900, "gen_ai.usage.output_tokens": 80,
@@ -117,7 +124,16 @@ def test_columnas_por_paso_y_aciertos():
     assert CORR.aciertos(pasos) == {"posibles": 1, "leyeron": 1, "tasa": 1.0}
     (l,) = CORR.columnas({"filas": [FILA]}, [{"id": "s03-es", "fase": "principal"}])
     assert l["latencia_primer_paso_ms"] == 900.0 and l["latencia_pasos_siguientes_ms_mediana"] == 550.0
-    assert l["region"] is None and len(l["pasos_modelo"]) == 3
+    assert l["region"] is None and len(l["pasos_modelo"]) == 3 and l["spans_modelo_validos"] is True
+
+
+@pytest.mark.parametrize("fila", [{**FILA, "pasos": 2},                  # another warm-up task's call leaked in
+                                  {**FILA, "spans_completos": False}])   # spans incomplete or not the task's own
+def test_spans_de_modelo_que_no_cuadran_con_la_tarea_no_dan_columnas(fila):
+    (l,) = CORR.columnas({"calentamiento": [fila]}, [{"id": "s03-es", "fase": "calentamiento"}])
+    assert l["spans_modelo_validos"] is False
+    assert all(l[k] is None for k in ("pasos_modelo", "aciertos_cache", "latencia_primer_paso_ms",
+                                      "latencia_pasos_siguientes_ms_mediana"))
 
 
 def test_un_paso_que_pudo_leer_y_no_leyo_es_un_fallo():
