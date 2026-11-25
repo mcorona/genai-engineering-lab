@@ -475,3 +475,5 @@ README (last).
   The run: 4/4 tasks answered, 0.0985182 USD from the spans and the same from EMF, against the 0.40 cap. The teardown
   ended in `"quedan": "nada"`. Cost Explorer by `componente` the next day closes the activity
   (`resultados/atribucion.md` §4).
+- 2026-11-24: activity 1, the last item. Manuel checked Cost Anomaly Detection in the console: a monitor is on, and
+  no anomaly is flagged (`resultados/linea_base.md` §4.9). Activity 8 uses it and does not create another one.

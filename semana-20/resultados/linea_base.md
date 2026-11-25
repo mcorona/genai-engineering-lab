@@ -272,6 +272,10 @@ A quota alone does not prove the model can be called. Activity 4 checks each can
 
 **Not checked through the API.** `ce:GetAnomalyMonitors` is a Cost Explorer call (0.01 USD) and needs Manuel's OK. Manuel checks it in the console, under Billing → Cost Anomaly Detection. The answer goes to activity 8's alarm design.
 
+**Checked in the console (Manuel, 2026-11-24):** a monitor is on, and it shows the account's spend within its normal range, with no anomaly flagged. Week 19 left the monitor out of its stack, so this one lives outside the IaC.
+- Activity 8 relies on it for the account-level anomaly signal. It does not create a second one; it adds only the per-query alarms (cost and tokens above p95 plus margin).
+- What is not recorded: the monitor's type and its alert subscription. They were read in the console only, with no API call.
+
 ## What activity 1 leaves to the next ones
 
 - Activity 2: application inference profiles and their tags; the first Cost Explorer check of the split.
