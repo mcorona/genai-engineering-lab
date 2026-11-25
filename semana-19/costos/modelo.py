@@ -10,6 +10,10 @@ Two versions of the tokens per query, both kept (activity 8, step 4: the model i
   (resultados/eval_aws/crudo_eval*.json and aprobacion_e2e.json), the same tasks Cost Explorer billed. The mean is the
   expected cost per query; p95 stays available for a conservative quote. No prompt caching was measured (0 cached
   tokens). v2 also lists ApplyGuardrail, which runs on every model call since activity 5: its price is N.
+- v3 (week 20, activity 3): v2 with prompt caching. The tokens per query come from the caching prediction
+  (semana-20/resultados/cache_prediccion.json, written before the run by semana-20/cache/prediccion.py), which prices
+  each step of the corrected run with `cache_por_paso`: the uncached input, the cache reads (0.1x input) and the
+  cache writes (1.25x with the 5-minute TTL, 2x with 1 hour) of the CACHE_PROMPT design (ADR 0014).
 """
 from __future__ import annotations
 
@@ -25,7 +29,10 @@ HORAS_MES = 730.0
 DIAS_MES = 30.0
 DETALLE_S13 = RAIZ / "semana-13" / "resultados" / "eval_sdk_low_detalle.jsonl"
 EVAL_AWS = COSTOS.parent / "resultados" / "eval_aws"
-VERSIONES = {"v1": "p95 of week 13's local runs", "v2": "the deployed agent's spans (activity 8, 57 tasks)"}
+VERSIONES = {"v1": "p95 of week 13's local runs", "v2": "the deployed agent's spans (activity 8, 57 tasks)",
+             "v3": "v2 with prompt caching (week 20, activity 3): the corrected run's steps, priced by cache_por_paso"}
+PREDICCION_CACHE = RAIZ / "semana-20" / "resultados" / "cache_prediccion.json"
+MINIMO_CACHE_HAIKU45 = 4096   # tokens before each cache point, cumulative (prompt-caching docs, read 2026-11-25)
 PERFILES = {
     # lab: 1 AZ, Single-AZ database, no public IPv4, 2 interface endpoints (logs, states; S3 is a gateway endpoint, not priced here).
     "lab": {"azs": 1, "rds_multi_az": False, "ipv4": 0, "endpoints": 2, "llaves_kms": 2, "log_gb": 1.0},
@@ -142,12 +149,67 @@ def lineas_fijas_mes(par: Parametros, precios: dict) -> list[dict]:
     return m
 
 
+def cache_por_paso(entrada_por_paso: list[float], *, minimo: int = MINIMO_CACHE_HAIKU45, p_acierto: float = 1.0,
+                   modo: str = "historial", prefijo_fijo: float = 0.0) -> list[dict]:
+    """Expected input tokens of each step of one query, split into uncached, read from and written to the cache.
+
+    `entrada_por_paso[k]` is the whole input of call k+1 (Converse's input + read + write). Design of ADR 0014:
+    - "off", or "sistema" with a fixed prefix under the minimum: everything uncached.
+    - "historial" (and "historial+sistema" while the fixed prefix is under the minimum, where its point caches
+      nothing): no point on the first call; from the second on, the point at the end of the history covers the whole
+      input. Under the minimum it is not cached. Over it: with probability `p_acierto` the call lands where the
+      previous call wrote (that call also over the minimum and itself a cached call) and reads that prefix, writing
+      only what was added; otherwise it reads nothing and writes the whole prefix (another server or Region).
+    """
+    if modo not in ("off", "sistema", "historial", "historial+sistema"):
+        raise ValueError(f"modo de caché desconocido: {modo}")
+    if modo in ("sistema", "historial+sistema") and prefijo_fijo >= minimo:
+        raise ValueError("the fixed prefix reaches the minimum: a system point is not modeled (not Haiku 4.5's case)")
+    pasos = []
+    for k, total in enumerate(entrada_por_paso):
+        if modo in ("off", "sistema") or k == 0 or total < minimo:
+            pasos.append({"sin_cache": total, "lectura": 0.0, "escritura": 0.0})
+            continue
+        previo = entrada_por_paso[k - 1]
+        p = p_acierto if (k >= 2 and previo >= minimo) else 0.0
+        pasos.append({"sin_cache": 0.0, "lectura": p * previo, "escritura": p * (total - previo) + (1 - p) * total})
+    return pasos
+
+
+def costo_cache_usd(pasos: list[dict], salida: float, precios: dict, ttl: str = "5m") -> float:
+    """USD of one query from cache_por_paso's steps and its output tokens, with precios.json's Haiku 4.5 prices."""
+    v = {k: precios[k]["valor"] for k in ("haiku45_entrada_1m", "haiku45_salida_1m", "haiku45_cache_lectura_1m",
+                                          f"haiku45_cache_escritura_{ttl}_1m")}
+    return (sum(p["sin_cache"] for p in pasos) * v["haiku45_entrada_1m"]
+            + sum(p["lectura"] for p in pasos) * v["haiku45_cache_lectura_1m"]
+            + sum(p["escritura"] for p in pasos) * v[f"haiku45_cache_escritura_{ttl}_1m"]
+            + salida * v["haiku45_salida_1m"]) / 1e6
+
+
+def tokens_v3(ruta: Path = PREDICCION_CACHE) -> dict:
+    """Mean tokens per query of the caching prediction's central scenario (the 20 main tasks)."""
+    if not ruta.exists():
+        raise FileNotFoundError("v3 needs semana-20/resultados/cache_prediccion.json (semana-20/cache/prediccion.py)")
+    return json.loads(ruta.read_text(encoding="utf-8"))["v3_por_consulta"]
+
+
 def lineas_consulta(par: Parametros, precios: dict, tokens_in: float, tokens_out: float) -> list[dict]:
-    fuente = f"{par.percentil_tokens} of week 13" if par.version == "v1" else \
-        f"{par.percentil_tokens} of the deployed agent (activity 8)"
+    fuente = {"v1": f"{par.percentil_tokens} of week 13",
+              "v2": f"{par.percentil_tokens} of the deployed agent (activity 8)",
+              "v3": "week 20 caching prediction (activity 3), central scenario"}[par.version]
     c = []
-    c.append(_linea("Haiku 4.5 (us.), input tokens", precios, "haiku45_entrada_1m", tokens_in / 1e6,
-                    "M tokens", "per query", fuente))
+    if par.version == "v3":
+        t = tokens_v3()
+        ttl = t.get("ttl", "5m")
+        c.append(_linea("Haiku 4.5 (us.), uncached input tokens", precios, "haiku45_entrada_1m",
+                        t["sin_cache"] / 1e6, "M tokens", "per query", fuente))
+        c.append(_linea("Haiku 4.5 (us.), cache read tokens", precios, "haiku45_cache_lectura_1m",
+                        t["lectura"] / 1e6, "M tokens", "per query", fuente))
+        c.append(_linea(f"Haiku 4.5 (us.), cache write tokens ({ttl})", precios,
+                        f"haiku45_cache_escritura_{ttl}_1m", t["escritura"] / 1e6, "M tokens", "per query", fuente))
+    else:
+        c.append(_linea("Haiku 4.5 (us.), input tokens", precios, "haiku45_entrada_1m", tokens_in / 1e6,
+                        "M tokens", "per query", fuente))
     c.append(_linea("Haiku 4.5 (us.), output tokens", precios, "haiku45_salida_1m", tokens_out / 1e6,
                     "M tokens", "per query", fuente))
     c.append(_linea("Lambda, GB-second", precios, "lambda_arm_gb_s", par.memoria_gb * par.duracion_s,
@@ -160,7 +222,7 @@ def lineas_consulta(par: Parametros, precios: dict, tokens_in: float, tokens_out
                     par.log_kb_por_consulta / 1e6, "GB", "per query"))
     c.append(_linea("AgentCore Gateway, invocations", precios, "agentcore_gateway_invocacion",
                     par.llamadas_gateway_por_consulta, "invocations", "per query"))
-    if par.version == "v2":
+    if par.version in ("v2", "v3"):
         c.append(_linea("ApplyGuardrail, text units", precios, "guardrail_unidad_texto", None,
                         "text units", "per query", "runs on every model call; neither price nor units measured"))
     return c
@@ -190,6 +252,9 @@ def modelo(par: Parametros) -> dict:
     precios = cargar_precios()
     if par.version == "v1":
         tin, tout = tokens_s13("tokens_in", par.percentil_tokens), tokens_s13("tokens_out", par.percentil_tokens)
+    elif par.version == "v3":
+        t = tokens_v3()
+        tin, tout = t["sin_cache"] + t["lectura"] + t["escritura"], t["salida"]
     else:
         tin, tout = tokens_desplegado("tokens_in", par.percentil_tokens), tokens_desplegado("tokens_out", par.percentil_tokens)
     fijas_h = lineas_fijas_hora(par, precios)
