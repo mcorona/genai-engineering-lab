@@ -264,7 +264,7 @@ print(json.dumps({{"sistema": hashlib.sha256(l.SISTEMA.encode()).hexdigest(), "c
 def test_contrato_en_el_entorno_de_cada_framework(venv):
     py = VENVS / venv / "bin" / "python"
     if not py.exists():
-        pytest.skip(f"sin el entorno {venv} (linea_base/preparar.sh)")
+        pytest.skip(f"no {venv} environment (linea_base/preparar.sh)")
     p = subprocess.run([str(py), "-c", PROG.format(s15=str(S15))], capture_output=True, text=True, timeout=60)
     assert p.returncode == 0, p.stderr[-800:]
     out = json.loads(p.stdout.strip().splitlines()[-1])

@@ -97,9 +97,9 @@ def evaluar(filas, seg, meta, umbrales, r14) -> tuple[list[str], list[str]]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", choices=["keycloak", "prueba"], default="keycloak")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--simular", action="store_true")
+    ap.add_argument("--emisor", "--issuer", choices=["keycloak", "prueba"], default="keycloak")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
+    ap.add_argument("--simular", "--simulate", action="store_true")
     ap.add_argument("--dir", type=Path, default=None, help="where the details go (by default, a temporary folder)")
     a = ap.parse_args(argv)
     if not a.simular and not os.environ.get("ANTHROPIC_API_KEY"):

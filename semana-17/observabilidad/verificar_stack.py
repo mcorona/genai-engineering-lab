@@ -135,7 +135,7 @@ def enviar_traza() -> str:
                 "gen_ai.tool.call.id": "toolu_1", "prueba.atributo": TODOS}) as herr:
             herr.add_event("evento " + c["email"], attributes={"prueba.evento": TODOS})
             try:
-                raise RuntimeError("fallo con " + c["dsn"] + " y " + c["bearer"])
+                raise RuntimeError("failed with " + c["dsn"] + " and " + c["bearer"])
             except RuntimeError as e:
                 herr.record_exception(e)
             herr.set_status(Status(StatusCode.ERROR, "estado " + c["clave_api"] + " " + c["telefono"]))
@@ -268,7 +268,7 @@ def traza_ok(m: dict) -> bool:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--salida", type=Path, default=S17 / "resultados" / "stack.json")
+    ap.add_argument("--salida", "--output", type=Path, default=S17 / "resultados" / "stack.json", metavar="OUTPUT")
     a = ap.parse_args(argv)
     if not docker("version", "--format", "{{.Server.Version}}"):
         print("Docker is not running", file=sys.stderr)

@@ -44,7 +44,7 @@ _H = {"Accept": "application/json, text/event-stream", "Content-Type": "applicat
 
 
 class Eco(BaseModel):
-    """Salida tipada de la herramienta de prueba (a nivel de módulo: el SDK resuelve las anotaciones por nombre)."""
+    """Typed output of the test tool (at module level: the SDK resolves the annotations by name)."""
     texto: str
 
 

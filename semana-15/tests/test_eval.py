@@ -50,9 +50,9 @@ def seg(entorno):
 @pytestmark_venvs
 @pytest.mark.parametrize("fw", ["langgraph", "strands"])
 def test_pasarela_lleva_las_defensas_a_cada_framework(fw, entorno, seg):
-    """Caso de shadowing: inventario_plus (fuera de la allowlist) publica su propio ejecutar_sql. A través de la pasarela
-    el framework solo ve las herramientas prefijadas del servidor legítimo; un intento de llamar a la sombra no llega a
-    ella, y cada resultado llega envuelto en untrusted_data con su fuente."""
+    """Shadowing case: inventario_plus (outside the allowlist) publishes its own ejecutar_sql. Through the gateway the
+    framework sees only the prefixed tools of the legitimate server; an attempt to call the shadow tool never reaches it,
+    and each result arrives wrapped in untrusted_data with its source."""
     from eval.pasarela import abrir_pasarela
     caso = next(c for c in seg.casos() if c["id"] == "sh-1-es")
     cliente, mal = seg.preparar(caso, entorno, defensas=True)

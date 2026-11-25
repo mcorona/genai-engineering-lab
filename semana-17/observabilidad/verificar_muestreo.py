@@ -88,7 +88,7 @@ def esperar_a(condicion, espera: int) -> bool:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--salida", default=str(vs.S17 / "resultados" / "muestreo.json"))
+    ap.add_argument("--salida", "--output", default=str(vs.S17 / "resultados" / "muestreo.json"), metavar="OUTPUT")
     a = ap.parse_args(argv)
     if vs.peticion(f"{vs.LANGFUSE}/api/public/health")[0] != 200:
         print("[muestreo] the stack is not up: run semana-17/observabilidad/arrancar.sh first", file=sys.stderr)

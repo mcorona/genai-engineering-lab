@@ -111,7 +111,7 @@ def cargar() -> dict[str, Referencia]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--verificar", action="store_true", help="rebuild and compare with the frozen files; write nothing")
+    ap.add_argument("--verificar", "--verify", action="store_true", help="rebuild and compare with the frozen files; write nothing")
     a = ap.parse_args()
     refs, manifiesto = construir()
     if a.verificar:

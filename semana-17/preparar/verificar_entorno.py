@@ -106,7 +106,7 @@ def revisar(sin_docker: bool) -> list[tuple[str, bool, str]]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--sin-docker", action="store_true", help="skip Docker checks (CI without the stack)")
+    ap.add_argument("--sin-docker", "--no-docker", action="store_true", help="skip Docker checks (CI without the stack)")
     ap.add_argument("--json", type=Path)
     a = ap.parse_args(argv)
     r = revisar(a.sin_docker)

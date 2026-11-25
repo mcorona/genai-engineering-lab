@@ -301,7 +301,7 @@ def test_sessionstart_base_inalcanzable_bloquea(tmp_path):
 
 @pytest.mark.skipif(not (DSN or ADMIN), reason="sin PG_DSN ni PG_ADMIN_DSN")
 def test_sessionstart_rol_de_solo_lectura(tmp_path):
-    """Con PG_DSN (copilot_ro en CI) o, si no hay, con un rol de solo lectura creado para la prueba."""
+    """With PG_DSN (copilot_ro in CI) or, without it, with a read-only role created for the test."""
     import psycopg
     from psycopg.conninfo import make_conninfo
     dsn, temporal = DSN, False

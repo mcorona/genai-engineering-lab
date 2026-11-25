@@ -167,11 +167,11 @@ def servir(dsn: str | None, puerto: int, bitacora: str, canario: str, datos: dic
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--puerto", type=int, default=8716)
-    ap.add_argument("--bitacora", required=True)
-    ap.add_argument("--canario", default="VALIDADO-0000")
-    ap.add_argument("--datos", help="serve a snapshot written by exportar() instead of reading the database")
-    ap.add_argument("--exportar", help="write the snapshot to this file and exit")
+    ap.add_argument("--puerto", "--port", type=int, default=8716, metavar="PORT")
+    ap.add_argument("--bitacora", "--log", required=True, metavar="LOG")
+    ap.add_argument("--canario", "--canary", default="VALIDADO-0000", metavar="CANARY")
+    ap.add_argument("--datos", "--data", help="serve a snapshot written by exportar() instead of reading the database", metavar="DATA")
+    ap.add_argument("--exportar", "--export", help="write the snapshot to this file and exit", metavar="EXPORT")
     a = ap.parse_args(argv)
     if a.exportar:
         exportar(os.environ["PG_DSN"], a.exportar)

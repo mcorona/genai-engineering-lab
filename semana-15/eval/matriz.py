@@ -32,7 +32,7 @@ EV = {
     "COA": "../adaptadores/openai_agents.py", "CADK": "../adaptadores/google_adk.py",
 }
 OPCIONES = {"langgraph": "LangGraph", "strands": "Strands Agents", "openai": "OpenAI Agents SDK",
-            "adk": "Google ADK", "propio": "No framework (own loop)"}
+            "adk": "Google ADK", "propio": "No framework (hand-written loop)"}
 CRITERIOS = {
     "modelo": "Fit with the client's model provider",
     "nube": "Independence from one cloud or vendor",
@@ -271,7 +271,7 @@ def renderizar(texto: str) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pesos", type=Path, help="a client's JSON: provider, cloud and weights")
+    ap.add_argument("--pesos", "--weights", type=Path, help="a client's JSON: provider, cloud and weights", metavar="WEIGHTS")
     a = ap.parse_args(argv)
     if a.pesos:
         cfg = json.loads(a.pesos.read_text())

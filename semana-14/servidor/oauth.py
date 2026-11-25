@@ -118,17 +118,17 @@ class VerificadorJWT:
         try:
             cabecera = jwt.get_unverified_header(token)
         except jwt.PyJWTError as e:
-            raise ErrorToken(f"malformado: {e}") from None
+            raise ErrorToken(f"malformed: {e}") from None
         if cabecera.get("alg") not in self.algoritmos:          # rejects none, HS256 and anything else before anything
-            raise ErrorToken(f"algoritmo no permitido: {cabecera.get('alg')!r}")
+            raise ErrorToken(f"algorithm not allowed: {cabecera.get('alg')!r}")
         try:
             clave = self.jwks.get_signing_key_from_jwt(token).key   # unknown kid: refresh the JWKS once
             c = jwt.decode(token, clave, algorithms=list(self.algoritmos), audience=self.audiencia, issuer=self.emisor,
                            leeway=self.margen_s, options={"require": ["exp", "iat", "iss", "aud", "sub"]})
         except jwt.PyJWTError as e:
             raise ErrorToken(f"{type(e).__name__}: {e}") from None
-        if c.get("typ", "Bearer") != "Bearer":                   # un ID token o un refresh token no son access tokens
-            raise ErrorToken(f"tipo de token no permitido: {c.get('typ')!r}")
+        if c.get("typ", "Bearer") != "Bearer":                   # an ID token or a refresh token is not an access token
+            raise ErrorToken(f"token type not allowed: {c.get('typ')!r}")
         return AccessToken(token=token, client_id=c.get("azp") or c.get("client_id") or "",
                            scopes=str(c.get("scope", "")).split(), expires_at=int(c["exp"]), resource=self.audiencia,
                            subject=c["sub"], claims={k: c[k] for k in ("iss", "azp", "sid") if k in c})

@@ -384,9 +384,9 @@ def simular_auditoria(tipo: str, destino: Path) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--simular", action="store_true", help="$0: saved runs instead of the model")
-    ap.add_argument("--emisor", choices=["keycloak", "prueba"], default="keycloak")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
+    ap.add_argument("--simular", "--simulate", action="store_true", help="$0: saved runs instead of the model")
+    ap.add_argument("--emisor", "--issuer", choices=["keycloak", "prueba"], default="keycloak")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
     ap.add_argument("--dir", type=Path, help="where the run's evidence goes (default: a temporary folder)")
     a = ap.parse_args(argv)
     if not a.simular and not os.environ.get("ANTHROPIC_API_KEY"):

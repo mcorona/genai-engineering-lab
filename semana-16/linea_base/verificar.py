@@ -193,7 +193,7 @@ def con_modelo() -> list[dict]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--con-modelo", action="store_true")
+    ap.add_argument("--con-modelo", "--with-model", action="store_true")
     a = ap.parse_args(argv)
     r = sin_modelo() + (con_modelo() if a.con_modelo else [])
     RES.mkdir(exist_ok=True)

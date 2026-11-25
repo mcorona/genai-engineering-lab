@@ -33,10 +33,10 @@ chmod 600 "$SECRETOS"
 set -a; source "$SECRETOS"; set +a
 
 case "${1:-}" in
-  --detener) "${COMPOSE[@]}" stop; exit 0 ;;
-  --borrar) "${COMPOSE[@]}" down -v; exit 0 ;;
+  --detener|--stop) "${COMPOSE[@]}" stop; exit 0 ;;
+  --borrar|--delete) "${COMPOSE[@]}" down -v; exit 0 ;;
   "") ;;
-  *) echo "usage: $0 [--detener|--borrar]" >&2; exit 2 ;;
+  *) echo "usage: $0 [--detener|--stop|--borrar|--delete]" >&2; exit 2 ;;
 esac
 
 if [[ "$MODO" == docker ]]; then

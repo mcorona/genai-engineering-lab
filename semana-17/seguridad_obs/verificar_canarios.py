@@ -113,7 +113,7 @@ def buscar(trazas: dict[str, str], espera_s: int = 120) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--una", choices=("on", "off"), help=argparse.SUPPRESS)
+    ap.add_argument("--una", "--one", choices=("on", "off"), help=argparse.SUPPRESS)
     a = ap.parse_args(argv)
     if a.una:
         print("RESULTADO " + json.dumps(una_corrida(a.una)))

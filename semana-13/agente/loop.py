@@ -101,7 +101,7 @@ def api_anthropic(cuerpo: dict, reintentos: int = 4) -> dict:
                 time.sleep(2 ** (intento + 1))
                 continue
             raise
-    raise RuntimeError("API sin respuesta")
+    raise RuntimeError("no response from the API")
 
 
 def costo(modelo: str, tin: int, tout: int) -> float:

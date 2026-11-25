@@ -139,6 +139,6 @@ def revelar(nombre: str) -> int:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--revelar")
+    ap.add_argument("--revelar", "--reveal", metavar="REVEAL")
     a = ap.parse_args()
     raise SystemExit(revelar(a.revelar) if a.revelar else sellar())

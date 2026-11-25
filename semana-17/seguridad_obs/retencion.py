@@ -105,9 +105,9 @@ def demostrar() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dias", type=float, default=DIAS_POR_OMISION)
-    ap.add_argument("--borrar", action="store_true", help="delete (default: dry run)")
-    ap.add_argument("--demostrar", action="store_true", help="the proof on tenant B's project")
+    ap.add_argument("--dias", "--days", type=float, default=DIAS_POR_OMISION, metavar="DAYS")
+    ap.add_argument("--borrar", "--delete", action="store_true", help="delete (default: dry run)")
+    ap.add_argument("--demostrar", "--demo", action="store_true", help="the proof on tenant B's project")
     a = ap.parse_args(argv)
     if a.demostrar:
         informe = demostrar()

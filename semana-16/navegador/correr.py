@@ -137,11 +137,11 @@ def correr(modelo: str, tope: float, turnos: int, ejecutable: str | None) -> Pat
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--modelo", default="haiku")
-    ap.add_argument("--tope", type=float, default=0.50, help="--max-budget-usd for the run")
-    ap.add_argument("--turnos", type=int, default=30)
-    ap.add_argument("--ejecutable", help="browser executable for Playwright MCP (the container's Chromium)")
-    ap.add_argument("--revisar", action="store_true", help="re-score the saved run without the model")
+    ap.add_argument("--modelo", "--model", default="haiku", metavar="MODEL")
+    ap.add_argument("--tope", "--cap", type=float, default=0.50, help="--max-budget-usd for the run", metavar="CAP")
+    ap.add_argument("--turnos", "--turns", type=int, default=30, metavar="TURNS")
+    ap.add_argument("--ejecutable", "--executable", help="browser executable for Playwright MCP (the container's Chromium)", metavar="EXECUTABLE")
+    ap.add_argument("--revisar", "--review", action="store_true", help="re-score the saved run without the model")
     a = ap.parse_args(argv)
     d = SALIDA / a.modelo if a.revisar else correr(a.modelo, a.tope, a.turnos, a.ejecutable)
     meta = json.loads((d / "meta.json").read_text(encoding="utf-8"))

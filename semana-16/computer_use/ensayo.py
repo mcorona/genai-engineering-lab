@@ -203,9 +203,9 @@ def probar_entorno(modo: str, chrome: str | None, datos: Path) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--modo", choices=("docker", "local"), default="docker")
+    ap.add_argument("--modo", "--mode", choices=("docker", "local"), default="docker")
     ap.add_argument("--chrome")
-    ap.add_argument("--salida", default=str(AQUI.parent / "resultados" / "computer_use" / "ensayo.json"))
+    ap.add_argument("--salida", "--output", default=str(AQUI.parent / "resultados" / "computer_use" / "ensayo.json"), metavar="OUTPUT")
     a = ap.parse_args(argv)
     os.environ.pop("ANTHROPIC_API_KEY", None)
     datos = Path(tempfile.mkdtemp(prefix="cu-ensayo-")) / "datos.json"

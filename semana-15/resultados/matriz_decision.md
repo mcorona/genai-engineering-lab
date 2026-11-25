@@ -45,7 +45,7 @@ Scale 1 to 5, where 5 is best for the client. After each score:
 Two criteria depend on the client: model provider and hosting platform. Each has one row per case.
 
 <!-- tabla:puntajes -->
-| Criterion | LangGraph | Strands Agents | OpenAI Agents SDK | Google ADK | No framework (own loop) |
+| Criterion | LangGraph | Strands Agents | OpenAI Agents SDK | Google ADK | No framework (hand-written loop) |
 |---|---|---|---|---|---|
 | Fit with the client's model provider: Claude | **5** M · [A1](linea_base.md), [A5](frameworks.md) | **5** M · [A1](linea_base.md), [A5](frameworks.md) | **3** M · [A6](spikes.md) | **3** M · [A1](linea_base.md), [A6](spikes.md) | **5** M · [A5](frameworks.md), [L13](../../semana-13/agente/loop.py) |
 | Fit with the client's model provider: OpenAI | **5** N · not measured | **4** N · not measured | **5** N · not measured | **3** N · not measured | **1** N · not measured |
@@ -91,14 +91,14 @@ Each scenario fixes the model provider and the hosting platform, and spreads 100
 Weighted score per option (1 to 5). The last column perturbs every weight at random by up to ±30% (2,000 draws) and reports how often the same option still wins. Below 90%, treat the top two as a tie and decide on the deciding factor in the recommendation.
 
 <!-- tabla:resultados -->
-| Scenario | LangGraph | Strands Agents | OpenAI Agents SDK | Google ADK | No framework (own loop) | Winner | Margin | Same winner under ±30% weights |
+| Scenario | LangGraph | Strands Agents | OpenAI Agents SDK | Google ADK | No framework (hand-written loop) | Winner | Margin | Same winner under ±30% weights |
 |---|---|---|---|---|---|---|---|---|
 | Client on AWS | 4.03 | **4.42** | 2.97 | 3.21 | 3.89 | Strands Agents | +0.39 over LangGraph | 100% |
 | Client on Google Cloud | **4.05** | 3.55 | 2.75 | 3.90 | 3.15 | LangGraph | +0.15 over Google ADK | 98% |
 | Client standardized on OpenAI | **4.13** | 3.98 | 3.35 | 3.23 | 3.07 | LangGraph | +0.15 over Strands Agents | 98% |
 | Regulated multicloud enterprise | 4.05 | **4.15** | 2.90 | 3.30 | 3.50 | Strands Agents | +0.10 over LangGraph | 85% |
 | Startup prototype | **4.15** | 3.95 | 3.10 | 3.00 | 3.95 | LangGraph | +0.20 over Strands Agents | 100% |
-| Small team, one agent, strict dependency policy | 4.00 | 4.15 | 3.10 | 3.00 | **4.20** | No framework (own loop) | +0.05 over Strands Agents | 78% |
+| Small team, one agent, strict dependency policy | 4.00 | 4.15 | 3.10 | 3.00 | **4.20** | No framework (hand-written loop) | +0.05 over Strands Agents | 78% |
 <!-- /tabla:resultados -->
 
 ## Recommendation by scenario
@@ -177,35 +177,35 @@ It prints the ranking for your weights. The scores and their evidence stay fixed
 | Fit with the client's model provider (OpenAI) | Google ADK | 3 N | through LiteLLM, as Claude was |
 | Fit with the client's model provider (Gemini) | Google ADK | 5 N | native (not exercised here) |
 | Fit with the client's model provider (several providers) | Google ADK | 3 M | non-Google models through LiteLLM |
-| Fit with the client's model provider (Claude) | No framework (own loop) | 5 M | direct Messages API over HTTP |
-| Fit with the client's model provider (OpenAI) | No framework (own loop) | 1 N | client written for one API; switching = rewrite |
-| Fit with the client's model provider (Gemini) | No framework (own loop) | 1 N | client written for one API; switching = rewrite |
-| Fit with the client's model provider (several providers) | No framework (own loop) | 1 N | one client per provider to write and test |
+| Fit with the client's model provider (Claude) | No framework (hand-written loop) | 5 M | direct Messages API over HTTP |
+| Fit with the client's model provider (OpenAI) | No framework (hand-written loop) | 1 N | client written for one API; switching = rewrite |
+| Fit with the client's model provider (Gemini) | No framework (hand-written loop) | 1 N | client written for one API; switching = rewrite |
+| Fit with the client's model provider (several providers) | No framework (hand-written loop) | 1 N | one client per provider to write and test |
 | Independence from one cloud or vendor | LangGraph | 5 D | runs anywhere; managed on LangSmith, Vertex AI and AgentCore |
 | Independence from one cloud or vendor | Strands Agents | 4 M | ran locally and on AgentCore unchanged; its managed path is AWS |
 | Independence from one cloud or vendor | OpenAI Agents SDK | 3 D | portable code, but its tracing exports to OpenAI by default |
 | Independence from one cloud or vendor | Google ADK | 3 D | runs anywhere; native Claude and managed path lean on Google Cloud |
-| Independence from one cloud or vendor | No framework (own loop) | 5 M | plain Python and HTTP |
+| Independence from one cloud or vendor | No framework (hand-written loop) | 5 M | plain Python and HTTP |
 | MCP and A2A support | LangGraph | 3 M | MCP adapter on protocol 2025-11-25, one session per call unless kept open; no A2A in the library (A2A client written by us) |
 | MCP and A2A support | Strands Agents | 4 M | MCP 2026-07-28; A2A server v0.3 that enforces no auth (we added the middleware) |
 | MCP and A2A support | OpenAI Agents SDK | 3 M | MCP 2026-07-28, tool results arrive as a Python repr; no A2A |
 | MCP and A2A support | Google ADK | 4 M | the only one that keeps the MCP untrusted-data marker; A2A v1.0 that declares OAuth without enforcing it |
-| MCP and A2A support | No framework (own loop) | 3 M | MCP through our week 14 secure client; no A2A |
+| MCP and A2A support | No framework (hand-written loop) | 3 M | MCP through our week 14 secure client; no A2A |
 | Security and permission control | LangGraph | 4 M | 38/38 poisoning cases with the MCP gateway; untrusted marker lost in the adapter |
 | Security and permission control | Strands Agents | 4 M | 38/38 with the MCP gateway; A2A auth had to be added |
 | Security and permission control | OpenAI Agents SDK | 3 N | poisoning suite not run; tracing sends data to OpenAI unless disabled |
 | Security and permission control | Google ADK | 3 N | poisoning suite not run; A2A accepts calls without a token |
-| Security and permission control | No framework (own loop) | 5 M | 140/140 security runs in week 13; secure MCP client native |
+| Security and permission control | No framework (hand-written loop) | 5 M | 140/140 security runs in week 13; secure MCP client native |
 | State and human-in-the-loop | LangGraph | 5 M | checkpoints and `interrupt()` before purchase proposals, tested |
 | State and human-in-the-loop | Strands Agents | 4 M | interrupts tested; session managers documented, not exercised |
 | State and human-in-the-loop | OpenAI Agents SDK | 3 D | MCP approval items and sessions in the package, not exercised |
 | State and human-in-the-loop | Google ADK | 3 D | `require_confirmation` and session services in the package, not exercised |
-| State and human-in-the-loop | No framework (own loop) | 2 M | no checkpoints; approval only as `PENDING_APPROVAL` proposals |
+| State and human-in-the-loop | No framework (hand-written loop) | 2 M | no checkpoints; approval only as `PENDING_APPROVAL` proposals |
 | Observability | LangGraph | 2 M | 0 OpenTelemetry spans from the library (LangSmith or external instrumentation) |
 | Observability | Strands Agents | 5 M | OpenTelemetry GenAI spans (15 `gen_ai.*` attributes); CloudWatch on AgentCore |
 | Observability | OpenAI Agents SDK | 2 M | own tracing, exported to OpenAI by default; 0 OpenTelemetry spans |
 | Observability | Google ADK | 4 M | OpenTelemetry GenAI spans (9 attributes) |
-| Observability | No framework (own loop) | 3 M | own JSONL traces per step; no OpenTelemetry |
+| Observability | No framework (hand-written loop) | 3 M | own JSONL traces per step; no OpenTelemetry |
 | Managed deployment on the client's platform (AWS) | LangGraph | 4 D | AgentCore runs any framework |
 | Managed deployment on the client's platform (Google Cloud) | LangGraph | 4 D | Vertex AI Agent Engine |
 | Managed deployment on the client's platform (no preference) | LangGraph | 4 D | LangSmith Deployment or any container |
@@ -218,22 +218,22 @@ It prints the ranking for your weights. The scores and their evidence stay fixed
 | Managed deployment on the client's platform (AWS) | Google ADK | 3 D | AgentCore runs any framework |
 | Managed deployment on the client's platform (Google Cloud) | Google ADK | 5 D | Vertex AI Agent Engine, Cloud Run |
 | Managed deployment on the client's platform (no preference) | Google ADK | 3 N | a container you run |
-| Managed deployment on the client's platform (AWS) | No framework (own loop) | 4 M | the AgentCore entry point is framework-agnostic (it wraps a plain function) |
-| Managed deployment on the client's platform (Google Cloud) | No framework (own loop) | 3 N | a container on Cloud Run |
-| Managed deployment on the client's platform (no preference) | No framework (own loop) | 3 N | a container you run |
+| Managed deployment on the client's platform (AWS) | No framework (hand-written loop) | 4 M | the AgentCore entry point is framework-agnostic (it wraps a plain function) |
+| Managed deployment on the client's platform (Google Cloud) | No framework (hand-written loop) | 3 N | a container on Cloud Run |
+| Managed deployment on the client's platform (no preference) | No framework (hand-written loop) | 3 N | a container you run |
 | Maturity and license | LangGraph | 5 D | MIT, 1.x Production/Stable, 65 installed packages |
 | Maturity and license | Strands Agents | 4 D | Apache-2.0, 1.x Production/Stable, 77 packages; A2A pinned to v0.3 |
 | Maturity and license | OpenAI Agents SDK | 3 D | MIT, 0.x (no stability classifier) |
 | Maturity and license | Google ADK | 4 D | Apache-2.0, 2.x |
-| Maturity and license | No framework (own loop) | 3 M | your code, one dependency (pydantic); no community and you maintain it |
+| Maturity and license | No framework (hand-written loop) | 3 M | your code, one dependency (pydantic); no community and you maintain it |
 | Team learning curve | LangGraph | 4 M | 145 lines, 12 min from request to merged PR; explicit state schema |
 | Team learning curve | Strands Agents | 3 M | 166 lines, 17 min; needs its internals (metrics timing, concurrent tools by default) |
 | Team learning curve | OpenAI Agents SDK | 3 M | about 119 lines, but LiteLLM pitfalls need a request-level test |
 | Team learning curve | Google ADK | 3 M | about 133 lines; prompt quirks (appended identity line, `{...}` as state) |
-| Team learning curve | No framework (own loop) | 4 M | about 209 lines of plain Python; nothing to learn, everything to own |
+| Team learning curve | No framework (hand-written loop) | 4 M | about 209 lines of plain Python; nothing to learn, everything to own |
 | Measured cost per task | LangGraph | 4 M | $0.0030 per task (+11% vs cheapest) |
 | Measured cost per task | Strands Agents | 5 M | $0.0029 per task (+7% vs cheapest) |
 | Measured cost per task | OpenAI Agents SDK | 4 M | $0.0032 per task (+19% vs cheapest) |
 | Measured cost per task | Google ADK | 2 M | $0.0046 per task (+70% vs cheapest) |
-| Measured cost per task | No framework (own loop) | 5 M | $0.0027 per task (+0% vs cheapest) |
+| Measured cost per task | No framework (hand-written loop) | 5 M | $0.0027 per task (+0% vs cheapest) |
 <!-- /tabla:notas -->

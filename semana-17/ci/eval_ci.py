@@ -254,8 +254,8 @@ def resumen_job(lineas: list[str]) -> None:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", required=True, help="evidence directory (uploaded as the CI artifact)")
-    ap.add_argument("--simular", action="store_true", help="$0: replayed and scripted models")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
+    ap.add_argument("--simular", "--simulate", action="store_true", help="$0: replayed and scripted models")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
     a = ap.parse_args(argv)
     destino = Path(a.dir)
     destino.mkdir(parents=True, exist_ok=True)

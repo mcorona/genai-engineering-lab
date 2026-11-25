@@ -74,7 +74,7 @@ class ServidorA2A:
                 return
             except Exception:  # noqa: BLE001
                 time.sleep(0.1)
-        raise RuntimeError("el servidor A2A no arrancó (¿puerto 8015 ocupado?)")
+        raise RuntimeError("the A2A server did not start (is port 8015 in use?)")
 
     def cerrar(self):
         self.p.terminate()
@@ -83,11 +83,11 @@ class ServidorA2A:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", choices=["auto", "keycloak", "prueba"], default="auto")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--simular", action="store_true")
-    ap.add_argument("--solo-reporte", action="store_true")
-    ap.add_argument("--solo-compras", action="store_true", help="keep the tasks already measured and repeat only purchasing")
+    ap.add_argument("--emisor", "--issuer", choices=["auto", "keycloak", "prueba"], default="auto")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
+    ap.add_argument("--simular", "--simulate", action="store_true")
+    ap.add_argument("--solo-reporte", "--report-only", action="store_true")
+    ap.add_argument("--solo-compras", "--purchases-only", action="store_true", help="keep the tasks already measured and repeat only purchasing")
     a = ap.parse_args(argv)
     if a.solo_reporte:
         return reporte(json.loads((RES / "multiagente_meta.json").read_text()))

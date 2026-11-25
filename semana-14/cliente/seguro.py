@@ -71,22 +71,22 @@ def validar_url_servidor(url: str) -> None:
     elif p.scheme == "http" and _loopback(p.hostname):
         pass
     else:
-        raise ErrorCliente(f"URL de servidor no permitida: {url!r} (solo https, o http en loopback)")
+        raise ErrorCliente(f"server URL not allowed: {url!r} (https only, or http on loopback)")
     if p.username or p.password or p.fragment:
-        raise ErrorCliente(f"URL de servidor con credenciales o fragmento: {url!r}")
+        raise ErrorCliente(f"server URL with credentials or a fragment: {url!r}")
 
 
 def validar_metadatos_recurso(meta: dict, url_servidor: str, emisores: tuple[str, ...]) -> str:
     """A12: the metadata's `resource` is the server we are connecting to and the issuer is an expected one.
     Returns the chosen issuer. It is compared as an exact string (not normalized), as RFC 9207 requires."""
     if meta.get("resource") != url_servidor:
-        raise ErrorCliente(f"resource {meta.get('resource')!r} no es el servidor {url_servidor!r}")
+        raise ErrorCliente(f"resource {meta.get('resource')!r} is not the server {url_servidor!r}")
     servidores = meta.get("authorization_servers") or []
     for s in servidores:
         validar_url_servidor(s)
     elegidos = [s for s in servidores if s in emisores]
     if not elegidos:
-        raise ErrorCliente(f"ningún emisor esperado en authorization_servers={servidores!r}")
+        raise ErrorCliente(f"no expected issuer in authorization_servers={servidores!r}")
     return elegidos[0]
 
 
@@ -99,7 +99,7 @@ def descubrir(url_servidor: str, emisores: tuple[str, ...]) -> str:
 
     class _SinRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, *a, **k):
-            raise ErrorCliente("los metadatos del recurso no deben redirigir")
+            raise ErrorCliente("the resource metadata must not redirect")
     with urllib.request.build_opener(_SinRedirect()).open(url_meta, timeout=10) as r:
         return validar_metadatos_recurso(json.load(r), url_servidor, emisores)
 

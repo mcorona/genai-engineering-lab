@@ -115,7 +115,7 @@ DESCRIPCIONES = {
 
 
 def definiciones() -> list[dict]:
-    """Definiciones de herramientas en el formato de la API de Anthropic (name, description, input_schema)."""
+    """Tool definitions in the Anthropic API format (name, description, input_schema)."""
     out = []
     for nombre, modelo in ENTRADAS.items():
         esquema = modelo.model_json_schema()

@@ -70,7 +70,7 @@ class Local:
                 return
             except Exception:  # noqa: BLE001
                 time.sleep(0.1)
-        raise RuntimeError("main.py no arrancó")
+        raise RuntimeError("main.py did not start")
 
     def invocar(self, payload: dict, sesion: str, usuario: str | None = USUARIO) -> dict:
         h = {"content-type": "application/json", "X-Amzn-Bedrock-AgentCore-Runtime-Session-Id": sesion}
@@ -134,7 +134,7 @@ class Tunel:
                 self.publica = m.group(0)
         if not self.publica:
             self.cerrar()
-            raise RuntimeError("cloudflared no entregó una URL en 60 s")
+            raise RuntimeError("cloudflared did not return a URL in 60 s")
         threading.Thread(target=lambda: [None for _ in self.p.stderr], daemon=True).start()   # drain stderr
         for _ in range(60):                       # the URL takes a few seconds to resolve
             try:
@@ -145,7 +145,7 @@ class Tunel:
             except Exception:  # noqa: BLE001
                 time.sleep(2)
         self.cerrar()
-        raise RuntimeError("el túnel no respondió")
+        raise RuntimeError("the tunnel did not respond")
 
     def cerrar(self):
         self.p.terminate()
@@ -157,12 +157,12 @@ class Tunel:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--destino", choices=["local", "agentcore"], default="agentcore")
-    ap.add_argument("--emisor", choices=["auto", "keycloak", "prueba"], default="auto")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--hilos", type=int, default=2)
-    ap.add_argument("--simular", action="store_true")
-    ap.add_argument("--solo-reporte", action="store_true")
+    ap.add_argument("--destino", "--target", choices=["local", "agentcore"], default="agentcore")
+    ap.add_argument("--emisor", "--issuer", choices=["auto", "keycloak", "prueba"], default="auto")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
+    ap.add_argument("--hilos", "--threads", type=int, default=2, metavar="THREADS")
+    ap.add_argument("--simular", "--simulate", action="store_true")
+    ap.add_argument("--solo-reporte", "--report-only", action="store_true")
     a = ap.parse_args(argv)
     if a.solo_reporte:
         return reporte(json.loads((RES / "agentcore_meta.json").read_text()))
