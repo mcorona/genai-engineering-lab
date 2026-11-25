@@ -105,13 +105,13 @@ def reevaluar(nombre):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--nombre", default="", help="result label: base, lora, ...")
+    ap.add_argument("--nombre", "--name", default="", help="result label: base, lora, ...", metavar="NAME")
     ap.add_argument("--base-url", default="http://localhost:1234/v1")
-    ap.add_argument("--modelo", default="qwen3.8-27b-mlx@4bit")
-    ap.add_argument("--limite", type=int, default=0)
-    ap.add_argument("--reglas", action="store_true", help="add all the rules to the system prompt")
+    ap.add_argument("--modelo", "--model", default="qwen3.8-27b-mlx@4bit", metavar="MODEL")
+    ap.add_argument("--limite", "--limit", type=int, default=0, metavar="LIMIT")
+    ap.add_argument("--reglas", "--rules", action="store_true", help="add all the rules to the system prompt")
     ap.add_argument("--rag", action="store_true", help="add only the rules relevant to each question")
-    ap.add_argument("--reevaluar", default="", help="recompute the metrics of a saved detail file, without a model")
+    ap.add_argument("--reevaluar", "--rescore", default="", help="recompute the metrics of a saved detail file, without a model", metavar="DETAIL_FILE")
     args = ap.parse_args()
 
     if args.reevaluar:
