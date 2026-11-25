@@ -31,6 +31,7 @@ Script paths are relative to `semana-20/`.
 | `atribucion/crudo.json` | Activity 2: the raw run of four tasks through an application inference profile | `atribucion/corrida.py --si` |
 | `atribucion/emf.json` | Activity 2: the sums of the `LegacyBridge` EMF metrics over the run's window | `atribucion/corrida.py --metricas` |
 | `atribucion/cost_explorer.json` | Activity 2: the Cost Explorer query, grouped by the `componente` tag, and its result | `atribucion/corrida.py --cost-explorer` |
+| `cache_medicion.json` | Activity 3: the offline measurement of the cacheable prompt prefix, estimated from the token counts of the corrected run | `cache/medir.py` / `tests/test_cache_medicion.py` |
 
 ## Keys
 
