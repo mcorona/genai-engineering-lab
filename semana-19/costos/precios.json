@@ -129,11 +129,11 @@
       "fecha": "2026-11-13"
     },
     "haiku45_cache_lectura_1m": {
-      "valor": null,
-      "unidad": "USD por 1M tokens de caché (lectura)",
-      "marca": "N",
-      "fuente": "la semana 12 medió la cache de lectura solo para perfil global; el regional no está en el catálogo medido",
-      "fecha": "2026-10-28"
+      "valor": 0.11,
+      "unidad": "USD por 1M tokens leídos de la caché (regional, us.)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonBedrockFoundationModels, model Claude Haiku 4.5, usagetype USE1-MP:USE1_CacheReadInputTokenCount-Units, SKU VJXPZKPF7EDCFXN3 (semana-20/resultados/linea_base.md §4.1)",
+      "fecha": "2026-11-23"
     },
     "agentcore_gateway_invocacion": {
       "valor": 5e-06,
@@ -162,6 +162,20 @@
       "marca": "N",
       "fuente": "no medido: el Price List de la línea base no lo trae; Cost Explorer lo junta en la línea Amazon Bedrock con el juez y Titan (actividad 8)",
       "fecha": "2026-11-21"
+    },
+    "haiku45_cache_escritura_5m_1m": {
+      "valor": 1.375,
+      "unidad": "USD por 1M tokens escritos en la caché, TTL de 5 minutos (regional, us.)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonBedrockFoundationModels, model Claude Haiku 4.5, usagetype USE1-MP:USE1_CacheWriteInputTokenCount-Units, SKU CDG7WESKYQ9N9KDN (semana-20/resultados/linea_base.md §4.1)",
+      "fecha": "2026-11-23"
+    },
+    "haiku45_cache_escritura_1h_1m": {
+      "valor": 2.2,
+      "unidad": "USD por 1M tokens escritos en la caché, TTL de 1 hora (regional, us.)",
+      "marca": "M",
+      "fuente": "Price List API, AmazonBedrockFoundationModels, model Claude Haiku 4.5, usagetype USE1-MP:USE1_CacheWrite1hInputTokenCount-Units, SKU WTCBCUF6TGQ5M3NB (semana-20/resultados/linea_base.md §4.1)",
+      "fecha": "2026-11-23"
     }
   }
 }

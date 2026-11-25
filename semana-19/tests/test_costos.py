@@ -135,7 +135,7 @@ def test_v1_se_conserva_y_v2_usa_los_tokens_del_agente_desplegado():
     assert haiku == pytest.approx(media, rel=1e-6)
     assert v2["costo_por_hora_usd"] == v1["costo_por_hora_usd"]   # the per-hour part did not change
     with pytest.raises(ValueError):
-        correr(version="v3")
+        correr(version="v4")
 
 
 def test_tokens_del_desplegado_por_estadistico(tmp_path):

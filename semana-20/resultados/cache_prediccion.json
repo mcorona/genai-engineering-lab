@@ -1,0 +1,583 @@
+{
+ "fecha": "2026-11-25",
+ "fuente": "resultados/cache_medicion.json; semana-19/costos/precios.json; costos/modelo.py cache_por_paso",
+ "diseno": {
+  "CACHE_PROMPT": "historial",
+  "CACHE_TTL": "5m",
+  "adr": "semana-19/arquitectura/adr/0014-prompt-caching.md"
+ },
+ "linea_base": {
+  "tareas": 20,
+  "modelo_sin_cache": {
+   "total": 0.927825,
+   "mediana": 0.034076,
+   "p95": 0.106158,
+   "media": 0.046391
+  },
+  "corrida_corregida_real": {
+   "total": 0.927825,
+   "mediana": 0.034076,
+   "p95": 0.106158,
+   "media": 0.046391
+  },
+  "diferencia_modelo_vs_real_usd": 0.0
+ },
+ "escenarios": {
+  "optimista": {
+   "p_acierto": 1.0,
+   "total": 0.510544,
+   "mediana": 0.02174,
+   "p95": 0.046182,
+   "media": 0.025527,
+   "ahorro_pct": 45.0,
+   "tokens": {
+    "sin_cache": 93166,
+    "lectura": 452412,
+    "escritura": 111299
+   },
+   "con_calentamiento_usd": 0.565418
+  },
+  "pesimista": {
+   "p_acierto": 0.3333,
+   "total": 0.892078,
+   "mediana": 0.033436,
+   "p95": 0.098515,
+   "media": 0.044604,
+   "ahorro_pct": 3.9,
+   "tokens": {
+    "sin_cache": 93166,
+    "lectura": 150804,
+    "escritura": 412907
+   },
+   "con_calentamiento_usd": 0.971672
+  },
+  "peor": {
+   "p_acierto": 0.0,
+   "total": 1.082845,
+   "mediana": 0.039846,
+   "p95": 0.128702,
+   "media": 0.054142,
+   "ahorro_pct": -16.7,
+   "tokens": {
+    "sin_cache": 93166,
+    "lectura": 0,
+    "escritura": 563711
+   },
+   "con_calentamiento_usd": 1.174799
+  }
+ },
+ "equilibrio_p_acierto": 0.2709,
+ "ttl_1h_optimista": {
+  "total": 0.602366,
+  "ahorro_pct": 35.1
+ },
+ "latencia": "N: the prompt-caching docs give no latency figure for Bedrock",
+ "v3_por_consulta": {
+  "ttl": "5m",
+  "sin_cache": 4658.3,
+  "lectura": 22620.6,
+  "escritura": 5564.9,
+  "salida": 1866.0,
+  "usd": 0.0255272
+ },
+ "por_tarea": [
+  {
+   "id": "s03-es",
+   "pasos": 3,
+   "real_usd": 0.0175769,
+   "sin_cache_usd": 0.017577,
+   "optimista": 0.014603,
+   "pesimista": 0.018211,
+   "peor": 0.020015,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4278
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4278,
+    309
+   ]
+  },
+  {
+   "id": "s06-es",
+   "pasos": 6,
+   "real_usd": 0.0392337,
+   "sin_cache_usd": 0.039234,
+   "optimista": 0.021732,
+   "pesimista": 0.037976,
+   "peor": 0.046099,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4290,
+    4599,
+    5000,
+    5373
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4290,
+    309,
+    401,
+    373,
+    328
+   ]
+  },
+  {
+   "id": "r02-es",
+   "pasos": 8,
+   "real_usd": 0.0723019,
+   "sin_cache_usd": 0.072302,
+   "optimista": 0.040324,
+   "pesimista": 0.069389,
+   "peor": 0.083922,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4295,
+    4863,
+    5411,
+    6077,
+    6616,
+    7203
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4295,
+    568,
+    548,
+    666,
+    539,
+    587,
+    587
+   ]
+  },
+  {
+   "id": "r05-es",
+   "pasos": 11,
+   "real_usd": 0.09216900000000001,
+   "sin_cache_usd": 0.092169,
+   "optimista": 0.03571,
+   "pesimista": 0.085861,
+   "peor": 0.110936,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4502,
+    5371,
+    5653,
+    6270,
+    6652,
+    6903,
+    7500,
+    8145,
+    8471
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4502,
+    869,
+    282,
+    617,
+    382,
+    251,
+    597,
+    645,
+    326,
+    305
+   ]
+  },
+  {
+   "id": "r12-es",
+   "pasos": 5,
+   "real_usd": 0.0363704,
+   "sin_cache_usd": 0.03637,
+   "optimista": 0.021749,
+   "pesimista": 0.035653,
+   "peor": 0.042605,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    5151,
+    5493,
+    5843
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    5151,
+    342,
+    350,
+    340
+   ]
+  },
+  {
+   "id": "c02-es",
+   "pasos": 4,
+   "real_usd": 0.028862900000000004,
+   "sin_cache_usd": 0.028863,
+   "optimista": 0.019374,
+   "pesimista": 0.028985,
+   "peor": 0.033791,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    5180,
+    6217
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    5180,
+    1037,
+    307
+   ]
+  },
+  {
+   "id": "c06-es",
+   "pasos": 7,
+   "real_usd": 0.0632489,
+   "sin_cache_usd": 0.063249,
+   "optimista": 0.034996,
+   "pesimista": 0.060883,
+   "peor": 0.073826,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4502,
+    5811,
+    6297,
+    6801,
+    7285
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4502,
+    1309,
+    486,
+    504,
+    484,
+    482
+   ]
+  },
+  {
+   "id": "v01-es",
+   "pasos": 4,
+   "real_usd": 0.021081500000000003,
+   "sin_cache_usd": 0.021081,
+   "optimista": 0.018208,
+   "pesimista": 0.021669,
+   "peor": 0.023399,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    0,
+    4104
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0,
+    4104,
+    220
+   ]
+  },
+  {
+   "id": "a01-es",
+   "pasos": 2,
+   "real_usd": 0.0096404,
+   "sin_cache_usd": 0.00964,
+   "optimista": 0.00964,
+   "pesimista": 0.00964,
+   "peor": 0.00964,
+   "lectura_por_paso_optimista": [
+    0,
+    0
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0
+   ]
+  },
+  {
+   "id": "n01-es",
+   "pasos": 3,
+   "real_usd": 0.0169884,
+   "sin_cache_usd": 0.016988,
+   "optimista": 0.016988,
+   "pesimista": 0.016988,
+   "peor": 0.016988,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    0
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "s03-en",
+   "pasos": 5,
+   "real_usd": 0.0315029,
+   "sin_cache_usd": 0.031503,
+   "optimista": 0.018923,
+   "pesimista": 0.030943,
+   "peor": 0.036953,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4127,
+    4928,
+    5198
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4127,
+    801,
+    270,
+    367
+   ]
+  },
+  {
+   "id": "s06-en",
+   "pasos": 5,
+   "real_usd": 0.0317823,
+   "sin_cache_usd": 0.031782,
+   "optimista": 0.019483,
+   "pesimista": 0.031219,
+   "peor": 0.037088,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4248,
+    4637,
+    5032
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4248,
+    389,
+    395,
+    343
+   ]
+  },
+  {
+   "id": "r02-en",
+   "pasos": 10,
+   "real_usd": 0.11411180000000001,
+   "sin_cache_usd": 0.114112,
+   "optimista": 0.058549,
+   "pesimista": 0.108393,
+   "peor": 0.133315,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4850,
+    5494,
+    6299,
+    7036,
+    7764,
+    8419,
+    9275,
+    9966
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4850,
+    644,
+    805,
+    737,
+    728,
+    655,
+    856,
+    691,
+    760
+   ]
+  },
+  {
+   "id": "r05-en",
+   "pasos": 12,
+   "real_usd": 0.1057397,
+   "sin_cache_usd": 0.10574,
+   "optimista": 0.037066,
+   "pesimista": 0.097995,
+   "peor": 0.128459,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    5309,
+    5514,
+    5937,
+    6166,
+    6958,
+    7186,
+    8203,
+    8398,
+    9026,
+    9551
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    5309,
+    205,
+    423,
+    229,
+    792,
+    228,
+    1017,
+    195,
+    628,
+    525,
+    818
+   ]
+  },
+  {
+   "id": "r12-en",
+   "pasos": 8,
+   "real_usd": 0.0558228,
+   "sin_cache_usd": 0.055823,
+   "optimista": 0.023372,
+   "pesimista": 0.052564,
+   "peor": 0.06716,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4615,
+    5552,
+    5801,
+    5985,
+    6238,
+    6424
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4615,
+    937,
+    249,
+    184,
+    253,
+    186,
+    186
+   ]
+  },
+  {
+   "id": "c02-en",
+   "pasos": 6,
+   "real_usd": 0.0378598,
+   "sin_cache_usd": 0.03786,
+   "optimista": 0.02453,
+   "pesimista": 0.037484,
+   "peor": 0.043962,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    0,
+    4907,
+    5120,
+    5334
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0,
+    4907,
+    213,
+    214,
+    1493
+   ]
+  },
+  {
+   "id": "c06-en",
+   "pasos": 10,
+   "real_usd": 0.10080510000000001,
+   "sin_cache_usd": 0.100805,
+   "optimista": 0.045531,
+   "pesimista": 0.094832,
+   "peor": 0.119482,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    4840,
+    6274,
+    6742,
+    7230,
+    7670,
+    8109,
+    8577,
+    9017
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    4840,
+    1434,
+    468,
+    488,
+    440,
+    439,
+    468,
+    440,
+    440
+   ]
+  },
+  {
+   "id": "v01-en",
+   "pasos": 5,
+   "real_usd": 0.0282931,
+   "sin_cache_usd": 0.028293,
+   "optimista": 0.025334,
+   "pesimista": 0.02896,
+   "peor": 0.030773,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    0,
+    0,
+    4300
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0,
+    0,
+    4300,
+    418
+   ]
+  },
+  {
+   "id": "a01-en",
+   "pasos": 2,
+   "real_usd": 0.008899,
+   "sin_cache_usd": 0.008899,
+   "optimista": 0.008899,
+   "pesimista": 0.008899,
+   "peor": 0.008899,
+   "lectura_por_paso_optimista": [
+    0,
+    0
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0
+   ]
+  },
+  {
+   "id": "n01-en",
+   "pasos": 3,
+   "real_usd": 0.015534200000000001,
+   "sin_cache_usd": 0.015534,
+   "optimista": 0.015534,
+   "pesimista": 0.015534,
+   "peor": 0.015534,
+   "lectura_por_paso_optimista": [
+    0,
+    0,
+    0
+   ],
+   "escritura_por_paso_optimista": [
+    0,
+    0,
+    0
+   ]
+  }
+ ]
+}

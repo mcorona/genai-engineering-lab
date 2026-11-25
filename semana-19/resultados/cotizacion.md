@@ -168,3 +168,32 @@ The total was close, but the items were not:
   authorizations. The bill counts 56 and 55, which include `tools/list` and the live Policy test.
 
 The stack hours (0.16 in the estimate) were not new spend, since the base stack ran all day.
+
+## Week 20, activity 3: v3, prompt caching (predicted before the run)
+
+v3 is v2 with prompt caching (`costos/modelo.py`: `cache_por_paso`, `costo_cache_usd`, `tokens_v3`). It prices each
+model call of the week 20 corrected run (2026-11-23, 20 tasks, the same tasks the cache run repeats) with the design
+of ADR 0014 (`CACHE_PROMPT=historial`, TTL 5 minutes). The cache prices are Price List rows (M), now in `precios.json`:
+read 0.11 (SKU VJXPZKPF7EDCFXN3), write 1.375 with 5 minutes (CDG7WESKYQ9N9KDN) and 2.20 with 1 hour
+(WTCBCUF6TGQ5M3NB), USD per 1M tokens, regional. The prediction file is
+`semana-20/resultados/cache_prediccion.json`, committed before the run; a test fails if it changes.
+
+The model reproduces the corrected run exactly without the cache: 0.927825 USD for the 20 tasks, a median of
+0.034076. With the cache:
+
+| Scenario | Hit probability | Per task, median (USD) | Per task, p95 | 20 tasks | Saving |
+|---|---|---|---|---|---|
+| Corrected run, no cache (real) | — | 0.034076 | 0.106158 | 0.927825 | — |
+| v3 optimistic (central) | 1 | 0.021740 | 0.046182 | 0.510544 | 45.0% |
+| v3 pessimistic | 1/3 (3 Regions) | 0.033436 | 0.098515 | 0.892078 | 3.9% |
+| v3 worst | 0 | 0.039846 | 0.128702 | 1.082845 | −16.7% |
+
+- Break-even hit probability: 0.27. With the 1-hour TTL, the optimistic total would be 0.602366 (35.1%).
+- Latency: N. The docs give no figure for Bedrock.
+- Per query in the quote (lab, 100 queries a day, 8 h a day): v3 is 0.02555523 USD, against 0.0309413 for v2, and
+  the month is 86.9094 USD against 103.0676 for v2. The two use different token bases (v2 is week 19's 57 tasks,
+  v3 the corrected run), so the saving is read against the corrected run's own 0.046391 mean, not against v2.
+  ApplyGuardrail stays N in both.
+
+The real row and the error go here after the run (`semana-20/resultados/cache.md`). If the error passes ±20%, the
+model is corrected and both versions are kept.
