@@ -5,7 +5,7 @@
 | What | File |
 |---|---|
 | Measurement (step 1) | [`cache_medicion.json`](cache_medicion.json), from [`cache/medir.py`](../cache/medir.py) |
-| Prediction (step 3), committed before the run | [`cache_prediccion.json`](cache_prediccion.json), from [`cache/prediccion.py`](../cache/prediccion.py) and quote v3 ([`costos/modelo.py`](../../semana-19/costos/modelo.py)) |
+| Prediction (step 3), committed before the run | [`cache_prediccion.json`](cache_prediccion.json), from [`cache/prediccion.py`](../cache/prediccion.py) and quotation v3 ([`costos/modelo.py`](../../semana-19/costos/modelo.py)) |
 | Run (step 4) | `cache/` (raw), `cache_detalle.jsonl`, `cache_comparacion.json`: pending |
 
 ## 1. Measurement: the cacheable prefix per step
@@ -48,14 +48,14 @@ The source is the corrected run's saved spans (`corrida_corregida/crudo_eval.jso
   - whether caching works through an application inference profile;
   - whether the Guardrail re-evaluates cached content.
 
-## 3. Prediction (quote v3), before the run
+## 3. Prediction (quotation v3), before the run
 
 Each measured call is priced with `cache_por_paso` (ADR 0014's rule). Without the cache, the model reproduces the corrected run exactly: 0.927825 USD, median 0.034076.
 
 | Scenario | Hit probability | Median per task (USD) | p95 | 20 tasks | Saving |
 |---|---|---|---|---|---|
 | Corrected run (real, no cache) | — | 0.034076 | 0.106158 | 0.927825 | — |
-| Optimistic (quote v3's central) | 1 | 0.021740 | 0.046182 | 0.510544 | 45.0% |
+| Optimistic (quotation v3's central) | 1 | 0.021740 | 0.046182 | 0.510544 | 45.0% |
 | Pessimistic (uniform over the 3 Regions of the `us.` profile) | 1/3 | 0.033436 | 0.098515 | 0.892078 | 3.9% |
 | Worst (no call reads) | 0 | 0.039846 | 0.128702 | 1.082845 | −16.7% |
 

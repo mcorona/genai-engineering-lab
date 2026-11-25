@@ -190,7 +190,7 @@ The model reproduces the corrected run exactly without the cache: 0.927825 USD f
 
 - Break-even hit probability: 0.27. With the 1-hour TTL, the optimistic total would be 0.602366 (35.1%).
 - Latency: N. The docs give no figure for Bedrock.
-- Per query in the quote (lab, 100 queries a day, 8 h a day): v3 is 0.02555523 USD, against 0.0309413 for v2, and
+- Per query in the quotation (lab, 100 queries a day, 8 h a day): v3 is 0.02555523 USD, against 0.0309413 for v2, and
   the month is 86.9094 USD against 103.0676 for v2. The two use different token bases (v2 is week 19's 57 tasks,
   v3 the corrected run), so the saving is read against the corrected run's own 0.046391 mean, not against v2.
   ApplyGuardrail stays N in both.
