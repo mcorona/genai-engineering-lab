@@ -123,6 +123,31 @@ Each folder `semana-NN` is week NN of the lab's study program (*semana* is Spani
 | Agents and MCP | [13](semana-13/README.md) · [14](semana-14/README.md) · [15](semana-15/README.md) · [16](semana-16/README.md) · [17](semana-17/README.md) · [18](semana-18/README.md) | Agentic patterns and the Claude Agent SDK; a remote MCP server with OAuth, least privilege and tool-poisoning tests; the same agent in LangGraph, Strands, OpenAI Agents SDK and Google ADK, multi-agent over A2A, Bedrock AgentCore and a client decision matrix; a Claude Code plugin for clients with its own eval; production reliability (tracing, budgets, guardrails, human approval, trajectory eval, a trace dashboard); LegacyBridge v1 |
 | LLMOps and multicloud production | [19](semana-19/README.md) · [20](semana-20/Fas5Sema20.md) | The AWS reference architecture for LegacyBridge, deployed with infrastructure as code, evaluated against the deployed endpoint, reviewed for security and torn down; costs and performance on AWS (in progress) |
 
+### Weeks at a glance
+
+| Week | Folder | Topic |
+|---|---|---|
+| 1 | [`semana-01/`](semana-01/README.md) | A mini-GPT in MLX, from a bigram model to a transformer block |
+| 2 | [`semana-02/`](semana-02/README.md) | Tokens and response variability, in Spanish and English |
+| 3 | [`semana-03/`](semana-03/README.md) | Adaptation: to fine-tune or not to fine-tune |
+| 4 | [`semana-04/`](semana-04/README.md) | Inference: quantization, latency and cost |
+| 5 | [`semana-05/`](semana-05/README.md) | Multi-model prompting and a versioned prompt library |
+| 6 | [`semana-06/`](semana-06/README.md) | Evals and regression testing in GitHub Actions |
+| 7 | [`semana-07/`](semana-07/README.md) | Bilingual natural-language querying (NLQ) over an inventory database |
+| 8 | [`semana-08/`](semana-08/README.md) | Retrieval: chunking, embeddings, vector databases, BM25 and reranking, cited answers |
+| 9 | [`semana-09/`](semana-09/README.md) | Advanced RAG: query rewriting, HyDE, contextual retrieval, GraphRAG, permissions, multi-tenant |
+| 10 | [`semana-10/`](semana-10/README.md) | Structured data and documents: text-to-SQL on a legacy schema, PDF tables, OCR, images |
+| 11 | [`semana-11/`](semana-11/README.md) | RAG evaluation: recall@k, faithfulness and answer relevance with RAGAS, cost per query |
+| 12 | [`semana-12/`](semana-12/README.md) | Managed RAG: Bedrock Knowledge Bases and Vertex AI Search |
+| 13 | [`semana-13/`](semana-13/README.md) | Agentic patterns (workflows vs. agents) and the Claude Agent SDK |
+| 14 | [`semana-14/`](semana-14/README.md) | A remote MCP server with OAuth, least privilege and tool-poisoning tests |
+| 15 | [`semana-15/`](semana-15/README.md) | The same agent in four frameworks, multi-agent with A2A, and a decision matrix |
+| 16 | [`semana-16/`](semana-16/README.md) | A reusable Claude Code plugin for clients, with its own eval |
+| 17 | [`semana-17/`](semana-17/README.md) | Reliability of an agent in production |
+| 18 | [`semana-18/`](semana-18/README.md) | LegacyBridge v1 and the close of Phase 4 |
+| 19 | [`semana-19/`](semana-19/README.md) | LegacyBridge on AWS, from infrastructure as code |
+| 20 | [`semana-20/`](semana-20/Fas5Sema20.md) | Costs and performance for LegacyBridge on AWS (in progress) |
+
 ### Folder and file names
 
 Code identifiers, folder names and some runtime messages are in Spanish, because they are part of the measured system: the agent's tools return those messages to the model, and the recorded runs and frozen gold sets depend on them. The documentation is in English. The Spanish evaluation data (the document corpus, the Spanish gold sets and prompts) is intentional, since the lab measures every capability in both languages.
@@ -138,6 +163,8 @@ Code identifiers, folder names and some runtime messages are in Spanish, because
 | `observabilidad/` | observability | `tablero/` | dashboard |
 | `costos/` | costs | `arquitectura/` | architecture |
 | `fuentes/`, `corpus/` | source documents | `pizarra/` | whiteboard design |
+
+Every other Spanish term a reader meets (file names, JSON keys, command-line flags, AWS stack names, status values such as `respondida` or `PENDING_APPROVAL`, and the legacy tables) is in the [glossary](docs/glossary.md).
 
 ## Quickstart
 

@@ -1,5 +1,7 @@
 # Week 9: advanced RAG (query rewriting, HyDE, contextual retrieval, GraphRAG, metadata filters, ACLs, multi-tenant)
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Goal: measure advanced RAG techniques against the week 8 baseline with the same frozen gold set, and make permissions and tenant isolation a hard, tested requirement.
 Every generative step uses claude-haiku-5-5. Prices come from the official Anthropic pricing page (`semana-07/prices.json`, checked 2026-10-26). All figures link to a results file in `resultados/`.
 

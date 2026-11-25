@@ -1,5 +1,7 @@
 # Week 3: adaptation — to fine-tune or not to fine-tune?
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Task: translate a question in Spanish into SQL over the LegacyBridge legacy schema (PostgreSQL 16), and determine whether fine-tuning a model (LoRA) is worth it or whether prompting or RAG is enough.
 
 **Decision rule:** if prompting or RAG is enough, do not fine-tune. Document the decision.

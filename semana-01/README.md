@@ -1,5 +1,7 @@
 # Week 1: a mini-GPT in MLX, from a bigram model to a transformer block
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Project: genai-engineering-lab (formerly AI-projects-llm-internals) · Phase 1 (LLM fundamentals in depth)
 Reference: Andrej Karpathy's *Neural Networks: Zero to Hero* series, implemented in MLX.
 

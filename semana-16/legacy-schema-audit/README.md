@@ -1,5 +1,7 @@
 # Legacy Schema Audit
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](https://github.com/mcorona/genai-engineering-lab/blob/main/docs/glossary.md). The documentation is in English.
+
 A Claude Code plugin that audits a legacy database schema **read-only** and writes four versionable files for the
 client under `auditoria/`:
 

@@ -1,5 +1,7 @@
 # Week 13: agentic patterns (workflows vs agents) and the Claude Agent SDK
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Status: complete. Activities 1 to 10 are done, and exit criterion 13 is verified with the agent built with the Claude Agent SDK (section 10).
 
 Phase 4 (weeks 13 to 18) covers agents, MCP and orchestration. This week takes one LegacyBridge flow (question → explore schema and business rules → SQL → validate → run read-only → answer with evidence). It builds shared tools with a contract, an **own agentic loop** on the Anthropic API, the same agent on the **Claude Agent SDK**, and an **MCP server** that exposes the same tools. The agent is evaluated on a frozen task gold set (success, trajectory, behavior, cost, latency, consistency) and compared with the week 10 **workflow** (fixed routing) on the same tasks. It also gets a security baseline and a CI gate.

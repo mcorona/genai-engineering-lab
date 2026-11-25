@@ -1,5 +1,7 @@
 # Week 12: managed RAG (Bedrock Knowledge Bases and Vertex AI Search)
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Status: complete. Every resource was deleted on 2026-10-29. Real cost from the bills: AWS $1.50 (covered by credits), Google Cloud MXN 16.64, Anthropic at most $4.94, OpenAI $0 ([`resultados/costo_real.md`](resultados/costo_real.md)).
 
 Goal: load the same document base into a managed RAG on AWS (Bedrock Knowledge Bases with S3 Vectors) and on Google Cloud (Vertex AI Search), and compare both with the own pipeline from weeks 8 to 10. The comparison covers quality, latency, cost and security, using the week 11 suites.
