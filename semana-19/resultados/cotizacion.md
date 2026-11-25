@@ -53,21 +53,21 @@ was up 26.004 h inside it. Every figure in this section is in `resultados/costo_
   - activity 7's model spend on the same UTC day, 0.481538 USD. That spend comes from activity 7's own spans; once
     it is set apart, the Haiku line equals activity 8's spans to the cent (1.762053 USD).
 
-**Per query: the dominant item is Claude Haiku 4.5.** It is 1.762053 of the 2.198034 USD per query, or 80 %.
+**Per query: the dominant item is Claude Haiku 4.5.** It is 1.762053 of the 2.198034 USD per query, or 80%.
 
-- **v1 error: −61.3 %** against the model part, and −51.7 % against the upper bound, beyond ±20 %.
+- **v1 error: −61.3%** against the model part, and −51.7% against the upper bound, beyond ±20%.
 - **Why v1 was off:** v1 priced week 13's local p95, 52,712 input and 3,978 output tokens. The deployed agent's mean
   over the same 57 tasks Cost Explorer billed is 21,273 input and 1,366 output tokens. Two causes:
   - **the statistic:** a p95 priced against a mean bill;
   - **the runs:** week 13's runs were Haiku 5.5 locally, and these are Haiku 4.5 behind the API.
 - **No prompt cache:** 0 cached tokens were measured, so caching explains none of the gap.
 - **The fix:** v2 takes that mean. It changes the model, not the number.
-- **v2 error: −0.1 %** against the model part, and +24.6 % against the upper bound. The rest of the upper bound is
+- **v2 error: −0.1%** against the model part, and +24.6% against the upper bound. The rest of the upper bound is
   Cost Explorer's "Amazon Bedrock" line, 0.432590 USD, which joins the Bedrock judge's job (an eval cost, not a
   query's), ApplyGuardrail and Titan, and cannot be split by service. v2 lists ApplyGuardrail as N until its price
   and units per query are measured.
 
-**Per hour: −10.3 % (lab), within ±20 %, so the per-hour model is unchanged.** The total hides two items that move in
+**Per hour: −10.3% (lab), within ±20%, so the per-hour model is unchanged.** The total hides two items that move in
 opposite directions:
 
 | Item | Predicted (USD/h) | Real (USD/h) |
@@ -85,62 +85,62 @@ opposite directions:
 
 | Item | Frequency | Mark | Amount | USD |
 |---|---|---|---|---|
-| KMS, llaves administradas (prorrateado) | por hora | M | 0.00273973 llave-hora | 0.002740 |
-| RDS db.t4g.micro, instancia | por hora | M | 1 instancia-hora | 0.016000 |
-| RDS gp3, 20 GB (prorrateado) | por hora | M | 0.0273973 GB-hora | 0.003151 |
-| IPv4 pública en uso | por hora | M | 0 dirección-hora | 0.000000 |
-| Endpoints de interfaz de VPC (endpoints x AZ-hora) | por hora | M | 2 endpoint-AZ-hora | 0.020000 |
-| Cognito, MAU | por mes | M | 10 MAU | 0.150000 |
-| CloudWatch Logs, almacenamiento | por mes | M | 1 GB-mes | 0.030000 |
-| Endpoints de VPC, datos procesados | por mes | M | 1 GB | 0.010000 |
-| Step Functions, transiciones por aprobación | por mes | D | 0 transiciones | 0.000000 |
-| Haiku 4.5 (us.), tokens de entrada | por consulta | M | 0.0527117 M tokens | 0.057983 |
-| Haiku 4.5 (us.), tokens de salida | por consulta | M | 0.0039783 M tokens | 0.021881 |
-| Lambda, GB-segundo | por consulta | M | 1.5 GB-s | 0.000016 |
-| Lambda, solicitudes | por consulta | M | 1 solicitud | 0.000000 |
-| API Gateway HTTP API, solicitudes | por consulta | M | 1 solicitud | 0.000001 |
-| Titan V2, embedding de la consulta | por consulta | M | 0.05 K tokens | 0.000001 |
-| CloudWatch Logs, ingesta | por consulta | M | 2e-05 GB | 0.000010 |
-| AgentCore Gateway, invocaciones | por consulta | M | 0 invocaciones | 0.000000 |
+| KMS, customer managed keys (prorated) | per hour | M | 0.00273973 key-hour | 0.002740 |
+| RDS db.t4g.micro, instance | per hour | M | 1 instance-hour | 0.016000 |
+| RDS gp3, 20 GB (prorated) | per hour | M | 0.0273973 GB-hour | 0.003151 |
+| Public IPv4 in use | per hour | M | 0 address-hour | 0.000000 |
+| VPC interface endpoints (endpoints x AZ-hour) | per hour | M | 2 endpoint-AZ-hour | 0.020000 |
+| Cognito, MAU | per month | M | 10 MAU | 0.150000 |
+| CloudWatch Logs, storage | per month | M | 1 GB-month | 0.030000 |
+| VPC endpoints, data processed | per month | M | 1 GB | 0.010000 |
+| Step Functions, transitions per approval | per month | D | 0 transitions | 0.000000 |
+| Haiku 4.5 (us.), input tokens | per query | M | 0.0527117 M tokens | 0.057983 |
+| Haiku 4.5 (us.), output tokens | per query | M | 0.0039783 M tokens | 0.021881 |
+| Lambda, GB-second | per query | M | 1.5 GB-s | 0.000016 |
+| Lambda, requests | per query | M | 1 request | 0.000000 |
+| API Gateway HTTP API, requests | per query | M | 1 request | 0.000001 |
+| Titan V2, query embedding | per query | M | 0.05 K tokens | 0.000001 |
+| CloudWatch Logs, ingestion | per query | M | 2e-05 GB | 0.000010 |
+| AgentCore Gateway, invocations | per query | M | 0 invocations | 0.000000 |
 
 ### prod
 
 | Item | Frequency | Mark | Amount | USD |
 |---|---|---|---|---|
-| KMS, llaves administradas (prorrateado) | por hora | M | 0.00410959 llave-hora | 0.004110 |
-| RDS db.t4g.micro, instancia | por hora | M | 1 instancia-hora | 0.016000 |
-| RDS gp3, 20 GB (prorrateado) | por hora | M | 0.0273973 GB-hora | 0.003151 |
-| RDS Multi-AZ, instancia adicional | por hora | N | 1 instancia-hora | N |
-| IPv4 pública en uso | por hora | M | 2 dirección-hora | 0.010000 |
-| Endpoints de interfaz de VPC (endpoints x AZ-hora) | por hora | M | 6 endpoint-AZ-hora | 0.060000 |
-| Cognito, MAU | por mes | M | 10 MAU | 0.150000 |
-| CloudWatch Logs, almacenamiento | por mes | M | 5 GB-mes | 0.150000 |
-| Endpoints de VPC, datos procesados | por mes | M | 1 GB | 0.010000 |
-| Step Functions, transiciones por aprobación | por mes | D | 0 transiciones | 0.000000 |
-| Haiku 4.5 (us.), tokens de entrada | por consulta | M | 0.0527117 M tokens | 0.057983 |
-| Haiku 4.5 (us.), tokens de salida | por consulta | M | 0.0039783 M tokens | 0.021881 |
-| Lambda, GB-segundo | por consulta | M | 1.5 GB-s | 0.000016 |
-| Lambda, solicitudes | por consulta | M | 1 solicitud | 0.000000 |
-| API Gateway HTTP API, solicitudes | por consulta | M | 1 solicitud | 0.000001 |
-| Titan V2, embedding de la consulta | por consulta | M | 0.05 K tokens | 0.000001 |
-| CloudWatch Logs, ingesta | por consulta | M | 2e-05 GB | 0.000010 |
-| AgentCore Gateway, invocaciones | por consulta | M | 0 invocaciones | 0.000000 |
+| KMS, customer managed keys (prorated) | per hour | M | 0.00410959 key-hour | 0.004110 |
+| RDS db.t4g.micro, instance | per hour | M | 1 instance-hour | 0.016000 |
+| RDS gp3, 20 GB (prorated) | per hour | M | 0.0273973 GB-hour | 0.003151 |
+| RDS Multi-AZ, additional instance | per hour | N | 1 instance-hour | N |
+| Public IPv4 in use | per hour | M | 2 address-hour | 0.010000 |
+| VPC interface endpoints (endpoints x AZ-hour) | per hour | M | 6 endpoint-AZ-hour | 0.060000 |
+| Cognito, MAU | per month | M | 10 MAU | 0.150000 |
+| CloudWatch Logs, storage | per month | M | 5 GB-month | 0.150000 |
+| VPC endpoints, data processed | per month | M | 1 GB | 0.010000 |
+| Step Functions, transitions per approval | per month | D | 0 transitions | 0.000000 |
+| Haiku 4.5 (us.), input tokens | per query | M | 0.0527117 M tokens | 0.057983 |
+| Haiku 4.5 (us.), output tokens | per query | M | 0.0039783 M tokens | 0.021881 |
+| Lambda, GB-second | per query | M | 1.5 GB-s | 0.000016 |
+| Lambda, requests | per query | M | 1 request | 0.000000 |
+| API Gateway HTTP API, requests | per query | M | 1 request | 0.000001 |
+| Titan V2, query embedding | per query | M | 0.05 K tokens | 0.000001 |
+| CloudWatch Logs, ingestion | per query | M | 2e-05 GB | 0.000010 |
+| AgentCore Gateway, invocations | per query | M | 0 invocations | 0.000000 |
 
 
-## Estimación para autorizar la actividad 3
+## Estimate to authorize activity 3
 
-Stack base de la actividad 3 (KMS, endpoints de VPC, IAM y presupuesto), con 1 AZ en lab. Todas las partidas están medidas (M), salvo que el multiplicador por AZ de los endpoints viene de la página oficial (D).
+The base stack of activity 3 (KMS, VPC endpoints, IAM and budget), with 1 AZ in lab. Every item is measured (M), except the per-AZ multiplier of the endpoints, which comes from the official pricing page (D).
 
-| Partida | Precio | Por hora (lab) |
+| Item | Price | Per hour (lab) |
 |---|---|---|
-| KMS, 2 llaves administradas | 1.00 USD por llave-mes (M, `us-east-1-KMS-Keys`) | 0.00273973 |
-| Endpoints de interfaz, 2 × 1 AZ | 0.01 USD por endpoint-hora (M, `USE1-VpcEndpoint-Hours`) | 0.02000000 |
-| AWS Budgets, 1 presupuesto | 0.00 USD dentro de 62 budget-days al mes (M, `BudgetsUsage`) | 0.00000000 |
-| IAM | sin cargo | 0.00000000 |
-| **Total por hora (lab)** | | **0.02273973** |
+| KMS, 2 customer managed keys | 1.00 USD per key-month (M, `us-east-1-KMS-Keys`) | 0.00273973 |
+| Interface endpoints, 2 × 1 AZ | 0.01 USD per endpoint-hour (M, `USE1-VpcEndpoint-Hours`) | 0.02000000 |
+| AWS Budgets, 1 budget | 0.00 USD within 62 budget-days a month (M, `BudgetsUsage`) | 0.00000000 |
+| IAM | no charge | 0.00000000 |
+| **Total per hour (lab)** | | **0.02273973** |
 
-**Sesión de N horas = 0.02273973 × N USD** (lab). Ejemplos: 1 h = 0.0227 USD; 4 h = 0.0910 USD; 8 h = 0.1819 USD.
-Prod (3 AZ, 3 llaves): 0.06410959 USD por hora. Multi-AZ de RDS no forma parte del stack base.
+**A session of N hours = 0.02273973 × N USD** (lab). Examples: 1 h = 0.0227 USD; 4 h = 0.0910 USD; 8 h = 0.1819 USD.
+Prod (3 AZ, 3 keys): 0.06410959 USD per hour. RDS Multi-AZ is not part of the base stack.
 
 ## Activity 7: estimated vs real
 

@@ -18,7 +18,7 @@ Every figure below links to the results file it comes from.
 
 - **It runs in your AWS account, built from code.** Four layers deployed with CDK, with 0 unsuppressed cdk-nag findings and 0 failed checkov checks ([seguridad.md](resultados/seguridad.md)).
 - **Your data stays on a private network.** The tools and the database sit in a VPC with no internet path; RDS has no public IP, and the API is the only public resource, with a JWT authorizer on every route ([verificacion.json](resultados/seguridad/verificacion.json)).
-- **The cost is measured, and so is the quote.** 0.030913 USD per query for the model and 0.037562 USD per hour of stack, from the bill ([costo_real.md](resultados/costo_real.md)). The quote model missed by −0.1 % per query and −10.3 % per hour ([cotizacion.md](resultados/cotizacion.md)).
+- **The cost is measured, and so is the quote.** 0.030913 USD per query for the model and 0.037562 USD per hour of stack, from the bill ([costo_real.md](resultados/costo_real.md)). The quote model missed by −0.1% per query and −10.3% per hour ([cotizacion.md](resultados/cotizacion.md)).
 - **Nothing is left running after a session.** The teardown is checked by a read-only inventory that must end in `"quedan": "nada"` ("left: nothing") ([inventario_final.json](resultados/inventario_final.json)).
 - **The security findings are open and planned, not hidden.** Each one has its risk and its fix: throttling (H1) and the async timeout (H4) are in week 20, red teaming in week 21 ([threat_model.md](seguridad/threat_model.md)).
 
@@ -118,7 +118,7 @@ Two known failures, each with its fix:
 | Per hour of the lab stack, from the bill | **0.037562 USD**, over 26.004 h | [resultados/costo_real.md](resultados/costo_real.md) |
 | Per query, the model alone, from the bill (the figure that counts) | **0.030913 USD**, 57 tasks; it reconciles with the spans | [costo_real.md](resultados/costo_real.md) |
 | Per query, every per-query line (an upper bound: it also holds the judge's job, ApplyGuardrail and Titan) | 0.038562 USD | [costo_real.md](resultados/costo_real.md) |
-| Quote error, model v2 | −0.1 % per query (model), +24.6 % (upper bound), −10.3 % per hour | [resultados/cotizacion.md](resultados/cotizacion.md) |
+| Quote error, model v2 | −0.1% per query (model), +24.6% (upper bound), −10.3% per hour | [resultados/cotizacion.md](resultados/cotizacion.md) |
 | Quote per month, model v2, 100 queries a day and 8 h a day | lab 103.0676 USD, prod 115.5164 USD (prod not measured: never deployed) | [cotizacion.md](resultados/cotizacion.md) |
 | The security review (activity 9) | about 0.73 USD of usage, net 0.00 USD with credits | [resultados/seguridad.md](resultados/seguridad.md), step 4.7 |
 
@@ -130,7 +130,7 @@ The 20 golden tasks of week 13 ran through the public API with real Cognito toke
 
 | | Result |
 |---|---|
-| Success | **9/20** (0.45, Wilson 95 % [0.258, 0.658]); es 7/10, en 2/10; 3 tasks aborted by the script's cap |
+| Success | **9/20** (0.45, Wilson 95% [0.258, 0.658]); es 7/10, en 2/10; 3 tasks aborted by the script's cap |
 | Regression (week 10's rule, against week 17 local 20/20) | **yes**, in es, en and total |
 | Trajectory (week 17's graders) | 17 graded, 7 OK, mean score 0.923 |
 | Latency | cold p50 49.95 s (n = 1); warm p50 23.52 s, p95 30.13 s (n = 17) |

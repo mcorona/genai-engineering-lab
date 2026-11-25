@@ -18,7 +18,7 @@ and previews week 21's report.
 | Indirect prompt injection, KB | The poisoned documents ranked first in a direct `Retrieve`; the agent cannot call `Retrieve` (H2) | `seguridad/kb_retrieve_*.json` |
 | Budget action | Sandbox budget of USD 0.01: the action attached the deny policy to the test role (EXECUTION_SUCCESS), after a first budget that subtracted credits never fired | `seguridad/accion_presupuesto.jsonl` |
 | Teardown | Inventory `"quedan": "nada"` | step 4.6 |
-| Cost | About 0.73 USD of usage (net 0.00 with credits): within the upper bound of 0.89 and the cap of 1.00; 41 % over the nominal 0.52 | `seguridad/costo.json` |
+| Cost | About 0.73 USD of usage (net 0.00 with credits): within the upper bound of 0.89 and the cap of 1.00; 41% over the nominal 0.52 | `seguridad/costo.json` |
 
 ## Step 1: scanners
 
@@ -133,11 +133,11 @@ them means changing deployed code, which is a supply-chain case (F10), not indir
 
 `seguridad/prueba_accion_presupuesto.py` (#311, #312) creates:
 - a monthly COST budget of USD 0.01 over the account;
-- its action, APPLY_IAM_POLICY at 100 % of ACTUAL with automatic approval. It attaches a deny-all policy to a test
+- its action, APPLY_IAM_POLICY at 100% of ACTUAL with automatic approval. It attaches a deny-all policy to a test
   role with no permissions;
 - the action's execution role, which may attach and detach only that policy, only on that role.
 
-The production action, on the deploy role at 100 % of USD 50, is not touched.
+The production action, on the deploy role at 100% of USD 50, is not touched.
 
 - **First try, wrong (2026-11-22 03:36 UTC).** The budget used the default cost types, which subtract credits, and
   every charge of this account is covered by credits. It read 0.0 USD for 16 hours, and its action stayed in STANDBY.
@@ -202,7 +202,7 @@ Against the estimate (`seguridad/estimacion.md`):
 | Bedrock other | ≤ 0.061 | 0.061 | 0.047220 |
 | **Activity** | **≈ 0.52** | **≈ 0.89** | **≈ 0.73** |
 
-The activity is 41 % over the nominal estimate, within its upper bound, and within its cap of 1.00 USD. The stack
+The activity is 41% over the nominal estimate, within its upper bound, and within its cap of 1.00 USD. The stack
 hours land at the upper bound: the deploy failures (#304 to #309, including the 1,577 s destroy of a ROLLBACK_FAILED
 stack) and the two-run teardown kept it up about twice the nominal 4 hours. The model line was the poisoning, as
 planned.

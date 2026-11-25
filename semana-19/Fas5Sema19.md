@@ -308,7 +308,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - VPC Flow Logs to an encrypted log group with short retention.
 - **IAM:**
   - one role per function, with permissions scoped to its own resources;
-  - a **permission boundary** on every role the stack creates;
+  - a **permissions boundary** on every role the stack creates;
   - no `*` on actions or resources except where AWS requires it (documented);
   - the deploy role is the only one that can create roles, and only with the boundary attached.
 - **Spend controls:**
@@ -563,7 +563,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - Estimate to authorize activity 3 (base stack, lab, 1 AZ): **0.02273973 USD per hour** (KMS 2 keys + 2 interface endpoints + budget). A session of N hours = 0.02273973 × N USD. Pending Manuel's authorization.
 - Still open: RDS Multi-AZ (N, prod stays partial) and Step Functions (D, no service code in the Price List).
 - 2026-11-13: **Manuel authorizes the activity 3 estimate**: base stack in lab = 0.02273973 USD per hour (KMS 2 keys + 2 interface endpoints in 1 AZ + a budget of 0.00 USD). A session of N hours = 0.02273973 × N USD. Activity 2 closed.
-- 2026-11-13: **activity 3 (foundation): code and tests without AWS.** Two stacks per profile: `semana19-control` (a $5 budget, the action at 100 %, anomalies, the deploy role, the boundary, the freeze, the CDK execution policy) and `semana19-base` (the KMS key, a VPC with no internet and no NAT, the ADR 0005 endpoints with 1 AZ in lab and 3 in prod, flow logs). Bootstrap `semana19-cdktoolkit` with qualifier `s19`. Tests: 54 infrastructure + 11 scripts; cdk-nag with no violations; checkov with no failures. **No real deploy yet:** pending Manuel's OK of the diff, his address in `ALERTA_EMAIL`, activating the `proyecto` cost tag, and the profile that assumes `semana19-despliegue`. Documented gap: the freeze does not reach the `cdk-s19-*` roles (see `resultados/base.md`). Cost Anomaly Detection: price N (not in the Price List, not confirmed on the official page); the monitor was later left out of the stack (decision b). Flow logs: 0.50 USD/GB (M), volume N.
+- 2026-11-13: **activity 3 (foundation): code and tests without AWS.** Two stacks per profile: `semana19-control` (a $5 budget, the action at 100%, anomalies, the deploy role, the boundary, the freeze, the CDK execution policy) and `semana19-base` (the KMS key, a VPC with no internet and no NAT, the ADR 0005 endpoints with 1 AZ in lab and 3 in prod, flow logs). Bootstrap `semana19-cdktoolkit` with qualifier `s19`. Tests: 54 infrastructure + 11 scripts; cdk-nag with no violations; checkov with no failures. **No real deploy yet:** pending Manuel's OK of the diff, his address in `ALERTA_EMAIL`, activating the `proyecto` cost tag, and the profile that assumes `semana19-despliegue`. Documented gap: the freeze does not reach the `cdk-s19-*` roles (see `resultados/base.md`). Cost Anomaly Detection: price N (not in the Price List, not confirmed on the official page); the monitor was later left out of the stack (decision b). Flow logs: 0.50 USD/GB (M), volume N.
 - 2026-11-15: **Activity 1 (baseline).** Read-only inventory runs with the read-only role once `semana19-lectura`
   gets its source profile from `manuel-admin` (the operator role lacks `sts:AssumeRole` on it; the role's trust
   already names the account). Result: no errors; the lab items present are the ones kept on purpose (base,
@@ -638,11 +638,11 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
       the "Amazon Bedrock" line joins the judge, ApplyGuardrail and Titan);
     - per hour of stack: 0.037562 USD.
   - **Quotation error and correction:**
-    - `modelo.py` v1 was −61.3 % per query (−51.7 % at the bound), beyond ±20 %. The cause is the tokens: week 13's
+    - `modelo.py` v1 was −61.3% per query (−51.7% at the bound), beyond ±20%. The cause is the tokens: week 13's
       local p95 (52,712 in) against the deployed mean (21,273 in), with no cache.
-    - v2 takes the deployed mean: −0.1 % for the model part, +24.6 % at the bound (the unsplit Bedrock line;
+    - v2 takes the deployed mean: −0.1% for the model part, +24.6% at the bound (the unsplit Bedrock line;
       ApplyGuardrail stays N).
-    - Per hour, −10.3 % (lab), within the threshold. Prod is n/a, since it was never deployed.
+    - Per hour, −10.3% (lab), within the threshold. Prod is n/a, since it was never deployed.
   - **Against the authorized caps:**
     - the eval's model, 1.738784 USD of 1.90;
     - the approval test, 0.023269 of 0.20;
@@ -691,7 +691,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - **Cost (4.7).** Cost Explorer's 2 calls on 2026-11-23 at 03:09 UTC, at Manuel's request (2026-11-22 may be
     incomplete): about 0.73 USD of usage, net 0.00 with credits. Model 0.367472 USD, which matches the spans;
     stack hours 0.296 USD, at the upper bound because of the deploy failures and the two-run teardown. Within the
-    upper bound of 0.89 and the cap of 1.00; 41 % over the nominal 0.52.
+    upper bound of 0.89 and the cap of 1.00; 41% over the nominal 0.52.
   - **Activity 9 closed.** Every step is done; see `resultados/seguridad.md`.
 - 2026-11-23: **Activity 10 (CI, README and criterion 19), and the week's closing.** PRs #318 to #321.
   - **CI (#318):** parliament 1.6.4 lints every policy offline (lab and prod: 50 policies each, 0 unclassified
@@ -706,8 +706,8 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
       the measured cost per query, the teardown.
     - KMS at rest is partial: 17 of 29 resources on the project key (H10, H14).
     - The mini eval is in regression, 9/20 (`eval_aws.md`); the fixes go to week 20.
-  - **Cross-cutting cost:** within ±20 % on the model figure (−0.1 %) and per hour (−10.3 %); outside on the upper
-    bound (+24.6 %), which holds the judge's job.
+  - **Cross-cutting cost:** within ±20% on the model figure (−0.1%) and per hour (−10.3%); outside on the upper
+    bound (+24.6%), which holds the judge's job.
   - **Cross-cutting security:** met, with open findings. H1, H2, H4 and H10 go to week 20; H3, H5, H8, the H13
     residual case, H7, H12 and H14 to week 21; H6 and H11 are accepted for the lab.
   - **The week's cost** (one Cost Explorer call, `resultados/costo_semana.json`, still Estimated): 8.928936 USD gross,
