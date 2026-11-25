@@ -12,7 +12,7 @@ A passage counts as retrieved if any of the top-k chunks contains it intact.
 | Recursive by paragraph, max. 300 | 84 | 203 | 48/50 | 0.950 | 0.950 | 0.940 | 0.950 |
 | By section (inventory-copilot's chunker) | 69 | 242 | 50/50 | 0.970 | **1.000** | 0.960 | **1.000** |
 
-The recursive strategy splits two reference passages (`recepcion_almacen.md`: a partial rejection when the difference exceeds 2 %; `skus_criticos.md`: a critical SKU with less than 7 days of coverage), so it cannot retrieve them whole at any k.
+The recursive strategy splits two reference passages (`recepcion_almacen.md`: a partial rejection when the difference exceeds 2%; `skus_criticos.md`: a critical SKU with less than 7 days of coverage), so it cannot retrieve them whole at any k.
 
 ## Decision
 

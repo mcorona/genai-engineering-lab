@@ -61,7 +61,7 @@ Questions where a technique lost a gold passage from the top 5 that the vector b
 | GraphRAG, query entities (G+Q) | none below baseline | bridge `pt-01`, `pt-03`, `pt-05` (one passage of two) | Best GraphRAG variant still misses one hop on three bridge questions; vector + reranking finds both. | `resultados/graphrag_detalle.csv` |
 | Role filters, multi-tenant, CI | none | none | Leakage 0 in every run. | `resultados/permisos.md`, `resultados/multitenant.md`, `resultados/ci_semana09.md` |
 
-## Limits
+## Limitations
 
 - Small corpus (24 documents, 57 chunks). The baseline already has recall@5 1.000 on base questions, and the vector top 20 covers 35% of the corpus, which favors reranking over GraphRAG.
 - One run per technique (two for query rewriting); Haiku is not deterministic.

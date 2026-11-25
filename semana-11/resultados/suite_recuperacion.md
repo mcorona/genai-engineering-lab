@@ -9,7 +9,7 @@ Script: `experimentos/suite_recuperacion.py` (run on 2026-10-27). Detail per que
 - **Configurations:**
   - `base`: vector + filter, in similarity order.
   - `adoptado`: the same plus Haiku 5.5 reranking of the top 20, as in the assistant.
-- **Own metrics:** exact relevance, the same definition as weeks 8 to 10. A chunk is relevant if it comes from the reference document and contains the gold passage; for non-text questions, the exact answer.
+- **Custom metrics:** exact relevance, the same definition as weeks 8 to 10. A chunk is relevant if it comes from the reference document and contains the gold passage; for non-text questions, the exact answer.
   - recall@1, 3, 5 and 10; MRR; nDCG@10; precision@5.
   - AP@5: the same formula as RAGAS context precision, but with exact relevance instead of the judge. It was added after the first run, to compare the two one to one.
 - **RAGAS 0.4.3 metrics:** on the top 5, with the reference answer from activity 1, and Haiku 5.5 `low` as judge:
@@ -46,7 +46,7 @@ Reranking minus base, paired by query, with the 95% interval:
 
 **Yes, for ranking metrics.** recall@3 and context precision separate the two configurations in both languages; MRR and nDCG@10 do in EN, and their ES intervals touch zero. Recall at 5 or more does **not** separate them: both configurations put every gold passage in the top 5 (ceiling effect, the same as week 8). In this corpus, reranking changes order, not coverage.
 
-## Own metrics vs RAGAS
+## Custom metrics vs RAGAS
 
 | Pair (same queries, top 5) | base | adoptado |
 |---|---|---|
@@ -81,7 +81,7 @@ The estimate fell short because context precision sends the full chunk and the r
 - **Gold set finding:** `rec-25` has a second valid source (`tarifas_flete`). The frozen set is not changed; the case is recorded here.
 - **Not useful on this corpus:** recall@5, recall@10 and context recall are all at 1.000 in both configurations, so they cannot detect a regression at k ≥ 5. A harder set or a larger corpus would be needed.
 
-## Limits
+## Limitations
 
 - One run; the RAGAS judge is not deterministic.
 - Small corpus (30 documents, 68 chunks): the top 20 candidates cover almost a third of the index, which favors reranking and saturates recall.

@@ -65,7 +65,7 @@ Script: `experimentos/sensibilidad.py` (run on 2026-10-27). Output: `sensibilida
 
 The first run stopped with `Event loop is closed` during the last variant; the rerun resumed from the cache (57 missing evaluations plus 1 missing score).
 
-## Limits
+## Limitations
 
 - One run per variant, with one repetition per suite as the noise estimate.
 - The "only context" test is confounded with the `[SQL]` instruction; it is separated by the direct comparison, not by a dedicated variant.

@@ -51,7 +51,7 @@ Detail: `ruteo_detalle_claude-haiku-5-5_low.csv`. The model's responses: `ruteo_
 
 - **SQL and mixed questions are routed perfectly** (30/30 and 12/12). No mixed question is lost to a single source, which is the most expensive error.
 - **The errors concentrate on non-text questions** (19/30 correct). Their wording sounds like database data (service levels, lead times, inventory differences), even though the figure exists only in a chart, a table or a record. The classifier does not know which figures exist in the database and which exist only in documents.
-- **Harmful errors:** 9 of 102 (8.8 %). Total errors: 13 of 102.
+- **Harmful errors:** 9 of 102 (8.8%). Total errors: 13 of 102.
 - **Negligible cost and latency** compared with a full answer: less than a tenth of a cent and less than a second per question.
 
 ## Decision for the assistant (activity 7)

@@ -2,6 +2,8 @@
 
 Criterion: the reference answers the question, uses only the passage (or the line of the document that contains it) and adds or changes no data.
 
+English glosses of the Spanish cells: [`revision_referencias_en.md`](revision_referencias_en.md). The cells below stay verbatim, as in the eval set.
+
 Review: Claude (week 11 session), 2026-10-27, against the passage and the source document. **20/20 correct**; 2 add a detail from the same line of the source, verified, and 1 is only the figure.
 
 | # | Id | Language | Question | Passage or exact answer | Reference | Verdict |

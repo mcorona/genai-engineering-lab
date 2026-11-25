@@ -69,7 +69,7 @@ Manual review of 20 references (10 per language, seed 11): **20/20 correct**; tw
   - Reranking minus base, AP@5: **+0.070 [+0.008, +0.137] ES** and **+0.095 [+0.018, +0.171] EN**, with 95% bootstrap intervals.
   - recall@3: +0.038 ES and +0.092 EN. Context precision: +0.078 ES and +0.090 EN.
   - recall@5 and context recall do not separate the configurations: both reach 1.000 (ceiling effect).
-- **Own metrics vs RAGAS:**
+- **Custom metrics vs RAGAS:**
   - Context recall agrees with exact recall@5 on 259 of 259 queries.
   - RAGAS context precision is the AP@5 formula with a judge (Pearson 0.84 against AP@5 on the base configuration). It is a ranking metric, not the share of relevant chunks.
   - RAGAS scores higher when another chunk also holds the answer. That reveals evidence the gold set does not list (`rec-25`).
@@ -80,7 +80,7 @@ Manual review of 20 references (10 per language, seed 11): **20/20 correct**; tw
 
 - **Faithfulness detects changed figures and invented claims.** Haiku: −0.837 and −0.587 against the control, below the control in 96% and 99% of pairs.
 - **Answer relevancy detects off-topic and evasive answers** (−0.521 and −0.920). It does not notice a changed figure.
-- **The own correctness judge catches wrong figures but accepts 53% of invented additions with Haiku**, so it does not replace faithfulness.
+- **The custom correctness judge catches wrong figures but accepts 53% of invented additions with Haiku**, so it does not replace faithfulness.
 - **Decision: Haiku 5.5 `low` as judge.** Both judges met all four expected detections and the control, and Haiku costs about 14 times less.
 
 ## 4. Generation suite
@@ -202,10 +202,10 @@ Both jobs run on every pull request and skip in seconds when `semana-11/**` is n
 | CI: smoke test, calibration and threshold runs | ≈ $0.46 |
 | **Total** | **≈ $4.95** |
 
-## Limits
+## Limitations
 
 - **Synthetic corpus, small and easy for retrieval.** The adopted pipeline puts every gold passage in the top 5, so recall@5 cannot detect a regression that stays inside the top 5. Ranking metrics carry the signal.
-- **Unanswerable questions: 10 per language.** They detect an assistant that invents systematically, not one that invents 1 time in 20. Partly answerable questions are not covered.
+- **Unanswerable questions: 10 per language.** They detect an assistant that invents systematically, not one that invents 1 answer in 20. Partly answerable questions are not covered.
 - **The judges are not deterministic.** Two CI runs of the same code moved:
   - citation precision ES from 0.728 to 0.684, leaving it 0.034 above its threshold;
   - faithfulness ES from 0.833 to 0.864;

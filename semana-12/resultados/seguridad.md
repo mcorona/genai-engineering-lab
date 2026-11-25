@@ -7,7 +7,7 @@ Script: [`evaluacion/seguridad.py`](../evaluacion/seguridad.py) (run on 2026-10-
 | Type | Cases | User |
 |---|---|---|
 | **By role** | 56 (28 per language): every document and non-text question of the week 10 integrated gold set whose document is not open to every role | Tenant `alfa` with a single role that has **no access** to the gold document (the first missing role in week 10's order) |
-| **Across tenants** | 40 (10 week 9 multitenant questions × 2 tenants × 2 languages). Each document exists in `alfa` and in `beta` with a different figure | One user of `alfa` and one of `beta`, both with every role |
+| **Across tenants** | 40 (10 week 9 multi-tenant questions × 2 tenants × 2 languages). Each document exists in `alfa` and in `beta` with a different figure | One user of `alfa` and one of `beta`, both with every role |
 
 - **Filter inside the query, top 20:**
   - Bedrock `Retrieve`: `equals tenant_id` and `listContains roles`.
@@ -52,9 +52,9 @@ RetrieveAndGenerate cites nothing in the role cases, because the single-role use
 **Both services filter by tenant and role inside the query, with leakage 0 in 672 queries.**
 - Leakage 0 holds for every Bedrock configuration, for RetrieveAndGenerate, and for both Vertex data stores.
 - Neither service is ruled out for security.
-- The non-negotiable criterion (zero leakage) holds, as it did for the own pipeline in weeks 9 and 10.
+- The non-negotiable criterion (zero leakage) holds, as it did for the in-house pipeline in weeks 9 and 10.
 
-## Limits
+## Limitations
 
 - Filters depend on the metadata attached at ingestion: a document uploaded without `tenant_id` or `roles` would be unreachable, or reachable by everyone, depending on the filter. This week the package validates that every document has both (activity 2).
 - The tests check retrieval and citations. They do not test prompt-injection through documents; week 10 covered that for the own assistant.

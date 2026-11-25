@@ -6,7 +6,7 @@ Run of 2026-10-26. Script: `experimentos/imagenes.py`. Model: **claude-haiku-5-5
 
 Generated with Pillow from the sources frozen in activity 1 and checked by eye before the run (`imagenes/`):
 
-- **`grafica_nivel_servicio.png`**: bars of the service level per distribution center in September 2026, with the value above each bar and the center's name below it (Centro 97.8 %, Occidente 95.1 %, Norte 98.6 %).
+- **`grafica_nivel_servicio.png`**: bars of the service level per distribution center in September 2026, with the value above each bar and the center's name below it (Centro 97.8%, Occidente 95.1%, Norte 98.6%).
 - **`plano_cedis_occidente.png`**: receiving docks 1 to 4 and shipping docks 5 to 8, the critical-SKU zone below dock 2, and the quarantine zone inside aisle 12.
 
 In both, the answer requires **associating** elements by their position: a value with its bar, or a zone with its dock or aisle. During the review, two ambiguities in the drawings were fixed before the run: the quarantine label spilled into aisle 13, and the critical-SKU zone spanned docks 2 and 3.

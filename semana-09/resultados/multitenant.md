@@ -33,7 +33,7 @@ Total leak with the filter, including the other tenant's figure: **0**. Exit cod
 
 - **Complete isolation with the filter:** 0 leaks in all three databases and in both languages. No query returned the other tenant's figure, even though the chunks are almost identical.
 - **Each tenant gets its own answer:** 20 of 20 overlapping cases have the tenant's own figure in the top 5.
-- **Without the filter, the risk is high:** an alfa user would see 180 to 191 of 500 chunks from beta (36 to 38 %), and a beta user 309 to 320 chunks from alfa (62 to 64 %). In the overlapping cases, the other tenant's figure appears in the top 10 in 20 of 20, and it ranks above the tenant's own in 10 of 20. With almost identical text, the ordering between tenants is practically random, so without the filter a user would get the other company's figure half of the time.
+- **Without the filter, the risk is high:** an alfa user would see 180 to 191 of 500 chunks from beta (36 to 38%), and a beta user 309 to 320 chunks from alfa (62 to 64%). In the overlapping cases, the other tenant's figure appears in the top 10 in 20 of 20, and it ranks above the tenant's own in 10 of 20. With almost identical text, the ordering between tenants is practically random, so without the filter a user would get the other company's figure half of the time.
 - **No short results:** the filter leaves no search with fewer than k results.
 
 ## Correction during the activity

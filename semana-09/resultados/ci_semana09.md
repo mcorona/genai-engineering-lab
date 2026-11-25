@@ -38,7 +38,7 @@ GitHub reported two warnings in the run, with no effect on the result at the tim
 
 They also affected the workflows of weeks 6 to 8. Both are resolved: the workflows now use `actions/checkout` v5 and `actions/setup-python` v6, pinned by SHA, on `ubuntu-24.04`.
 
-## Limits
+## Limitations
 
 - Only pgvector runs in CI. Qdrant and OpenSearch were verified with 0 leaks locally (activities 5 and 6).
 - CI uses `text-embedding-3-small`, not the bge-m3 model of the local measurements.

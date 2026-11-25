@@ -45,7 +45,7 @@ The pricing page (checked on 2026-10-27) confirms the same figures: 10,000 queri
 
 | Option | Fixed monthly cost for this corpus | Why |
 |---|---|---|
-| Own pipeline (pgvector local + bge-m3) | $0 in the cloud | Runs on the Mac |
+| In-house pipeline (pgvector local + bge-m3) | $0 in the cloud | Runs on the Mac |
 | Bedrock KB + S3 Vectors | **≈ $0.00** | Under 1 MB of vectors and documents: S3 Vectors and S3 Standard round to fractions of a cent per month. No minimum capacity |
 | Vertex AI Search (pay as you go) | **$0** | Index inside the free 10 GiB; no subscription |
 

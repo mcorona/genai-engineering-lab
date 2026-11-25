@@ -28,7 +28,7 @@ It ran on the 150 questions of the gold set (65 answerable and 10 unanswerable p
 |---|---|---|
 | faithfulness (RAGAS) | 5.61 | 8.88 |
 | answer relevancy (RAGAS) | 8.70 | 16.45 |
-| correctness (own judge) | 0.97 | 3.47 |
+| correctness (custom judge) | 0.97 | 3.47 |
 | abstention class | 0.81 | 2.03 |
 
 ## Cost of evaluating each full suite once (one CI run)

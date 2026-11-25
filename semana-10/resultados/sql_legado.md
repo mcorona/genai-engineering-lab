@@ -57,7 +57,7 @@ The same four variants with **claude-haiku-5-5, effort `medium`** ($0.10 / $0.50
 ## Reading
 
 - **The cryptic names did not affect Sonnet:** `legado` scores the same as `copilot` (one question apart, in opposite directions per language). In a 6-table schema, with names such as `artmst` or `exi_qty` and keys that can be inferred, the DDL is enough.
-- **The full dictionary did not improve accuracy** and raised the cost per question compared with `legado` (62 % in ES and 73 % in EN), because of the longer prompt.
+- **The full dictionary did not improve accuracy** and raised the cost per question compared with `legado` (62% in ES and 73% in EN), because of the longer prompt.
 - **The retrieved dictionary lowered accuracy to 0.72–0.74, and the cause is retrieval, not the SQL:** with every needed table retrieved, 63 of 64 correct; with any table missing, 0 of 22. The table missing most often was `artmst`, the item master (17 of 22), followed by `almmst` (5). Similarity search favors the tables that the question mentions (sales, stock) and leaves out the master table needed for the JOIN.
 - **When a table was missing, Sonnet did not invent names:** the 4 outputs that were not a SELECT are explicit refusals ("artmst is not available"). That is the correct behavior with an incomplete schema.
 

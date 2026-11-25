@@ -12,14 +12,14 @@ Script: `experimentos/suite_generacion.py` (run on 2026-10-27). Frozen contexts:
 - **Judge:** Haiku 5.5 `low` (activity 3 decision).
 - **Metrics:**
   - faithfulness and answer relevancy (RAGAS);
-  - correctness against the reference (own judge);
+  - correctness against the reference (custom judge);
   - citation precision: cited chunks that contain the gold passage, over all cited chunks;
   - citation coverage: answers that cite a gold chunk;
   - abstention: a judge classifies each answer as "abstains" or "answers". This gives the correct abstention rate and the invented answer rate on unanswerable questions, and the false abstention rate on answerable ones.
 
 ## Results
 
-| Lang | Type | n | faithfulness | answer relevancy | correctness (own judge) | citation precision | citation coverage | false abstention |
+| Lang | Type | n | faithfulness | answer relevancy | correctness (custom judge) | citation precision | citation coverage | false abstention |
 |---|---|---|---|---|---|---|---|---|
 | ES | base | 50 | 0.667 | 0.884 | 1.000 | 0.639 (83) | 1.000 | 0/50 |
 | ES | non-text | 15 | 0.717 | 0.909 | 1.000 | 0.882 (17) | 1.000 | 0/15 |
@@ -55,10 +55,10 @@ Generation: $0.0305 for 150 answers ($0.00020 per query), p50 latency 2.1 s. Eva
 
 ## Decision
 
-- **Generation suite metrics:** correctness (own judge) and abstention as the primary pass/fail signals; faithfulness as a signal for unsupported content, read together with the meta-commentary caveat; citation precision as a lower bound.
+- **Generation suite metrics:** correctness (custom judge) and abstention as the primary pass/fail signals; faithfulness as a signal for unsupported content, read together with the meta-commentary caveat; citation precision as a lower bound.
 - **Generator prompt for document-only RAG:** the integrated assistant's prompt causes the "no SQL" meta-commentary. Activity 6, which tests the suite's sensitivity to prompt changes, will measure a documents-only prompt; if faithfulness rises with correctness unchanged, that prompt is the one to use when there is no SQL tool.
 
-## Limits
+## Limitations
 
 - One run; generator and judge are not deterministic.
 - Faithfulness with Haiku has false alarms (2 clear cases of 130 here, 1 of 40 controls in activity 3).
