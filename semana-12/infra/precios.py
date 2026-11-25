@@ -102,7 +102,7 @@ def filas_gcp():
 def main():
     hoy = dt.date.today().isoformat()
     codigos = [s["ServiceCode"] for s in aws("pricing", "describe-services")["Services"] if "bedrock" in s["ServiceCode"].lower()]
-    print("servicios de Bedrock en la Price List API:", codigos, file=sys.stderr)
+    print("Bedrock services in the Price List API:", codigos, file=sys.stderr)
     filas = []
     for c in codigos:
         filas += filas_aws(c, CLAVES_AWS)

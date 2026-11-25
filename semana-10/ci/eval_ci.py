@@ -286,7 +286,7 @@ def check_seguridad(dsn_nlq, admin, esq, seq):
 def main():
     global perm
     ap = argparse.ArgumentParser()
-    ap.add_argument("--calibrar", action="store_true", help="first run: prints the values and thresholds, without applying them")
+    ap.add_argument("--calibrar", "--calibrate", action="store_true", help="first run: prints the values and thresholds, without applying them")
     args = ap.parse_args()
     if UMBRALES is None and not args.calibrar:
         raise SystemExit("No calibrated thresholds: run with --calibrar and set UMBRALES with the rule in the docstring.")

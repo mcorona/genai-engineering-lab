@@ -267,8 +267,8 @@ def evidencia(x, s, c):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--limite", type=int, default=0, help="the first N questions of each type (and non-text format) per language (pilot)")
-    ap.add_argument("--sin-indexar", action="store_true")
+    ap.add_argument("--limite", "--limit", type=int, default=0, help="the first N questions of each type (and non-text format) per language (pilot)", metavar="LIMIT")
+    ap.add_argument("--sin-indexar", "--no-index", action="store_true")
     args = ap.parse_args()
     if not args.sin_indexar:
         indexar()

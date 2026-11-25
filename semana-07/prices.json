@@ -1,37 +1,37 @@
 {
-  "_doc": "Precios por millón de tokens en USD. 'fuente' indica de dónde salió cada cifra. Un precio null significa que no está verificado: el costo de ese modelo no se reporta.",
+  "_doc": "Prices per million tokens, in USD. 'fuente' (source) says where each figure comes from. A null price is not verified: that model's cost is not reported.",
   "anthropic:claude-haiku-5-5": {
     "in": 0.1,
     "out": 0.5,
     "in_prompt_mas_100k": 0.5,
     "out_prompt_mas_100k": 2.5,
     "umbral_prompt_tokens": 100000,
-    "fuente": "https://platform.claude.com/docs/en/about-claude/pricing (consultado 2026-10-26). 'in' y 'out' son el tramo de prompts hasta 100,000 tokens; por encima, cada petición paga 0.50 de entrada y 2.50 de salida. Todas las corridas del repo quedan bajo el umbral."
+    "fuente": "https://platform.claude.com/docs/en/about-claude/pricing (retrieved 2026-10-26). 'in' and 'out' are the tier for prompts up to 100,000 tokens; above it, each request pays 0.50 for input and 2.50 for output. Every run in the repository stays below the threshold."
   },
   "anthropic:claude-sonnet-5-5": {
     "in": 2.0,
     "out": 10.0,
-    "fuente": "https://platform.claude.com/docs/en/about-claude/pricing (consultado 2026-10-26). Sin tramo por largo de prompt."
+    "fuente": "https://platform.claude.com/docs/en/about-claude/pricing (retrieved 2026-10-26). No tier by prompt length."
   },
   "anthropic:claude-opus-5-5": {
     "in": 4.0,
     "out": 20.0,
-    "fuente": "https://platform.claude.com/docs/en/about-claude/pricing (consultado 2026-10-26). Sin tramo por largo de prompt."
+    "fuente": "https://platform.claude.com/docs/en/about-claude/pricing (retrieved 2026-10-26). No tier by prompt length."
   },
   "openai:gpt-5.6-luna": {
     "in": 0.2,
     "out": 1.2,
-    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/gpt-5.6-luna (consultado 2026-10-22)"
+    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/gpt-5.6-luna (retrieved 2026-10-22)"
   },
   "openai:gpt-5.6-terra": {
     "in": 2.0,
     "out": 12.0,
-    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/gpt-5.6-terra (consultado 2026-10-22)"
+    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/gpt-5.6-terra (retrieved 2026-10-22)"
   },
   "gemini:gemini-3.8-flash": {
     "in": 0.75,
     "out": 3.75,
-    "fuente": "Google, https://ai.google.dev/gemini-api/docs/pricing (consultado 2026-10-22). Vigente hasta el 31 de diciembre de 2026; desde el 1 de enero de 2027 sube a 1.50 / 7.50."
+    "fuente": "Google, https://ai.google.dev/gemini-api/docs/pricing (retrieved 2026-10-22). Valid until December 31, 2026; from January 1, 2027 it rises to 1.50 / 7.50."
   },
   "anthropic:claude-haiku-4-5-20251001": {
     "in": 1.1,
@@ -39,6 +39,6 @@
     "in_prompt_mas_100k": 1.1,
     "out_prompt_mas_100k": 5.5,
     "umbral_prompt_tokens": 100000,
-    "fuente": "semana-19/costos/precios.json (haiku45_entrada_1m 1.1, haiku45_salida_1m 5.5; Price List API, Claude Haiku 4.5, consultado 2026-11-13, marca M). El tramo por encima de 100,000 tokens NO está verificado para Haiku 4.5: se usa el mismo precio como supuesto; las corridas del agente son muy inferiores a 100,000 tokens."
+    "fuente": "semana-19/costos/precios.json (haiku45_entrada_1m 1.1, haiku45_salida_1m 5.5; Price List API, Claude Haiku 4.5, retrieved 2026-11-13, mark M). The tier above 100,000 tokens is NOT verified for Haiku 4.5: the same price is assumed; the agent's runs stay far below 100,000 tokens."
   }
 }

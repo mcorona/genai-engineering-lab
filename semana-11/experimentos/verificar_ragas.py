@@ -44,8 +44,8 @@ CASOS = {
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", default="claude-haiku-5-5")
-    ap.add_argument("--esfuerzo", default="low", choices=["low", "medium", "high"])
+    ap.add_argument("--modelo", "--model", default="claude-haiku-5-5", metavar="MODEL")
+    ap.add_argument("--esfuerzo", "--effort", default="low", choices=["low", "medium", "high"])
     args = ap.parse_args()
 
     for pkg in ("ragas", "langchain-community", "langchain-core", "instructor", "anthropic", "openai"):
@@ -81,11 +81,11 @@ def main():
     base = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1")
     modelo_emb = os.getenv("LMSTUDIO_EMBED_MODEL", "text-embedding-bge-m3")
     emb = embedding_factory("openai", model=modelo_emb, client=AsyncOpenAI(base_url=base, api_key="lm-studio"))
-    print(f"embeddings: {modelo_emb} en {base}")
+    print(f"embeddings: {modelo_emb} at {base}")
 
     metricas = {"faithfulness": Faithfulness(llm=juez), "answer_relevancy": AnswerRelevancy(llm=juez, embeddings=emb),
                 "context_recall": ContextRecall(llm=juez)}
-    print("\n| Caso | faithfulness | answer_relevancy | context_recall | segundos |")
+    print("\n| Case | faithfulness | answer_relevancy | context_recall | seconds |")
     print("|---|---|---|---|---|")
     for nombre, (ctx, resp) in CASOS.items():
         t0 = time.perf_counter()
@@ -96,8 +96,8 @@ def main():
     p = PRECIOS[f"anthropic:{args.modelo}"]
     print(f"\nJudge: {uso['llamadas']} calls, {uso['in']} input tokens and {uso['out']} output tokens; "
           f"cost ${(uso['in'] * p['in'] + uso['out'] * p['out']) / 1e6:.5f}")
-    esperado = ("Esperado: fiel con faithfulness y relevance altas; cifra_cambiada con faithfulness baja; "
-                "fuera_de_tema con relevance más baja que fiel; contexto_equivocado con context_recall baja.")
+    esperado = ("Expected: fiel with high faithfulness and relevance; cifra_cambiada with low faithfulness; "
+                "fuera_de_tema with lower relevance than fiel; contexto_equivocado with low context_recall.")
     print(esperado, file=sys.stderr)
 
 

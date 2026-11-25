@@ -7,6 +7,7 @@ on:
       - "!semana-08/README.md"
       - "!semana-08/resultados/**/*.md"
       - ".github/workflows/recuperacion-semana-08.yml"
+      - "!**/README.md"               # no eval reads a README (the English notes next to the data)
 
 permissions:
   contents: read
