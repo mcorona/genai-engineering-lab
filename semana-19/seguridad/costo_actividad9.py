@@ -77,7 +77,7 @@ def _registro(ruta: Path) -> list[dict]:
 def correr(cliente, ruta_registro: Path = REGISTRO) -> dict:
     llamadas = _registro(ruta_registro)
     if len(llamadas) + 2 > MAX_LLAMADAS:
-        raise SystemExit(f"El registro ya tiene {len(llamadas)} llamadas de {MAX_LLAMADAS}: no se llama otra vez.")
+        raise SystemExit(f"The record already has {len(llamadas)} calls out of {MAX_LLAMADAS}: no further call is made.")
     respuestas = {}
     for nombre, solicitud in solicitudes().items():
         llamadas.append({"fecha": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -90,11 +90,11 @@ def correr(cliente, ruta_registro: Path = REGISTRO) -> dict:
 
 def main(argv=None, cliente=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--si", action="store_true", help="make the two calls (by default only prints them)")
+    ap.add_argument("--si", "--yes", action="store_true", help="make the two calls (by default only prints them)")
     a = ap.parse_args(argv)
     if not a.si:
         print(json.dumps(solicitudes(), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS.")
+        print("Simulation: no AWS calls were made.")
         return 0
     if cliente is None:
         import boto3

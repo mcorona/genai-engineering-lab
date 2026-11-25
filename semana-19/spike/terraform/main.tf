@@ -11,7 +11,7 @@ resource "aws_kms_key" "llave" {
 }
 
 resource "aws_s3_bucket" "registros" {
-  #checkov:skip=CKV_AWS_144:Lab: el bucket de logs no se replica entre regiones; prod lo decide el ADR 0006.
+  #checkov:skip=CKV_AWS_144:Lab: the logs bucket is not replicated across regions; for prod, ADR 0006 decides.
   #checkov:skip=CKV2_AWS_62:Bucket de logs de acceso: no emite notificaciones de eventos.
   bucket        = "semana19-spike-registros-${var.cuenta}"
   force_destroy = true
@@ -43,8 +43,8 @@ resource "aws_s3_bucket_public_access_block" "registros" {
 }
 
 resource "aws_s3_bucket" "datos" {
-  #checkov:skip=CKV_AWS_144:Lab: el bucket de datos no se replica entre regiones; prod lo decide el ADR 0006.
-  #checkov:skip=CKV2_AWS_62:Lab: sin notificaciones de eventos en el spike.
+  #checkov:skip=CKV_AWS_144:Lab: the data bucket is not replicated across regions; for prod, ADR 0006 decides.
+  #checkov:skip=CKV2_AWS_62:Lab: no event notifications in the spike.
   bucket        = "semana19-spike-datos-${var.cuenta}"
   force_destroy = false
 }
@@ -182,9 +182,9 @@ data "aws_iam_policy_document" "llave" {
   statement {
     sid       = "RaizDeLaCuenta"
     actions   = ["kms:Create*", "kms:Describe*", "kms:Enable*", "kms:List*", "kms:Put*", "kms:Update*", "kms:Revoke*", "kms:Disable*", "kms:Get*", "kms:Delete*", "kms:ScheduleKeyDeletion", "kms:CancelKeyDeletion", "kms:Encrypt", "kms:Decrypt", "kms:GenerateDataKey*", "kms:ReEncrypt*"]
-    #checkov:skip=CKV_AWS_109:Política por omisión de KMS: el root de la cuenta debe poder administrar la llave, o la cuenta la pierde.
-    #checkov:skip=CKV_AWS_111:Mismo motivo: la administración de la llave es la política por omisión de KMS, no un permiso amplio de escritura.
-    #checkov:skip=CKV_AWS_356:En una política de llave KMS, "*" en resources significa esta llave; no es un comodín global.
+    #checkov:skip=CKV_AWS_109:The default KMS key policy: the account root must be able to administer the key, or the account loses it.
+    #checkov:skip=CKV_AWS_111:Same reason: administering the key is the default KMS policy, not a broad write permission.
+    #checkov:skip=CKV_AWS_356:In a KMS key policy, "*" in resources means this key; it is not a global wildcard.
     resources = ["*"]
     principals {
       type        = "AWS"

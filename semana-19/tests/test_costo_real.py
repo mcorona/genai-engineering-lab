@@ -123,7 +123,7 @@ def test_la_comparacion_marca_el_error_fuera_de_veinte_por_ciento():
     # prod was never deployed: its per-hour row does not apply and never asks for a correction.
     ph = c["filas"]["prod.por_hora"]
     assert ph["real_usd"] is None and ph["error"] is None and ph["fuera_de_umbral"] is False and "no_aplica" in ph
-    # With the model part known, both errors are reported and either one beyond 20 % flags the row.
+    # With the model part known, both errors are reported and either one beyond 20% flags the row.
     c = K.comparar(d | {"costo_por_consulta_modelo_usd": 0.045}, 26.0, {"lab": pred["prod"]})
     f = c["filas"]["lab.por_consulta"]
     assert (f["error"], f["error_modelo"], f["fuera_de_umbral"]) == (0.0, -0.1, False)

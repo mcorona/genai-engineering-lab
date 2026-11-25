@@ -32,9 +32,9 @@ No month ran at this volume, so there is no real column here.
 | Version | Profile | Predicted total (USD) | Net with credits (USD) | Not measured (N, outside total) |
 |---|---|---|---|---|
 | v1 | lab | 249.9186 | 107.9186 | none |
-| v1 | prod | 262.3673 | 120.3673 | RDS Multi-AZ, instancia adicional |
-| v2 | lab | 103.0676 | 0.0000 | ApplyGuardrail, unidades de texto |
-| v2 | prod | 115.5164 | 0.0000 | RDS Multi-AZ, instancia adicional; ApplyGuardrail, unidades de texto |
+| v1 | prod | 262.3673 | 120.3673 | RDS Multi-AZ, additional instance |
+| v2 | lab | 103.0676 | 0.0000 | ApplyGuardrail, text units |
+| v2 | prod | 115.5164 | 0.0000 | RDS Multi-AZ, additional instance; ApplyGuardrail, text units |
 
 ## Activity 8: the first real row
 

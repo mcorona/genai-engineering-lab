@@ -49,7 +49,7 @@ def kappa(a: list[bool], b: list[bool]) -> float | None:
     """Cohen's kappa for two binary raters. None when chance agreement is 1 (both raters constant and equal)."""
     n = len(a)
     if n == 0 or n != len(b):
-        raise ValueError("listas vacías o de distinto largo")
+        raise ValueError("empty lists or lists of different lengths")
     po = sum(x == y for x, y in zip(a, b)) / n
     pa, pb = sum(a) / n, sum(b) / n
     pe = pa * pb + (1 - pa) * (1 - pb)

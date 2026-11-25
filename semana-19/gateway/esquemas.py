@@ -33,7 +33,7 @@ def proyectar(esquema: dict) -> dict:
     if "anyOf" in esquema and "type" not in esquema:
         ramas = [r for r in esquema["anyOf"] if r.get("type") != "null"]
         if len(ramas) != 1:
-            raise ValueError("anyOf sin una única rama no nula: no hay proyección para el gateway")
+            raise ValueError("anyOf without exactly one non-null branch: no projection for the gateway")
         esquema = {**ramas[0], **{k: v for k, v in esquema.items() if k == "description"}}
     salida = {}
     for clave in CLAVES:

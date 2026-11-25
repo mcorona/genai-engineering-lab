@@ -9,6 +9,9 @@
 #                                               activity 7 only: the comparison agent, then the gateway, then the
 #                                               inventory of their categories (they must be empty). The rest stays.
 #
+# English names: destroy.sh runs this script, and each flag above also takes its English name: --yes, --inventory,
+# --all and --activity7-only.
+#
 # Order with --si: semana19-agentes-comparacion, semana19-gateway, the judge's semana19-eval (activity 8: first its
 # bucket is emptied and its evaluation jobs deleted, vaciar_eval.py with the admin profile) and semana19-computo
 # (activities 6 to 8, they import the base, datos and ia exports), then datos, ia, base and the bootstrap.
@@ -23,7 +26,7 @@ PERFIL_ADMIN="${S19_PERFIL_ADMIN:-manuel-admin}"
 PERFIL_DESPLIEGUE="${S19_PERFIL_DESPLIEGUE:-semana19-despliegue}"
 PERFIL_LECTURA="${S19_PERFIL_LECTURA:-semana19-lectura}"
 PYTHON_CDK="${S19_PYTHON:-$RAIZ/.venv-cdk/bin/python}"
-PYTHON_BOTO="${S19_PYTHON_BOTO:-$RAIZ/.venv/bin/python}"  # boto3: inventario y vaciado (venv-cdk no lo tiene)
+PYTHON_BOTO="${S19_PYTHON_BOTO:-$RAIZ/.venv/bin/python}"  # boto3: the inventory and the emptying (venv-cdk does not have it)
 APP="$RAIZ/semana-19/infra/cdk/app.py"
 REGISTRO="$RAIZ/semana-19/resultados/tiempos_despliegue.jsonl"
 REGION="us-east-1"
@@ -33,19 +36,19 @@ SOLO_A7=0
 
 for argumento in "$@"; do
   case "$argumento" in
-    --si) MODO="si" ;;
-    --inventario) MODO="inventario" ;;
-    --todo) TODO=1 ;;
-    --solo-actividad7) SOLO_A7=1 ;;
-    *) echo "argumento no reconocido: $argumento" >&2; exit 2 ;;
+    --si|--yes) MODO="si" ;;
+    --inventario|--inventory) MODO="inventario" ;;
+    --todo|--all) TODO=1 ;;
+    --solo-actividad7|--activity7-only) SOLO_A7=1 ;;
+    *) echo "unrecognized argument: $argumento" >&2; exit 2 ;;
   esac
 done
 if [[ "$TODO" == "1" && "$MODO" != "si" ]]; then
-  echo "--todo solo tiene efecto con --si." >&2
+  echo "--todo (--all) only works with --si (--yes)." >&2
   exit 2
 fi
 if [[ "$SOLO_A7" == "1" && "$TODO" == "1" ]]; then
-  echo "--solo-actividad7 y --todo no se combinan." >&2
+  echo "--solo-actividad7 and --todo cannot be combined." >&2
   exit 2
 fi
 
@@ -63,30 +66,30 @@ inventario() {
 }
 
 if [[ "$MODO" == "simulacion" ]]; then
-  echo "== Simulación. No se llamó a AWS."
-  echo "00a) cdk destroy semana19-agentes-comparacion  (actividad 7, desechable: primero)"
-  echo "00b) cdk destroy semana19-gateway              (actividad 7: gateway, target, políticas y motor)"
+  echo "== Simulation. No AWS calls were made."
+  echo "00a) cdk destroy semana19-agentes-comparacion  (activity 7, disposable: first)"
+  echo "00b) cdk destroy semana19-gateway              (activity 7: gateway, target, policies and engine)"
   if [[ "$SOLO_A7" == "1" ]]; then
-    echo "00z) inventario de las categorías de la actividad 7 (deben quedar en cero); el resto se queda"
+    echo "00z) inventory of the activity 7 categories (they must be empty); the rest stays"
     exit 0
   fi
-  echo "00c1) vaciar el bucket del juez y borrar sus trabajos  (vaciar_eval.py --si, perfil admin; actividad 8)"
-  echo "00c2) cdk destroy semana19-eval              (actividad 8: bucket y rol del juez)"
-  echo "00c) cdk destroy semana19-computo              (actividad 6: agente, API, aprobación, usuarios)"
-  echo "0a) vaciar el bucket de documentos de la KB  (vaciar_datos.py --si, perfil admin; versionado, actividad 8)"
-  echo "0) semana19-datos: cdk destroy          (base PostgreSQL y KB, antes que la red)"
-  echo "0b) cdk destroy semana19-ia              (Guardrail y prompts; antes que la red porque importa la llave)"
-  echo "1) cdk destroy semana19-base            (perfil de despliegue; borrar sigue permitido con la congelación)"
-  echo "2) vaciar el bucket y el ECR del bootstrap  (vaciar_bootstrap.py --si, perfil admin)"
-  echo "3) aws cloudformation delete-stack semana19-cdktoolkit  (perfil admin; programa el borrado de la llave del bootstrap)"
+  echo "00c1) empty the judge's bucket and delete its jobs  (vaciar_eval.py --si, admin profile; activity 8)"
+  echo "00c2) cdk destroy semana19-eval              (activity 8: the judge's bucket and role)"
+  echo "00c) cdk destroy semana19-computo              (activity 6: agent, API, approval, users)"
+  echo "0a) empty the KB documents bucket  (vaciar_datos.py --si, admin profile; versioned, activity 8)"
+  echo "0) semana19-datos: cdk destroy          (PostgreSQL database and KB, before the network)"
+  echo "0b) cdk destroy semana19-ia              (Guardrail and prompts; before the network because it imports the key)"
+  echo "1) cdk destroy semana19-base            (deployment profile; deleting is still allowed under the freeze)"
+  echo "2) empty the bootstrap bucket and ECR  (vaciar_bootstrap.py --si, admin profile)"
+  echo "3) aws cloudformation delete-stack semana19-cdktoolkit  (admin profile; schedules the deletion of the bootstrap key)"
   if [[ "$TODO" == "1" ]]; then
-    echo "4) aws cloudformation delete-stack semana19-control  (perfil admin; un reintento si solo falló el límite de permisos)"
+    echo "4) aws cloudformation delete-stack semana19-control  (admin profile; one retry if only the permissions boundary failed)"
   else
-    echo "4) semana19-control se queda (no se pasó --todo)"
+    echo "4) semana19-control stays (--todo was not passed)"
   fi
-  echo "4c) borrar los log groups implícitos de Lambda /aws/lambda/semana19-*  (perfil admin; actividad 8)"
-  echo "5) inventario (solo lectura): solo se permite lo listado en inventario.py::permitidos"
-  echo "Para el inventario sin borrar nada: destruir.sh --inventario. Para actuar: destruir.sh --si, con tu OK."
+  echo "4c) delete the implicit Lambda log groups /aws/lambda/semana19-*  (admin profile; activity 8)"
+  echo "5) inventory (read-only): only what inventario.py::permitidos lists is allowed"
+  echo "For the inventory without deleting anything: destruir.sh --inventario. To act: destruir.sh --si, with your OK."
   exit 0
 fi
 
@@ -111,41 +114,41 @@ destruir_pila_computo() {
       --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
     registrar "destruir-${pila#semana19-}" $(( $(date +%s) - inicio ))
   else
-    echo "== $paso: $pila no existe"
+    echo "== $paso: $pila does not exist"
   fi
 }
 
-destruir_pila_computo semana19-agentes-comparacion "Paso 00a"
-destruir_pila_computo semana19-gateway "Paso 00b"
+destruir_pila_computo semana19-agentes-comparacion "Step 00a"
+destruir_pila_computo semana19-gateway "Step 00b"
 if [[ "$SOLO_A7" == "1" ]]; then
-  echo "== Paso 00z: inventario de la actividad 7 (solo lectura)"
+  echo "== Step 00z: activity 7 inventory (read-only)"
   "$PYTHON_BOTO" "$RAIZ/semana-19/infra/inventario.py" --perfil "$PERFIL_LECTURA" --region "$REGION" --solo-actividad7
   exit $?
 fi
-echo "== Paso 00c1: vaciar el bucket del juez y borrar sus trabajos de evaluación (actividad 8)"
+echo "== Step 00c1: empty the judge's bucket and delete its evaluation jobs (activity 8)"
 "$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_eval.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
-destruir_pila_computo semana19-eval "Paso 00c2"
-destruir_pila_computo semana19-computo "Paso 00c"
+destruir_pila_computo semana19-eval "Step 00c2"
+destruir_pila_computo semana19-computo "Step 00c"
 
 if existe_stack semana19-datos; then
   # Activity 8: the documents bucket is versioned without auto-delete; CloudFormation cannot delete it with versions.
-  echo "== Paso 0a: vaciar el bucket de documentos de la KB (vaciar_datos.py --si, perfil admin)"
+  echo "== Step 0a: empty the KB documents bucket (vaciar_datos.py --si, admin profile)"
   "$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_datos.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
   inicio=$(date +%s)
-  echo "== Paso 0: cdk destroy semana19-datos (base PostgreSQL) antes que la red"
+  echo "== Step 0: cdk destroy semana19-datos (PostgreSQL database) before the network"
   cdk destroy semana19-datos --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
   registrar "destruir-datos" $(( $(date +%s) - inicio ))
 else
-  echo "== Paso 0: semana19-datos no existe"
+  echo "== Step 0: semana19-datos does not exist"
 fi
 ESTADO_BASE="$(aws cloudformation describe-stacks --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
   --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo NO_EXISTE)"
-# Paso 0b: the guardrail stack (activity 5) imports the base key, so it goes before the base.
+# Step 0b: the guardrail stack (activity 5) imports the base key, so it goes before the base.
 if existe_stack semana19-ia; then
-  echo "== Paso 0b: cdk destroy semana19-ia (Guardrail y prompts, actividad 5) antes que la red"
+  echo "== Step 0b: cdk destroy semana19-ia (Guardrail and prompts, activity 5) before the network"
   cdk destroy semana19-ia --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"
 else
-  echo "== Paso 0b: semana19-ia no existe"
+  echo "== Step 0b: semana19-ia does not exist"
 fi
 
 # Known case (2026-11-13): the custom resource that restricts the default SG cannot be deleted, because its Lambda
@@ -159,7 +162,7 @@ retener_sg_por_defecto() {
     --query "StackEvents[?ResourceStatus=='DELETE_FAILED' && ResourceType=='Custom::VpcRestrictDefaultSG'].LogicalResourceId" \
     --output text | tr '\t' '\n' | sort -u | paste -sd, -)"
   if [[ -z "$retenidos" ]]; then
-    echo "No se identificó el custom resource fallido; revisa los eventos del stack antes de continuar." >&2
+    echo "The failed custom resource was not identified; review the stack events before going on." >&2
     exit 1
   fi
   aws cloudformation delete-stack --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
@@ -169,11 +172,11 @@ retener_sg_por_defecto() {
 }
 
 if [[ "$ESTADO_BASE" == "DELETE_FAILED" ]]; then
-  echo "== Paso 1b: semana19-base en DELETE_FAILED: se retiene solo el custom resource del SG por defecto"
+  echo "== Step 1b: semana19-base in DELETE_FAILED: only the default SG custom resource is retained"
   retener_sg_por_defecto
 elif [[ "$ESTADO_BASE" != "NO_EXISTE" ]]; then
   inicio=$(date +%s)
-  echo "== Paso 1: cdk destroy semana19-base"
+  echo "== Step 1: cdk destroy semana19-base"
   # Week 20 (2026-11-23): the first delete of a fresh base always ends in DELETE_FAILED on that custom resource, so
   # the script goes on to step 1b in the same run instead of stopping and needing a second one.
   if cdk destroy semana19-base --force --app "$PYTHON_CDK $APP" --profile "$PERFIL_DESPLIEGUE" --region "$REGION"; then
@@ -182,31 +185,31 @@ elif [[ "$ESTADO_BASE" != "NO_EXISTE" ]]; then
     estado="$(aws cloudformation describe-stacks --stack-name semana19-base --region "$REGION" --profile "$PERFIL_ADMIN" \
       --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo NO_EXISTE)"
     if [[ "$estado" != "DELETE_FAILED" ]]; then
-      echo "cdk destroy semana19-base falló y el stack quedó en $estado; revisa los eventos antes de continuar." >&2
+      echo "cdk destroy semana19-base failed and the stack is in $estado; review the events before going on." >&2
       exit 1
     fi
-    echo "== Paso 1b: semana19-base quedó en DELETE_FAILED: se retiene solo el custom resource del SG por defecto"
+    echo "== Step 1b: semana19-base ended in DELETE_FAILED: only the default SG custom resource is retained"
     retener_sg_por_defecto
   fi
 else
-  echo "== Paso 1: semana19-base no existe"
+  echo "== Step 1: semana19-base does not exist"
 fi
 
 if existe_stack semana19-cdktoolkit; then
-  echo "== Paso 2: vaciar el bucket y el ECR del bootstrap"
+  echo "== Step 2: empty the bootstrap bucket and ECR"
   "$PYTHON_BOTO" "$RAIZ/semana-19/infra/vaciar_bootstrap.py" --perfil "$PERFIL_ADMIN" --region "$REGION" --si
   inicio=$(date +%s)
-  echo "== Paso 3: borrar semana19-cdktoolkit (programa el borrado de su llave KMS)"
+  echo "== Step 3: delete semana19-cdktoolkit (schedules the deletion of its KMS key)"
   aws cloudformation delete-stack --stack-name semana19-cdktoolkit --region "$REGION" --profile "$PERFIL_ADMIN"
   aws cloudformation wait stack-delete-complete --stack-name semana19-cdktoolkit --region "$REGION" --profile "$PERFIL_ADMIN"
   registrar "destruir-bootstrap" $(( $(date +%s) - inicio ))
 else
-  echo "== Paso 2-3: semana19-cdktoolkit no existe"
+  echo "== Step 2-3: semana19-cdktoolkit does not exist"
 fi
 
 if [[ "$TODO" == "1" ]] && existe_stack semana19-control; then
   inicio=$(date +%s)
-  echo "== Paso 4: borrar semana19-control"
+  echo "== Step 4: delete semana19-control"
   aws cloudformation delete-stack --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
   if ! aws cloudformation wait stack-delete-complete --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"; then
     # Known case (2026-11-19): CloudFormation deleted the permissions boundary (semana19-limite) while the stack's own
@@ -215,10 +218,10 @@ if [[ "$TODO" == "1" ]] && existe_stack semana19-control; then
     fallidos="$(aws cloudformation describe-stack-resources --stack-name semana19-control --region "$REGION" \
       --profile "$PERFIL_ADMIN" --query "StackResources[?ResourceStatus=='DELETE_FAILED'].LogicalResourceId" --output text)"
     if [[ "$fallidos" != Limite* || "$fallidos" == *[[:space:]]* ]]; then
-      echo "semana19-control en DELETE_FAILED por: $fallidos; revisa los eventos del stack antes de continuar." >&2
+      echo "semana19-control in DELETE_FAILED because of: $fallidos; review the stack events before going on." >&2
       exit 1
     fi
-    echo "== Paso 4b: semana19-control falló solo en el límite de permisos (carrera con sus roles): un reintento"
+    echo "== Step 4b: semana19-control failed only on the permissions boundary (a race with its roles): one retry"
     aws cloudformation delete-stack --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
     aws cloudformation wait stack-delete-complete --stack-name semana19-control --region "$REGION" --profile "$PERFIL_ADMIN"
   fi
@@ -227,20 +230,20 @@ fi
 
 # Activity 8: a Lambda without its own log group gets /aws/lambda/<function> from the runtime, outside CloudFormation
 # (the datos loader, 2026-11-19). Once no stack of the project is left, those groups are deleted by name prefix.
-echo "== Paso 4c: borrar los log groups implícitos de Lambda (/aws/lambda/semana19-*)"
+echo "== Step 4c: delete the implicit Lambda log groups (/aws/lambda/semana19-*)"
 for grupo in $(aws logs describe-log-groups --log-group-name-prefix /aws/lambda/semana19- --region "$REGION" \
     --profile "$PERFIL_ADMIN" --query "logGroups[].logGroupName" --output text); do
   aws logs delete-log-group --log-group-name "$grupo" --region "$REGION" --profile "$PERFIL_ADMIN"
-  echo "borrado: $grupo"
+  echo "deleted: $grupo"
 done
 
-echo "== Paso 5: inventario (solo lectura)"
+echo "== Step 5: inventory (read-only)"
 set +e
 inventario
 codigo=$?
 set -e
 if [[ "$codigo" -ne 0 ]]; then
-  echo "El inventario encontró algo fuera de la lista permitida. Revisa 'inesperados' antes de dar por terminado." >&2
+  echo "The inventory found something outside the allowed list. Review 'inesperados' (unexpected) before calling it done." >&2
   exit "$codigo"
 fi
-echo "== Inventario limpio: solo lo permitido."
+echo "== Clean inventory: only what is allowed."

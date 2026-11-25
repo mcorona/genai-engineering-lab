@@ -68,4 +68,4 @@ def test_registra_cada_llamada_antes_y_no_pasa_de_dos(tmp_path):
 
 def test_simulacion_no_crea_cliente(capsys):
     assert C.main([]) == 0
-    assert "Simulación" in capsys.readouterr().out
+    assert "Simulation" in capsys.readouterr().out

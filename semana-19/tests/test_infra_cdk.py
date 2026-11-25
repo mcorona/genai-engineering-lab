@@ -452,7 +452,7 @@ def test_desplegar_sin_si_no_llama_a_aws(tmp_path):
     r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh")], env=entorno, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-800:]
     assert not marcas.exists(), marcas.read_text() if marcas.exists() else ""
-    assert "No se llamó a AWS" in r.stdout
+    assert "No AWS calls were made" in r.stdout
 
 
 def test_destruir_sin_si_no_llama_a_aws(tmp_path):
@@ -460,7 +460,7 @@ def test_destruir_sin_si_no_llama_a_aws(tmp_path):
     r = subprocess.run(["bash", str(SCRIPTS / "destruir.sh")], env=entorno, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-800:]
     assert not marcas.exists()
-    assert "No se llamó a AWS" in r.stdout
+    assert "No AWS calls were made" in r.stdout
 
 
 def test_desplegar_si_sin_correo_se_detiene_antes_de_aws(tmp_path):
@@ -478,7 +478,7 @@ def test_desplegar_si_con_correo_mal_formado_se_detiene_antes_de_aws(tmp_path, c
     entorno, marcas = _entorno_falso(tmp_path)
     entorno["ALERTA_EMAIL"] = correo
     r = subprocess.run(["bash", str(SCRIPTS / "desplegar.sh"), "--si"], env=entorno, capture_output=True, text=True)
-    assert r.returncode == 2 and "no tiene forma de correo" in r.stderr
+    assert r.returncode == 2 and "is not shaped like an email address" in r.stderr
     assert correo.strip() not in r.stdout + r.stderr     # the value is never printed
     assert not marcas.exists()
 
@@ -533,7 +533,7 @@ def test_solo_control_sin_correo_conserva_el_del_stack(tmp_path):
     assert r.returncode == 0, r.stderr[-800:]
     (deploy,) = [l for l in marcas.read_text().splitlines() if "cloudformation deploy --stack-name semana19-control" in l]
     assert "CorreoAlerta" not in deploy and "BootstrapCreado=true" in deploy
-    assert "conserva su CorreoAlerta" in r.stdout
+    assert "keeps its CorreoAlerta" in r.stdout
 
 
 def test_sin_correo_y_sin_stack_de_control_se_detiene(tmp_path):
@@ -931,7 +931,7 @@ def test_destruir_simula_la_actividad7_sin_llamar_a_aws(tmp_path):
     r = subprocess.run(["bash", str(SCRIPTS / "destruir.sh"), "--solo-actividad7"], env=entorno, capture_output=True,
                        text=True)
     assert r.returncode == 0, r.stderr[-800:]
-    assert not marcas.exists() and "No se llamó a AWS" in r.stdout
+    assert not marcas.exists() and "No AWS calls were made" in r.stdout
     assert r.stdout.index("semana19-agentes-comparacion") < r.stdout.index("semana19-gateway")
     assert "semana19-computo" not in r.stdout and "semana19-base" not in r.stdout
 
@@ -1213,9 +1213,9 @@ def test_el_stack_del_juez_da_lo_que_lee_juez_bedrock(perfil):
 def test_destruir_reintenta_control_solo_si_fallo_el_limite_de_permisos():
     """2026-11-19: semana19-control ended DELETE_FAILED on semana19-limite only (409, its roles still deleting)."""
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
-    paso4 = texto[texto.index("== Paso 4: borrar semana19-control"):texto.index("== Paso 4c")]
+    paso4 = texto[texto.index("== Step 4: delete semana19-control"):texto.index("== Step 4c")]
     assert 'if [[ "$fallidos" != Limite* || "$fallidos" == *[[:space:]]* ]]; then' in paso4
-    assert paso4.index("exit 1") < paso4.index("Paso 4b")   # anything other than the boundary alone stops
+    assert paso4.index("exit 1") < paso4.index("Step 4b")   # anything other than the boundary alone stops
     assert paso4.count("aws cloudformation delete-stack --stack-name semana19-control") == 2
 
 
@@ -1223,7 +1223,7 @@ def test_destruir_borra_los_log_groups_implicitos_de_lambda_despues_de_las_pilas
     """2026-11-19: the datos loader left /aws/lambda/semana19-datos-Cargador... outside CloudFormation."""
     texto = (SCRIPTS / "destruir.sh").read_text(encoding="utf-8")
     borrar = texto.index('aws logs delete-log-group --log-group-name "$grupo"')
-    assert texto.index("== Paso 4: borrar semana19-control") < borrar < texto.index('echo "== Paso 5: inventario')
+    assert texto.index("== Step 4: delete semana19-control") < borrar < texto.index('echo "== Step 5: inventory')
     assert "--log-group-name-prefix /aws/lambda/semana19- " in texto   # the project's functions only
 
 

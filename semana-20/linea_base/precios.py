@@ -129,12 +129,12 @@ def enrutadores(cliente) -> list[dict]:
 
 def main(argv=None, sesion=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--si", action="store_true", help="read from AWS (by default only prints what it would read)")
+    ap.add_argument("--si", "--yes", action="store_true", help="read from AWS (by default only prints what it would read)")
     a = ap.parse_args(argv)
     if not a.si:
         print(json.dumps({"pricing": ["AmazonBedrockFoundationModels", "AmazonBedrock", "AmazonCloudWatch", "AWSXRay"],
                           "service-quotas": "bedrock", "bedrock": "ListPromptRouters", "region": REGION}, indent=2))
-        print("Simulación: no se llamó a AWS.")
+        print("Simulation: no AWS calls were made.")
         return 0
     if sesion is None:
         import boto3

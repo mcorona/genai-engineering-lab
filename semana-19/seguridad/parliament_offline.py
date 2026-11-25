@@ -92,7 +92,7 @@ def informe(por_perfil: dict[str, list[dict]], n_docs: dict[str, int]) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--synth", action="append", required=True, metavar="PERFIL=DIR")
-    ap.add_argument("--salida", type=Path, default=SALIDA)
+    ap.add_argument("--salida", "--output", type=Path, default=SALIDA, metavar="OUTPUT")
     a = ap.parse_args(argv)
     import warnings
     warnings.filterwarnings("ignore")

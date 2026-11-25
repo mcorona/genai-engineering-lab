@@ -76,9 +76,9 @@ def borrar_trabajos(bedrock, lista: list[dict], si: bool) -> dict:
 
 def main() -> int:  # pragma: no cover - live only
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--perfil", required=True)
+    ap.add_argument("--perfil", "--profile", required=True, metavar="PROFILE")
     ap.add_argument("--region", default="us-east-1")
-    ap.add_argument("--si", action="store_true", help="borra (sin esta bandera solo cuenta)")
+    ap.add_argument("--si", "--yes", action="store_true", help="deletes (without this flag it only counts)")
     a = ap.parse_args()
     import boto3
     sesion = boto3.Session(profile_name=a.perfil, region_name=a.region)

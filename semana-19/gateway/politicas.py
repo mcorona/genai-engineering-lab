@@ -20,5 +20,5 @@ def politicas() -> dict[str, str]:
 
 def con_gateway(texto: str, arn_gateway: str) -> str:
     if texto.count(MARCADOR) != 1:
-        raise ValueError("cada política nombra el gateway exactamente una vez")
+        raise ValueError("each policy names the gateway exactly once")
     return texto.replace(MARCADOR, arn_gateway)

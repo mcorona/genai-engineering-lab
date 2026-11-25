@@ -18,3 +18,8 @@ def test_a_translation_that_keeps_the_figures_passes():
 def test_a_changed_figure_fails():
     assert numbers("latencia p50 de 52.4 s") != numbers("p50 latency of 52.5 s")
     assert numbers("3 runs") != numbers("three runs")
+
+
+def test_an_english_flag_alias_is_not_a_figure():
+    assert numbers('case --solo-actividad7) A7=1 ;;') == numbers('case --solo-actividad7|--activity7-only) A7=1 ;;')
+    assert numbers("--solo-actividad7") != numbers("--solo-actividad8")

@@ -171,19 +171,19 @@ def registrar(fila: dict, ruta: Path = REGISTRO) -> None:
 def main(argv=None, sesion=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     modo = ap.add_mutually_exclusive_group()
-    modo.add_argument("--crear", action="store_true")
-    modo.add_argument("--estado", action="store_true")
-    modo.add_argument("--limpiar", action="store_true")
-    ap.add_argument("--si", action="store_true", help="act (--crear and --limpiar simulate without it)")
+    modo.add_argument("--crear", "--create", action="store_true")
+    modo.add_argument("--estado", "--status", action="store_true")
+    modo.add_argument("--limpiar", "--clean", action="store_true")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (--crear and --limpiar simulate without it)")
     a = ap.parse_args(argv)
     if not (a.estado or ((a.crear or a.limpiar) and a.si)):
-        print("\n".join(plan() if not a.limpiar else ["borrar la acción, el presupuesto, la política adjunta, los dos "
-                                                       "roles y la política de prueba"]))
-        print("Simulación: no se llamó a AWS.")
+        print("\n".join(plan() if not a.limpiar else ["delete the action, the budget, the attached policy, the two "
+                                                       "roles and the test policy"]))
+        print("Simulation: no AWS calls were made.")
         return 0
     correo = os.environ.get("ALERTA_EMAIL", "")
     if a.crear and not _CORREO.match(correo):
-        print("ALERTA_EMAIL falta o no tiene forma de correo; no se imprime.", file=sys.stderr)
+        print("ALERTA_EMAIL is missing or not shaped like an email address; it is not printed.", file=sys.stderr)
         return 2
     if sesion is None:
         import boto3

@@ -98,11 +98,11 @@ def construir(sin_dependencias: bool = False) -> Path:
     DESTINO.mkdir(parents=True)
     for nombre, origen in {**CODIGO, **DATOS}.items():
         if not origen.is_dir():
-            raise FileNotFoundError(f"falta {origen}")
+            raise FileNotFoundError(f"missing: {origen}")
         shutil.copytree(origen, DESTINO / nombre, ignore=IGNORAR)
     (DESTINO / "app" / "__init__.py").write_text(SHIM_APP, encoding="utf-8")
     if not (DESTINO / "semana-07" / "prices.json").is_file():
-        raise FileNotFoundError("falta semana-07/prices.json en el paquete")
+        raise FileNotFoundError("semana-07/prices.json is missing from the package")
     if not sin_dependencias:
         subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--target", str(DESTINO),
                         "--only-binary=:all:", "--platform", "manylinux2014_x86_64", "--platform", "manylinux_2_28_x86_64",

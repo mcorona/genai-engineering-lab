@@ -285,9 +285,9 @@ def informe(perfiles: dict[str, list[dict]]) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--synth", action="append", required=True, metavar="PERFIL=DIR")
-    ap.add_argument("--perfil", default="semana19-lectura", help="read-only AWS profile")
-    ap.add_argument("--salida", type=Path, default=SALIDA)
-    ap.add_argument("--simular", action="store_true", help="list the documents, no call")
+    ap.add_argument("--perfil", "--profile", default="semana19-lectura", help="read-only AWS profile", metavar="PROFILE")
+    ap.add_argument("--salida", "--output", type=Path, default=SALIDA, metavar="OUTPUT")
+    ap.add_argument("--simular", "--simulate", action="store_true", help="list the documents, no call")
     a = ap.parse_args(argv)
     por_perfil = {p: documentos(Path(c)) for p, _, c in (s.partition("=") for s in a.synth)}
     if a.simular:

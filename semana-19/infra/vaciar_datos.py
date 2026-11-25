@@ -39,15 +39,15 @@ def bucket_de_documentos(cfn) -> str | None:
                and r["LogicalResourceId"].startswith(PREFIJO_LOGICO) and r["ResourceStatus"] != "DELETE_COMPLETE"
                and r.get("PhysicalResourceId")]
     if len(buckets) > 1:
-        raise RuntimeError(f"{len(buckets)} buckets {PREFIJO_LOGICO}* en {STACK}: se esperaba uno")
+        raise RuntimeError(f"{len(buckets)} buckets {PREFIJO_LOGICO}* in {STACK}: expected one")
     return buckets[0] if buckets else None
 
 
 def main() -> int:  # pragma: no cover - live only
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--perfil", required=True)
+    ap.add_argument("--perfil", "--profile", required=True, metavar="PROFILE")
     ap.add_argument("--region", default="us-east-1")
-    ap.add_argument("--si", action="store_true", help="borra (sin esta bandera solo cuenta)")
+    ap.add_argument("--si", "--yes", action="store_true", help="deletes (without this flag it only counts)")
     a = ap.parse_args()
     import boto3
     sesion = boto3.Session(profile_name=a.perfil, region_name=a.region)

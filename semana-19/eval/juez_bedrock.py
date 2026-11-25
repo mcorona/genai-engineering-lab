@@ -96,7 +96,7 @@ def referencia_de(tarea: dict, esperados: dict[str, list]) -> str:
         return REFERENCIA_SIN_FILAS[tarea["estado_esperado"]].format(motivo=tarea.get("motivo", ""))
     claves = sorted(k for k in esperados if k.split("/", 1)[0] == tarea["id"])
     if sorted(k.split("/", 1)[1] for k in claves) != sorted(tarea["salida"]):
-        raise ValueError(f"{tarea['id']}: faltan filas esperadas")
+        raise ValueError(f"{tarea['id']}: expected rows are missing")
     return "\n".join(f"{k.split('/', 1)[1]}: {_filas_texto(esperados[k])}" for k in claves)
 
 
@@ -192,7 +192,7 @@ def leer_resultados(registros: list[dict]) -> dict:
         entrada = r.get("inputRecord") or {}
         id_ = entrada.get("category")
         if not id_:
-            raise ValueError(f"registro sin inputRecord.category: claves {sorted(r)}")
+            raise ValueError(f"record without inputRecord.category: keys {sorted(r)}")
         puntajes, explicaciones = {}, []
         for p in (r.get("automatedEvaluationResult") or {}).get("scores") or []:
             nombre = p["metricName"] if p["metricName"].startswith("Builtin.") else f"Builtin.{p['metricName']}"
@@ -234,7 +234,7 @@ class AwsJuez:  # pragma: no cover - live only
                 return j
             if time.time() - inicio > maximo_s:
                 self.bedrock.stop_evaluation_job(jobIdentifier=arn)
-                raise SystemExit("el trabajo del juez pasó de 3 h; se pidió detenerlo")
+                raise SystemExit("the judge job went past 3 h; a stop was requested")
             dormir(60)
 
     def borrar(self, nombre: str) -> int:
@@ -267,14 +267,14 @@ def _cargar_eval():
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     import os
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
     a = ap.parse_args(argv)
     E = _cargar_eval()
     crudo_archivo = SALIDA / E.CRUDO
     if not crudo_archivo.exists():
         print(json.dumps({"simulacion": True, "metricas": METRICAS, "juez": MODELO_JUEZ, "tope_usd": TOPE_USD,
                           "falta": f"resultados/eval_aws/{E.CRUDO} (eval_aws.py --si)"}, ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     crudo = json.loads(crudo_archivo.read_text(encoding="utf-8"))
     lineas = construir(E.tareas_ci(), crudo)
@@ -286,10 +286,10 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     if not est["cabe"]:
         resultado = {"estado": "abortado", "motivo": "tope_del_script", "estimacion": est}
         (SALIDA / ARCHIVO).write_text(json.dumps(resultado, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("tope del juez rebasado en la estimación: no se crea el trabajo")
+        print("the estimate exceeds the judge's cap: the job is not created")
         return 1
     if not a.si:
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = AwsJuez(os.environ.get("S19_PERFIL", "manuel-admin"))
     nombre = nombre_del_trabajo(time.time())
@@ -298,7 +298,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     try:
         arn = aws.crear(solicitud(nombre, rol=aws.rol, bucket=aws.bucket))
     except Exception:
-        print("no se creó el trabajo; objetos borrados del bucket del juez:", aws.borrar(nombre))
+        print("the job was not created; objects deleted from the judge's bucket:", aws.borrar(nombre))
         raise
     final = aws.esperar(arn)
     registros = aws.resultados(nombre) if final["status"] == "Completed" else []
@@ -310,7 +310,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     (SALIDA / ARCHIVO).write_text(json.dumps(redactar(resultado, [aws.cuenta]), ensure_ascii=False, indent=2,
                                              sort_keys=True, default=str) + "\n", encoding="utf-8")
     print(SALIDA / ARCHIVO, final["status"], len(resultado["por_tarea"]), "tareas juzgadas")
-    print("objetos borrados del bucket del juez:", aws.borrar(nombre))
+    print("objects deleted from the judge's bucket:", aws.borrar(nombre))
     return 0 if final["status"] == "Completed" and len(resultado["por_tarea"]) == len(lineas) else 1
 
 

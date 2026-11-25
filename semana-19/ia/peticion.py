@@ -18,7 +18,7 @@ def renderizar(texto: str, variables: dict[str, str]) -> str:
     def sustituir(m: re.Match) -> str:
         nombre = m.group(1)
         if nombre not in variables:
-            raise KeyError(f"variable sin valor en el prompt: {nombre}")
+            raise KeyError(f"a variable without a value in the prompt: {nombre}")
         return variables[nombre]
     return VARIABLE.sub(sustituir, texto)
 
@@ -27,7 +27,7 @@ def construir_converse(*, tarea: str, texto_sistema: str, variables: dict[str, s
                        guardrail_id: str, guardrail_version: str) -> dict:
     """The Converse call: one user turn with the task, the rendered system prompt, and the guardrail on that call."""
     if not guardrail_id or not guardrail_version:
-        raise ValueError("el guardrail es obligatorio: id y versión fijada")
+        raise ValueError("the guardrail is required: an id and a pinned version")
     return {
         "modelId": MODELO_ID,
         "system": [{"text": renderizar(texto_sistema, variables)}],

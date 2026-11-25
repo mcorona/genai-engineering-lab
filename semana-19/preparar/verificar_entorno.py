@@ -125,9 +125,9 @@ def sesion(perfil: str) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--ci", action="store_true", help="modo CI: sin AWS ni herramientas")
-    ap.add_argument("--admin", help="perfil admin (crear y destruir), por ejemplo el del presupuesto")
-    ap.add_argument("--operador", help="perfil operador (desplegar y consultar)")
+    ap.add_argument("--ci", action="store_true", help="CI mode: no AWS and no tools")
+    ap.add_argument("--admin", help="admin profile (create and destroy), for example the budget's")
+    ap.add_argument("--operador", "--operator", help="operator profile (deploy and query)", metavar="OPERATOR")
     a = ap.parse_args()
 
     informe = {"fecha": FECHA, "modo": "ci" if a.ci else "mac", "python": platform.python_version(),

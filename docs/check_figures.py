@@ -5,6 +5,8 @@ For each text file that the branch changes (and that exists on both sides), it e
 `1,815`, `$0.00033`, `2026-11-24`, `9/20`, `p50`…) as a multiset and compares the base version with the new one.
 Any number that disappears or appears fails the check, with the file and the numbers. New files and binary files
 are skipped, and so are the paths in EXEMPT. A translation keeps every figure, so an English rewrite of a sentence must keep its numbers too.
+The one thing ignored inside a file is an English flag alias from docs/flag-aliases.tsv (`--activity7-only`): the alias
+is a name that step 4 adds next to the Spanish flag, not a figure.
 In CI (`.github/workflows/docs.yml`) the check is skipped for a PR labeled `cifras-nuevas`: one whose new figures
 are the point, such as a results report filled from a new measurement. Translation PRs never carry the label.
 
@@ -17,11 +19,16 @@ import re
 import subprocess
 import sys
 from collections import Counter
+from pathlib import Path
 
 NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
 # The only exceptions: CI workflows and the docs/ tooling (glossary, audit, tests) are not translations of evidence,
 # and their own changes may add numbers (a pinned version, a regenerated count).
 EXEMPT = re.compile(r"^(\.github/workflows/|docs/)")
+ALIASES = Path(__file__).resolve().parent / "flag-aliases.tsv"
+# English aliases with a digit in them; the Spanish flag next to them keeps its own digit.
+ALIAS_DIGITS = sorted((line.split("\t")[1] for line in ALIASES.read_text(encoding="utf-8").splitlines()[1:]
+                       if re.search(r"\d", line.split("\t")[1])), key=len, reverse=True) if ALIASES.exists() else []
 TEXT = re.compile(r"\.(md|py|sh|yml|yaml|txt|json|toml|tf|sql|mmd|cedar|ipynb)$|(^|/)(\.gitignore|Dockerfile)$")
 
 
@@ -40,6 +47,8 @@ def show(ref: str, path: str) -> str | None:
 
 
 def numbers(text: str) -> Counter:
+    for alias in ALIAS_DIGITS:
+        text = re.sub(re.escape(alias) + r"(?![\w-])", " ", text)
     return Counter(NUMBER.findall(text))
 
 

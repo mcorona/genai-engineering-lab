@@ -140,7 +140,7 @@ def test_sin_corrida_la_simulacion_no_toca_aws(monkeypatch, capsys, tmp_path):
     import boto3
     monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
     monkeypatch.setattr(J, "SALIDA", tmp_path)
-    assert J.main([]) == 0 and "Simulación" in capsys.readouterr().out
+    assert J.main([]) == 0 and "Simulation" in capsys.readouterr().out
 
 
 def test_las_tareas_sin_filas_llevan_la_conducta_esperada_como_referencia():
@@ -148,5 +148,5 @@ def test_las_tareas_sin_filas_llevan_la_conducta_esperada_como_referencia():
     assert lineas["a01-es"]["referenceResponse"].startswith("La respuesta correcta pide una aclaración")
     assert lineas["n01-en"]["referenceResponse"].startswith("La respuesta correcta se abstiene")
     t = next(t for t in E.tareas_ci() if t["id"] == "s03-es")
-    with pytest.raises(ValueError, match="faltan"):
+    with pytest.raises(ValueError, match="expected rows are missing"):
         J.referencia_de(t, {})

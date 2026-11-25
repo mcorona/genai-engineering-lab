@@ -188,12 +188,12 @@ def main(argv=None) -> int:  # pragma: no cover - the live CLI around the tested
     from dataclasses import dataclass
 
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
     a = ap.parse_args(argv)
     lista = casos()
     if not a.si:
         print(json.dumps(plan(lista), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
 
     from agentes import comparar as C
@@ -206,7 +206,7 @@ def main(argv=None) -> int:  # pragma: no cover - the live CLI around the tested
 
     aws = C.Aws(os.environ.get("S19_PERFIL", "manuel-admin"))
     if aws.camino_desplegado != "directo":
-        raise SystemExit(f"el agente desplegado usa {aws.camino_desplegado}; esta prueba corre en el camino directo")
+        raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; this test runs on the direct path")
     sfn = aws.s.client("stepfunctions")
     maquina = aws.computo.get("ArnAprobacion") or next(
         m["stateMachineArn"] for p in sfn.get_paginator("list_state_machines").paginate()

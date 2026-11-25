@@ -78,10 +78,10 @@ def test_partidas_n_no_suman_y_marcan_parcial():
     # v1, lab: todo medido. Prod: solo RDS Multi-AZ queda N, y no suma al total.
     assert lab["parcial"] is False and lab["partidas_no_medidas"] == []
     assert prod["parcial"] is True
-    assert prod["partidas_no_medidas"] == ["RDS Multi-AZ, instancia adicional"]
+    assert prod["partidas_no_medidas"] == ["RDS Multi-AZ, additional instance"]
     # v2 lists ApplyGuardrail as N (price and units not measured), outside the total.
     v2 = correr(perfil="lab", consultas_dia=10, horas_dia=8)
-    assert v2["parcial"] is True and v2["partidas_no_medidas"] == ["ApplyGuardrail, unidades de texto"]
+    assert v2["parcial"] is True and v2["partidas_no_medidas"] == ["ApplyGuardrail, text units"]
     assert all(l["costo_usd"] is None for g in ("fijas_por_hora", "fijas_por_mes", "por_consulta") for l in prod[g] if l["marca"] == "N")
 
 

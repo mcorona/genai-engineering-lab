@@ -182,7 +182,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--checkov", required=True, help=f"checkov binary, version {VERSION_CHECKOV}")
     ap.add_argument("--synth", action="append", required=True, metavar="PERFIL=DIR")
-    ap.add_argument("--salida", type=Path, default=SALIDA)
+    ap.add_argument("--salida", "--output", type=Path, default=SALIDA, metavar="OUTPUT")
     a = ap.parse_args(argv)
     version = version_de(a.checkov)
     if version != VERSION_CHECKOV:

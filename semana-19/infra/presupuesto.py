@@ -78,19 +78,19 @@ def crear(perfil: str, correo: str) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--si", action="store_true", help="crea el presupuesto (sin esta bandera solo simula)")
-    ap.add_argument("--perfil", help="perfil admin para crear el presupuesto")
+    ap.add_argument("--si", "--yes", action="store_true", help="creates the budget (without this flag it only simulates)")
+    ap.add_argument("--perfil", "--profile", help="admin profile to create the budget", metavar="PROFILE")
     a = ap.parse_args()
     correo = os.environ.get("ALERTA_EMAIL")
 
     if not a.si:
         print(json.dumps({"modo": "simulacion", "solicitud": construir_presupuesto(correo),
                           "correo_desde_entorno": bool(correo)}, indent=2, ensure_ascii=False))
-        print("Simulación: no se llamó a AWS. Para crearlo: ALERTA_EMAIL=... ... --perfil <admin> --si",
+        print("Simulation: no AWS calls were made. To create it: ALERTA_EMAIL=... ... --perfil <admin> --si",
               file=sys.stderr)
         return 0
     if not correo or not a.perfil:
-        print("Faltan ALERTA_EMAIL (entorno) o --perfil.", file=sys.stderr)
+        print("ALERTA_EMAIL (environment) or --perfil is missing.", file=sys.stderr)
         return 2
     print(json.dumps(crear(a.perfil, correo), indent=2, ensure_ascii=False))
     return 0

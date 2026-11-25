@@ -54,4 +54,4 @@ def test_una_sola_llamada_registrada_antes(tmp_path):
 
 def test_simulacion_no_llama(capsys):
     assert C.main([]) == 0
-    assert "Simulación" in capsys.readouterr().out
+    assert "Simulation" in capsys.readouterr().out

@@ -629,9 +629,9 @@ def informe(e: dict, ll: Llamadas, *, identidad: str, desde: datetime) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--perfil", default="semana19-lectura", help="read-only AWS profile")
-    ap.add_argument("--desde", help="CloudTrail start, ISO 8601 UTC (default: 24 hours ago)")
-    ap.add_argument("--salida", type=Path, default=SALIDA)
+    ap.add_argument("--perfil", "--profile", default="semana19-lectura", help="read-only AWS profile", metavar="PROFILE")
+    ap.add_argument("--desde", "--since", help="CloudTrail start, ISO 8601 UTC (default: 24 hours ago)", metavar="SINCE")
+    ap.add_argument("--salida", "--output", type=Path, default=SALIDA, metavar="OUTPUT")
     a = ap.parse_args(argv)
     desde = (datetime.fromisoformat(a.desde.replace("Z", "+00:00")) if a.desde
              else datetime.now(timezone.utc) - timedelta(hours=24))

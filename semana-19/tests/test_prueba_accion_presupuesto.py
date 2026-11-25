@@ -66,7 +66,7 @@ def aws(monkeypatch):
 def test_sin_si_solo_muestra_el_plan(capsys):
     assert P.main([]) == 0 and P.main(["--crear"]) == 0 and P.main(["--limpiar"]) == 0
     salida = capsys.readouterr().out
-    assert salida.count("Simulación: no se llamó a AWS.") == 3 and "USD 0.01" in salida
+    assert salida.count("Simulation: no AWS calls were made.") == 3 and "USD 0.01" in salida
 
 
 def test_crear_sin_correo_valido_se_detiene(monkeypatch):
