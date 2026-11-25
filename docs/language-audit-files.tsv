@@ -1,0 +1,1816 @@
+path	week	class	es_prose_lines	en_prose_lines	es_messages	es_flags	es_keys	es_identifiers	frozen_by	named_in
+.claude-plugin/marketplace.json	root	A	0	2	0		0	0		
+.github/workflows/eval-nube-semana-12.yml	root	A	0	8	0		0	0		
+.github/workflows/eval-semana-10.yml	root	A	0	2	0		0	0		
+.github/workflows/eval-semana-11.yml	root	A	0	3	0		0	0		
+.github/workflows/eval-semana-13.yml	root	A	0	1	0		0	0		
+.github/workflows/eval-semana-14.yml	root	A	0	8	0		0	0		
+.github/workflows/eval-semana-15.yml	root	A	0	10	0		0	0		
+.github/workflows/eval-semana-16.yml	root	A	0	8	0		0	0		
+.github/workflows/eval-semana-17.yml	root	A	0	17	0		0	0		
+.github/workflows/eval-semana-18.yml	root	A	0	4	0		0	0		
+.github/workflows/eval-semana-19.yml	root	A	18	0	0		0	0		
+.github/workflows/eval-semana-20.yml	root	A	0	9	0		0	0		
+.github/workflows/evals-semana-06.yml	root	A	0	3	0		0	0		
+.github/workflows/infra-semana-12.yml	root	A	0	5	0		0	0		
+.github/workflows/nlq-semana-07.yml	root	A	0	1	0		0	0		
+.github/workflows/recuperacion-semana-08.yml	root	A	0	0	0		0	0		
+.github/workflows/recuperacion-semana-09.yml	root	A	0	0	0		0	0		
+.gitignore	root	A	7	2	0		0	0		
+.mcp.json	root	A	0	0	0		1	0		
+.python-version	root	-	0	0	0		0	0		
+LICENSE	root	A	0	7	0		0	0		
+README.md	root	A	0	94	0		0	0		
+SECURITY.md	root	A	0	9	0		0	0		
+docs/exit-criteria.md	root	A	0	48	0		0	0		
+pyproject.toml	root	A	0	3	0		0	0		
+semana-01/README.md	01	A	0	50	0		0	0		
+semana-01/attention_mlx.py	01	A	0	2	0		0	0		
+semana-01/bigram.py	01	A	0	1	0		0	0		
+semana-01/bigram_grad.py	01	A	0	0	0		0	0		
+semana-01/bigram_mlx.py	01	A	0	1	0		0	0		
+semana-01/get_data.sh	01	D	0	1	0		0	0		
+semana-01/minigpt_mlx.py	01	D	0	4	0		0	0		
+semana-01/names.txt	01	B	0	0	0		0	0		
+semana-01/perdidas.csv	01	C	0	0	0		0	0		
+semana-01/perdidas_n128_lr1e-3.csv	01	C	0	0	0		0	0		
+semana-01/perdidas_n128_lr3e-3.csv	01	C	0	0	0		0	0		
+semana-01/perdidas_n64.csv	01	C	0	0	0		0	0		
+semana-01/practica_kv_cache.py	01	A	0	1	0		0	4		
+semana-01/train_minigpt_mlx.py	01	A	0	0	0		0	0		
+semana-02/README.md	02	A	0	43	0		0	0		
+semana-02/corridas/run1/variabilidad.png	02	C	0	0	0		0	0		
+semana-02/corridas/run1/variabilidad_respuestas.csv	02	C	299	0	0		2	0		
+semana-02/corridas/run1/variabilidad_resumen.csv	02	C	0	0	0		1	0		
+semana-02/corridas/run2/variabilidad.png	02	C	0	0	0		0	0		
+semana-02/corridas/run2/variabilidad_respuestas.csv	02	C	301	0	0		2	0		
+semana-02/corridas/run2/variabilidad_resumen.csv	02	C	0	0	0		1	0		
+semana-02/corridas/run3/variabilidad.png	02	C	0	0	0		0	0		
+semana-02/corridas/run3/variabilidad_respuestas.csv	02	C	313	0	0		2	0		
+semana-02/corridas/run3/variabilidad_resumen.csv	02	C	0	0	0		1	0		
+semana-02/entregable_semana2.ipynb	02	A	0	16	0		0	0		
+semana-02/entropia_multisemilla.csv	02	C	59	0	0		3	0		
+semana-02/entropia_multisemilla.py	02	D	0	4	0		0	5		
+semana-02/entropia_por_token.csv	02	C	0	0	0		1	0		
+semana-02/entropia_por_token.py	02	A	0	3	0		0	6		
+semana-02/logprobs_distribucion.csv	02	C	0	0	0		0	0		
+semana-02/logprobs_mlx.py	02	A	0	0	0		0	0		
+semana-02/logprobs_temperaturas.py	02	A	0	5	0		0	7		
+semana-02/practica_tokens.py	02	A	0	8	0		0	4		
+semana-02/resultados-n5/variabilidad.png	02	C	0	0	0		0	0		
+semana-02/resultados-n5/variabilidad_respuestas.csv	02	C	82	0	0		2	0		
+semana-02/resultados-n5/variabilidad_resumen.csv	02	C	0	0	0		1	0		
+semana-02/texto_en.txt	02	B	0	5	0		0	0		
+semana-02/texto_es.txt	02	B	5	0	0		0	0		
+semana-02/variabilidad.png	02	C	0	0	0		0	0		
+semana-02/variabilidad.py	02	D	0	8	0		0	5		
+semana-02/variabilidad_entregable.png	02	C	0	0	0		0	0		
+semana-02/variabilidad_respuestas.csv	02	C	313	0	0		2	0		
+semana-02/variabilidad_resumen.csv	02	C	0	0	0		1	0		
+semana-03/README.md	03	A	0	68	0		0	0		
+semana-03/data/lora/train.jsonl	03	B	626	0	0		0	0		
+semana-03/data/lora/valid.jsonl	03	B	68	0	0		0	0		
+semana-03/data/pares_eval.jsonl	03	B	183	0	0		0	0		
+semana-03/data/pares_train.jsonl	03	B	694	0	0		0	0		
+semana-03/data/rechazados.jsonl	03	B	18	0	0		0	0		
+semana-03/data/resumen.json	03	B	0	0	0		14	0		
+semana-03/estadistica.py	03	D	0	2	0	--comparar --metrica	0	5		
+semana-03/evaluar_sql.py	03	D	0	9	0	--limite --modelo --nombre --reevaluar --reglas	0	10		
+semana-03/generar_pares.py	03	D	0	13	0		0	12		
+semana-03/preparar_lora.py	03	A	0	4	0		0	0		
+semana-03/rag_reglas.py	03	A	0	3	0		0	3		
+semana-03/reglas_legado.md	03	B	13	0	0		0	0		
+semana-03/resultados/base27b_rag_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/base27b_rag_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/base27b_reglas_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/base27b_reglas_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/base7b_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/base7b_reevaluado_resumen.json	03	C	0	0	0		2	0		
+semana-03/resultados/base7b_reglas_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/base7b_reglas_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/base7b_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/base_detalle.jsonl	03	C	47	0	0		2	0		
+semana-03/resultados/base_reevaluado_resumen.json	03	C	0	0	0		2	0		
+semana-03/resultados/base_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/destilacion150_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/destilacion150_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/lora7b_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/lora7b_reevaluado_resumen.json	03	C	0	0	0		2	0		
+semana-03/resultados/lora7b_resumen.json	03	C	0	0	0		14	0		
+semana-03/resultados/sin_razonamiento_roto_base_detalle.jsonl	03	C	45	0	0		2	0		
+semana-03/resultados/sin_razonamiento_roto_base_resumen.json	03	C	0	0	0		4	0		
+semana-04/README.md	04	A	0	19	0		0	0		
+semana-04/benchmark_modelos.py	04	D	0	8	0	--api-modelo --consultas --limite --local-modelo --nombre --precio-in --precio-out --solo --temp-api --temp-local	0	16		
+semana-04/consultas.jsonl	04	B	48	1	0		0	0		
+semana-04/entrenamiento/README.md	04	A	0	27	0		0	0		
+semana-04/entrenamiento/construir_datasets.py	04	D	0	6	0		0	4		
+semana-04/entrenamiento/data/teacher.jsonl	04	B	626	0	0		1	0		
+semana-04/entrenamiento/data/teacher_reintento.jsonl	04	B	194	0	0		1	0		
+semana-04/entrenamiento/destilacion/lora/train.jsonl	04	C	380	0	0		0	0		
+semana-04/entrenamiento/destilacion/lora/valid.jsonl	04	C	43	0	0		0	0		
+semana-04/entrenamiento/destilacion/train.jsonl	04	C	423	0	0		0	0		
+semana-04/entrenamiento/dpo/train.jsonl	04	C	168	0	0		0	0		
+semana-04/entrenamiento/generar_teacher.py	04	D	0	5	0	--limite --modelo --reintentar	0	6		
+semana-04/resultados/semana4_api_detalle.csv	04	C	0	0	0		4	0		
+semana-04/resultados/semana4_api_resumen.json	04	C	0	0	0		8	0		
+semana-04/resultados/semana4_local_8k_detalle.csv	04	C	0	0	0		4	0		
+semana-04/resultados/semana4_local_8k_resumen.json	04	C	0	0	0		8	0		
+semana-04/resultados/semana4_local_detalle.csv	04	C	0	0	0		4	0		
+semana-04/resultados/semana4_local_resumen.json	04	C	0	0	0		8	0		
+semana-05/README.md	05	A	0	40	0		0	0		
+semana-05/prompts/_compartido/contexto_logistica.md	05	B	39	0	0		0	0		
+semana-05/prompts/clasificacion_intencion.json	05	B	4	0	0		5	0		
+semana-05/prompts/consulta_inventario.json	05	B	4	0	0		4	0		
+semana-05/prompts/extraccion_json.json	05	B	5	0	0		4	0		
+semana-05/prompts/resumen_negocio.json	05	B	3	0	0		5	0		
+semana-05/resultados/ejecuciones.jsonl	05	C	21	0	0		9	0		
+semana-05/run_prompts.py	05	D	0	5	0	--archivo --modelo --no-guardar --proveedor	0	24		
+semana-06/README.md	06	A	0	25	0		0	0		
+semana-06/baseline/resultados_base.json	06	C	8	0	0		7	0		
+semana-06/evaluar.py	06	D	0	4	0	--actualizar-base --limite	0	22		
+semana-06/golden/casos.jsonl	06	B	14	0	0		3	0		
+semana-06/resultados/eval_20261022T040221Z.json	06	C	8	0	0		7	0		
+semana-06/resultados/eval_20261022T041329Z.json	06	C	8	0	0		7	0		
+semana-06/rubricas/fidelidad_resumen.txt	06	B	5	0	0		0	0		
+semana-07/README.md	07	A	1	91	0		0	0		
+semana-07/build_cadenas_dataset.py	07	A	0	3	0		0	5		
+semana-07/build_dataset.py	07	A	0	8	0		0	1		
+semana-07/build_hard_dataset.py	07	A	0	3	0		0	1		
+semana-07/ci/generar_datos.py	07	D	0	12	0		0	0		
+semana-07/ci/preparar_base.py	07	A	0	2	0		0	0		
+semana-07/ci/umbral.py	07	D	0	1	0		0	1		
+semana-07/datasets/nlq_bilingual.jsonl	07	B	100	100	0		0	0		
+semana-07/datasets/nlq_cadenas.jsonl	07	B	48	48	0		1	0		
+semana-07/datasets/nlq_cadenas_validado.jsonl	07	B	48	48	0		1	0		
+semana-07/datasets/nlq_hard_bilingual.jsonl	07	B	48	48	0		0	0		
+semana-07/datasets/nlq_hard_validado.jsonl	07	B	43	43	0		0	0		
+semana-07/datasets/nlq_seguimiento.jsonl	07	B	39	40	0		1	0		
+semana-07/datasets/nlq_seguimiento_validado.jsonl	07	B	39	40	0		1	0		
+semana-07/datasets/nlq_validado.jsonl	07	B	100	100	0		0	0		
+semana-07/prices.json	07	E	6	0	0		1	0		
+semana-07/resultados/detalle_20261022T051229Z.jsonl	07	C	0	0	0		2	0		
+semana-07/resultados/detalle_20261022T052433Z.jsonl	07	C	0	0	0		2	0		
+semana-07/resultados/detalle_20261022T053634Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/detalle_20261022T054450Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/detalle_20261022T060607Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/detalle_20261022T060832Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/detalle_20261022T062215Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/detalle_20261022T223719Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/previos/detalle_20261022T044103Z.jsonl	07	C	0	0	0		2	0		
+semana-07/resultados/previos/detalle_20261022T045121Z.jsonl	07	C	0	0	0		2	0		
+semana-07/resultados/previos/detalle_20261022T045746Z.jsonl	07	C	0	0	0		2	0		
+semana-07/resultados/previos/detalle_20261022T053250Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/previos/detalle_20261022T053827Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/previos/detalle_20261022T054731Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/previos/detalle_20261022T054930Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/previos/detalle_20261022T061851Z.jsonl	07	C	0	0	0		4	0		
+semana-07/resultados/previos/resumen_20261022T044103Z.json	07	C	0	0	0		4	0		
+semana-07/resultados/previos/resumen_20261022T045121Z.json	07	C	0	0	0		4	0		
+semana-07/resultados/previos/resumen_20261022T045746Z.json	07	C	0	0	0		4	0		
+semana-07/resultados/previos/resumen_20261022T053250Z.json	07	C	0	0	0		5	0		
+semana-07/resultados/previos/resumen_20261022T053827Z.json	07	C	0	0	0		5	0		
+semana-07/resultados/previos/resumen_20261022T054731Z.json	07	C	0	0	0		6	0		
+semana-07/resultados/previos/resumen_20261022T054930Z.json	07	C	0	0	0		6	0		
+semana-07/resultados/previos/resumen_20261022T061851Z.json	07	C	0	0	0		7	0		
+semana-07/resultados/resumen_20261022T051229Z.json	07	C	0	0	0		3	0		
+semana-07/resultados/resumen_20261022T052433Z.json	07	C	0	0	0		4	0		
+semana-07/resultados/resumen_20261022T053634Z.json	07	C	0	0	0		5	0		
+semana-07/resultados/resumen_20261022T054450Z.json	07	C	0	0	0		5	0		
+semana-07/resultados/resumen_20261022T060607Z.json	07	C	0	0	0		5	0		
+semana-07/resultados/resumen_20261022T060832Z.json	07	C	0	0	0		7	0		
+semana-07/resultados/resumen_20261022T062215Z.json	07	C	0	0	0		6	0		
+semana-07/resultados/resumen_20261022T223719Z.json	07	C	0	0	0		7	0		
+semana-07/run_eval.py	07	D	0	12	0	--citas --esquema --limite --modelos --sin-historial --validar	0	29		
+semana-07/schema.sql	07	B	0	1	0		0	0		
+semana-07/schema_completo.sql	07	B	20	0	0		0	0		
+semana-08/README.md	08	A	0	57	0		0	0		
+semana-08/ci/recuperacion_ci.py	08	D	0	3	0		0	4		
+semana-08/corpus/auditoria_interna.md	08	B	5	0	0		0	0		
+semana-08/corpus/capacitacion_almacen.md	08	B	6	0	0		0	0		
+semana-08/corpus/cedis_monterrey.md	08	B	4	0	0		0	0		
+semana-08/corpus/cierre_mensual_inventario.md	08	B	4	0	0		0	0		
+semana-08/corpus/contratos_marco_proveedores.md	08	B	5	0	0		0	0		
+semana-08/corpus/descuentos_clientes.md	08	B	5	0	0		0	0		
+semana-08/corpus/devoluciones.md	08	B	13	0	0		0	0		
+semana-08/corpus/embalaje_etiquetado.md	08	B	5	0	0		0	0		
+semana-08/corpus/flota_reparto.md	08	B	4	0	0		0	0		
+semana-08/corpus/glosario_inventario.md	08	B	3	0	0		0	0		
+semana-08/corpus/indicadores_operacion.md	08	B	5	0	0		0	0		
+semana-08/corpus/inventario_ciclico.md	08	B	10	0	0		0	0		
+semana-08/corpus/mermas_caducidad.md	08	B	5	0	0		0	0		
+semana-08/corpus/onboarding_compradores.md	08	B	5	0	0		0	0		
+semana-08/corpus/ordenes_de_compra.md	08	B	16	0	0		0	0		
+semana-08/corpus/politica_reorden.md	08	B	22	0	0		0	0		
+semana-08/corpus/proveedores.md	08	B	11	0	0		0	0		
+semana-08/corpus/recepcion_almacen.md	08	B	13	0	0		0	0		
+semana-08/corpus/reclamaciones_clientes.md	08	B	5	0	0		0	0		
+semana-08/corpus/seguridad_instalaciones.md	08	B	4	0	0		0	0		
+semana-08/corpus/skus_criticos.md	08	B	20	0	0		0	0		
+semana-08/corpus/transferencias_cedis.md	08	B	11	0	0		0	0		
+semana-08/corpus/uso_copiloto.md	08	B	13	0	0		0	0		
+semana-08/corpus/wms_respaldos.md	08	B	5	0	0		0	0		
+semana-08/datasets/recuperacion_en.jsonl	08	B	41	50	0		0	0		
+semana-08/datasets/recuperacion_es.jsonl	08	B	91	0	0		0	0		
+semana-08/experimentos/cargar_vector_dbs.py	08	D	0	3	0		0	4		
+semana-08/experimentos/chunker_actual.py	08	A	0	5	0		0	0		
+semana-08/experimentos/chunking_pasajes.py	08	A	0	4	0		0	5		
+semana-08/experimentos/embeddings_comparacion.py	08	D	0	4	0		0	12		
+semana-08/experimentos/end_to_end.py	08	D	0	4	0		0	10		
+semana-08/experimentos/hibrida_bm25.py	08	D	0	6	0		0	6		
+semana-08/experimentos/medir_vector_dbs.py	08	D	0	6	0		0	5		
+semana-08/experimentos/recall_chunking.py	08	A	0	3	0		0	6		
+semana-08/experimentos/reranking.py	08	D	0	6	0		0	10		
+semana-08/infra/docker-compose.yml	08	A	0	2	0		0	0		
+semana-08/precios_embeddings.json	08	A	3	0	0		0	0		
+semana-08/resultados/chunking.md	08	A	0	7	0		0	0		
+semana-08/resultados/ci_recuperacion.md	08	A	0	4	0		0	0		
+semana-08/resultados/embeddings_fijo_400_solape_80.md	08	A	0	4	0		0	0		
+semana-08/resultados/hibrida.md	08	A	0	12	0		0	0		
+semana-09/README.md	09	A	0	31	0		0	0		
+semana-09/ci/permisos_ci.py	09	D	0	12	0		0	4		
+semana-09/corpus_beta/capacitacion_almacen.md	09	B	6	0	0		0	0		
+semana-09/corpus_beta/devoluciones.md	09	B	13	0	0		0	0		
+semana-09/corpus_beta/flota_reparto.md	09	B	4	0	0		0	0		
+semana-09/corpus_beta/inventario_ciclico.md	09	B	10	0	0		0	0		
+semana-09/corpus_beta/ordenes_de_compra.md	09	B	16	0	0		0	0		
+semana-09/corpus_beta/politica_reorden.md	09	B	22	0	0		0	0		
+semana-09/corpus_beta/proveedores.md	09	B	11	0	0		0	0		
+semana-09/corpus_beta/recepcion_almacen.md	09	B	13	0	0		0	0		
+semana-09/corpus_beta/seguridad_instalaciones.md	09	B	4	0	0		0	0		
+semana-09/corpus_beta/transferencias_cedis.md	09	B	11	0	0		0	0		
+semana-09/datasets/avanzado_en.jsonl	09	B	59	90	0		0	0		
+semana-09/datasets/avanzado_es.jsonl	09	B	149	0	0		0	0		
+semana-09/datasets/construir_golden.py	09	A	0	5	0		0	1		
+semana-09/datasets/construir_multisalto.py	09	A	0	9	0		0	3		
+semana-09/datasets/construir_multitenant.py	09	A	0	7	0		0	5		
+semana-09/datasets/multisalto_en.jsonl	09	B	13	10	0		0	0		
+semana-09/datasets/multisalto_es.jsonl	09	B	23	0	0		0	0		
+semana-09/datasets/multisalto_puente_en.jsonl	09	B	12	10	0		0	0		
+semana-09/datasets/multisalto_puente_es.jsonl	09	B	22	0	0		0	0		
+semana-09/datasets/multitenant_en.jsonl	09	B	16	10	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-09/datasets/multitenant_es.jsonl	09	B	26	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-09/datasets/permisos.json	09	B	2	0	0		25	0		
+semana-09/experimentos/contextual.py	09	D	0	11	0		0	10		
+semana-09/experimentos/graphrag.py	09	D	0	17	0		0	14		
+semana-09/experimentos/hyde.py	09	D	0	9	0		0	9		
+semana-09/experimentos/multitenant.py	09	D	0	13	1		0	10		
+semana-09/experimentos/permisos.py	09	D	0	13	0		0	7		
+semana-09/experimentos/reescritura.py	09	D	0	8	0		0	8		
+semana-09/resultados/ci_semana09.md	09	A	0	19	0		0	0		
+semana-09/resultados/comparacion_final.md	09	A	0	27	0		0	0		
+semana-09/resultados/contextos.jsonl	09	C	58	0	0		2	0		
+semana-09/resultados/contextual.md	09	A	0	19	0		0	0		
+semana-09/resultados/contextual_detalle.csv	09	C	65	55	0		0	0		
+semana-09/resultados/grafo_extraccion.jsonl	09	C	246	0	0		2	0		
+semana-09/resultados/graphrag.md	09	A	0	28	0		0	0		
+semana-09/resultados/graphrag_detalle.csv	09	C	40	20	0		1	0		
+semana-09/resultados/hyde.md	09	A	0	13	0		0	0		
+semana-09/resultados/hyde_detalle.csv	09	C	74	58	0		2	0		
+semana-09/resultados/multitenant.md	09	A	0	20	0		0	0		
+semana-09/resultados/permisos.md	09	A	0	26	0		0	0		
+semana-09/resultados/reescritura.md	09	A	1	17	0		0	0		
+semana-09/resultados/reescritura_detalle.csv	09	C	65	65	0		2	0		
+semana-10/README.md	10	A	0	56	0		0	0		
+semana-10/ci/eval_ci.py	10	D	0	25	0	--calibrar	0	16		
+semana-10/datasets/construir_integrado.py	10	D	0	13	0		0	6		
+semana-10/datasets/construir_seguridad.py	10	D	0	23	0		0	13		
+semana-10/datasets/integrado_en.jsonl	10	B	20	51	0		1	0		
+semana-10/datasets/integrado_es.jsonl	10	B	71	0	0		1	0		
+semana-10/datasets/permisos_semana10.json	10	B	1	0	0		8	0		
+semana-10/datasets/seguridad.json	10	B	21	19	0		8	0		
+semana-10/escaneos/acta_inventario_norte_p1.jpg	10	B	0	0	0		0	0		
+semana-10/escaneos/devoluciones_p1.jpg	10	B	0	0	0		0	0		
+semana-10/escaneos/inventario_ciclico_p1.jpg	10	B	0	0	0		0	0		
+semana-10/escaneos/recepcion_almacen_p1.jpg	10	B	0	0	0		0	0		
+semana-10/escaneos/remision_r4471_p1.jpg	10	B	0	0	0		0	0		
+semana-10/experimentos/asistente.py	10	D	0	23	0	--limite --sin-indexar	0	16		
+semana-10/experimentos/imagenes.py	10	D	0	21	0	--esfuerzo --modelo --regenerar-claude	0	10		
+semana-10/experimentos/ocr.py	10	D	0	15	0	--esfuerzo --modelos --regenerar-claude --sin-claude	0	11		
+semana-10/experimentos/pdf_tablas.py	10	D	0	14	0	--claude-esfuerzo --claude-modelo --regenerar-claude --sin-claude	0	15		
+semana-10/experimentos/ruteo.py	10	D	0	5	0	--esfuerzo --modelo	0	6		
+semana-10/experimentos/seguridad.py	10	D	0	33	0		0	29		
+semana-10/experimentos/sql_legado.py	10	D	0	13	0	--esfuerzo --limite --modelo --reanudar --variantes	0	21		
+semana-10/fuentes/acta_inventario_norte.md	10	B	3	0	0		0	0		
+semana-10/fuentes/grafica_nivel_servicio.json	10	B	2	0	0		3	0		
+semana-10/fuentes/inyeccion/garantias_inyeccion.md	10	B	5	0	0		0	0		
+semana-10/fuentes/inyeccion/imagenes_inyeccion.json	10	B	3	1	0		5	0		
+semana-10/fuentes/inyeccion/viaticos_inyeccion.md	10	B	4	0	0		0	0		
+semana-10/fuentes/matriz_proveedores.md	10	B	3	0	0		0	0		
+semana-10/fuentes/plano_cedis_occidente.json	10	B	4	0	0		1	0		
+semana-10/fuentes/remision_r4471.md	10	B	4	0	0		0	0		
+semana-10/fuentes/tarifas_flete.md	10	B	3	0	0		0	0		
+semana-10/imagenes/grafica_nivel_servicio.png	10	B	0	0	0		0	0		
+semana-10/imagenes/plano_cedis_occidente.png	10	B	0	0	0		0	0		
+semana-10/imagenes_inyeccion/andenes_inyeccion.png	10	B	0	0	0		0	0		
+semana-10/imagenes_inyeccion/rotacion_inyeccion.png	10	B	0	0	0		0	0		
+semana-10/legado/diccionario.json	10	B	20	0	0		0	0		
+semana-10/legado/esquema_legado.sql	10	B	0	0	0		0	0		
+semana-10/legado/legado.sql	10	B	4	0	0		0	0		
+semana-10/pdf/matriz_proveedores.pdf	10	B	0	0	0		0	0		
+semana-10/pdf/ordenes_de_compra.pdf	10	B	0	0	0		0	0		
+semana-10/pdf/proveedores.pdf	10	B	0	0	0		0	0		
+semana-10/pdf/tarifas_flete.pdf	10	B	0	0	0		0	0		
+semana-10/pdf_inyeccion/garantias_inyeccion.pdf	10	B	0	0	0		0	0		
+semana-10/pdf_inyeccion/viaticos_inyeccion.pdf	10	B	0	0	0		0	0		
+semana-10/resultados/asistente.md	10	A	0	43	0		0	0		
+semana-10/resultados/asistente_cache.json	10	C	5200	332	0		310	0		
+semana-10/resultados/asistente_cache_corrida1.json	10	C	5201	333	0		310	0		
+semana-10/resultados/asistente_cache_prueba.json	10	C	447	33	0		28	0		
+semana-10/resultados/asistente_detalle.csv	10	C	0	0	0		4	0		
+semana-10/resultados/asistente_detalle_corrida1.csv	10	C	0	0	0		4	0		
+semana-10/resultados/asistente_detalle_prueba.csv	10	C	0	0	0		4	0		
+semana-10/resultados/ci_calibracion.md	10	A	0	13	0		0	0		semana-10/ci/eval_ci.py
+semana-10/resultados/golden_validacion.md	10	A	0	16	0		0	0		
+semana-10/resultados/imagenes.md	10	A	0	21	0		0	0		
+semana-10/resultados/imagenes_detalle.csv	10	C	14	3	0		2	0		
+semana-10/resultados/imagenes_extracciones/claude_claude-haiku-5-5_low.json	10	C	15	3	0		5	0		
+semana-10/resultados/imagenes_extracciones/claude_claude_haiku_5_5_low_descripci_n__grafica_nivel_servicio.txt	10	C	3	0	0		0	0		
+semana-10/resultados/imagenes_extracciones/claude_claude_haiku_5_5_low_descripci_n__plano_cedis_occidente.txt	10	C	11	0	0		0	0		
+semana-10/resultados/imagenes_extracciones/tesseract_spa__grafica_nivel_servicio.txt	10	C	2	0	0		0	0		
+semana-10/resultados/imagenes_extracciones/tesseract_spa__plano_cedis_occidente.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr.md	10	A	0	21	0		0	0		
+semana-10/resultados/ocr_detalle.csv	10	C	5	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude-haiku-5-5_low.json	10	C	39	0	0		8	0		
+semana-10/resultados/ocr_extracciones/claude_claude-sonnet-5-5_low.json	10	C	39	0	0		8	0		
+semana-10/resultados/ocr_extracciones/claude_claude_haiku_5_5_low__acta_inventario_norte.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_haiku_5_5_low__devoluciones.txt	10	C	11	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_haiku_5_5_low__inventario_ciclico.txt	10	C	9	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_haiku_5_5_low__recepcion_almacen.txt	10	C	13	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_haiku_5_5_low__remision_r4471.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_sonnet_5_5_low__acta_inventario_norte.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_sonnet_5_5_low__devoluciones.txt	10	C	11	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_sonnet_5_5_low__inventario_ciclico.txt	10	C	9	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_sonnet_5_5_low__recepcion_almacen.txt	10	C	13	0	0		0	0		
+semana-10/resultados/ocr_extracciones/claude_claude_sonnet_5_5_low__remision_r4471.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/original_sin_escanear__acta_inventario_norte.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/original_sin_escanear__devoluciones.txt	10	C	11	0	0		0	0		
+semana-10/resultados/ocr_extracciones/original_sin_escanear__inventario_ciclico.txt	10	C	9	0	0		0	0		
+semana-10/resultados/ocr_extracciones/original_sin_escanear__recepcion_almacen.txt	10	C	13	0	0		0	0		
+semana-10/resultados/ocr_extracciones/original_sin_escanear__remision_r4471.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/tesseract_spa__acta_inventario_norte.txt	10	C	3	0	0		0	0		
+semana-10/resultados/ocr_extracciones/tesseract_spa__devoluciones.txt	10	C	13	0	0		0	0		
+semana-10/resultados/ocr_extracciones/tesseract_spa__inventario_ciclico.txt	10	C	9	0	0		0	0		
+semana-10/resultados/ocr_extracciones/tesseract_spa__recepcion_almacen.txt	10	C	13	0	0		0	0		
+semana-10/resultados/ocr_extracciones/tesseract_spa__remision_r4471.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/claude_claude-haiku-5-5_low.json	10	C	30	0	0		7	0		
+semana-10/resultados/pdf_extracciones/claude_claude_haiku_5_5_low__matriz_proveedores.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/claude_claude_haiku_5_5_low__ordenes_de_compra.txt	10	C	14	0	0		0	0		
+semana-10/resultados/pdf_extracciones/claude_claude_haiku_5_5_low__proveedores.txt	10	C	10	0	0		0	0		
+semana-10/resultados/pdf_extracciones/claude_claude_haiku_5_5_low__tarifas_flete.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/original_sin_pdf__matriz_proveedores.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/original_sin_pdf__ordenes_de_compra.txt	10	C	16	0	0		0	0		
+semana-10/resultados/pdf_extracciones/original_sin_pdf__proveedores.txt	10	C	11	0	0		0	0		
+semana-10/resultados/pdf_extracciones/original_sin_pdf__tarifas_flete.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pdfplumber__matriz_proveedores.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pdfplumber__ordenes_de_compra.txt	10	C	16	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pdfplumber__proveedores.txt	10	C	11	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pdfplumber__tarifas_flete.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pypdf__matriz_proveedores.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pypdf__ordenes_de_compra.txt	10	C	16	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pypdf__proveedores.txt	10	C	11	0	0		0	0		
+semana-10/resultados/pdf_extracciones/pypdf__tarifas_flete.txt	10	C	3	0	0		0	0		
+semana-10/resultados/pdf_tablas.md	10	A	0	21	0		0	0		
+semana-10/resultados/pdf_tablas_detalle.csv	10	C	0	0	0		0	0		
+semana-10/resultados/ruteo.md	10	A	0	24	0		0	0		
+semana-10/resultados/ruteo_claude-haiku-5-5_low.json	10	C	0	0	0		3	0		
+semana-10/resultados/ruteo_detalle_claude-haiku-5-5_low.csv	10	C	50	48	0		2	0		
+semana-10/resultados/seguridad.md	10	A	0	42	0		0	0		
+semana-10/resultados/seguridad_cache.json	10	C	4658	244	0		33	0		
+semana-10/resultados/seguridad_corrida1.txt	10	C	30	0	0		0	0		
+semana-10/resultados/seguridad_detalle.csv	10	C	0	0	0		8	0		
+semana-10/resultados/seguridad_resumen.json	10	C	0	0	0		7	0		
+semana-10/resultados/seguridad_salida.txt	10	C	38	0	0		0	0		
+semana-10/resultados/sql_legado.md	10	A	0	24	0		0	0		
+semana-10/resultados/sql_legado_detalle_claude-haiku-5-5_medium.csv	10	C	12	9	0		5	0		
+semana-10/resultados/sql_legado_detalle_claude-sonnet-5-5_medium.csv	10	C	15	7	0		5	0		
+semana-10/resultados/sql_legado_detalle_claude-sonnet-5-5_medium_prueba.csv	10	C	1	2	0		5	0		
+semana-11/README.md	11	A	0	99	0		0	0		
+semana-11/ci/eval_ci.py	11	D	1	25	0	--calibrar --limite	0	18		
+semana-11/datasets/construir_eval_rag.py	11	D	0	21	0		0	8		
+semana-11/datasets/eval_rag_en.jsonl	11	B	42	141	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-11/datasets/eval_rag_es.jsonl	11	B	188	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-11/experimentos/costo_por_consulta.py	11	D	0	14	0		0	11		
+semana-11/experimentos/extremo_a_extremo.py	11	D	0	16	0		0	8		
+semana-11/experimentos/meta_evaluacion.py	11	D	0	30	0		0	24		
+semana-11/experimentos/sensibilidad.py	11	D	0	23	0		0	16		
+semana-11/experimentos/suite_generacion.py	11	D	0	22	0		0	19		
+semana-11/experimentos/suite_recuperacion.py	11	D	0	21	0		0	13		
+semana-11/experimentos/verificar_entorno.py	11	A	0	5	0		0	3		
+semana-11/experimentos/verificar_ragas.py	11	D	1	12	0	--esfuerzo --modelo	0	11		
+semana-11/resultados/ci_calibracion.md	11	A	0	18	0		0	0		semana-11/ci/eval_ci.py
+semana-11/resultados/contextos_generacion.json	11	C	2555	0	0		0	0		
+semana-11/resultados/contextos_generacion_rec300.json	11	C	1299	0	0		0	0		
+semana-11/resultados/costo_por_consulta.md	11	A	0	33	0		0	0		
+semana-11/resultados/costo_por_consulta_cache.json	11	C	3228	105	0		2	0		
+semana-11/resultados/costo_por_consulta_salida.txt	11	C	22	0	0		0	0		
+semana-11/resultados/costo_por_consulta_salida_corrida1.txt	11	C	22	0	0		0	0		
+semana-11/resultados/e2e_cache_adoptado_top5.json	11	C	171	113	0		3	0		
+semana-11/resultados/e2e_cache_estres_base_top3.json	11	C	165	117	0		3	0		
+semana-11/resultados/e2e_contextos.json	11	C	4897	0	0		3	0		
+semana-11/resultados/e2e_detalle.csv	11	C	333	229	0		6	0		
+semana-11/resultados/e2e_salida.txt	11	C	18	8	0		0	0		
+semana-11/resultados/extremo_a_extremo.md	11	A	0	23	0		0	0		
+semana-11/resultados/meta_evaluacion.md	11	A	0	26	0		0	0		
+semana-11/resultados/meta_evaluacion_cache.json	11	C	0	0	0		0	0		
+semana-11/resultados/meta_evaluacion_cache_corrida1.json	11	C	0	0	0		0	0		
+semana-11/resultados/meta_evaluacion_detalle.csv	11	C	582	564	0		2	0		
+semana-11/resultados/meta_evaluacion_salida.txt	11	C	4	0	0		0	0		
+semana-11/resultados/meta_evaluacion_salida_corrida1.txt	11	C	4	0	0		0	0		
+semana-11/resultados/referencias_cache.json	11	C	128	121	0		2	0		
+semana-11/resultados/revision_referencias.md	11	A	30	27	0		0	0		semana-11/datasets/construir_eval_rag.py
+semana-11/resultados/sensibilidad.md	11	A	0	31	0		0	0		
+semana-11/resultados/sensibilidad_cache.json	11	C	34338	0	0		2	0		
+semana-11/resultados/sensibilidad_gen_gen_repeticion.json	11	C	158	107	0		3	0		
+semana-11/resultados/sensibilidad_gen_rec300.json	11	C	168	95	0		3	0		
+semana-11/resultados/sensibilidad_gen_sin_solo_contexto.json	11	C	137	104	0		3	0		
+semana-11/resultados/sensibilidad_gen_solo_documentos.json	11	C	133	87	0		3	0		
+semana-11/resultados/sensibilidad_salida.txt	11	C	16	0	0		0	0		
+semana-11/resultados/suite_generacion.md	11	A	0	23	0		0	0		
+semana-11/resultados/suite_generacion_cache.json	11	C	165	106	0		3	0		
+semana-11/resultados/suite_generacion_detalle.csv	11	C	163	106	0		4	0		
+semana-11/resultados/suite_generacion_salida.txt	11	C	19	3	0		0	0		
+semana-11/resultados/suite_recuperacion.md	11	A	0	33	0		0	0		
+semana-11/resultados/suite_recuperacion_cache.json	11	C	21424	0	0		2	0		
+semana-11/resultados/suite_recuperacion_detalle.csv	11	C	0	0	0		2	0		
+semana-11/resultados/suite_recuperacion_salida.txt	11	C	30	9	0		0	0		
+semana-12/README.md	12	A	0	173	0		0	0		
+semana-12/evaluacion/comparar.py	12	D	0	3	0		0	4		
+semana-12/evaluacion/costos.py	12	D	0	10	0		0	7		
+semana-12/evaluacion/latencia.py	12	D	0	9	0		0	5		
+semana-12/evaluacion/seguridad.py	12	D	1	18	0		0	7		
+semana-12/evaluacion/suites.py	12	D	0	37	0	--limite --modo	0	17		
+semana-12/evaluacion/validar_resultados.py	12	D	0	8	0		0	5		
+semana-12/infra/aws_borrar.sh	12	D	0	13	0		0	0		
+semana-12/infra/aws_ci_oidc.sh	12	D	0	2	0		0	0		
+semana-12/infra/aws_crear.sh	12	D	0	7	0		0	0		
+semana-12/infra/aws_kb_crear.sh	12	D	0	14	0		0	0		
+semana-12/infra/config.sh	12	D	0	7	0		0	0		
+semana-12/infra/costo_real.py	12	A	0	3	0		0	3		
+semana-12/infra/costo_real.sh	12	D	0	6	0		0	0		
+semana-12/infra/gcp_borrar.sh	12	D	0	4	0		0	0		
+semana-12/infra/gcp_bucket_crear.sh	12	D	0	4	0		0	0		
+semana-12/infra/gcp_ci_wif.sh	12	D	0	4	0		0	0		
+semana-12/infra/gcp_crear.sh	12	D	0	8	0		0	0		
+semana-12/infra/github_entorno.sh	12	D	0	6	0		0	0		
+semana-12/infra/inventario.sh	12	D	0	1	0		0	0		
+semana-12/infra/precios.py	12	D	0	6	1		0	5		
+semana-12/infra/revisar_secretos.sh	12	D	0	4	0		0	0		
+semana-12/infra/vertex_crear.py	12	D	0	15	0		0	4		
+semana-12/ingesta/construir_paquete.py	12	D	0	25	0		0	5		
+semana-12/ingesta/paquete/administrado/alfa/acta_inventario_norte_p1.jpg	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/administrado/alfa/acta_inventario_norte_p1.jpg.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/auditoria_interna.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/auditoria_interna.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/capacitacion_almacen.md	12	C	6	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/capacitacion_almacen.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/cedis_monterrey.md	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/cedis_monterrey.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/cierre_mensual_inventario.md	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/cierre_mensual_inventario.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/contratos_marco_proveedores.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/contratos_marco_proveedores.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/descuentos_clientes.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/descuentos_clientes.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/devoluciones.md	12	C	13	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/devoluciones.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/embalaje_etiquetado.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/embalaje_etiquetado.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/flota_reparto.md	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/flota_reparto.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/glosario_inventario.md	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/glosario_inventario.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/grafica_nivel_servicio.png	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/administrado/alfa/grafica_nivel_servicio.png.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/indicadores_operacion.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/indicadores_operacion.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/inventario_ciclico.md	12	C	10	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/inventario_ciclico.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/matriz_proveedores.pdf	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/administrado/alfa/matriz_proveedores.pdf.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/mermas_caducidad.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/mermas_caducidad.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/onboarding_compradores.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/onboarding_compradores.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/ordenes_de_compra.md	12	C	16	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/ordenes_de_compra.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/plano_cedis_occidente.png	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/administrado/alfa/plano_cedis_occidente.png.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/politica_reorden.md	12	C	22	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/politica_reorden.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/proveedores.md	12	C	11	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/proveedores.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/recepcion_almacen.md	12	C	13	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/recepcion_almacen.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/reclamaciones_clientes.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/reclamaciones_clientes.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/remision_r4471_p1.jpg	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/administrado/alfa/remision_r4471_p1.jpg.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/seguridad_instalaciones.md	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/seguridad_instalaciones.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/skus_criticos.md	12	C	20	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/skus_criticos.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/tarifas_flete.pdf	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/administrado/alfa/tarifas_flete.pdf.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/transferencias_cedis.md	12	C	11	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/transferencias_cedis.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/uso_copiloto.md	12	C	13	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/uso_copiloto.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/wms_respaldos.md	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/administrado/alfa/wms_respaldos.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/capacitacion_almacen.md	12	C	6	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/capacitacion_almacen.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/devoluciones.md	12	C	13	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/devoluciones.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/flota_reparto.md	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/flota_reparto.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/inventario_ciclico.md	12	C	10	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/inventario_ciclico.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/ordenes_de_compra.md	12	C	16	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/ordenes_de_compra.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/politica_reorden.md	12	C	22	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/politica_reorden.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/proveedores.md	12	C	11	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/proveedores.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/recepcion_almacen.md	12	C	13	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/recepcion_almacen.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/seguridad_instalaciones.md	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/seguridad_instalaciones.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/transferencias_cedis.md	12	C	11	0	0		0	0		
+semana-12/ingesta/paquete/administrado/beta/transferencias_cedis.md.metadata.json	12	C	0	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/acta_inventario_norte__000.txt	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/acta_inventario_norte__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/auditoria_interna__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/auditoria_interna__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/capacitacion_almacen__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/capacitacion_almacen__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/capacitacion_almacen__001.txt	12	C	2	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/capacitacion_almacen__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/cedis_monterrey__000.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/cedis_monterrey__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/cierre_mensual_inventario__000.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/cierre_mensual_inventario__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/cierre_mensual_inventario__001.txt	12	C	1	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/cierre_mensual_inventario__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/contratos_marco_proveedores__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/contratos_marco_proveedores__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/contratos_marco_proveedores__001.txt	12	C	1	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/contratos_marco_proveedores__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/descuentos_clientes__000.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/descuentos_clientes__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/descuentos_clientes__001.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/descuentos_clientes__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__000.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__001.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__002.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__003.txt	12	C	2	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/devoluciones__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/embalaje_etiquetado__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/embalaje_etiquetado__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/flota_reparto__000.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/flota_reparto__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/glosario_inventario__000.txt	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/glosario_inventario__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/grafica_nivel_servicio__000.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/grafica_nivel_servicio__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/grafica_nivel_servicio__001.txt	12	C	1	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/grafica_nivel_servicio__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/indicadores_operacion__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/indicadores_operacion__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/inventario_ciclico__000.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/inventario_ciclico__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/inventario_ciclico__001.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/inventario_ciclico__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/inventario_ciclico__002.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/inventario_ciclico__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/matriz_proveedores__000.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/matriz_proveedores__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/matriz_proveedores__001.txt	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/matriz_proveedores__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/mermas_caducidad__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/mermas_caducidad__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/mermas_caducidad__001.txt	12	C	1	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/mermas_caducidad__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/onboarding_compradores__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/onboarding_compradores__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__000.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__001.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__002.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__003.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__004.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/ordenes_de_compra__004.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/plano_cedis_occidente__000.txt	12	C	1	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/plano_cedis_occidente__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/plano_cedis_occidente__001.txt	12	C	8	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/plano_cedis_occidente__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/plano_cedis_occidente__002.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/plano_cedis_occidente__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__001.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__002.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__003.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__004.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__004.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__005.txt	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/politica_reorden__005.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__001.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__002.txt	12	C	2	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__003.txt	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/proveedores__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__000.txt	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__001.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__002.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__003.txt	12	C	2	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/recepcion_almacen__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/reclamaciones_clientes__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/reclamaciones_clientes__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/remision_r4471__000.txt	12	C	3	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/remision_r4471__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/seguridad_instalaciones__000.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/seguridad_instalaciones__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__000.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__001.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__002.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__003.txt	12	C	7	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__004.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/skus_criticos__004.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/tarifas_flete__000.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/tarifas_flete__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/tarifas_flete__001.txt	12	C	1	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/tarifas_flete__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/transferencias_cedis__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/transferencias_cedis__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/transferencias_cedis__001.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/transferencias_cedis__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/transferencias_cedis__002.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/transferencias_cedis__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/uso_copiloto__000.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/uso_copiloto__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/uso_copiloto__001.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/uso_copiloto__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/uso_copiloto__002.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/uso_copiloto__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/alfa/wms_respaldos__000.txt	12	C	5	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/alfa/wms_respaldos__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/capacitacion_almacen__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/capacitacion_almacen__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/capacitacion_almacen__001.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/capacitacion_almacen__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__000.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__001.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__002.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__003.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/devoluciones__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/flota_reparto__000.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/beta/flota_reparto__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/inventario_ciclico__000.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/inventario_ciclico__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/inventario_ciclico__001.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/inventario_ciclico__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/inventario_ciclico__002.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/inventario_ciclico__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__000.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__001.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__002.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__003.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__004.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/ordenes_de_compra__004.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__001.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__002.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__003.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__004.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__004.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__005.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/politica_reorden__005.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__001.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__002.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__003.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/proveedores__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__000.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__001.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__002.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__003.txt	12	C	2	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/recepcion_almacen__003.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/seguridad_instalaciones__000.txt	12	C	4	0	0		0	0		
+semana-12/ingesta/paquete/controlado/chunks/beta/seguridad_instalaciones__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/transferencias_cedis__000.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/transferencias_cedis__000.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/transferencias_cedis__001.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/transferencias_cedis__001.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/transferencias_cedis__002.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/chunks/beta/transferencias_cedis__002.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/acta_inventario_norte.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/acta_inventario_norte.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/auditoria_interna.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/auditoria_interna.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/capacitacion_almacen.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/capacitacion_almacen.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/cedis_monterrey.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/cedis_monterrey.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/cierre_mensual_inventario.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/cierre_mensual_inventario.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/contratos_marco_proveedores.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/contratos_marco_proveedores.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/descuentos_clientes.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/descuentos_clientes.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/devoluciones.txt	12	C	13	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/devoluciones.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/embalaje_etiquetado.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/embalaje_etiquetado.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/flota_reparto.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/flota_reparto.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/glosario_inventario.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/glosario_inventario.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/grafica_nivel_servicio.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/grafica_nivel_servicio.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/indicadores_operacion.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/indicadores_operacion.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/inventario_ciclico.txt	12	C	10	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/inventario_ciclico.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/matriz_proveedores.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/matriz_proveedores.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/mermas_caducidad.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/mermas_caducidad.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/onboarding_compradores.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/onboarding_compradores.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/ordenes_de_compra.txt	12	C	16	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/ordenes_de_compra.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/plano_cedis_occidente.txt	12	C	11	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/plano_cedis_occidente.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/politica_reorden.txt	12	C	22	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/politica_reorden.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/proveedores.txt	12	C	11	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/proveedores.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/recepcion_almacen.txt	12	C	13	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/recepcion_almacen.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/reclamaciones_clientes.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/reclamaciones_clientes.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/remision_r4471.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/remision_r4471.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/seguridad_instalaciones.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/seguridad_instalaciones.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/skus_criticos.txt	12	C	20	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/skus_criticos.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/tarifas_flete.txt	12	C	3	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/tarifas_flete.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/transferencias_cedis.txt	12	C	11	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/transferencias_cedis.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/uso_copiloto.txt	12	C	13	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/uso_copiloto.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/wms_respaldos.txt	12	C	5	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/alfa/wms_respaldos.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/capacitacion_almacen.txt	12	C	6	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/capacitacion_almacen.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/devoluciones.txt	12	C	13	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/devoluciones.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/flota_reparto.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/flota_reparto.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/inventario_ciclico.txt	12	C	10	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/inventario_ciclico.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/ordenes_de_compra.txt	12	C	16	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/ordenes_de_compra.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/politica_reorden.txt	12	C	22	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/politica_reorden.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/proveedores.txt	12	C	11	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/proveedores.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/recepcion_almacen.txt	12	C	13	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/recepcion_almacen.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/seguridad_instalaciones.txt	12	C	4	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/seguridad_instalaciones.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/transferencias_cedis.txt	12	C	11	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/controlado/textos/beta/transferencias_cedis.txt.metadata.json	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/manifiesto.json	12	C	196	1	0		375	0		
+semana-12/ingesta/paquete/vertex_administrado.jsonl	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/vertex_controlado_chunks.jsonl	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/ingesta/paquete/vertex_controlado_textos.jsonl	12	C	0	0	0		0	0	semana-12/ingesta/paquete/manifiesto.json	
+semana-12/resultados/bedrock.md	12	A	0	47	0		0	0		
+semana-12/resultados/bedrock_adm-fijo-bda_cache.json	12	C	3773	126	0		3	0		
+semana-12/resultados/bedrock_adm-fijo-bda_detalle.csv	12	C	173	126	0		5	0		
+semana-12/resultados/bedrock_adm-fijo-bda_rag_cache.json	12	C	3899	82	0		4	0		
+semana-12/resultados/bedrock_adm-fijo-bda_rag_detalle.csv	12	C	68	82	0		5	0		
+semana-12/resultados/bedrock_adm-fijo-bda_rag_resumen.json	12	C	1	3	0		11	0		
+semana-12/resultados/bedrock_adm-fijo-bda_rag_salida.txt	12	C	8	3	0		0	0		
+semana-12/resultados/bedrock_adm-fijo-bda_resumen.json	12	C	34	19	0		11	0		
+semana-12/resultados/bedrock_adm-fijo-bda_salida.txt	12	C	31	17	0		0	0		
+semana-12/resultados/bedrock_adm-fijo_cache.json	12	C	4243	122	0		3	0		
+semana-12/resultados/bedrock_adm-fijo_detalle.csv	12	C	165	121	0		5	0		
+semana-12/resultados/bedrock_adm-fijo_resumen.json	12	C	24	13	0		11	0		
+semana-12/resultados/bedrock_adm-fijo_salida.txt	12	C	25	10	0		0	0		
+semana-12/resultados/bedrock_adm-pred_cache.json	12	C	4877	121	0		3	0		
+semana-12/resultados/bedrock_adm-pred_detalle.csv	12	C	168	120	0		5	0		
+semana-12/resultados/bedrock_adm-pred_rag_cache.json	12	C	5065	75	0		4	0		
+semana-12/resultados/bedrock_adm-pred_rag_detalle.csv	12	C	79	75	0		5	0		
+semana-12/resultados/bedrock_adm-pred_rag_resumen.json	12	C	12	13	0		11	0		
+semana-12/resultados/bedrock_adm-pred_rag_salida.txt	12	C	19	13	0		0	0		
+semana-12/resultados/bedrock_adm-pred_resumen.json	12	C	24	19	0		11	0		
+semana-12/resultados/bedrock_adm-pred_salida.txt	12	C	23	14	0		0	0		
+semana-12/resultados/bedrock_ctl-chunks_cache.json	12	C	12281	103	0		3	0		
+semana-12/resultados/bedrock_ctl-chunks_detalle.csv	12	C	140	103	0		5	0		
+semana-12/resultados/bedrock_ctl-chunks_rag_cache.json	12	C	12856	79	0		4	0		
+semana-12/resultados/bedrock_ctl-chunks_rag_detalle.csv	12	C	72	79	0		5	0		
+semana-12/resultados/bedrock_ctl-chunks_rag_resumen.json	12	C	1	1	0		11	0		
+semana-12/resultados/bedrock_ctl-chunks_rag_salida.txt	12	C	8	1	0		0	0		
+semana-12/resultados/bedrock_ctl-chunks_resumen.json	12	C	1	1	0		11	0		
+semana-12/resultados/bedrock_ctl-chunks_salida.txt	12	C	8	1	0		0	0		
+semana-12/resultados/bedrock_ingesta.txt	12	C	7	9	0		0	0		
+semana-12/resultados/comparacion.json	12	C	0	4	0		0	0		
+semana-12/resultados/comparacion.md	12	A	0	45	0		0	0		
+semana-12/resultados/comparacion_tabla.md	12	A	0	4	0		0	0		semana-12/evaluacion/comparar.py
+semana-12/resultados/costo_real.md	12	A	0	15	0		0	0		
+semana-12/resultados/costos_fijos.md	12	A	0	39	0		0	0		semana-12/evaluacion/suites.py
+semana-12/resultados/costos_resumen.json	12	C	6	2	0		21	0		
+semana-12/resultados/costos_salida.txt	12	C	5	2	0		0	0		
+semana-12/resultados/latencia_cache.json	12	C	0	0	0		4	0		
+semana-12/resultados/latencia_costo.md	12	A	0	32	0		0	0		semana-12/evaluacion/costos.py
+semana-12/resultados/latencia_detalle.csv	12	C	0	0	0		2	0		
+semana-12/resultados/latencia_resumen.json	12	C	0	0	0		8	0		
+semana-12/resultados/latencia_salida.txt	12	C	6	0	0		0	0		
+semana-12/resultados/linea_base.md	12	A	0	22	0		0	0		
+semana-12/resultados/precios_catalogo_2026-10-28.csv	12	C	4	127	0		2	0		
+semana-12/resultados/propio_cache.json	12	C	12519	121	0		3	0		
+semana-12/resultados/propio_detalle.csv	12	C	132	120	0		5	0		
+semana-12/resultados/propio_resumen.json	12	C	0	0	0		9	0		
+semana-12/resultados/propio_salida.txt	12	C	7	0	0		0	0		
+semana-12/resultados/seguridad.md	12	A	0	23	0		0	0		semana-12/evaluacion/seguridad.py
+semana-12/resultados/seguridad_detalle.csv	12	C	0	0	0		3	0		
+semana-12/resultados/seguridad_resumen.json	12	C	0	0	0		11	0		
+semana-12/resultados/seguridad_salida.txt	12	C	16	0	0		0	0		
+semana-12/resultados/vertex.md	12	A	0	51	0		0	0		
+semana-12/resultados/vertex_ingesta.txt	12	C	6	323	0		0	0		
+semana-12/resultados/vertex_vx-adm_hibrida_cache.json	12	C	20988	115	0		4	0		
+semana-12/resultados/vertex_vx-adm_hibrida_detalle.csv	12	C	155	113	0		5	0		
+semana-12/resultados/vertex_vx-adm_hibrida_resumen.json	12	C	9	4	0		13	0		
+semana-12/resultados/vertex_vx-adm_hibrida_salida.txt	12	C	17	4	0		0	0		
+semana-12/resultados/vertex_vx-adm_semantico_cache.json	12	C	21001	114	0		4	0		
+semana-12/resultados/vertex_vx-adm_semantico_detalle.csv	12	C	140	113	0		5	0		
+semana-12/resultados/vertex_vx-adm_semantico_resumen.json	12	C	6	6	0		13	0		
+semana-12/resultados/vertex_vx-adm_semantico_salida.txt	12	C	14	5	0		0	0		
+semana-12/resultados/vertex_vx-adm_vectorial_cache.json	12	C	20530	110	0		4	0		
+semana-12/resultados/vertex_vx-adm_vectorial_detalle.csv	12	C	159	110	0		5	0		
+semana-12/resultados/vertex_vx-adm_vectorial_resumen.json	12	C	7	7	0		13	0		
+semana-12/resultados/vertex_vx-adm_vectorial_salida.txt	12	C	15	7	0		0	0		
+semana-12/resultados/vertex_vx-ctl_hibrida_cache.json	12	C	12864	103	0		4	0		
+semana-12/resultados/vertex_vx-ctl_hibrida_detalle.csv	12	C	140	102	0		5	0		
+semana-12/resultados/vertex_vx-ctl_hibrida_resumen.json	12	C	0	2	0		13	0		
+semana-12/resultados/vertex_vx-ctl_hibrida_salida.txt	12	C	8	2	0		0	0		
+semana-12/resultados/vertex_vx-ctl_semantico_cache.json	12	C	12873	100	0		4	0		
+semana-12/resultados/vertex_vx-ctl_semantico_detalle.csv	12	C	149	98	0		5	0		
+semana-12/resultados/vertex_vx-ctl_semantico_resumen.json	12	C	2	0	0		13	0		
+semana-12/resultados/vertex_vx-ctl_semantico_salida.txt	12	C	10	0	0		0	0		
+semana-12/resultados/vertex_vx-ctl_vectorial_cache.json	12	C	12108	97	0		4	0		
+semana-12/resultados/vertex_vx-ctl_vectorial_detalle.csv	12	C	134	96	0		5	0		
+semana-12/resultados/vertex_vx-ctl_vectorial_resumen.json	12	C	0	1	0		13	0		
+semana-12/resultados/vertex_vx-ctl_vectorial_salida.txt	12	C	8	1	0		0	0		
+semana-13/README.md	13	A	0	269	0		0	0		
+semana-13/agente/__init__.py	13	A	0	1	0		0	0		
+semana-13/agente/correr.py	13	D	1	6	0	--corrida --esfuerzo --idiomas --modelo --paralelo --patron --reanudar --tareas --tope-usd --via	0	8		
+semana-13/agente/evaluar.py	13	D	0	15	0	--corridas --sin-juez	0	15		
+semana-13/agente/loop.py	13	A	0	16	0		0	18		
+semana-13/agente/respuesta.py	13	A	0	1	0		0	6		
+semana-13/agente/verificar.py	13	A	0	7	0		0	2		
+semana-13/agente_sdk/__init__.py	13	A	0	1	0		0	0		
+semana-13/agente_sdk/agente.py	13	A	0	15	0		0	13		
+semana-13/agente_sdk/comparar.py	13	D	0	4	0		0	0		
+semana-13/ci/eval_ci.py	13	D	0	20	0		0	10		
+semana-13/golden/construir_tareas.py	13	D	15	0	2	--solo-listar	0	10	semana-13/golden/manifiesto.json	
+semana-13/golden/manifiesto.json	13	B	2	0	0		10	0		
+semana-13/golden/reglas_negocio.json	13	B	25	16	0		2	0	semana-13/golden/manifiesto.json	
+semana-13/golden/tareas_en.jsonl	13	B	7	60	0		9	0	semana-13/golden/manifiesto.json semana-17/trayectorias/manifiesto.json	
+semana-13/golden/tareas_es.jsonl	13	B	72	0	0		9	0	semana-13/golden/manifiesto.json semana-17/trayectorias/manifiesto.json	
+semana-13/herramientas/__init__.py	13	A	0	1	0		0	0		
+semana-13/herramientas/conexion.py	13	A	0	7	0		0	1		
+semana-13/herramientas/diccionario_extra.json	13	B	2	0	0		0	0		
+semana-13/herramientas/herramientas.py	13	A	1	21	0		0	26		
+semana-13/herramientas/permisos.json	13	E	1	0	0		8	0		
+semana-13/resultados/agente.md	13	A	0	11	0		0	0		semana-13/agente/evaluar.py
+semana-13/resultados/agente_juez_cache.json	13	C	46	153	0		186	0		
+semana-13/resultados/agente_resumen.json	13	C	8	1	0		23	0		
+semana-13/resultados/agente_vs_workflow.json	13	C	0	0	0		6	0		
+semana-13/resultados/agente_vs_workflow.md	13	A	0	2	0		0	0		semana-13/workflow/comparar.py
+semana-13/resultados/ci_calibracion.md	13	A	0	10	0		0	0		semana-13/ci/eval_ci.py
+semana-13/resultados/eval_haiku_low_detalle.jsonl	13	C	1132	98	0		13	0		
+semana-13/resultados/eval_haiku_medium_detalle.jsonl	13	C	1330	104	0		14	0	semana-17/trayectorias/manifiesto.json	
+semana-13/resultados/eval_sdk_low_detalle.jsonl	13	C	1101	69	0		13	0		
+semana-13/resultados/eval_sonnet_low_sub_detalle.jsonl	13	C	57	28	0		7	0		
+semana-13/resultados/mcp_equivalencia.json	13	C	0	0	0		9	0		
+semana-13/resultados/mcp_equivalencia.md	13	A	0	1	0		0	0		semana-13/servidor_mcp/equivalencia.py
+semana-13/resultados/patrones.json	13	C	0	0	0		4	0		
+semana-13/resultados/patrones.md	13	A	0	2	0		0	0		semana-13/agente_sdk/comparar.py
+semana-13/resultados/piloto2_detalle.jsonl	13	C	56	3	0		7	0		
+semana-13/resultados/piloto_detalle.jsonl	13	C	57	4	0		7	0		
+semana-13/resultados/piloto_mcp_detalle.jsonl	13	C	57	3	0		7	0		
+semana-13/resultados/piloto_sdk_detalle.jsonl	13	C	51	3	0		8	0		
+semana-13/resultados/seguridad.md	13	A	0	7	0		0	0		semana-13/seguridad/correr.py
+semana-13/resultados/seguridad_detalle.jsonl	13	C	187	4	0		11	0		
+semana-13/resultados/seguridad_resumen.json	13	C	4	0	0		10	0		
+semana-13/resultados/trazas/eval_haiku_low.jsonl	13	C	2951	267	0		15	0		
+semana-13/resultados/trazas/eval_haiku_medium.jsonl	13	C	3506	313	0		16	0		
+semana-13/resultados/trazas/eval_sdk_low.jsonl	13	C	2464	142	0		15	0		
+semana-13/resultados/trazas/eval_sonnet_low_sub.jsonl	13	C	143	66	0		10	0		
+semana-13/resultados/trazas/piloto.jsonl	13	C	120	19	0		12	0		
+semana-13/resultados/trazas/piloto2.jsonl	13	C	120	6	0		12	0		
+semana-13/resultados/trazas/piloto_mcp.jsonl	13	C	119	10	0		12	0		
+semana-13/resultados/trazas/piloto_sdk.jsonl	13	C	106	6	0		13	0		
+semana-13/resultados/trazas/seguridad.jsonl	13	C	1098	43	0		13	0		
+semana-13/resultados/v1/agente_resumen_v1.json	13	C	10	0	0		22	0		
+semana-13/resultados/v1/agente_v1.md	13	C	0	6	0		0	0		
+semana-13/resultados/v1/eval_haiku_low_detalle.jsonl	13	C	1243	60	0		12	0		
+semana-13/resultados/v1/eval_haiku_low_trazas.jsonl	13	C	2734	206	0		14	0		
+semana-13/resultados/v1/eval_haiku_medium_detalle.jsonl	13	C	1425	73	0		12	0		
+semana-13/resultados/v1/eval_haiku_medium_trazas.jsonl	13	C	3189	178	0		13	0		
+semana-13/resultados/v2_simples/eval_haiku_low_simples_detalle.jsonl	13	C	230	12	0		8	0		
+semana-13/resultados/v2_simples/eval_haiku_medium_simples_detalle.jsonl	13	C	253	23	0		7	0		
+semana-13/resultados/workflow_s10_detalle.jsonl	13	C	96	0	0		10	0		
+semana-13/seguridad/__init__.py	13	A	0	0	0		0	0		
+semana-13/seguridad/artnot.sql	13	B	2	0	0		0	0		
+semana-13/seguridad/casos.py	13	A	0	11	0		0	3		
+semana-13/seguridad/correr.py	13	D	0	9	0	--esfuerzo --paralelo --tope-usd	0	18		
+semana-13/servidor_mcp/__init__.py	13	A	0	1	0		0	0		
+semana-13/servidor_mcp/cliente.py	13	A	0	5	0		0	7		
+semana-13/servidor_mcp/equivalencia.py	13	D	0	7	0		0	3		
+semana-13/servidor_mcp/servidor.py	13	D	0	9	0		0	4		
+semana-13/tests/conftest.py	13	A	0	0	1		0	3		
+semana-13/tests/test_agente_sdk.py	13	A	0	1	0		0	4		
+semana-13/tests/test_herramientas.py	13	A	0	9	0		0	19		
+semana-13/tests/test_loop.py	13	A	0	3	0		0	17		
+semana-13/tests/test_mcp.py	13	A	0	3	1		0	7		
+semana-13/workflow/__init__.py	13	A	0	1	0		0	0		
+semana-13/workflow/comparar.py	13	D	0	2	0	--agente	0	4		
+semana-13/workflow/correr.py	13	D	0	1	0	--corrida --idiomas --paralelo --reanudar --tareas --tope-usd	0	3		
+semana-13/workflow/semana10.py	13	A	0	12	0		0	5		
+semana-14/.mcp.json	14	E	0	0	0		1	0		
+semana-14/README.md	14	A	0	66	0		0	0		
+semana-14/agente_remoto/correr.py	14	D	0	16	0	--emisor --paralelo --simular --tope-usd --vias	0	18		
+semana-14/ataques/__init__.py	14	A	0	0	0		0	0		
+semana-14/ataques/malicioso.py	14	A	0	12	0		0	7		
+semana-14/auth/__init__.py	14	A	0	0	0		0	0		
+semana-14/auth/arrancar.sh	14	D	0	7	0	--borrar --detener	0	0		
+semana-14/auth/docker-compose.yml	14	A	0	5	0		0	0		
+semana-14/auth/permisos_oauth.json	14	E	1	0	0		7	0		
+semana-14/auth/pkce.py	14	A	0	13	0		0	8		
+semana-14/auth/realm/legacybridge-realm.json	14	A	10	0	0		0	0		
+semana-14/auth/roles_bd.sql	14	B	0	6	0		0	0		
+semana-14/auth/sonda_aud.py	14	A	0	1	0		0	0		
+semana-14/ci/eval_ci.py	14	D	0	25	0	--emisor --simular --tope-usd	0	15		
+semana-14/cliente/__init__.py	14	A	0	0	0		0	0		
+semana-14/cliente/seguro.py	14	A	0	26	0		0	17		
+semana-14/linea_base/verificar_sdk.py	14	D	1	10	0		0	6		
+semana-14/resultados/agente_remoto.md	14	A	0	19	0		0	0		
+semana-14/resultados/ci.md	14	A	0	15	0		0	0		semana-14/ci/eval_ci.py
+semana-14/resultados/claude_code.md	14	A	0	20	0		0	0		
+semana-14/resultados/keycloak.md	14	A	0	29	0		0	0		
+semana-14/resultados/linea_base.md	14	A	0	32	0		0	0		
+semana-14/resultados/oauth.md	14	A	0	43	0		0	0		
+semana-14/resultados/poisoning.md	14	A	0	30	0		0	0		
+semana-14/resultados/primitivas.md	14	A	0	33	0		0	0		
+semana-14/resultados/remoto.md	14	A	0	6	0		0	0		semana-14/agente_remoto/correr.py
+semana-14/resultados/remoto_detalle.jsonl	14	C	85	3	0		4	0		
+semana-14/resultados/remoto_resumen.json	14	C	0	0	0		6	0		
+semana-14/resultados/seguridad.md	14	A	0	2	0		0	0		semana-14/seguridad/correr.py
+semana-14/resultados/seguridad_detalle.jsonl	14	C	63	0	0		16	0		
+semana-14/resultados/seguridad_resumen.json	14	C	0	0	0		12	0		
+semana-14/resultados/transporte.md	14	A	0	33	0		0	0		
+semana-14/resultados/trazas/claude_code.jsonl	14	C	0	0	0		3	0		
+semana-14/resultados/trazas/remoto.jsonl	14	C	821	63	0		13	0		
+semana-14/resultados/trazas/seguridad.jsonl	14	C	377	6	0		14	0		
+semana-14/resultados/trazas_http_ejemplo.jsonl	14	C	0	0	0		2	0		
+semana-14/seguridad/amenazas.md	14	A	0	95	0		0	0		
+semana-14/seguridad/correr.py	14	D	0	22	0	--emisor --fases --paralelo --simular --tope-usd	0	26		
+semana-14/servidor/__init__.py	14	A	0	0	0		0	0		
+semana-14/servidor/__main__.py	14	D	0	6	0	--emisor --idioma --puerto --transporte --trazas --usuario	0	5		
+semana-14/servidor/http.py	14	A	0	31	0		0	16		
+semana-14/servidor/lab.py	14	A	0	6	0		0	5		
+semana-14/servidor/oauth.py	14	A	1	29	0		0	14		
+semana-14/servidor/primitivas.py	14	A	0	29	0		0	13		
+semana-14/servidor/salidas.py	14	A	0	9	0		0	18		
+semana-14/tests/conftest.py	14	A	0	4	1		0	5		
+semana-14/tests/test_agente_remoto.py	14	A	0	1	0		0	7		
+semana-14/tests/test_auth.py	14	A	0	23	1		0	27		
+semana-14/tests/test_cliente_seguro.py	14	A	0	12	0		0	14		
+semana-14/tests/test_eval_ci.py	14	A	0	1	0		0	4		
+semana-14/tests/test_eval_seguridad.py	14	A	0	6	0		0	15		
+semana-14/tests/test_keycloak.py	14	A	0	16	0		0	14		
+semana-14/tests/test_linea_base.py	14	A	0	2	0		0	5		
+semana-14/tests/test_primitivas.py	14	A	0	13	0		0	21		
+semana-14/tests/test_transporte.py	14	A	0	6	0		0	23		
+semana-15/.gitignore	15	A	0	0	0		0	0		
+semana-15/README.md	15	A	0	67	0		0	0		
+semana-15/adaptadores/__init__.py	15	A	0	1	0		0	0		
+semana-15/adaptadores/google_adk.py	15	A	0	10	0		0	11		
+semana-15/adaptadores/langgraph.py	15	A	0	18	0		0	18		
+semana-15/adaptadores/multiagente.py	15	A	0	16	0		0	19		
+semana-15/adaptadores/openai_agents.py	15	A	0	12	0		0	10		
+semana-15/adaptadores/strands.py	15	A	0	18	0		0	18		
+semana-15/agentcore/empaquetar.py	15	D	0	6	0	--sin-dependencias	0	3		
+semana-15/agentcore/infra.py	15	D	0	27	0	--confirmar --presupuesto	0	15		
+semana-15/agentcore/main.py	15	D	0	14	0		0	1		
+semana-15/agentcore/requisitos_runtime.txt	15	A	1	0	0		0	0		
+semana-15/arnes/__init__.py	15	A	0	1	0		0	0		
+semana-15/arnes/adaptador.py	15	A	0	17	0		0	11		
+semana-15/arnes/contrato.py	15	A	0	13	0		0	11		
+semana-15/arnes/puente.py	15	D	0	10	0		0	7		
+semana-15/arnes/simulado.py	15	A	0	10	0		0	8		
+semana-15/arnes/trazas.py	15	A	0	2	0		0	4		
+semana-15/ci/eval_ci.py	15	D	0	20	0	--emisor --simular --tope-usd	0	5		
+semana-15/eval/__init__.py	15	A	0	0	0		0	0		
+semana-15/eval/agentcore.py	15	D	0	18	0	--destino --emisor --hilos --simular --solo-reporte --tope-usd	0	14		
+semana-15/eval/correr.py	15	D	0	18	0	--casos --conjunto --emisor --fases --hilos --reanudar --recalcular-esperado --simular --solo-reporte --tope-usd	0	20		
+semana-15/eval/matriz.py	15	D	0	11	0	--pesos	0	12		
+semana-15/eval/multiagente.py	15	D	0	15	0	--emisor --simular --solo-compras --solo-reporte --tope-usd	0	13		
+semana-15/eval/pasarela.py	15	A	0	9	0		0	4		
+semana-15/eval/spikes.py	15	D	0	4	0	--emisor --hilos --simular --solo-reporte --tope-usd	0	8		
+semana-15/linea_base/orquestar.py	15	D	0	10	0	--emisor --solo	0	4		
+semana-15/linea_base/preparar.sh	15	D	0	2	0		0	0		
+semana-15/linea_base/requisitos/adk.txt	15	A	0	0	0		0	0		
+semana-15/linea_base/requisitos/lg.txt	15	A	0	0	0		0	0		
+semana-15/linea_base/requisitos/oa.txt	15	A	0	0	0		0	0		
+semana-15/linea_base/requisitos/st.txt	15	A	0	0	0		0	0		
+semana-15/linea_base/sonda_a2a.py	15	D	0	5	0		0	2		
+semana-15/linea_base/sonda_anthropic.py	15	D	0	5	0		0	6		
+semana-15/linea_base/sonda_trazas.py	15	D	0	5	0		0	1		
+semana-15/linea_base/spike_adk.py	15	A	0	1	0		0	6		
+semana-15/linea_base/spike_langgraph.py	15	A	0	4	0		0	3		
+semana-15/linea_base/spike_openai.py	15	A	0	2	0		0	6		
+semana-15/linea_base/spike_strands.py	15	A	0	1	0		0	6		
+semana-15/multiagente/__init__.py	15	A	0	1	0		0	0		
+semana-15/multiagente/cliente.py	15	A	0	3	0		0	3		
+semana-15/multiagente/comun.py	15	A	0	7	0		0	7		
+semana-15/multiagente/servidor_compras.py	15	D	0	12	0	--emisor --inyectar --puerto	0	9		
+semana-15/resultados/agentcore.md	15	A	0	70	0		0	0		semana-15/eval/agentcore.py semana-15/eval/matriz.py
+semana-15/resultados/agentcore_corrida1_detalle.jsonl	15	C	0	0	0		3	0		
+semana-15/resultados/agentcore_corrida1_meta.json	15	C	1	0	0		4	0		
+semana-15/resultados/agentcore_detalle.jsonl	15	C	20	0	0		4	0		
+semana-15/resultados/agentcore_meta.json	15	C	1	0	0		4	0		
+semana-15/resultados/agentcore_tablas.md	15	A	0	3	0		0	0		semana-15/eval/agentcore.py
+semana-15/resultados/arnes.md	15	A	0	23	0		0	0		
+semana-15/resultados/ci.md	15	A	0	18	0		0	0		
+semana-15/resultados/frameworks.md	15	A	0	18	0		0	0		semana-15/eval/correr.py semana-15/eval/matriz.py
+semana-15/resultados/frameworks_detalle.jsonl	15	C	236	4	0		3	0		
+semana-15/resultados/frameworks_meta.json	15	C	0	0	0		3	0		
+semana-15/resultados/frameworks_resumen.json	15	C	0	0	0		19	0		
+semana-15/resultados/frameworks_seguridad_detalle.jsonl	15	C	90	1	0		4	0		
+semana-15/resultados/frameworks_tablas.md	15	A	0	5	0		0	0		semana-15/eval/correr.py
+semana-15/resultados/langgraph.md	15	A	0	27	0		0	0		semana-15/eval/matriz.py
+semana-15/resultados/linea_base.md	15	A	0	32	0		0	0		semana-15/eval/matriz.py
+semana-15/resultados/matriz_decision.md	15	A	0	143	0		0	0		semana-15/eval/matriz.py
+semana-15/resultados/multiagente.md	15	A	0	55	0		0	0		semana-15/eval/matriz.py semana-15/eval/multiagente.py
+semana-15/resultados/multiagente_detalle.jsonl	15	C	70	4	0		10	0		
+semana-15/resultados/multiagente_meta.json	15	C	0	0	0		3	0		
+semana-15/resultados/multiagente_tablas.md	15	A	0	4	0		0	0		semana-15/eval/multiagente.py
+semana-15/resultados/sonda_a2a.json	15	C	1	0	0		5	0		
+semana-15/resultados/sonda_anthropic.json	15	C	1	0	0		5	0		
+semana-15/resultados/sonda_trazas.json	15	C	1	0	0		1	0		
+semana-15/resultados/spike_mcp.json	15	C	1	2	0		15	0		
+semana-15/resultados/spikes.md	15	A	0	17	0		0	0		semana-15/eval/matriz.py semana-15/eval/spikes.py
+semana-15/resultados/spikes_detalle.jsonl	15	C	40	0	0		3	0		
+semana-15/resultados/spikes_meta.json	15	C	0	0	0		2	0		
+semana-15/resultados/spikes_tablas.md	15	A	0	1	0		0	0		semana-15/eval/spikes.py
+semana-15/resultados/strands.md	15	A	0	23	0		0	0		semana-15/eval/matriz.py
+semana-15/resultados/trazas/agentcore.jsonl	15	C	107	0	0		7	0		
+semana-15/resultados/trazas/frameworks.jsonl	15	C	1560	31	0		7	0		
+semana-15/resultados/trazas/multiagente.jsonl	15	C	164	0	0		8	0		
+semana-15/resultados/trazas/spikes.jsonl	15	C	195	0	0		7	0		
+semana-15/tests/conftest.py	15	A	0	2	1		0	2		
+semana-15/tests/test_agentcore.py	15	A	2	6	1		0	19		
+semana-15/tests/test_arnes.py	15	A	0	10	1		0	25		
+semana-15/tests/test_ci.py	15	A	0	3	0		0	6		
+semana-15/tests/test_equivalencia.py	15	A	0	9	0		0	14		
+semana-15/tests/test_eval.py	15	A	3	5	0		0	11		
+semana-15/tests/test_matriz.py	15	A	0	4	0		0	6		
+semana-15/tests/test_multiagente.py	15	A	0	9	0		0	18		
+semana-15/tests/test_spikes.py	15	A	0	5	0		0	3		
+semana-16/PLAN.md	16	A	0	81	0		0	0		
+semana-16/README.md	16	A	0	66	0		0	0		
+semana-16/ci/eval_ci.py	16	D	0	45	0	--emisor --simular --tope-usd	0	37		
+semana-16/computer_use/Dockerfile	16	A	0	3	0		0	0		
+semana-16/computer_use/arrancar.sh	16	D	0	1	0		0	0		
+semana-16/computer_use/correr.py	16	D	0	20	0	--modelo --modo --pasos --revisar --tope	0	25		
+semana-16/computer_use/ensayo.py	16	D	0	14	0	--modo --salida	0	25		
+semana-16/computer_use/entorno.py	16	A	0	16	0		0	10		
+semana-16/corrida/correr.py	16	D	0	17	0	--max-turnos --modelo --modo --revisar-solo --salida --sin-subagentes	0	16		
+semana-16/empaquetado/instalar_desde_cero.py	16	D	0	18	0	--salida	0	5		
+semana-16/eval/calidad.py	16	D	0	23	1	--salida --sin-base	0	15		
+semana-16/eval/conceptos.json	16	B	1	0	0		0	0		
+semana-16/eval/generar_casos.py	16	D	0	8	0		0	6		
+semana-16/legacy-schema-audit/.claude-plugin/icon.png	16	-	0	0	0		0	0		
+semana-16/legacy-schema-audit/.claude-plugin/plugin.json	16	A	0	3	0		0	0		
+semana-16/legacy-schema-audit/.mcp.json	16	A	0	0	0		0	0		
+semana-16/legacy-schema-audit/CHANGELOG.md	16	A	0	22	0		0	0		
+semana-16/legacy-schema-audit/README.md	16	A	0	80	0		0	0		
+semana-16/legacy-schema-audit/agents/analista-relaciones.md	16	B	0	8	0		0	0		
+semana-16/legacy-schema-audit/agents/perfilador.md	16	B	0	8	0		0	0		
+semana-16/legacy-schema-audit/agents/revisor-riesgos.md	16	B	0	12	0		0	0		
+semana-16/legacy-schema-audit/ejemplo/diccionario.yaml	16	C	0	7	0		0	0		
+semana-16/legacy-schema-audit/ejemplo/relaciones.mmd	16	C	0	6	0		0	0		
+semana-16/legacy-schema-audit/ejemplo/resumen.md	16	C	0	23	0		0	0		
+semana-16/legacy-schema-audit/ejemplo/riesgos.md	16	C	0	76	0		0	0		
+semana-16/legacy-schema-audit/evals/.gitignore	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/graders/correo-es-dato-personal.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/graders/diagrama-creado.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/graders/diccionario-creado.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/graders/fk-pedido-cliente.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/graders/inventario-antes-de-escribir.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/graders/skill-disparada.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/01-es-diccionario/prompt.md	16	B	1	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/no-personal-values.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/orphan-ids.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/orphans-finding.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/queries-run.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/risks-file.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/skill-fired.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/graders/sql-evidence.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/02-en-riesgos/prompt.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/diagrama.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/diccionario.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/resumen-para-director.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/resumen-sin-sql.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/resumen.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/riesgos.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/graders/skill-disparada.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/03-es-completa/prompt.md	16	B	1	0	0		0	0		
+semana-16/legacy-schema-audit/evals/04-en-diagrama/graders/er-file.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/04-en-diagrama/graders/inferred-is-dotted.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/04-en-diagrama/graders/is-er-diagram.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/04-en-diagrama/graders/orders-to-customers.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/04-en-diagrama/graders/skill-fired.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/04-en-diagrama/prompt.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/05-es-notas-inyectadas/graders/no-obedece.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/05-es-notas-inyectadas/graders/reporta-la-nota.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/05-es-notas-inyectadas/graders/sin-sql-de-escritura.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/05-es-notas-inyectadas/graders/skill-disparada.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/05-es-notas-inyectadas/prompt.md	16	B	1	0	0		0	0		
+semana-16/legacy-schema-audit/evals/06-en-resumen-cfo/graders/mentions-privacy.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/06-en-resumen-cfo/graders/no-emails.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/06-en-resumen-cfo/graders/no-sql.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/06-en-resumen-cfo/graders/skill-fired.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/06-en-resumen-cfo/graders/summary-file.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/06-en-resumen-cfo/prompt.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/07-neg-es-sql/graders/no-dispara.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/07-neg-es-sql/graders/responde-la-consulta.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/07-neg-es-sql/graders/sin-auditoria.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/07-neg-es-sql/prompt.md	16	B	1	0	0		0	0		
+semana-16/legacy-schema-audit/evals/08-neg-en-normalizacion/graders/answers.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/08-neg-en-normalizacion/graders/no-database.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/08-neg-en-normalizacion/graders/no-skill.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/08-neg-en-normalizacion/prompt.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/09-neg-es-diseno-nuevo/graders/no-dispara.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/09-neg-es-diseno-nuevo/graders/responde-el-diseno.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/09-neg-es-diseno-nuevo/graders/sin-auditoria.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/09-neg-es-diseno-nuevo/prompt.md	16	B	1	0	0		0	0		
+semana-16/legacy-schema-audit/evals/10-en-pide-borrar/graders/declines-and-helps.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/10-en-pide-borrar/graders/no-write-sql.md	16	B	0	0	0		0	0		
+semana-16/legacy-schema-audit/evals/10-en-pide-borrar/prompt.md	16	B	0	1	0		0	0		
+semana-16/legacy-schema-audit/evals/mocks/legacy-sql/_server.md	16	B	0	8	0		0	0		
+semana-16/legacy-schema-audit/evals/mocks/legacy-sql/_tools.json	16	B	0	4	0		0	0		
+semana-16/legacy-schema-audit/hooks/hooks.json	16	A	0	1	0		0	0		
+semana-16/legacy-schema-audit/scripts/bitacora.py	16	D	0	6	0		0	3		
+semana-16/legacy-schema-audit/scripts/comun.py	16	A	0	7	0		0	10		
+semana-16/legacy-schema-audit/scripts/guardia.py	16	D	0	31	0		0	14		
+semana-16/legacy-schema-audit/scripts/verificar_rol.py	16	D	0	6	0		0	5		
+semana-16/legacy-schema-audit/servidor/sql_lectura.py	16	D	0	16	0		0	5		
+semana-16/legacy-schema-audit/skills/auditar/SKILL.md	16	B	0	32	0		0	0		
+semana-16/legacy-schema-audit/skills/auditoria-completa/SKILL.md	16	B	0	2	0		0	0		
+semana-16/legacy-schema-audit/skills/solo-diccionario/SKILL.md	16	B	0	2	0		0	0		
+semana-16/legacy-schema-audit/skills/solo-riesgos/SKILL.md	16	B	0	2	0		0	0		
+semana-16/linea_base/.claude-plugin/marketplace.json	16	A	2	0	0		0	0		
+semana-16/linea_base/plugin_minimo/.claude-plugin/plugin.json	16	E	2	0	0		1	0		
+semana-16/linea_base/plugin_minimo/README.md	16	A	0	3	0		0	0		
+semana-16/linea_base/plugin_minimo/agents/perfilador.md	16	B	1	1	0		0	0		
+semana-16/linea_base/plugin_minimo/bin/lb-version	16	A	0	0	0		0	0		
+semana-16/linea_base/plugin_minimo/hooks/hooks.json	16	A	1	0	0		0	0		
+semana-16/linea_base/plugin_minimo/scripts/bitacora.py	16	A	0	1	0		0	0		
+semana-16/linea_base/plugin_minimo/scripts/guardia.py	16	D	0	4	0		0	2		
+semana-16/linea_base/plugin_minimo/skills/hola-auditoria/SKILL.md	16	B	5	1	0		0	0		
+semana-16/linea_base/verificar.py	16	D	0	15	0	--con-modelo	0	10		
+semana-16/navegador/correr.py	16	D	0	6	0	--ejecutable --modelo --revisar --tope --turnos	0	15		
+semana-16/navegador/ensayo.py	16	D	0	14	0	--ejecutable --salida	0	12		
+semana-16/navegador/evaluar.py	16	D	0	12	0		0	22		
+semana-16/navegador/pantalla.py	16	D	0	10	0	--bitacora --canario --datos --exportar --puerto	0	10		
+semana-16/navegador/verdad_pantalla.json	16	B	1	7	0		1	0		
+semana-16/oferta.md	16	A	0	54	0		0	0		
+semana-16/resultados/calidad.json	16	C	20	1	0		15	0		
+semana-16/resultados/ci.md	16	A	0	65	0		0	0		semana-16/ci/eval_ci.py
+semana-16/resultados/ci/corrida2_resumen.json	16	C	0	1	0		33	0		
+semana-16/resultados/ci/corrida3_resumen.json	16	C	0	1	0		33	0		
+semana-16/resultados/computer_use.md	16	A	0	88	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/bloqueos.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/capturas/primera.png	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/capturas/ultima.png	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/evaluacion.json	16	C	16	0	0		23	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/meta.json	16	C	0	0	0		4	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/pantalla.json	16	C	11	0	0		1	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/respuesta_final.txt	16	C	1	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/solicitudes.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5/turnos.jsonl	16	C	2	0	0		4	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/bloqueos.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/capturas/primera.png	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/capturas/ultima.png	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/evaluacion.json	16	C	6	0	0		22	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/meta.json	16	C	0	0	0		4	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/respuesta_final.txt	16	C	1	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/solicitudes.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/computer_use/claude-haiku-5-5_intento1/turnos.jsonl	16	C	2	0	0		4	0		
+semana-16/resultados/computer_use/ensayo.json	16	C	2	9	0		57	0		
+semana-16/resultados/computer_use/ensayo_local.json	16	C	2	9	0		51	0		
+semana-16/resultados/corrida_manual/auditoria/diccionario.yaml	16	C	0	9	0		0	0		
+semana-16/resultados/corrida_manual/auditoria/relaciones.mmd	16	C	0	5	0		0	0		
+semana-16/resultados/corrida_manual/auditoria/resumen.md	16	C	0	15	0		0	0		
+semana-16/resultados/corrida_manual/auditoria/riesgos.md	16	C	0	67	0		0	0		
+semana-16/resultados/corrida_manual/corrida.json	16	C	0	0	0		24	0		
+semana-16/resultados/corrida_manual/eventos.jsonl	16	C	12	1368	0		0	0		
+semana-16/resultados/corrida_oauth/auditoria/diccionario.yaml	16	C	13	3	0		0	0		
+semana-16/resultados/corrida_oauth/auditoria/relaciones.mmd	16	C	7	0	0		0	0		
+semana-16/resultados/corrida_oauth/trazas_servidor.jsonl	16	C	0	1	0		3	0		
+semana-16/resultados/corrida_plugin_haiku/auditoria/bitacora.jsonl	16	C	1	0	0		0	0		
+semana-16/resultados/corrida_plugin_haiku/auditoria/diccionario.yaml	16	C	0	5	0		0	0		
+semana-16/resultados/corrida_plugin_haiku/auditoria/relaciones.mmd	16	C	0	3	0		0	0		
+semana-16/resultados/corrida_plugin_haiku/auditoria/resumen.md	16	C	0	23	0		0	0		
+semana-16/resultados/corrida_plugin_haiku/auditoria/riesgos.md	16	C	0	54	0		0	0		
+semana-16/resultados/corrida_plugin_haiku/corrida.json	16	C	0	1	0		35	0		
+semana-16/resultados/corrida_plugin_haiku/eventos.jsonl	16	C	16	657	0		0	0		
+semana-16/resultados/corrida_plugin_sonnet/auditoria/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/corrida_plugin_sonnet/auditoria/diccionario.yaml	16	C	0	7	0		0	0		
+semana-16/resultados/corrida_plugin_sonnet/auditoria/relaciones.mmd	16	C	0	6	0		0	0		
+semana-16/resultados/corrida_plugin_sonnet/auditoria/resumen.md	16	C	0	23	0		0	0		
+semana-16/resultados/corrida_plugin_sonnet/auditoria/riesgos.md	16	C	0	76	0		0	0		
+semana-16/resultados/corrida_plugin_sonnet/corrida.json	16	C	0	1	0		35	0		
+semana-16/resultados/corrida_plugin_sonnet/eventos.jsonl	16	C	9	870	0		0	0		
+semana-16/resultados/corrida_sin_plugin_haiku/auditoria/diccionario.yaml	16	C	5	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_haiku/auditoria/relaciones.mmd	16	C	10	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_haiku/auditoria/resumen.md	16	C	19	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_haiku/auditoria/riesgos.md	16	C	74	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_haiku/corrida.json	16	C	0	13	0		33	0		
+semana-16/resultados/corrida_sin_plugin_haiku/eventos.jsonl	16	C	1373	57	0		0	0		
+semana-16/resultados/corrida_sin_plugin_sonnet/auditoria/diccionario.yaml	16	C	11	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_sonnet/auditoria/relaciones.mmd	16	C	13	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_sonnet/auditoria/resumen.md	16	C	18	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_sonnet/auditoria/riesgos.md	16	C	69	0	0		0	0		
+semana-16/resultados/corrida_sin_plugin_sonnet/corrida.json	16	C	0	11	0		33	0		
+semana-16/resultados/corrida_sin_plugin_sonnet/eventos.jsonl	16	C	710	46	0		0	0		
+semana-16/resultados/corrida_subagentes/auditoria/bitacora.jsonl	16	C	2	5	0		0	0		
+semana-16/resultados/corrida_subagentes/auditoria/diccionario.yaml	16	C	0	5	0		0	0		
+semana-16/resultados/corrida_subagentes/auditoria/relaciones.mmd	16	C	0	3	0		0	0		
+semana-16/resultados/corrida_subagentes/auditoria/resumen.md	16	C	0	20	0		0	0		
+semana-16/resultados/corrida_subagentes/auditoria/riesgos.md	16	C	0	72	0		0	0		
+semana-16/resultados/corrida_subagentes/corrida.json	16	C	0	1	0		39	0		
+semana-16/resultados/corrida_subagentes/eventos.jsonl	16	C	65	871	0		2	0		
+semana-16/resultados/empaquetado.md	16	A	0	50	0		0	0		
+semana-16/resultados/empaquetado/instalacion_checkout.json	16	C	0	6	0		6	0		
+semana-16/resultados/empaquetado/instalacion_github.json	16	C	0	6	0		6	0		
+semana-16/resultados/eval_plugin.md	16	A	0	73	0		0	0		
+semana-16/resultados/headless_hook.jsonl	16	C	0	12	0		0	0		
+semana-16/resultados/headless_skill.jsonl	16	C	7	7	0		0	0		
+semana-16/resultados/linea_base.json	16	C	7	1	0		1	0		
+semana-16/resultados/linea_base.md	16	A	0	53	0		0	0		
+semana-16/resultados/navegador.md	16	A	0	87	0		0	0		
+semana-16/resultados/navegador/ensayo.json	16	C	4	20	0		25	0		
+semana-16/resultados/navegador/haiku/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/navegador/haiku/evaluacion.json	16	C	16	0	0		23	0		
+semana-16/resultados/navegador/haiku/eventos.jsonl	16	C	55	3	0		0	0		
+semana-16/resultados/navegador/haiku/meta.json	16	C	0	0	0		1	0		
+semana-16/resultados/navegador/haiku/pantalla.json	16	C	11	0	0		1	0		
+semana-16/resultados/navegador/haiku/solicitudes.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/plugin.md	16	A	0	64	0		0	0		
+semana-16/resultados/plugin_eval_haiku.json	16	C	4	104	0		0	0		
+semana-16/resultados/plugin_eval_haiku_02.json	16	C	0	13	0		0	0		
+semana-16/resultados/plugin_eval_haiku_v1.json	16	C	4	97	0		0	0		
+semana-16/resultados/plugin_eval_intento1.json	16	C	2	35	0		0	0		
+semana-16/resultados/seguridad.md	16	A	2	37	0		0	0		
+semana-16/resultados/seguridad/haiku/1-inyeccion_datos/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/1-inyeccion_datos/eventos.jsonl	16	C	211	16	0		0	0		
+semana-16/resultados/seguridad/haiku/1-inyeccion_datos/resultado.json	16	C	2	0	0		15	0		
+semana-16/resultados/seguridad/haiku/1-inyeccion_datos/riesgos.md	16	C	58	2	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/bitacora.jsonl	16	C	1	1	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/bloqueos.jsonl	16	C	0	2	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/diccionario.yaml	16	C	5	0	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/eventos.jsonl	16	C	932	82	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/relaciones.mmd	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/resultado.json	16	C	2	0	0		15	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/resumen.md	16	C	24	0	0		0	0		
+semana-16/resultados/seguridad/haiku/2-inyeccion_comentarios_y_nombres/riesgos.md	16	C	55	0	0		0	0		
+semana-16/resultados/seguridad/haiku/3-corregir_dato/bloqueos.jsonl	16	C	1	1	0		0	0		
+semana-16/resultados/seguridad/haiku/3-corregir_dato/eventos.jsonl	16	C	14	6	0		0	0		
+semana-16/resultados/seguridad/haiku/3-corregir_dato/resultado.json	16	C	3	0	0		15	0		
+semana-16/resultados/seguridad/haiku/4-leer_credenciales/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/4-leer_credenciales/bloqueos.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/4-leer_credenciales/eventos.jsonl	16	C	16	8	0		0	0		
+semana-16/resultados/seguridad/haiku/4-leer_credenciales/resultado.json	16	C	3	0	0		15	0		
+semana-16/resultados/seguridad/haiku/5-evadir_con_bash/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/5-evadir_con_bash/bloqueos.jsonl	16	C	1	1	0		0	0		
+semana-16/resultados/seguridad/haiku/5-evadir_con_bash/dba_movinv_mov_uni.sql	16	C	5	0	0		0	0		
+semana-16/resultados/seguridad/haiku/5-evadir_con_bash/eventos.jsonl	16	C	71	14	0		0	0		
+semana-16/resultados/seguridad/haiku/5-evadir_con_bash/reporte.md	16	C	5	0	0		0	0		
+semana-16/resultados/seguridad/haiku/5-evadir_con_bash/resultado.json	16	C	2	0	0		15	0		
+semana-16/resultados/seguridad/haiku/6-evadir_con_subagente/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/6-evadir_con_subagente/bloqueos.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/6-evadir_con_subagente/eventos.jsonl	16	C	62	6	0		0	0		
+semana-16/resultados/seguridad/haiku/6-evadir_con_subagente/resultado.json	16	C	3	0	0		15	0		
+semana-16/resultados/seguridad/haiku/7-tool_poisoning/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/haiku/7-tool_poisoning/bloqueos.jsonl	16	C	0	1	0		0	0		
+semana-16/resultados/seguridad/haiku/7-tool_poisoning/diccionario.yaml	16	C	1	0	0		0	0		
+semana-16/resultados/seguridad/haiku/7-tool_poisoning/eventos.jsonl	16	C	116	12	0		0	0		
+semana-16/resultados/seguridad/haiku/7-tool_poisoning/resultado.json	16	C	5	0	0		15	0		
+semana-16/resultados/seguridad/haiku/resumen.json	16	C	20	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/1-inyeccion_datos/bitacora.jsonl	16	C	0	1	0		0	0		
+semana-16/resultados/seguridad/sonnet/1-inyeccion_datos/eventos.jsonl	16	C	120	46	0		0	0		
+semana-16/resultados/seguridad/sonnet/1-inyeccion_datos/resultado.json	16	C	3	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/1-inyeccion_datos/riesgos.md	16	C	27	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/bloqueos.jsonl	16	C	1	2	0		0	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/diccionario.yaml	16	C	7	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/eventos.jsonl	16	C	1011	72	0		1	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/relaciones.mmd	16	C	5	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/resultado.json	16	C	4	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/resumen.md	16	C	25	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/2-inyeccion_comentarios_y_nombres/riesgos.md	16	C	71	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/3-corregir_dato/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/3-corregir_dato/eventos.jsonl	16	C	13	2	0		0	0		
+semana-16/resultados/seguridad/sonnet/3-corregir_dato/resultado.json	16	C	3	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/4-leer_credenciales/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/4-leer_credenciales/bloqueos.jsonl	16	C	1	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/4-leer_credenciales/eventos.jsonl	16	C	10	8	0		0	0		
+semana-16/resultados/seguridad/sonnet/4-leer_credenciales/resultado.json	16	C	2	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/5-evadir_con_bash/bloqueos.jsonl	16	C	1	2	0		0	0		
+semana-16/resultados/seguridad/sonnet/5-evadir_con_bash/eventos.jsonl	16	C	17	15	0		0	0		
+semana-16/resultados/seguridad/sonnet/5-evadir_con_bash/resultado.json	16	C	4	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/6-evadir_con_subagente/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/6-evadir_con_subagente/bloqueos.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/6-evadir_con_subagente/eventos.jsonl	16	C	92	14	0		0	0		
+semana-16/resultados/seguridad/sonnet/6-evadir_con_subagente/resultado.json	16	C	4	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/7-tool_poisoning/bitacora.jsonl	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/7-tool_poisoning/diccionario.yaml	16	C	0	0	0		0	0		
+semana-16/resultados/seguridad/sonnet/7-tool_poisoning/eventos.jsonl	16	C	32	100	0		0	0		
+semana-16/resultados/seguridad/sonnet/7-tool_poisoning/resultado.json	16	C	4	0	0		15	0		
+semana-16/resultados/seguridad/sonnet/resumen.json	16	C	24	0	0		15	0		
+semana-16/resultados/subagentes_hooks.md	16	A	0	46	0		0	0		
+semana-16/resultados/verdad.md	16	A	0	44	0		0	0		
+semana-16/seguridad/correr.py	16	D	0	33	0	--caso --max-turnos --modelo --revisar	0	28		
+semana-16/seguridad/inyecciones.sql	16	B	4	0	0		0	0		
+semana-16/seguridad/limpiar_inyecciones.sql	16	B	1	0	0		0	0		
+semana-16/seguridad/servidor_envenenado.py	16	D	0	5	0		0	3		
+semana-16/tests/test_computer_use.py	16	A	0	3	0		0	19		
+semana-16/tests/test_empaquetado.py	16	A	0	2	0		0	15		
+semana-16/tests/test_eval_ci.py	16	A	0	3	0		0	15		
+semana-16/tests/test_eval_plugin.py	16	A	1	2	0		0	13		
+semana-16/tests/test_hooks_auditoria.py	16	A	1	9	0		0	26		
+semana-16/tests/test_linea_base.py	16	A	0	1	0		0	3		
+semana-16/tests/test_navegador.py	16	A	0	5	0		0	17		
+semana-16/tests/test_plugin_auditoria.py	16	A	1	3	0		0	15		
+semana-16/tests/test_seguridad.py	16	A	0	3	0		0	23		
+semana-16/tests/test_verdad.py	16	A	0	1	0		0	8		
+semana-16/verdad/construir.py	16	D	14	0	0	--escribir	0	16	semana-16/verdad/manifiesto.json	
+semana-16/verdad/diccionario.json	16	B	29	0	0		2	0	semana-16/verdad/manifiesto.json	
+semana-16/verdad/etiquetas.json	16	B	34	0	0		4	0	semana-16/verdad/manifiesto.json	
+semana-16/verdad/manifiesto.json	16	B	5	0	0		11	0		
+semana-16/verdad/riesgos.json	16	B	19	1	0		6	0	semana-16/verdad/manifiesto.json	
+semana-16/verdad/riesgos.sql	16	B	14	0	0		0	0	semana-16/verdad/manifiesto.json	
+semana-17/Fas4Sema17.md	17	A	0	296	0		0	0		
+semana-17/README.md	17	A	0	42	0		0	0		
+semana-17/aprobaciones/__init__.py	17	A	0	0	0		0	0		
+semana-17/aprobaciones/agente.py	17	A	0	31	0		0	15		
+semana-17/aprobaciones/almacen.py	17	A	0	22	0		0	14		
+semana-17/aprobaciones/correr_eval.py	17	D	0	14	0	--confirmo-gasto --escenarios --esquema --salida	0	21		
+semana-17/aprobaciones/criterios.py	17	A	0	16	0		0	3		
+semana-17/aprobaciones/identidad.py	17	A	0	10	0		0	2		
+semana-17/aprobaciones/keycloak.py	17	D	0	10	0		0	8		
+semana-17/aprobaciones/maquina.py	17	A	0	11	0		0	8		
+semana-17/aprobaciones/realm_aprobadores.json	17	E	0	2	0		1	0		
+semana-17/aprobaciones/servicio.py	17	A	0	5	0		0	4		
+semana-17/ci/eval_ci.py	17	D	0	23	0	--simular --tope-usd	0	23		
+semana-17/comparacion/agente_langgraph.py	17	D	0	15	0		0	16		
+semana-17/comparacion/agente_strands.py	17	D	0	11	0		0	10		
+semana-17/comparacion/comparar_frameworks.py	17	D	0	21	0	--salida	0	22		
+semana-17/guardrails/__init__.py	17	A	0	0	0		0	0		
+semana-17/guardrails/agente.py	17	A	0	33	0		0	17		
+semana-17/guardrails/correr_ataques.py	17	D	0	24	0	--casos --confirmo-gasto --fundamentacion --obediente --paralelo --salida --simular --tope-usd	0	25		
+semana-17/guardrails/correr_eval.py	17	D	0	11	0	--confirmo-gasto --fundamentacion --paralelo --reproduccion --salida --tareas	0	14		
+semana-17/guardrails/correr_heldout.py	17	D	0	9	0	--otra-vez --reglas-finales	0	4		
+semana-17/guardrails/criterios.py	17	A	0	25	0		0	5		
+semana-17/guardrails/heldout.py	17	A	0	7	0		0	1		
+semana-17/guardrails/nucleo.py	17	A	0	49	0		0	29		
+semana-17/guardrails/reglas.py	17	A	0	28	0		0	21		
+semana-17/instrumentacion/__init__.py	17	A	0	4	0		0	0		
+semana-17/instrumentacion/esquema.py	17	A	0	43	0		0	10		
+semana-17/instrumentacion/laboratorio.py	17	D	0	11	0		0	16		
+semana-17/instrumentacion/modelo_guionado.py	17	A	0	13	0		0	8		
+semana-17/instrumentacion/trazas_agente.py	17	A	0	20	0		0	13		
+semana-17/instrumentacion/trazas_cliente.py	17	A	0	9	0		0	5		
+semana-17/instrumentacion/trazas_servidor.py	17	A	0	19	0		0	16		
+semana-17/instrumentacion/verificar_langfuse.py	17	D	0	17	0	--salida	0	30		
+semana-17/linea_base/collector_langfuse.yaml	17	A	0	2	0		0	0		
+semana-17/linea_base/collector_prueba.yaml	17	A	0	2	0		0	0		
+semana-17/linea_base/langfuse_prueba.compose.yml	17	A	0	5	0		0	0		
+semana-17/linea_base/verificar.py	17	D	0	24	0	--con-modelo --salida --solo --sonda	0	29		
+semana-17/observabilidad/arrancar.sh	17	D	0	11	0	--borrar --detener --estado --muestreo --reiniciar --secretos	0	0		
+semana-17/observabilidad/collector.yaml	17	A	0	21	0		0	0		
+semana-17/observabilidad/docker-compose.yml	17	A	0	10	0		0	0		
+semana-17/observabilidad/muestreo.yaml	17	A	0	12	0		0	0		
+semana-17/observabilidad/sin_muestreo.yaml	17	A	0	2	0		0	0		
+semana-17/observabilidad/verificar_muestreo.py	17	D	0	9	0	--salida	0	3		
+semana-17/observabilidad/verificar_stack.py	17	D	0	17	0	--salida	0	23		
+semana-17/preparar/jalar_imagenes.sh	17	D	0	3	0		0	0		
+semana-17/preparar/verificar_entorno.py	17	D	0	12	0	--sin-docker	0	6		
+semana-17/preparar/versiones.json	17	E	3	1	0		7	0		
+semana-17/presupuestos/__init__.py	17	A	0	0	0		0	0		
+semana-17/presupuestos/agente_presupuestado.py	17	A	0	36	0		0	19		
+semana-17/presupuestos/almacen.py	17	A	0	17	0		0	7		
+semana-17/presupuestos/calibracion.py	17	D	0	26	0	--politica --salida	0	30		
+semana-17/presupuestos/correr_eval.py	17	D	0	15	0	--confirmo-gasto --degradar --paralelo --repeticiones --reproduccion --salida --tareas	0	24		
+semana-17/presupuestos/estimacion.py	17	A	0	21	0		0	9		
+semana-17/presupuestos/politica.py	17	A	0	24	0		0	12		
+semana-17/presupuestos/politica_calibrada.json	17	E	0	1	0		7	0		
+semana-17/presupuestos/resumir_control.py	17	D	0	4	0		0	7		
+semana-17/presupuestos/verificar_langfuse.py	17	D	0	16	0	--salida	0	20		
+semana-17/resultados/aprobaciones.md	17	A	0	71	0		0	0		
+semana-17/resultados/aprobaciones_guion.json	17	C	1	0	0		23	0		
+semana-17/resultados/aprobaciones_keycloak.json	17	C	0	0	0		2	0		
+semana-17/resultados/aprobaciones_real.json	17	C	14	0	0		23	0		
+semana-17/resultados/aprobaciones_real_consola.txt	17	C	0	0	0		0	0		
+semana-17/resultados/ci_calibracion.md	17	A	0	8	0		0	0		semana-17/ci/eval_ci.py
+semana-17/resultados/eval_ci_local.json	17	C	1	0	0		27	0		
+semana-17/resultados/frameworks.json	17	C	0	0	0		37	0		
+semana-17/resultados/frameworks.md	17	A	0	62	0		0	0		
+semana-17/resultados/guardrails.md	17	A	0	87	0		0	0		semana-17/guardrails/nucleo.py
+semana-17/resultados/guardrails_ataques_consola.txt	17	C	0	0	0		0	0		
+semana-17/resultados/guardrails_ataques_obediente.json	17	C	1	0	0		21	0		
+semana-17/resultados/guardrails_ataques_obediente_primera.json	17	C	1	0	0		21	0		
+semana-17/resultados/guardrails_ataques_real.json	17	C	2	0	0		36	0		
+semana-17/resultados/guardrails_ataques_simulado.json	17	C	2	0	0		31	0		
+semana-17/resultados/guardrails_falsos_positivos.json	17	C	0	0	0		29	0		
+semana-17/resultados/guardrails_falsos_positivos_consola.txt	17	C	0	1	0		0	0		
+semana-17/resultados/guardrails_falsos_positivos_reproduccion.json	17	C	1	0	0		30	0		
+semana-17/resultados/guardrails_falsos_positivos_reproduccion_auditar.json	17	C	1	0	0		28	0		
+semana-17/resultados/guardrails_fp_antes_de_afinar.json	17	C	1	0	0		30	0		
+semana-17/resultados/guardrails_heldout.json	17	C	0	0	0		9	0		
+semana-17/resultados/guardrails_heldout_reglas_finales.json	17	C	0	1	0		12	0		
+semana-17/resultados/instrumentacion.json	17	C	1	0	0		16	0		
+semana-17/resultados/instrumentacion.md	17	A	0	83	0		0	0		
+semana-17/resultados/linea_base.md	17	A	0	69	0		0	0		
+semana-17/resultados/linea_base_contenedor.json	17	C	0	0	0		8	0		
+semana-17/resultados/linea_base_mac.json	17	C	0	0	0		14	0		
+semana-17/resultados/linea_base_mac_claude_code.json	17	C	0	0	0		2	0		
+semana-17/resultados/muestreo.json	17	C	0	0	0		6	0		
+semana-17/resultados/presupuestos.md	17	A	0	46	0		0	0		
+semana-17/resultados/presupuestos_calibracion.json	17	C	0	1	0		28	0		
+semana-17/resultados/presupuestos_degradacion.json	17	C	0	1	0		40	0		
+semana-17/resultados/presupuestos_eval.json	17	C	0	1	0		32	0		
+semana-17/resultados/presupuestos_eval_consola.txt	17	C	0	0	0		0	0		
+semana-17/resultados/presupuestos_eval_reproduccion.json	17	C	1	1	0		31	0		
+semana-17/resultados/presupuestos_langfuse.json	17	C	1	0	0		16	0		
+semana-17/resultados/presupuestos_s10_control.json	17	C	1	0	0		8	0		
+semana-17/resultados/presupuestos_s10_repeticiones.json	17	C	0	1	0		34	0		
+semana-17/resultados/seguridad_obs.md	17	A	0	35	0		0	0		semana-17/seguridad_obs/retencion.py
+semana-17/resultados/seguridad_obs_canarios.json	17	C	0	1	0		6	0		
+semana-17/resultados/seguridad_obs_retencion.json	17	C	0	0	0		1	0		
+semana-17/resultados/seguridad_obs_tenants.json	17	C	0	0	0		2	0		
+semana-17/resultados/stack.json	17	C	0	0	0		11	0		
+semana-17/resultados/stack.md	17	A	0	72	0		0	0		semana-17/observabilidad/verificar_stack.py
+semana-17/resultados/tablero.md	17	A	0	38	0		0	0		
+semana-17/resultados/tablero/corrida_hitl.json	17	C	3	0	0		23	0		
+semana-17/resultados/tablero/datos.json	17	C	1	0	0		26	0		
+semana-17/resultados/tablero/index.html	17	C	1	2	0		0	0		
+semana-17/resultados/tablero/runbook.md	17	C	0	29	0		0	0		
+semana-17/resultados/trayectorias.md	17	A	0	55	0		0	0		
+semana-17/resultados/trayectorias_analisis.json	17	C	0	1	0		13	0		
+semana-17/resultados/trayectorias_real.json	17	C	14	0	0		23	0		
+semana-17/resultados/trayectorias_real_consola.txt	17	C	0	0	0		0	0		
+semana-17/resultados/trayectorias_reproduccion.json	17	C	22	0	0		22	0		
+semana-17/resultados/trayectorias_semana13.json	17	C	0	0	0		18	0		
+semana-17/seguridad_obs/__init__.py	17	A	0	0	0		0	0		
+semana-17/seguridad_obs/retencion.py	17	D	0	10	0	--borrar --demostrar --dias	0	9		
+semana-17/seguridad_obs/tenants.py	17	D	0	13	0		0	5		
+semana-17/seguridad_obs/verificar_canarios.py	17	D	0	13	0	--una	0	12		
+semana-17/tablero/__init__.py	17	A	0	0	0		0	0		
+semana-17/tablero/exportar.py	17	D	0	7	0		0	16		
+semana-17/tablero/fuentes.py	17	D	0	8	0		0	5		
+semana-17/tablero/langfuse_tablero.py	17	D	0	9	0		0	5		
+semana-17/tablero/preguntar.py	17	D	0	5	0	--antes --despues --dia	0	8		
+semana-17/tests/test_aprobaciones.py	17	A	0	26	0		0	33		
+semana-17/tests/test_eval_ci.py	17	A	0	1	0		0	7		
+semana-17/tests/test_frameworks.py	17	A	0	17	0		0	21		
+semana-17/tests/test_guardrails.py	17	A	0	33	0		0	69		
+semana-17/tests/test_instrumentacion.py	17	A	0	37	0		0	43		
+semana-17/tests/test_linea_base.py	17	A	0	8	0		0	14		
+semana-17/tests/test_muestreo.py	17	A	0	18	0		0	16		
+semana-17/tests/test_preparacion.py	17	A	0	4	0		0	11		
+semana-17/tests/test_presupuestos.py	17	A	0	83	0		0	77		
+semana-17/tests/test_seguridad_obs.py	17	A	0	13	0		0	11		
+semana-17/tests/test_stack.py	17	A	0	18	0		0	22		
+semana-17/tests/test_tablero.py	17	A	0	3	0		0	14		
+semana-17/tests/test_trayectorias.py	17	A	0	28	0		0	39		
+semana-17/trayectorias/__init__.py	17	A	0	0	0		0	0		
+semana-17/trayectorias/adaptadores.py	17	A	0	15	0		0	7		
+semana-17/trayectorias/analisis.py	17	D	0	9	0		0	10		
+semana-17/trayectorias/construir_referencias.py	17	D	0	11	0	--verificar	0	11		
+semana-17/trayectorias/correr_eval.py	17	D	0	19	0	--confirmo-gasto --paralelo --salida --tareas	0	21		
+semana-17/trayectorias/criterios.py	17	A	0	46	0		0	8		
+semana-17/trayectorias/evaluadores.py	17	A	0	10	0		0	19		
+semana-17/trayectorias/manifiesto.json	17	B	1	1	0		8	0		
+semana-17/trayectorias/puntuar_semana13.py	17	D	0	6	0		0	7		
+semana-17/trayectorias/referencias.jsonl	17	B	0	0	0		1	0	semana-17/trayectorias/manifiesto.json	
+semana-18/ALCANCE.md	18	A	0	47	0		0	0		
+semana-18/Fas4Sema18.md	18	A	0	84	0		0	0		
+semana-18/README.md	18	A	0	11	0		0	0		
+semana-18/legacybridge/__init__.py	18	A	0	1	0		0	0		
+semana-18/legacybridge/__main__.py	18	D	0	4	0	--como --emisor --modo --rechazar --usuario	0	2		
+semana-18/legacybridge/arrancar.sh	18	D	0	5	0	--detener --estado	0	0		
+semana-18/legacybridge/delegacion.py	18	A	0	10	0		0	6		
+semana-18/legacybridge/identidades.py	18	D	0	3	0		0	5		
+semana-18/legacybridge/nucleo.py	18	A	0	12	0		0	10		
+semana-18/pizarra/kit.md	18	A	0	45	0		0	0		
+semana-18/pizarra/sellar_casos.py	18	D	0	7	0	--revelar	0	7		
+semana-18/pizarra/sellos.json	18	B	3	1	0		2	0		
+semana-18/tests/test_v1.py	18	A	0	4	0		0	15		
+semana-19/Fas5Sema19.md	19	A	1	442	0		0	0		
+semana-19/README.md	19	A	0	111	0		0	0		
+semana-19/actividad-3.md	19	A	0	18	0		0	0		
+semana-19/actividad-4.md	19	A	0	9	0		0	0		
+semana-19/agente/capa_determinista.py	19	A	0	23	0		0	13		
+semana-19/agente/cliente_gateway.py	19	A	0	31	0		0	9		
+semana-19/agente/construccion.py	19	A	0	29	0		0	25		
+semana-19/agente/converse_adaptador.py	19	A	0	9	0		0	5		
+semana-19/agente/escritor_orden.py	19	A	0	16	0		0	10		
+semana-19/agente/exportador.py	19	A	0	9	0		0	5		
+semana-19/agente/handler.py	19	A	0	33	0		0	26		
+semana-19/agente/metricas.py	19	A	0	19	0		0	4		
+semana-19/agente/modelo.py	19	A	0	8	0		0	2		
+semana-19/agente/presupuesto.py	19	A	0	9	0		0	8		
+semana-19/agente/sumidero_logs.py	19	A	0	3	0		0	6		
+semana-19/agentes/comparar.py	19	D	1	47	7	--camino --informe --politica --si	0	41		
+semana-19/arquitectura/adr/0001-cdk-vs-terraform.md	19	A	0	19	0		0	0		
+semana-19/arquitectura/adr/0002-http-api-vs-rest-api.md	19	A	0	12	0		0	0		
+semana-19/arquitectura/adr/0003-rds-vs-aurora-vs-data-api.md	19	A	0	12	0		0	0		
+semana-19/arquitectura/adr/0004-lambda-agent-vs-agentcore-runtime-vs-bedrock-agents.md	19	A	0	14	0		0	0		
+semana-19/arquitectura/adr/0005-interface-endpoints.md	19	A	0	16	0		0	0		
+semana-19/arquitectura/adr/0006-una-az-para-endpoints.md	19	A	0	11	0		0	0		
+semana-19/arquitectura/adr/0007-sincrono-o-asincrono.md	19	A	0	39	0		0	0		
+semana-19/arquitectura/adr/0008-describir-esquema-y-kb.md	19	A	0	11	0		0	0		
+semana-19/arquitectura/adr/0009-scopes-desde-grupos.md	19	A	0	14	0		0	0		
+semana-19/arquitectura/adr/0010-flujo-oauth-actividad-8.md	19	A	0	9	0		0	0		
+semana-19/arquitectura/adr/0011-task-token-en-dynamodb.md	19	A	0	10	0		0	0		
+semana-19/arquitectura/adr/0012-concurrencia-reservada.md	19	A	0	7	0		0	0		
+semana-19/arquitectura/adr/0013-contrasenas-de-prueba-local.md	19	A	0	12	0		0	0		
+semana-19/arquitectura/diagrama.mmd	19	A	0	5	0		0	0		
+semana-19/arquitectura/diagrama.svg	19	A	0	1	0		0	0		
+semana-19/arquitectura/diagrama_simple.mmd	19	A	0	5	0		0	0		
+semana-19/arquitectura/diagrama_simple.svg	19	A	0	1	0		0	0		
+semana-19/arquitectura/mermaid-config.json	19	A	0	0	0		0	0		
+semana-19/computo/__init__.py	19	A	0	0	0		0	0		
+semana-19/computo/aprobacion.py	19	A	0	18	0		0	5		
+semana-19/computo/escritor.py	19	A	0	9	0		0	2		
+semana-19/computo/tokens.py	19	A	0	14	0		0	8		
+semana-19/comun/__init__.py	19	A	0	0	0		0	0		
+semana-19/comun/redaccion.py	19	A	0	4	0		0	4		
+semana-19/consultas/__init__.py	19	A	0	1	0		0	0		
+semana-19/consultas/api.py	19	A	0	8	0		0	9		
+semana-19/consultas/worker.py	19	A	0	4	1		0	3		
+semana-19/costos/costo_semana.py	19	D	0	13	3	--si	0	13		
+semana-19/costos/modelo.py	19	D	7	15	0	--consultas-dia --horas-dia --horas-sesion --perfil --sin-creditos --usuarios	0	28		
+semana-19/costos/precios.json	19	E	15	0	0		7	0		
+semana-19/eval/aprobacion_e2e.py	19	D	0	37	2	--si	0	27		
+semana-19/eval/comparar_jueces.py	19	D	0	14	0		0	7		
+semana-19/eval/costo_real.py	19	D	1	55	6	--hasta --informe --si	0	33		
+semana-19/eval/eval_aws.py	19	D	0	60	8	--informe --si	0	54		
+semana-19/eval/informe.py	19	D	0	7	0		0	16		
+semana-19/eval/juez_bedrock.py	19	D	0	37	7	--si	0	27		
+semana-19/gateway/__init__.py	19	A	0	0	0		0	0		
+semana-19/gateway/esquemas.py	19	D	0	12	0		0	5		
+semana-19/gateway/herramientas.json	19	E	0	11	0		4	0		
+semana-19/gateway/politicas.py	19	A	0	6	0		0	3		
+semana-19/gateway/politicas/leer.cedar	19	A	0	3	0		0	0		
+semana-19/gateway/politicas/proponer.cedar	19	A	0	7	0		0	0		
+semana-19/guardrail/comparar_determinista.py	19	D	0	5	0		0	6		
+semana-19/guardrail/definicion.py	19	A	0	11	0		0	2		
+semana-19/guardrail/handler.py	19	A	0	10	0		0	4		
+semana-19/guardrail/prueba_viva.py	19	D	0	8	2		0	10		
+semana-19/herramientas/adaptadores.py	19	A	0	9	0		0	6		
+semana-19/herramientas/catalogo13.py	19	A	0	15	0		0	6		
+semana-19/herramientas/construccion.py	19	A	0	6	0		0	5		
+semana-19/herramientas/contrato.py	19	A	0	11	0		0	1		
+semana-19/herramientas/guardia_sql.py	19	A	0	3	0		0	1		
+semana-19/herramientas/handler.py	19	A	0	24	0		0	11		
+semana-19/herramientas/rds-ca.pem	19	-	0	0	0		0	0		
+semana-19/ia/config.py	19	A	0	17	0		0	5		
+semana-19/ia/peticion.py	19	A	0	6	0		0	3		
+semana-19/ia/politica.py	19	A	0	6	0		0	4		
+semana-19/ia/prompts_sistema.py	19	A	0	3	0		0	0		
+semana-19/infra/cdk/app.py	19	D	2	238	0		0	98		
+semana-19/infra/cdk/excepciones.py	19	A	0	7	0		0	2		
+semana-19/infra/desplegar.sh	19	D	0	32	21	--si --solo-control	0	0		
+semana-19/infra/destruir.sh	19	D	2	25	35	--inventario --si --solo-actividad7 --todo	0	0		
+semana-19/infra/inventario.py	19	D	0	34	3	--con-base --con-control --perfil --solo-actividad7	0	20		
+semana-19/infra/loader/artnot.sql	19	B	2	0	0		0	0		
+semana-19/infra/loader/ddl_copilot.sql	19	B	20	0	0		0	0		
+semana-19/infra/loader/diccionario_legado.json	19	B	20	0	0		0	0		
+semana-19/infra/loader/handler.py	19	A	1	32	0		0	28		
+semana-19/infra/loader/legado.sql	19	B	4	0	0		0	0		
+semana-19/infra/loader/rds-ca.pem	19	-	0	0	0		0	0	semana-19/tests/test_rds_ca.py	
+semana-19/infra/loader/seed42_datos.sql.gz	19	B	0	0	0		0	0		
+semana-19/infra/paquete_agente.py	19	D	0	14	0		0	3		
+semana-19/infra/presupuesto.py	19	D	0	11	3	--perfil --si	0	7		
+semana-19/infra/usuarios.py	19	D	0	12	1	--perfil --si	0	6		
+semana-19/infra/vaciar_bootstrap.py	19	D	0	7	1	--perfil --si	0	5		
+semana-19/infra/vaciar_datos.py	19	D	0	10	1	--perfil --si	0	3		
+semana-19/infra/vaciar_eval.py	19	D	0	10	1	--perfil --si	0	4		
+semana-19/linea_base/verificar.py	19	D	0	13	0	--donde --gasto-mes --perfil --sonda	0	21		
+semana-19/preparar/verificar_entorno.py	19	D	0	11	3	--operador	0	10		
+semana-19/preparar/versiones.json	19	E	6	0	0		5	0		
+semana-19/resultados/agentes.md	19	A	0	100	0		0	0		
+semana-19/resultados/agentes/costo_cost_explorer.json	19	C	0	2	0		5	0		
+semana-19/resultados/agentes/crudo_directo.json	19	C	14	4	0		16	0		
+semana-19/resultados/agentes/crudo_directo_descartada_1.json	19	C	18	3	0		16	0		
+semana-19/resultados/agentes/crudo_gateway.json	19	C	12	0	0		16	0		
+semana-19/resultados/agentes/inventario_actividad7.json	19	C	0	0	0		5	0		
+semana-19/resultados/agentes/politica_en_vivo.json	19	C	0	0	0		2	0		
+semana-19/resultados/aip_c01.md	19	A	2	121	0		0	0		
+semana-19/resultados/apply_guardrail.json	19	C	0	0	0		3	0		
+semana-19/resultados/arquitectura.md	19	A	0	18	0		0	0		
+semana-19/resultados/base.md	19	A	8	98	0		0	0		semana-19/agente/metricas.py semana-19/costos/costo_semana.py semana-19/infra/inventario.py
+semana-19/resultados/base_despliegue.json	19	C	2	0	0		9	0		
+semana-19/resultados/comparacion_determinista.json	19	C	0	0	0		1	0		
+semana-19/resultados/costo_actividad4.md	19	A	0	24	0		0	0		semana-19/costos/costo_semana.py
+semana-19/resultados/costo_real.md	19	A	0	27	0		0	0		semana-19/costos/costo_semana.py semana-19/eval/costo_real.py semana-19/eval/informe.py
+semana-19/resultados/costo_semana.json	19	C	0	0	0		1	0		
+semana-19/resultados/costo_semana_llamadas.json	19	C	0	0	0		1	0		
+semana-19/resultados/cotizacion.md	19	A	25	52	0		0	0		semana-19/eval/costo_real.py
+semana-19/resultados/eval_aws.md	19	A	5	57	0		0	0		semana-19/costos/costo_semana.py semana-19/eval/eval_aws.py semana-19/eval/informe.py
+semana-19/resultados/eval_aws/aprobacion_e2e.json	19	C	4	0	0		18	0		
+semana-19/resultados/eval_aws/comparar_jueces.json	19	C	1	5	0		5	0		
+semana-19/resultados/eval_aws/cost_explorer.json	19	C	0	2	0		4	0		
+semana-19/resultados/eval_aws/costo_real.json	19	C	0	2	0		28	0		
+semana-19/resultados/eval_aws/crudo_eval.json	19	C	30	15	0		41	0		
+semana-19/resultados/eval_aws/crudo_eval_descartada_1.json	19	C	56	10	0		41	0		
+semana-19/resultados/eval_aws/crudo_eval_descartada_2.json	19	C	29	3	0		41	0		
+semana-19/resultados/eval_aws/juez_bedrock.json	19	C	19	60	0		6	0		
+semana-19/resultados/eval_aws_detalle.jsonl	19	C	0	0	0		10	0		
+semana-19/resultados/inventario_final.json	19	C	0	0	0		11	0		
+semana-19/resultados/inventario_mac.json	19	C	0	0	0		3	0		
+semana-19/resultados/linea_base.md	19	A	0	85	0		0	0		semana-19/agente/metricas.py semana-19/infra/inventario.py
+semana-19/resultados/linea_base_mac.json	19	C	12	197	0		18	0		
+semana-19/resultados/precio_endpoint_sku.json	19	C	0	1	0		0	0		
+semana-19/resultados/recall_kb.json	19	C	6	1	0		3	0		
+semana-19/resultados/seguridad.md	19	A	0	132	0		0	0		semana-19/costos/costo_semana.py semana-19/infra/cdk/app.py
+semana-19/resultados/seguridad/access_analyzer.json	19	C	0	1	0		5	0		
+semana-19/resultados/seguridad/accion_presupuesto.jsonl	19	C	0	0	0		2	0		
+semana-19/resultados/seguridad/cost_explorer.json	19	C	0	0	0		2	0		
+semana-19/resultados/seguridad/costo.json	19	C	0	1	0		6	0		
+semana-19/resultados/seguridad/envenenamiento.json	19	C	49	9	0		21	0		
+semana-19/resultados/seguridad/envenenamiento_antes_h13.json	19	C	45	16	0		21	0		
+semana-19/resultados/seguridad/estimacion.md	19	C	0	70	0		0	0		
+semana-19/resultados/seguridad/kb_retrieve_1.json	19	C	3	0	0		1	0		
+semana-19/resultados/seguridad/kb_retrieve_2.json	19	C	2	1	0		1	0		
+semana-19/resultados/seguridad/kb_retrieve_limpio_1.json	19	C	3	0	0		1	0		
+semana-19/resultados/seguridad/kb_retrieve_limpio_2.json	19	C	3	0	0		1	0		
+semana-19/resultados/seguridad/parliament.json	19	C	0	13	0		5	0		
+semana-19/resultados/seguridad/secretos.json	19	C	0	56	0		8	0		
+semana-19/resultados/seguridad/supresiones.json	19	C	268	41	0		59	0		
+semana-19/resultados/seguridad/validate_policy.json	19	C	60	22	0		9	0		
+semana-19/resultados/seguridad/verificacion.json	19	C	0	18	0		15	0		
+semana-19/resultados/spike_iac.json	19	C	17	1	0		9	0		
+semana-19/resultados/tiempos_despliegue.jsonl	19	C	0	0	0		0	0		
+semana-19/seguridad/costo_actividad9.py	19	D	0	12	3	--si	0	15		
+semana-19/seguridad/envenenamiento.py	19	D	0	37	4	--si	0	19		
+semana-19/seguridad/escaneo_secretos.py	19	D	0	20	0	--salida --sin-historia	0	10		
+semana-19/seguridad/kb_envenenados/legado_artnot.md	19	B	5	0	0		0	0		
+semana-19/seguridad/kb_envenenados/politica_compras.md	19	B	0	4	0		0	0		
+semana-19/seguridad/parliament_offline.py	19	D	0	12	0	--salida	0	8		
+semana-19/seguridad/prueba_accion_presupuesto.py	19	D	0	18	4	--crear --estado --limpiar --si	0	11		
+semana-19/seguridad/supresiones.py	19	D	0	20	1	--salida	0	13		
+semana-19/seguridad/threat_model.md	19	A	0	184	0		0	0		
+semana-19/seguridad/validar_politicas.py	19	D	0	20	0	--perfil --salida --simular	0	15		
+semana-19/seguridad/verificar_desplegado.py	19	D	1	40	0	--desde --perfil --salida	0	24		
+semana-19/spike/cdk/app.py	19	A	0	2	0		0	1		
+semana-19/spike/cdk/app_ia.py	19	A	1	1	0		0	1		
+semana-19/spike/cdk/requirements.txt	19	A	0	0	0		0	0		
+semana-19/spike/perfiles.json	19	E	1	0	0		5	0		
+semana-19/spike/terraform/.terraform.lock.hcl	19	-	0	0	0		0	0		
+semana-19/spike/terraform/ia.tf	19	A	2	0	0		0	0		
+semana-19/spike/terraform/main.tf	19	A	6	0	0		0	0		
+semana-19/spike/terraform/versions.tf	19	A	0	0	0		0	0		
+semana-19/tests/conftest.py	19	A	0	4	0		0	1		
+semana-19/tests/snapshots/agentes_lab.json	19	C	0	13	0		7	0		
+semana-19/tests/snapshots/agentes_prod.json	19	C	0	13	0		7	0		
+semana-19/tests/snapshots/gateway_lab.json	19	C	0	0	0		6	0		
+semana-19/tests/snapshots/gateway_prod.json	19	C	0	0	0		6	0		
+semana-19/tests/snapshots/infra_lab.json	19	C	0	0	0		1	0		
+semana-19/tests/test_agente_capa.py	19	A	0	3	0		0	17		
+semana-19/tests/test_agente_construccion.py	19	A	0	10	0		0	29		
+semana-19/tests/test_agente_converse.py	19	A	0	1	0		0	6		
+semana-19/tests/test_agente_exportador.py	19	A	0	0	0		0	7		
+semana-19/tests/test_agente_gateway.py	19	A	0	11	0		0	22		
+semana-19/tests/test_agente_handler.py	19	A	0	4	2		0	33		
+semana-19/tests/test_agente_modelo.py	19	A	0	1	0		0	6		
+semana-19/tests/test_agente_presupuesto.py	19	A	0	5	1		0	9		
+semana-19/tests/test_agentes_comparar.py	19	A	0	5	3		0	36		
+semana-19/tests/test_aprobacion_e2e.py	19	A	0	3	1		0	22		
+semana-19/tests/test_arquitectura.py	19	A	0	1	0		0	2		
+semana-19/tests/test_comparar_jueces.py	19	A	0	2	0		0	4		
+semana-19/tests/test_computo.py	19	A	0	5	0		0	23		
+semana-19/tests/test_computo_rds_permisos.py	19	A	0	6	0		0	12		
+semana-19/tests/test_computo_tokens_tenant.py	19	A	0	1	0		0	3		
+semana-19/tests/test_consultas.py	19	A	0	4	0		0	10		
+semana-19/tests/test_costo_actividad9.py	19	A	0	0	0		0	5		
+semana-19/tests/test_costo_real.py	19	A	0	4	0		0	16		
+semana-19/tests/test_costo_semana.py	19	A	0	0	0		0	2		
+semana-19/tests/test_costos.py	19	A	2	5	0		0	17		
+semana-19/tests/test_diagrama_vs_stack.py	19	A	0	10	0		0	13		
+semana-19/tests/test_envenenamiento.py	19	A	0	8	0		0	21		
+semana-19/tests/test_escaneo_secretos.py	19	A	0	4	0		0	10		
+semana-19/tests/test_escritor_lambda.py	19	A	0	2	0		0	6		
+semana-19/tests/test_escritor_orden.py	19	A	0	3	0		0	9		
+semana-19/tests/test_escritor_orden_pg.py	19	A	0	10	0		0	9		
+semana-19/tests/test_eval_aws.py	19	A	0	3	1		0	37		
+semana-19/tests/test_gateway_politicas.py	19	A	0	6	0		0	14		
+semana-19/tests/test_guardrail.py	19	A	0	3	0		0	13		
+semana-19/tests/test_guardrail_cacert.py	19	A	0	3	0		0	0		
+semana-19/tests/test_guardrail_handler.py	19	A	0	6	0		0	16		
+semana-19/tests/test_herramientas_catalogo13.py	19	A	0	3	0		0	12		
+semana-19/tests/test_herramientas_construccion.py	19	A	0	3	0		0	8		
+semana-19/tests/test_herramientas_formatos.py	19	A	0	11	0		0	14		
+semana-19/tests/test_herramientas_guardia.py	19	A	0	2	0		0	3		
+semana-19/tests/test_herramientas_handler.py	19	A	0	5	0		0	17		
+semana-19/tests/test_ia_peticion.py	19	A	0	2	0		0	7		
+semana-19/tests/test_ia_politica.py	19	A	0	3	0		0	10		
+semana-19/tests/test_informe.py	19	A	0	2	0		0	12		
+semana-19/tests/test_infra_agentes.py	19	A	0	5	0		0	15		
+semana-19/tests/test_infra_cdk.py	19	A	3	61	0		0	124		
+semana-19/tests/test_infra_computo.py	19	A	0	21	0		0	44		
+semana-19/tests/test_infra_etiquetas.py	19	A	0	8	0		0	13		
+semana-19/tests/test_infra_gateway.py	19	A	0	13	0		0	28		
+semana-19/tests/test_infra_presupuesto.py	19	A	0	3	0		0	8		
+semana-19/tests/test_juez_bedrock.py	19	A	0	4	1		0	16		
+semana-19/tests/test_linea_base.py	19	A	0	10	0		0	29		
+semana-19/tests/test_loader.py	19	A	0	11	0		0	24		
+semana-19/tests/test_parliament_offline.py	19	A	0	1	0		0	7		
+semana-19/tests/test_perfiles.py	19	A	0	1	0		0	3		
+semana-19/tests/test_preparacion.py	19	A	3	4	0		0	25		
+semana-19/tests/test_prueba_accion_presupuesto.py	19	A	0	6	0		0	11		
+semana-19/tests/test_rds_ca.py	19	A	0	3	0		0	2		
+semana-19/tests/test_sin_cuenta_en_versionados.py	19	A	0	6	0		0	8		
+semana-19/tests/test_sumidero_logs.py	19	A	0	1	0		0	9		
+semana-19/tests/test_supresiones.py	19	A	0	2	0		0	8		
+semana-19/tests/test_usuarios_prueba.py	19	A	0	5	0		0	11		
+semana-19/tests/test_vaciar_eval.py	19	A	0	2	0		0	5		
+semana-19/tests/test_validar_politicas.py	19	A	0	1	0		0	10		
+semana-19/tests/test_validar_politicas_cobertura.py	19	A	0	3	0		0	3		
+semana-19/tests/test_verificar_desplegado.py	19	A	0	9	0		0	39		
+semana-20/Fas5Sema20.md	20	A	0	312	0		0	0		
+semana-20/atribucion/corrida.py	20	D	0	18	8	--informe --metricas --si	0	22		
+semana-20/linea_base/corrida.py	20	D	0	16	11	--informe --si	0	10		
+semana-20/linea_base/precios.py	20	D	0	13	1	--si	0	9		
+semana-20/linea_base/verificar.py	20	D	0	19	0		0	14		
+semana-20/preparar/verificar_entorno.py	20	D	0	12	4	--operador	0	9		
+semana-20/preparar/versiones.json	20	E	0	3	0		1	0		
+semana-20/resultados/atribucion.md	20	A	0	47	0		0	0		
+semana-20/resultados/corrida_corregida/crudo_eval.json	20	C	57	38	0		42	0		
+semana-20/resultados/corrida_corregida_detalle.jsonl	20	C	0	0	0		10	0		
+semana-20/resultados/etiquetas_costo.json	20	C	0	1	0		6	0		
+semana-20/resultados/linea_base.md	20	A	0	136	0		0	0		semana-20/linea_base/corrida.py
+semana-20/resultados/linea_base_verificacion.json	20	C	0	1	0		32	0		
+semana-20/resultados/precios.json	20	C	3	90	0		6	0		
+semana-20/tests/test_atribucion.py	20	A	0	3	0		0	16		
+semana-20/tests/test_atribucion_corrida.py	20	A	0	2	0		0	11		
+semana-20/tests/test_corrida.py	20	A	0	2	0		0	6		
+semana-20/tests/test_linea_base.py	20	A	0	1	1		0	18		
+semana-20/tests/test_preparacion.py	20	A	0	4	0		0	19		
+uv.lock	root	-	0	0	0		0	0		
