@@ -176,8 +176,8 @@ def politica_limite() -> list[iam.PolicyStatement]:
                        f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/us.guardrail.v1:0"]),
         _declaracion(sid="AdjuntarPoliticasAlRolDeDespliegue", actions=["iam:AttachRolePolicy", "iam:DetachRolePolicy"],
                      resources=[ARN_DESPLIEGUE]),
-        # Techo de los roles de datos: lo que la KB (semana19-kb) y el cargador necesitan. Cada statement
-        # se acota por prefijo o por servicio; la política propia del rol decide el resto.
+        # Ceiling of the data roles: what the KB (semana19-kb) and the loader need. Each statement
+        # is scoped by prefix or by service; the role's own policy decides the rest.
         # Read and list in one statement (activity 8): GetObject applies only to objects and ListBucket only to the bucket,
         # so the permissions are the same as the two statements before.
         _declaracion(sid="DocsDatosLeerYListar", actions=["s3:GetObject", "s3:ListBucket"],
@@ -1355,7 +1355,7 @@ class Computo(Stack):
         # (semana-16/legacy-schema-audit), sqlglot, pg8000 and the RDS bundle at the paths the code computes.
         ruta_agente = Path(__file__).resolve().parents[2] / ".build" / "agente"
         if not (ruta_agente / "pydantic").is_dir() and os.environ.get("S19_SIN_DEPENDENCIAS") != "1":
-            raise RuntimeError("falta el paquete del agente: ejecuta python3 semana-19/infra/paquete_agente.py antes de desplegar")
+            raise RuntimeError("the agent package is missing: run python3 semana-19/infra/paquete_agente.py before deploying")
         herramientas = lambda_.Function(
             self, "FuncionHerramientas", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.herramientas.construccion.handler_lambda",
             code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(30), memory_size=256, log_group=grupo("herramientas"),
@@ -1572,12 +1572,12 @@ def entorno_del_camino() -> dict:
     gateway depends on the tools function of this stack, so a reference the other way would be a cycle."""
     via = os.environ.get("CAMINO_HERRAMIENTAS") or "directo"
     if via not in ("directo", "gateway"):
-        raise RuntimeError(f"CAMINO_HERRAMIENTAS desconocido: {via}")
+        raise RuntimeError(f"unknown CAMINO_HERRAMIENTAS: {via}")
     if via == "directo":
         return {"CAMINO_HERRAMIENTAS": "directo"}
     url = os.environ.get("S19_GATEWAY_URL", "")
     if not url.startswith("https://") or not url.endswith("/mcp"):
-        raise RuntimeError("CAMINO_HERRAMIENTAS=gateway necesita S19_GATEWAY_URL (salida UrlGateway de semana19-gateway)")
+        raise RuntimeError("CAMINO_HERRAMIENTAS=gateway needs S19_GATEWAY_URL (the UrlGateway output of semana19-gateway)")
     return {"CAMINO_HERRAMIENTAS": "gateway", "GATEWAY_URL": url}
 
 
@@ -1586,7 +1586,7 @@ def entorno_del_presupuesto() -> dict:
     techo_semana20. The default adds no variable, so the week 19 templates do not change."""
     valor = os.environ.get("PRESUPUESTO_TAREA") or "semana17"
     if valor not in ("semana17", "techo_semana20"):
-        raise RuntimeError(f"PRESUPUESTO_TAREA desconocido: {valor}")
+        raise RuntimeError(f"unknown PRESUPUESTO_TAREA: {valor}")
     return {} if valor == "semana17" else {"PRESUPUESTO_TAREA": valor}
 
 
@@ -1603,7 +1603,7 @@ def espera_de_aprobacion() -> int:
     The token table's TTL (computo/aprobacion.py) stays 24 h, at least this wait."""
     crudo = os.environ.get("S19_ESPERA_APROBACION_S") or str(ESPERA_APROBACION_S)
     if not crudo.isdigit() or not ESPERA_APROBACION_MINIMA_S <= int(crudo) <= ESPERA_APROBACION_S:
-        raise RuntimeError(f"S19_ESPERA_APROBACION_S debe ser un entero de {ESPERA_APROBACION_MINIMA_S} a "
+        raise RuntimeError(f"S19_ESPERA_APROBACION_S must be an integer from {ESPERA_APROBACION_MINIMA_S} a "
                            f"{ESPERA_APROBACION_S}: {crudo}")
     return int(crudo)
 
@@ -1612,7 +1612,7 @@ def fase_del_gateway() -> str:
     """S19_GATEWAY_FASE=1 for the first creation only (see Gateway); empty or 2 is the final state."""
     fase = os.environ.get("S19_GATEWAY_FASE") or "2"
     if fase not in ("1", "2"):
-        raise RuntimeError(f"S19_GATEWAY_FASE desconocida: {fase}")
+        raise RuntimeError(f"unknown S19_GATEWAY_FASE: {fase}")
     return fase
 
 

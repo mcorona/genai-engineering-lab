@@ -147,7 +147,7 @@ def test_las_cuotas_salen_por_nombre():
 
 def test_el_lector_de_precios_simula_por_omision(capsys):
     assert precios.main([]) == 0
-    assert "Simulación" in capsys.readouterr().out
+    assert "Simulation" in capsys.readouterr().out
 
 
 @pytest.mark.parametrize("archivo", ["precios.json", "linea_base_verificacion.json"])

@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ALIASES = dict(line.split("\t") for line in (ROOT / "docs" / "flag-aliases.tsv").read_text(encoding="utf-8").splitlines()[1:])
 UNCHANGED = "(unchanged)"
 # The weeks whose scripts already carry the aliases. Step 4 of the English pass adds the rest, group by group.
-WEEKS = {f"semana-{n:02d}" for n in range(1, 19)}
+WEEKS = {f"semana-{n:02d}" for n in range(1, 21)}
 # Frozen files: a manifest pins their hash, so they keep their Spanish flags (docs/language-audit.md, exceptions).
 FROZEN = {
     "semana-13/golden/construir_tareas.py": "semana-13/golden/manifiesto.json",

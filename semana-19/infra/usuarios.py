@@ -82,13 +82,13 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--pool", required=True)
     parser.add_argument("--region", default="us-east-1")
-    parser.add_argument("--perfil", default=os.environ.get("S19_PERFIL_DESPLIEGUE", "semana19-despliegue"))
-    parser.add_argument("--si", action="store_true")
+    parser.add_argument("--perfil", "--profile", default=os.environ.get("S19_PERFIL_DESPLIEGUE", "semana19-despliegue"), metavar="PROFILE")
+    parser.add_argument("--si", "--yes", action="store_true")
     a = parser.parse_args(argv)
     if not a.si:
         for linea in crear(a.pool, None, False):
             print(linea)
-        print("Simulación. Para crear los usuarios: añade --si, con el OK del plan.")
+        print("Simulation. To create the users: add --si (--yes), with the OK on the plan.")
         return 0
     cliente = boto3.Session(profile_name=a.perfil, region_name=a.region).client("cognito-idp")
     for linea in crear(a.pool, cliente, True):

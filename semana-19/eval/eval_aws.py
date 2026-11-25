@@ -110,7 +110,7 @@ def tareas_ci(raiz: Path = RAIZ) -> list[dict]:
                 if t["id"].rsplit("-", 1)[0] in TAREAS_CI:
                     tareas.append({**t, "idioma": idioma})
     if len(tareas) != 2 * len(TAREAS_CI):
-        raise RuntimeError(f"se esperaban {2 * len(TAREAS_CI)} tareas de CI y hay {len(tareas)}")
+        raise RuntimeError(f"expected {2 * len(TAREAS_CI)} CI tasks and found {len(tareas)}")
     return tareas
 
 
@@ -432,7 +432,7 @@ def detalle(crudo: dict, juez: dict | None = None) -> list[dict]:
 def escribir_detalle(lineas: list[dict], archivo: Path) -> Path:
     errores = {l["id"]: validar_detalle(l) for l in lineas if validar_detalle(l)}
     if errores:
-        raise ValueError(f"líneas fuera del esquema: {errores}")
+        raise ValueError(f"lines outside the schema: {errores}")
     archivo.write_text("".join(json.dumps(l, ensure_ascii=False) + "\n" for l in lineas), encoding="utf-8")
     return archivo
 
@@ -517,11 +517,11 @@ class AwsEval(C.Aws):  # pragma: no cover - live only
         r = self.lam.invoke(FunctionName=self.cargador, Payload=json.dumps(evento).encode())
         cuerpo = json.loads(r["Payload"].read())
         if r.get("FunctionError"):
-            raise RuntimeError(f"el cargador falló: {cuerpo.get('errorType')}")
+            raise RuntimeError(f"the loader failed: {cuerpo.get('errorType')}")
         if evento.get("modo") and cuerpo.get("modo") != evento["modo"]:
             # An older loader ignores the mode and does its full load: deploy semana19-datos before running again.
-            raise RuntimeError(f"el cargador desplegado no conoce el modo {evento['modo']!r} (respondió como carga "
-                               "completa): despliega semana19-datos y vuelve a correr")
+            raise RuntimeError(f"the deployed loader does not know the mode {evento['modo']!r} (it answered as a full "
+                               "load): deploy semana19-datos and run again")
         return cuerpo
 
     def reportes(self, desde_s: float, hasta_s: float) -> dict[str, list[str]]:
@@ -546,8 +546,8 @@ class AwsEval(C.Aws):  # pragma: no cover - live only
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     import os
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
-    ap.add_argument("--informe", action="store_true", help="agrega el archivo crudo, sin AWS")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
+    ap.add_argument("--informe", "--report", action="store_true", help="aggregates the raw file, without AWS")
     a = ap.parse_args(argv)
     tareas, calentamiento = tareas_ci(), tareas_de_calentamiento()
     if a.informe:
@@ -559,11 +559,11 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
         return 0
     if not a.si:
         print(json.dumps(plan(tareas, calentamiento), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = AwsEval(os.environ.get("S19_PERFIL", "manuel-admin"))
     if aws.camino_desplegado != "directo":
-        raise SystemExit(f"el agente desplegado usa {aws.camino_desplegado}; la eval corre en el camino directo")
+        raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; the eval runs on the direct path")
     todas = tareas + calentamiento
     esperados = aws.cargador_invoca({"modo": "esperados", "consultas": consultas_esperadas(todas)})["esperados"]
     tareas, calentamiento = con_esperados(tareas, esperados), con_esperados(calentamiento, esperados)
@@ -571,10 +571,10 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     acceso = controles_de_acceso(aws.http, token)
     if not all(c["ok"] for c in acceso):
         print(json.dumps(acceso, ensure_ascii=False, indent=2))
-        raise SystemExit("los controles de acceso no dieron 401 y 403: no se manda ninguna tarea")
+        raise SystemExit("the access checks did not return 401 and 403: no task is sent")
     previa = descartar_previa()
     if previa:
-        print(f"corrida previa conservada como {previa.name}; su gasto sigue en el tope")
+        print(f"previous run kept as {previa.name}; its spend still counts toward the cap")
     tope = tope_con_lo_previo()
     referencias = CR.cargar()
     medir = lambda t: C.medir_api(t, "directo", token=token, http=aws.http, spans_entre=aws.spans_entre,  # noqa: E731

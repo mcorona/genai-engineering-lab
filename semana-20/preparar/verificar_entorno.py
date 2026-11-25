@@ -135,10 +135,10 @@ def sintesis(python_cdk: str) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--ci", action="store_true", help="modo CI: sin AWS, sin CDK")
-    ap.add_argument("--operador", help="perfil de solo lectura para la sesión (por ejemplo semana19-lectura)")
-    ap.add_argument("--admin", help="perfil admin: solo lo corre Manuel")
-    ap.add_argument("--python-cdk", help="el python con aws-cdk-lib para sintetizar (modo Mac)")
+    ap.add_argument("--ci", action="store_true", help="CI mode: no AWS, no CDK")
+    ap.add_argument("--operador", "--operator", help="read-only profile for the session (for example semana19-lectura)", metavar="OPERATOR")
+    ap.add_argument("--admin", help="admin profile: only Manuel runs it")
+    ap.add_argument("--python-cdk", help="the python with aws-cdk-lib to synthesize (Mac mode)")
     a = ap.parse_args(argv)
 
     informe = {"fecha": FECHA, "modo": "ci" if a.ci else "mac", "python": platform.python_version(),

@@ -157,8 +157,8 @@ def test_comparacion_con_las_semanas_14_y_17_sale_de_sus_archivos():
 def test_sin_si_solo_simula(capsys):
     assert E.main([]) == 0
     salida = capsys.readouterr().out
-    assert "Simulación: no se llamó a AWS" in salida
-    assert json.loads(salida.split("\nSimulación")[0])["tope"] == {"usd": 0.6, "tokens": 400000, "tareas": 8}
+    assert "Simulation: no AWS calls were made" in salida
+    assert json.loads(salida.split("\nSimulation")[0])["tope"] == {"usd": 0.6, "tokens": 400000, "tareas": 8}
 
 
 @pytest.mark.parametrize("respuesta,esperado", [

@@ -107,8 +107,8 @@ def conciliar(filas: list[dict], precios: dict[str, float], emf: dict | None, ce
 def exigir_agente(variables: dict) -> None:
     """Nothing is sent unless the agent calls an application inference profile (the run measures its tag)."""
     if ":application-inference-profile/" not in variables.get("MODELO", ""):
-        raise SystemExit("el agente desplegado no llama a un perfil de inferencia de aplicación (MODELO); "
-                         "no se manda ninguna tarea")
+        raise SystemExit("the deployed agent does not call an application inference profile (MODELO); "
+                         "no task is sent")
 
 
 # ---------------------------------------------------------------- CLI
@@ -119,10 +119,10 @@ def _crudo() -> dict:
 
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
-    ap.add_argument("--metricas", action="store_true", help="suma EMF de la ventana de la corrida")
-    ap.add_argument("--cost-explorer", action="store_true", help="GetCostAndUsage del día de la corrida (0.01 USD)")
-    ap.add_argument("--informe", action="store_true", help="la conciliación, sin AWS")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
+    ap.add_argument("--metricas", "--metrics", action="store_true", help="sums the EMF of the run's window")
+    ap.add_argument("--cost-explorer", action="store_true", help="GetCostAndUsage for the day of the run (0.01 USD)")
+    ap.add_argument("--informe", "--report", action="store_true", help="the reconciliation, without AWS")
     a = ap.parse_args(argv)
     LB = _linea_base()
     E = LB._eval_aws()
@@ -167,11 +167,11 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
         print(json.dumps({"tareas": list(TAREAS), "tope": {"usd": TOPE_USD, "tokens": TOPE_TOKENS},
                           "gastado_antes": {"usd": round(t.gastado_usd, 6), "tokens": t.gastado_tokens},
                           "esperado_usd_modelo": round(sum(COSTO_LINEA_BASE.values()), 4)}, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = E.AwsEval(os.environ.get("S19_PERFIL", "manuel-admin"))
     if aws.camino_desplegado != "directo":
-        raise SystemExit(f"el agente desplegado usa {aws.camino_desplegado}; la corrida va por el camino directo")
+        raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; the run goes through the direct path")
     variables = aws.lam.get_function_configuration(FunctionName=aws.computo["ArnAgente"])["Environment"]["Variables"]
     LB.exigir_presupuesto(variables)
     exigir_agente(variables)

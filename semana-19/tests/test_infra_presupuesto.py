@@ -48,4 +48,4 @@ def test_el_presupuesto_llega_al_agente_solo_si_no_es_el_de_la_semana_17(valor, 
 
 def test_un_presupuesto_desconocido_detiene_la_sintesis():
     r = _sintetizar("sin_tope")
-    assert r.returncode != 0 and "PRESUPUESTO_TAREA desconocido" in r.stderr
+    assert r.returncode != 0 and "unknown PRESUPUESTO_TAREA" in r.stderr

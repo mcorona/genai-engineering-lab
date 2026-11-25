@@ -1,5 +1,5 @@
-# Knowledge Base (diccionario de datos) en S3 Vectors con Titan Text Embeddings V2, y AgentCore Gateway.
-# Solo se valida y se planea: no se aplica nada en la cuenta.
+# Knowledge Base (the data dictionary) on S3 Vectors with Titan Text Embeddings V2, and AgentCore Gateway.
+# Only validated and planned: nothing is applied to the account.
 
 locals {
   titan_v2_arn = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"

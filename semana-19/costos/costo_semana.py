@@ -81,7 +81,7 @@ def informe_md(r: dict) -> list[str]:
          f"- **Gross: {r['bruto_usd']:.6f} USD**; credits {r['otros_tipos_usd'].get('Credit', 0.0):.6f} USD; "
          f"net {r['neto_usd'] + 0.0:.6f} USD. Weekly cap: {TOPE_SEMANA_USD:.2f} USD.",
          f"- Fixed by the hour (VPC, RDS, KMS, Secrets Manager): {fijo:.6f} USD, "
-         f"{fijo / r['bruto_usd'] * 100:.1f} % of the gross.", "",
+         f"{fijo / r['bruto_usd'] * 100:.1f}% of the gross.", "",
          "| Service | Usage (USD) |", "|---|---|"]
     l += [f"| {k} | {v:.6f} |" for k, v in uso.items() if v]
     l += ["", "Against the written estimates of the activities that created resources (3 to 9):", "",
@@ -97,7 +97,7 @@ def informe_md(r: dict) -> list[str]:
 def correr(cliente, ruta_registro: Path = REGISTRO) -> dict:
     llamadas = json.loads(ruta_registro.read_text(encoding="utf-8")) if ruta_registro.exists() else []
     if len(llamadas) >= MAX_LLAMADAS:
-        raise SystemExit(f"El registro ya tiene {len(llamadas)} llamada(s) de {MAX_LLAMADAS}: no se llama otra vez.")
+        raise SystemExit(f"The record already has {len(llamadas)} call(s) out of {MAX_LLAMADAS}: no further call is made.")
     llamadas.append({"fecha": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                      "operacion": "GetCostAndUsage", "solicitud": solicitud()})
     ruta_registro.write_text(json.dumps(llamadas, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -106,11 +106,11 @@ def correr(cliente, ruta_registro: Path = REGISTRO) -> dict:
 
 def main(argv=None, cliente=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--si", action="store_true", help="make the one call (by default only prints it)")
+    ap.add_argument("--si", "--yes", action="store_true", help="make the one call (by default only prints it)")
     a = ap.parse_args(argv)
     if not a.si:
         print(json.dumps(solicitud(), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS.")
+        print("Simulation: no AWS calls were made.")
         return 0
     if cliente is None:
         import boto3

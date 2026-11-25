@@ -67,7 +67,7 @@ class IaAlpha(cdk.Stack):
         super().__init__(scope, id, **kwargs)
         bedrock_alpha.Guardrail(self, "Guardrail", guardrail_name="semana19-spike-guardrail-l2",
                                 blocked_input_messaging="Bloqueado", blocked_outputs_messaging="Bloqueado")
-        # El L2 alpha de KB solo acepta VectorStore.open_search_serverless (no S3 Vectors): se mide, no se usa.
+        # The alpha L2 KB construct only accepts VectorStore.open_search_serverless (not S3 Vectors): measured, not used.
         agentcore_alpha.Gateway(self, "Gateway", gateway_name="semana19-spike-gateway-l2",
                                 authorizer_configuration=agentcore_alpha.GatewayAuthorizer.using_custom_jwt(
                                     discovery_url=JWT, allowed_audience=["semana19-agente"]))

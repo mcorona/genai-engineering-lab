@@ -139,8 +139,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--gitleaks", required=True, help=f"gitleaks binary, version {VERSION_GITLEAKS}")
     ap.add_argument("--cdk-out", action="append", default=[], metavar="PERFIL=DIR", help="a synth directory")
-    ap.add_argument("--sin-historia", action="store_true", help="skip the history (a shallow checkout)")
-    ap.add_argument("--salida", type=Path, default=SALIDA)
+    ap.add_argument("--sin-historia", "--no-history", action="store_true", help="skip the history (a shallow checkout)")
+    ap.add_argument("--salida", "--output", type=Path, default=SALIDA, metavar="OUTPUT")
     a = ap.parse_args(argv)
     version = version_de(a.gitleaks)
     if version.lstrip("v") != VERSION_GITLEAKS:

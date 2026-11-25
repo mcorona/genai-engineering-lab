@@ -172,7 +172,7 @@ def test_la_espera_de_24_h_no_corre_el_paso_5_y_lo_dice():
 def test_el_tope_aborta_la_propuesta_y_lo_reporta():
     lim = C.limite_de_tarea()
     r = correr(AwsFalso(), tope=C.Tope(usd=lim.usd * 0.5, tokens=A.TOPE_TOKENS))
-    assert r["pasos"] == [{"paso": 0, "comprobacion": "el agente propone la orden", "ok": False, "motivo": "tope_del_script"}]
+    assert r["pasos"] == [{"paso": 0, "comprobacion": "the agent proposes the order", "ok": False, "motivo": "tope_del_script"}]
     assert r["tareas"] == []
 
 
@@ -213,4 +213,4 @@ def test_topes_en_el_codigo_y_simulacion_sin_aws(monkeypatch, capsys):
     assert (A.TOPE_USD, A.TOPE_TOKENS) == (0.20, 100_000)
     import boto3
     monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
-    assert A.main([]) == 0 and "Simulación" in capsys.readouterr().out
+    assert A.main([]) == 0 and "Simulation" in capsys.readouterr().out

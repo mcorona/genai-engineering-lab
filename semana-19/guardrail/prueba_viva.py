@@ -60,10 +60,10 @@ def main(argv: list[str]) -> int:
     print(f"textos: {len(entradas)} (golden {len(golden)}, ataques {len(ataques)}); unidades: {unidades}")
     print(f"estimado (tope superior): {estimado:.5f} USD; tope: {TOPE_USD} USD")
     if estimado > TOPE_USD:
-        print("ABORTA: la estimación supera el tope.", file=sys.stderr)
+        print("ABORT: the estimate exceeds the cap.", file=sys.stderr)
         return 2
     if not si:
-        print("Solo estimación. Para llamar a ApplyGuardrail: --si")
+        print("Estimate only. To call ApplyGuardrail: --si (--yes)")
         return 0
     import boto3
     cliente = boto3.Session(profile_name=PERFIL, region_name=REGION).client("bedrock-runtime")

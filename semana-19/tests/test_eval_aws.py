@@ -292,7 +292,7 @@ def test_la_simulacion_no_crea_clientes_de_aws(monkeypatch, capsys):
     import boto3
     monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
     assert E.main([]) == 0
-    assert "Simulación" in capsys.readouterr().out
+    assert "Simulation" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------- resultados/eval_aws_detalle.jsonl (week 20's baseline)
@@ -326,7 +326,7 @@ def test_una_linea_fuera_del_esquema_no_se_escribe(tmp_path):
     assert E.validar_detalle({**l, "exito": 1}) == ["exito: int"]
     assert E.validar_detalle({**l, "arranque": "tibio"}) == ["arranque tibio"]
     assert E.validar_detalle({k: v for k, v in l.items() if k != "pasos"})
-    with pytest.raises(ValueError, match="fuera del esquema"):
+    with pytest.raises(ValueError, match="outside the schema"):
         E.escribir_detalle([{**l, "fase": "otra"}], tmp_path / "x.jsonl")
     assert not (tmp_path / "x.jsonl").exists()
 
@@ -342,5 +342,5 @@ def test_un_cargador_viejo_que_responde_como_carga_completa_se_detecta():
             return {"Payload": io.BytesIO(b'{"esquema_creado": false, "ok": true}')}
     aws = E.AwsEval.__new__(E.AwsEval)
     aws.lam, aws.cargador, aws.datos = Lam(), "f", {"ArnSecretoBd": "s", "HostBd": "h"}
-    with pytest.raises(RuntimeError, match="no conoce el modo 'esperados'"):
+    with pytest.raises(RuntimeError, match="does not know the mode 'esperados'"):
         aws.cargador_invoca({"modo": "esperados", "consultas": {}})

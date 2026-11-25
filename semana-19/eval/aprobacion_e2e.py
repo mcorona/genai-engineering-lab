@@ -67,7 +67,7 @@ def elegir_skus(pendientes: set[str], n: int = 2, candidatos=CANDIDATOS) -> list
     expired request leaves its order pending."""
     libres = [s for s in candidatos if s not in pendientes]
     if len(libres) < n:
-        raise RuntimeError("no hay SKU sin orden pendiente entre los candidatos")
+        raise RuntimeError("no candidate SKU is free of a pending order")
     return libres[:n]
 
 
@@ -187,10 +187,10 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
     # 1. the state machine waits, with the token in DynamoDB and not in the logs
     p = proponer("aprobacion-e2e-1", sku_ok, "prueba de aprobación de punta a punta")
     if p is None:
-        comprobar(pasos, 0, "el agente propone la orden", False, motivo="tope_del_script")
+        comprobar(pasos, 0, "the agent proposes the order", False, motivo="tope_del_script")
         return resultado
     fila, ejec = p
-    if not comprobar(pasos, 0, "el agente propuso la orden", propuso(fila) and ejec is not None,
+    if not comprobar(pasos, 0, "the agent proposed the order", propuso(fila) and ejec is not None,
                      estado_de_la_tarea=fila.get("estado")):
         return resultado
     for _ in range(30):
@@ -200,7 +200,7 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
             break
         dormir(2)
     en_logs = aws.token_en_logs(ejec["nombre"]) if registro.get("presente") else None
-    if not comprobar(pasos, 1, "la máquina espera con el token en DynamoDB y no en logs",
+    if not comprobar(pasos, 1, "the state machine waits, with the token in DynamoDB and not in the logs",
                      estado == "RUNNING" and registro.get("presente") and en_logs == 0,
                      estado_de_la_ejecucion=estado, token_en_dynamodb=bool(registro.get("presente")),
                      apariciones_del_token_en_logs=en_logs, po_id=registro.get("po_id"),
@@ -209,7 +209,7 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
     po_ok = int(registro["po_id"])
     # 2. the analyst gets 403 at the gateway
     st, _ = aws.http("POST", f"/aprobaciones/{ejec['nombre']}", aws.token("analista"), {"decision": "aprobar"})
-    if not comprobar(pasos, 2, "el analista recibe 403 en el gateway", st == 403, http=st,
+    if not comprobar(pasos, 2, "the analyst gets 403 at the gateway", st == 403, http=st,
                      estado_despues=aws.estado_de(ejec["arn"])):
         return resultado
     # 3. the approver approves (not the requester)
@@ -219,7 +219,7 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
         if final != "RUNNING":
             break
         dormir(2)
-    if not comprobar(pasos, 3, "el aprobador aprueba", st == 200 and cuerpo.get("estado") == "aprobada" and final == "SUCCEEDED",
+    if not comprobar(pasos, 3, "the approver approves", st == 200 and cuerpo.get("estado") == "aprobada" and final == "SUCCEEDED",
                      http=st, respuesta=cuerpo.get("estado"), estado_de_la_ejecucion=final,
                      aprobador_distinto_del_solicitante=subs["aprobador"] != subs["comprador"]):
         return resultado
@@ -231,7 +231,7 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
     usuarios = conectar_solo_como(aws.politicas_del_escritor())
     resultado["historial_aprobada"] = redactar_historial(historial, token=None, subs=subs, cuentas=aws.cuentas())
     resultado["lectura_aprobada"] = etiquetar(lectura, subs)
-    if not comprobar(pasos, 4, "la fila la escribió order_writer",
+    if not comprobar(pasos, 4, "order_writer wrote the row",
                      orden.get("status") == "APPROVED" and orden.get("decided_by") == subs["aprobador"]
                      and orden.get("requested_by") == subs["comprador"]
                      and (decision or {}).get("estado") == "APPROVED" and usuarios == ["order_writer"]
@@ -242,17 +242,17 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
         return resultado
     # 5. an expired request writes nothing
     if espera_s > ESPERA_MAXIMA_DE_PRUEBA_S:
-        comprobar(pasos, 5, "una solicitud vencida no escribe", False, motivo="espera_de_prueba_no_desplegada",
+        comprobar(pasos, 5, "an expired request does not write", False, motivo="espera_de_prueba_no_desplegada",
                   espera_s=espera_s)
         return resultado
     antes = aws.leer_ordenes([po_ok])["por_estado"]
     p = proponer("aprobacion-e2e-2", sku_vence, "prueba de vencimiento")
     if p is None:
-        comprobar(pasos, 5, "una solicitud vencida no escribe", False, motivo="tope_del_script")
+        comprobar(pasos, 5, "an expired request does not write", False, motivo="tope_del_script")
         return resultado
     fila, ejec2 = p
     if not (propuso(fila) and ejec2):
-        comprobar(pasos, 5, "una solicitud vencida no escribe", False, motivo="el agente no propuso",
+        comprobar(pasos, 5, "an expired request does not write", False, motivo="the agent did not propose",
                   estado_de_la_tarea=fila.get("estado"))
         return resultado
     registro2 = {}
@@ -275,7 +275,7 @@ def flujo(aws, *, medir: Callable, tope: C.Tope, reloj=time.time, dormir=time.sl
                   for e in historial2 if e.get("type") in ("ExecutionTimedOut", "ExecutionFailed")), None)
     sin_cambio = {k: antes.get(k, 0) for k in ESTADOS_DECIDIDOS} == {k: lectura2["por_estado"].get(k, 0) for k in ESTADOS_DECIDIDOS}
     resultado["historial_vencida"] = redactar_historial(historial2, token=None, subs=subs, cuentas=aws.cuentas())
-    comprobar(pasos, 5, "una solicitud vencida no escribe",
+    comprobar(pasos, 5, "an expired request does not write",
               final2 in ("FAILED", "TIMED_OUT") and error == "States.Timeout" and orden2.get("status") == "PENDING_APPROVAL"
               and orden2.get("decided_by") is None and sin_cambio and tarde == 404,
               estado_de_la_ejecucion=final2, error=error, orden=etiquetar(orden2, subs),
@@ -383,17 +383,17 @@ def plan() -> dict:
             "limite_por_tarea": {"usd": lim.usd, "tokens": lim.tokens}, "tareas_del_agente": 2,
             "necesita": "computo desplegado con S19_ESPERA_APROBACION_S de 60 a 600 s para el paso 5",
             "comprobaciones": ["espera con el token en DynamoDB y no en logs", "analista 403", "aprobador aprueba",
-                               "la fila la escribe order_writer", "una solicitud vencida no escribe"]}
+                               "la fila la escribe order_writer", "an expired request does not write"]}
 
 
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     import os
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
     a = ap.parse_args(argv)
     if not a.si:
         print(json.dumps(plan(), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = AwsAprobacion(os.environ.get("S19_PERFIL", "manuel-admin"))
     tope = C.Tope(usd=TOPE_USD, tokens=TOPE_TOKENS)

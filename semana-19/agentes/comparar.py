@@ -167,7 +167,7 @@ class ConexionPorHerramientas:
         if "filas" not in r:
             raise psycopg.Error(str(r.get("error") or "sin_filas"))
         if r.get("truncado"):
-            raise RuntimeError("resultado truncado por la función de herramientas")
+            raise RuntimeError("result truncated by the tools function")
         return _Cursor([tuple(f) for f in r["filas"]])
 
 
@@ -479,10 +479,10 @@ def plan(camino: str | None, tareas: list[dict]) -> dict:
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     import os
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--camino", choices=CAMINOS)
-    ap.add_argument("--politica", action="store_true")
-    ap.add_argument("--informe", action="store_true")
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
+    ap.add_argument("--camino", "--path", choices=CAMINOS)
+    ap.add_argument("--politica", "--policy", action="store_true")
+    ap.add_argument("--informe", "--report", action="store_true")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
     a = ap.parse_args(argv)
     tareas = seleccionar_tareas()
     if a.informe:
@@ -492,7 +492,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
         return 0
     if not a.si:
         print(json.dumps(plan(a.camino, tareas), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = Aws(os.environ.get("S19_PERFIL", "manuel-admin"))
     if a.politica:
@@ -503,9 +503,9 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
         print(_escribir("politica_en_vivo.json", {"fecha": time.strftime("%Y-%m-%d"), "filas": filas}, [aws.cuenta]))
         return 0 if all(f.get("ok", True) for f in filas) else 1
     if a.camino is None:
-        ap.error("--camino es obligatorio con --si")
+        ap.error("--camino is required with --si")
     if a.camino != "agentes" and aws.camino_desplegado != a.camino:
-        raise SystemExit(f"el agente desplegado usa {aws.camino_desplegado}; despliega computo con CAMINO_HERRAMIENTAS={a.camino}")
+        raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; deploy computo with CAMINO_HERRAMIENTAS={a.camino}")
     if a.camino == "agentes":
         medir = lambda t: medir_agentes(t, invocar=aws.invocar_agente, solicitante=aws.sub("analista"))  # noqa: E731
     else:
@@ -513,7 +513,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
                                     spans_entre=aws.spans_entre)
     previa = descartar_previa(a.camino)
     if previa:
-        print(f"corrida previa conservada como {previa.name}; su gasto sigue en el tope")
+        print(f"previous run kept as {previa.name}; its spend still counts toward the cap")
     datos = correr_camino(a.camino, tareas, medir=medir, ejecutar_sql=aws.ejecutar_sql,
                           tope=tope_con_lo_previo(excepto=a.camino))
     datos["fecha"] = time.strftime("%Y-%m-%d")

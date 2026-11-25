@@ -69,7 +69,7 @@ def test_las_cifras_del_bloque_son_las_del_archivo():
     assert "| cold | 1 |" in texto and "| warm | 19 |" in texto
     assert "| 0.0242 |" in texto        # the cost per task keeps its decimals
     assert "Agreement 0.8, Cohen's kappa 0.5833 (n = 10" in texto and "| Verifier fails | 1 | 3 |" in texto
-    assert "All five checks passed: yes" in texto and "| 5 | una solicitud vencida no escribe | yes |" in texto
+    assert "All five checks passed: yes" in texto and "| 5 | an expired request does not write | yes |" in texto
     assert all(f"| {k} |" in texto for k in E.CAMPOS_DETALLE)
 
 

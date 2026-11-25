@@ -66,15 +66,15 @@ Only tagged resources: inference calls are not resources, so the model lines are
 
 ## Predicted against real
 
-| Version | Row | Predicted (USD) | Real (USD) | Error | Real, model alone (USD) | Error | Beyond ±20 % |
+| Version | Row | Predicted (USD) | Real (USD) | Error | Real, model alone (USD) | Error | Beyond ±20% |
 |---|---|---|---|---|---|---|---|
-| v1 | lab.por_consulta | 0.07989162 | 0.038562 | -51.7 % | 0.030913 | -61.3 % | yes |
-| v1 | lab.por_hora | 0.04189041 | 0.037562 | -10.3 % | — | — | no |
-| v1 | prod.por_consulta | 0.07989162 | 0.038562 | -51.7 % | 0.030913 | -61.3 % | yes |
+| v1 | lab.por_consulta | 0.07989162 | 0.038562 | -51.7% | 0.030913 | -61.3% | yes |
+| v1 | lab.por_hora | 0.04189041 | 0.037562 | -10.3% | — | — | no |
+| v1 | prod.por_consulta | 0.07989162 | 0.038562 | -51.7% | 0.030913 | -61.3% | yes |
 | v1 | prod.por_hora | 0.09326027 | n/a | — | — | — | prod was never deployed; the real hours are lab's |
-| v2 | lab.por_consulta | 0.03094130 | 0.038562 | +24.6 % | 0.030913 | -0.1 % | yes |
-| v2 | lab.por_hora | 0.04189041 | 0.037562 | -10.3 % | — | — | no |
-| v2 | prod.por_consulta | 0.03094130 | 0.038562 | +24.6 % | 0.030913 | -0.1 % | yes |
+| v2 | lab.por_consulta | 0.03094130 | 0.038562 | +24.6% | 0.030913 | -0.1% | yes |
+| v2 | lab.por_hora | 0.04189041 | 0.037562 | -10.3% | — | — | no |
+| v2 | prod.por_consulta | 0.03094130 | 0.038562 | +24.6% | 0.030913 | -0.1% | yes |
 | v2 | prod.por_hora | 0.09326027 | n/a | — | — | — | prod was never deployed; the real hours are lab's |
 
 ## What stayed out or could not be attributed
@@ -88,7 +88,7 @@ Only tagged resources: inference calls are not resources, so the model lines are
 One GetCostAndUsage call (`costos/costo_semana.py`, `resultados/costo_semana.json`): the whole account, [2026-11-13, 2026-11-24) UTC, MONTHLY, by service and record type. Still Estimated: yes.
 
 - **Gross: 8.928936 USD**; credits -8.928936 USD; net 0.000000 USD. Weekly cap: 10.00 USD.
-- Fixed by the hour (VPC, RDS, KMS, Secrets Manager): 5.302241 USD, 59.4 % of the gross.
+- Fixed by the hour (VPC, RDS, KMS, Secrets Manager): 5.302241 USD, 59.4% of the gross.
 
 | Service | Usage (USD) |
 |---|---|

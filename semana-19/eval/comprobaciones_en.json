@@ -1,0 +1,12 @@
+{
+  "_doc": "English names of the approval workflow's checks. The recorded run (resultados/eval_aws/) names them in Spanish and stays as recorded; eval/informe.py shows them in English with this table.",
+  "comprobaciones": {
+    "el agente propone la orden": "the agent proposes the order",
+    "el agente propuso la orden": "the agent proposed the order",
+    "la máquina espera con el token en DynamoDB y no en logs": "the state machine waits, with the token in DynamoDB and not in the logs",
+    "el analista recibe 403 en el gateway": "the analyst gets 403 at the gateway",
+    "el aprobador aprueba": "the approver approves",
+    "la fila la escribió order_writer": "order_writer wrote the row",
+    "una solicitud vencida no escribe": "an expired request does not write"
+  }
+}

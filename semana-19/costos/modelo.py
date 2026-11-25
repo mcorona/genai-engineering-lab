@@ -85,18 +85,18 @@ class Parametros:
     version: str = "v2"                # v1 | v2 (VERSIONES)
     percentil_tokens: str | None = None  # media | p50 | p95 | max; by default p95 in v1, media in v2
     horas_dia: float = 8.0
-    horas_sesion: float = 0.0          # para la estimación de la actividad 3
+    horas_sesion: float = 0.0          # for the activity 3 estimate
     usuarios: float = 10.0             # MAU de Cognito
     memoria_gb: float = 0.5            # Lambda, supuesto declarado
-    duracion_s: float = 3.0            # Lambda por consulta, supuesto declarado
+    duracion_s: float = 3.0            # Lambda per query, a stated assumption
     consultas_kb_por_consulta: float = 1.0
     tokens_consulta_embedding: float = 50.0
-    log_kb_por_consulta: float = 20.0  # KB de log por consulta, supuesto declarado
+    log_kb_por_consulta: float = 20.0  # log KB per query, a stated assumption
     llamadas_gateway_por_consulta: float = 0.0
-    aprobaciones_dia: float = 0.0      # proponer_orden_compra con aprobación
+    aprobaciones_dia: float = 0.0      # proponer_orden_compra with approval
     transiciones_por_aprobacion: float = 6.0
     gb_endpoint_mes: float = 1.0
-    creditos_usd: float = 142.0        # H5: sin vencimiento (dato de Manuel, D)
+    creditos_usd: float = 142.0        # H5: no expiry (Manuel's figure, D)
     usar_creditos: bool = True
     overrides: dict = field(default_factory=dict)
 
@@ -115,54 +115,54 @@ def _linea(nombre: str, precios: dict, clave: str, cantidad: float | None, unida
 def lineas_fijas_hora(par: Parametros, precios: dict) -> list[dict]:
     pf = PERFILES[par.perfil]
     h = []
-    h.append(_linea("KMS, llaves administradas (prorrateado)", precios, "kms_llave_mes",
-                    pf["llaves_kms"] / HORAS_MES, "llave-hora", "por hora"))
-    h.append(_linea("RDS db.t4g.micro, instancia", precios, "rds_t4g_micro_hora", 1.0, "instancia-hora", "por hora"))
-    h.append(_linea("RDS gp3, 20 GB (prorrateado)", precios, "rds_gp3_gb_mes", 20.0 / HORAS_MES, "GB-hora", "por hora"))
+    h.append(_linea("KMS, customer managed keys (prorated)", precios, "kms_llave_mes",
+                    pf["llaves_kms"] / HORAS_MES, "key-hour", "per hour"))
+    h.append(_linea("RDS db.t4g.micro, instance", precios, "rds_t4g_micro_hora", 1.0, "instance-hour", "per hour"))
+    h.append(_linea("RDS gp3, 20 GB (prorated)", precios, "rds_gp3_gb_mes", 20.0 / HORAS_MES, "GB-hour", "per hour"))
     if pf["rds_multi_az"]:
-        h.append(_linea("RDS Multi-AZ, instancia adicional", precios, "rds_multi_az_hora", 1.0, "instancia-hora", "por hora",
-                        "perfil prod: su precio no está medido"))
-    h.append(_linea("IPv4 pública en uso", precios, "ipv4_hora", float(pf["ipv4"]), "dirección-hora", "por hora"))
-    h.append(_linea("Endpoints de interfaz de VPC (endpoints x AZ-hora)", precios, "endpoint_interfaz_hora_az",
-                    float(pf["endpoints"] * pf["azs"]), "endpoint-AZ-hora", "por hora"))
+        h.append(_linea("RDS Multi-AZ, additional instance", precios, "rds_multi_az_hora", 1.0, "instance-hour", "per hour",
+                        "prod profile: its price is not measured"))
+    h.append(_linea("Public IPv4 in use", precios, "ipv4_hora", float(pf["ipv4"]), "address-hour", "per hour"))
+    h.append(_linea("VPC interface endpoints (endpoints x AZ-hour)", precios, "endpoint_interfaz_hora_az",
+                    float(pf["endpoints"] * pf["azs"]), "endpoint-AZ-hour", "per hour"))
     return h
 
 
 def lineas_fijas_mes(par: Parametros, precios: dict) -> list[dict]:
     pf = PERFILES[par.perfil]
     m = []
-    m.append(_linea("Cognito, MAU", precios, "cognito_mau", par.usuarios, "MAU", "por mes"))
-    m.append(_linea("CloudWatch Logs, almacenamiento", precios, "cloudwatch_almacenamiento_gb_mes", pf["log_gb"],
-                    "GB-mes", "por mes"))
-    m.append(_linea("AWS Budgets, 1 presupuesto (dentro de 62 budget-days gratis)", precios, "budgets_budget_dia", 30.0, "budget-days", "por mes"))
-    m.append(_linea("Endpoints de VPC, datos procesados", precios, "endpoint_interfaz_gb_procesado",
-                    par.gb_endpoint_mes, "GB", "por mes"))
-    m.append(_linea("Step Functions, transiciones por aprobación", precios, "step_functions_transicion",
-                    par.aprobaciones_dia * DIAS_MES * par.transiciones_por_aprobacion, "transiciones", "por mes"))
+    m.append(_linea("Cognito, MAU", precios, "cognito_mau", par.usuarios, "MAU", "per month"))
+    m.append(_linea("CloudWatch Logs, storage", precios, "cloudwatch_almacenamiento_gb_mes", pf["log_gb"],
+                    "GB-month", "per month"))
+    m.append(_linea("AWS Budgets, 1 budget (within 62 free budget-days)", precios, "budgets_budget_dia", 30.0, "budget-days", "per month"))
+    m.append(_linea("VPC endpoints, data processed", precios, "endpoint_interfaz_gb_procesado",
+                    par.gb_endpoint_mes, "GB", "per month"))
+    m.append(_linea("Step Functions, transitions per approval", precios, "step_functions_transicion",
+                    par.aprobaciones_dia * DIAS_MES * par.transiciones_por_aprobacion, "transitions", "per month"))
     return m
 
 
 def lineas_consulta(par: Parametros, precios: dict, tokens_in: float, tokens_out: float) -> list[dict]:
-    fuente = f"{par.percentil_tokens} de la semana 13" if par.version == "v1" else \
-        f"{par.percentil_tokens} del agente desplegado (actividad 8)"
+    fuente = f"{par.percentil_tokens} of week 13" if par.version == "v1" else \
+        f"{par.percentil_tokens} of the deployed agent (activity 8)"
     c = []
-    c.append(_linea("Haiku 4.5 (us.), tokens de entrada", precios, "haiku45_entrada_1m", tokens_in / 1e6,
-                    "M tokens", "por consulta", fuente))
-    c.append(_linea("Haiku 4.5 (us.), tokens de salida", precios, "haiku45_salida_1m", tokens_out / 1e6,
-                    "M tokens", "por consulta", fuente))
-    c.append(_linea("Lambda, GB-segundo", precios, "lambda_arm_gb_s", par.memoria_gb * par.duracion_s,
-                    "GB-s", "por consulta", f"memoria {par.memoria_gb} GB y {par.duracion_s} s (supuesto)"))
-    c.append(_linea("Lambda, solicitudes", precios, "lambda_solicitud", 1.0, "solicitud", "por consulta"))
-    c.append(_linea("API Gateway HTTP API, solicitudes", precios, "apigw_http_solicitud", 1.0, "solicitud", "por consulta"))
-    c.append(_linea("Titan V2, embedding de la consulta", precios, "titan_v2_1k_tokens",
-                    par.consultas_kb_por_consulta * par.tokens_consulta_embedding / 1000.0, "K tokens", "por consulta"))
-    c.append(_linea("CloudWatch Logs, ingesta", precios, "cloudwatch_ingesta_gb",
-                    par.log_kb_por_consulta / 1e6, "GB", "por consulta"))
-    c.append(_linea("AgentCore Gateway, invocaciones", precios, "agentcore_gateway_invocacion",
-                    par.llamadas_gateway_por_consulta, "invocaciones", "por consulta"))
+    c.append(_linea("Haiku 4.5 (us.), input tokens", precios, "haiku45_entrada_1m", tokens_in / 1e6,
+                    "M tokens", "per query", fuente))
+    c.append(_linea("Haiku 4.5 (us.), output tokens", precios, "haiku45_salida_1m", tokens_out / 1e6,
+                    "M tokens", "per query", fuente))
+    c.append(_linea("Lambda, GB-second", precios, "lambda_arm_gb_s", par.memoria_gb * par.duracion_s,
+                    "GB-s", "per query", f"memory {par.memoria_gb} GB and {par.duracion_s} s (assumption)"))
+    c.append(_linea("Lambda, requests", precios, "lambda_solicitud", 1.0, "request", "per query"))
+    c.append(_linea("API Gateway HTTP API, requests", precios, "apigw_http_solicitud", 1.0, "request", "per query"))
+    c.append(_linea("Titan V2, query embedding", precios, "titan_v2_1k_tokens",
+                    par.consultas_kb_por_consulta * par.tokens_consulta_embedding / 1000.0, "K tokens", "per query"))
+    c.append(_linea("CloudWatch Logs, ingestion", precios, "cloudwatch_ingesta_gb",
+                    par.log_kb_por_consulta / 1e6, "GB", "per query"))
+    c.append(_linea("AgentCore Gateway, invocations", precios, "agentcore_gateway_invocacion",
+                    par.llamadas_gateway_por_consulta, "invocations", "per query"))
     if par.version == "v2":
-        c.append(_linea("ApplyGuardrail, unidades de texto", precios, "guardrail_unidad_texto", None,
-                        "unidades de texto", "por consulta", "corre en cada llamada al modelo; ni precio ni unidades medidos"))
+        c.append(_linea("ApplyGuardrail, text units", precios, "guardrail_unidad_texto", None,
+                        "text units", "per query", "runs on every model call; neither price nor units measured"))
     return c
 
 
@@ -171,20 +171,20 @@ def totales(lineas: list[dict]) -> float:
 
 
 def estimacion_base_hora(perfil: str = "lab") -> dict:
-    """Stack base de la actividad 3 (KMS, VPC endpoints, IAM, presupuesto), por hora."""
+    """The activity 3 base stack (KMS, VPC endpoints, IAM, budget), per hour."""
     precios = cargar_precios()
     par = Parametros(perfil=perfil)
-    lineas = [l for l in lineas_fijas_hora(par, precios) if l["partida"].startswith(("KMS", "Endpoints de interfaz"))]
-    presupuesto = _linea("AWS Budgets, 1 presupuesto", precios, "budgets_budget_dia", 1.0 / 24, "budget-day/24", "por hora")
+    lineas = [l for l in lineas_fijas_hora(par, precios) if l["partida"].startswith(("KMS", "VPC interface endpoints"))]
+    presupuesto = _linea("AWS Budgets, 1 budget", precios, "budgets_budget_dia", 1.0 / 24, "budget-day/24", "per hour")
     lineas.append(presupuesto)
     return {"perfil": perfil, "lineas": lineas, "por_hora_usd": totales(lineas), "parcial": any(l["costo_usd"] is None for l in lineas)}
 
 
 def modelo(par: Parametros) -> dict:
     if par.perfil not in PERFILES:
-        raise ValueError(f"perfil desconocido: {par.perfil}")
+        raise ValueError(f"unknown profile: {par.perfil}")
     if par.version not in VERSIONES:
-        raise ValueError(f"versión desconocida: {par.version}")
+        raise ValueError(f"unknown version: {par.version}")
     if par.percentil_tokens is None:
         par.percentil_tokens = "p95" if par.version == "v1" else "media"
     precios = cargar_precios()
@@ -197,7 +197,7 @@ def modelo(par: Parametros) -> dict:
     cons = lineas_consulta(par, precios, tin, tout)
 
     costo_hora = totales(fijas_h)
-    costo_fijo_mes = totales(fijas_m) + costo_hora * DIAS_MES * par.horas_dia  # stack encendido horas_dia por día
+    costo_fijo_mes = totales(fijas_m) + costo_hora * DIAS_MES * par.horas_dia  # the stack is up horas_dia hours a day
     costo_consulta = totales(cons)
     consultas_mes = par.consultas_dia * DIAS_MES
     total_mes = costo_fijo_mes + costo_consulta * consultas_mes
@@ -231,33 +231,33 @@ def modelo(par: Parametros) -> dict:
 def tabla(res: dict) -> str:
     def f(x):
         return "N" if x is None else f"{x:.6f}"
-    out = [f"Perfil: {res['perfil']}, versión {res['parametros']['version']}  (tokens {res['parametros']['percentil_tokens']}: "
-           f"entrada {res['parametros']['tokens_in']:.0f}, salida {res['parametros']['tokens_out']:.0f})", ""]
-    out.append("| Partida | Frecuencia | Marca | Cantidad | Costo USD |")
+    out = [f"Profile: {res['perfil']}, version {res['parametros']['version']}  (tokens {res['parametros']['percentil_tokens']}: "
+           f"input {res['parametros']['tokens_in']:.0f}, output {res['parametros']['tokens_out']:.0f})", ""]
+    out.append("| Item | Frequency | Mark | Amount | USD |")
     out.append("|---|---|---|---|---|")
     for grupo in ("fijas_por_hora", "fijas_por_mes", "por_consulta"):
         for l in res[grupo]:
             out.append(f"| {l['partida']} | {l['frecuencia']} | {l['marca']} | {'N' if l['cantidad'] is None else format(l['cantidad'], '.6g')} {l['unidad']} | {f(l['costo_usd'])} |")
     out.append("")
-    out.append(f"Costo por hora (medido): {res['costo_por_hora_usd']:.6f} USD")
-    out.append(f"Costo por consulta (medido): {res['costo_por_consulta_usd']:.8f} USD")
-    out.append(f"Total del mes (medido, {'PARCIAL' if res['parcial'] else 'completo'}): {res['total_mes_usd']:.4f} USD")
-    out.append(f"Neto con créditos de US$142: {res['total_mes_neto_usd']:.4f} USD")
+    out.append(f"Cost per hour (measured): {res['costo_por_hora_usd']:.6f} USD")
+    out.append(f"Cost per query (measured): {res['costo_por_consulta_usd']:.8f} USD")
+    out.append(f"Month total (measured, {'PARTIAL' if res['parcial'] else 'complete'}): {res['total_mes_usd']:.4f} USD")
+    out.append(f"Net of the US$142 credits: {res['total_mes_neto_usd']:.4f} USD")
     if res["partidas_no_medidas"]:
-        out.append("No medidas (N, fuera del total): " + "; ".join(res["partidas_no_medidas"]))
+        out.append("Not measured (N, outside the total): " + "; ".join(res["partidas_no_medidas"]))
     return "\n".join(out)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--perfil", choices=sorted(PERFILES), default="lab")
-    ap.add_argument("--consultas-dia", type=float, default=100.0)
+    ap.add_argument("--perfil", "--profile", choices=sorted(PERFILES), default="lab")
+    ap.add_argument("--consultas-dia", "--queries-per-day", type=float, default=100.0, metavar="QUERIES_PER_DAY")
     ap.add_argument("--version", choices=sorted(VERSIONES), default="v2")
     ap.add_argument("--tokens", choices=["media", "p50", "p95", "max"], default=None)
-    ap.add_argument("--horas-dia", type=float, default=8.0)
-    ap.add_argument("--horas-sesion", type=float, default=0.0)
-    ap.add_argument("--usuarios", type=float, default=10.0)
-    ap.add_argument("--sin-creditos", action="store_true")
+    ap.add_argument("--horas-dia", "--hours-per-day", type=float, default=8.0, metavar="HOURS_PER_DAY")
+    ap.add_argument("--horas-sesion", "--session-hours", type=float, default=0.0, metavar="SESSION_HOURS")
+    ap.add_argument("--usuarios", "--users", type=float, default=10.0, metavar="USERS")
+    ap.add_argument("--sin-creditos", "--no-credits", action="store_true")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     par = Parametros(perfil=a.perfil, consultas_dia=a.consultas_dia, version=a.version, percentil_tokens=a.tokens,

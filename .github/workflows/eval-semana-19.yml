@@ -1,22 +1,23 @@
 name: eval-semana-19
 
-# Semana 19 (LLMOps y producción en AWS, preparación y línea base). Sin AWS ($0): el verificador de entorno en modo CI
-# (datos de la semana 13, pines instalados, rutas de CI) y las pruebas de semana-19/tests. Ningún job llama a AWS ni a un
-# modelo; los despliegues se hacen desde el Mac, con el perfil admin. Sin pruebas omitidas. El job spike-iac sintetiza
-# CDK, escanea con checkov y valida Terraform (binario verificado por sha256); no aplica nada.
+# Week 19 (LLMOps and production on AWS, preparation and baseline). No AWS ($0): the readiness check in CI mode
+# (week 13 data, installed pins, CI paths) and the tests of semana-19/tests. No job calls AWS or a model; deployments
+# are made from the Mac, with the admin profile. No skipped tests. The spike-iac job synthesizes CDK, scans it with
+# checkov and validates Terraform (a binary checked by sha256); it applies nothing.
 on:
   pull_request:
     paths:
       - "semana-19/**"
-      - "!semana-19/**/*.md"          # documentación y resultados: no corren la CI
+      - "!semana-19/**/*.md"          # documentation and results do not run the CI
       - "!semana-19/resultados/**"
-      - "semana-13/golden/**"         # la verificación de datos lee los golden y su hash
+      - "semana-13/golden/**"         # the data check reads the golden files and their hash
       - "semana-07/ci/**"
       - "semana-10/legado/**"
       - "semana-13/seguridad/**"
       - "pyproject.toml"
       - "uv.lock"
       - ".github/workflows/eval-semana-19.yml"
+      - "!**/README.md"               # no check reads a README (the English notes next to the data)
 
 permissions:
   contents: read
@@ -34,12 +35,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - name: Dependencias (los pines del grupo semana19 de pyproject.toml)
+      - name: Dependencies (the pins of the semana19 group in pyproject.toml)
         run: |
           pip install "boto3==1.43.122" "botocore==1.43.122" "moto==5.2.5" "pytest==9.2.0" "awscrt==0.38.0" "sqlglot==30.26.0" "jsonschema==4.26.0" "pydantic==2.14.1" "mcp==2.3.0" "pyyaml==6.0.2" "pyjwt[crypto]==2.15.1" "psycopg[binary]==3.3.6" "joserfc==1.6.4" "cedarpy==4.12.2" "pytest-cov==7.1.0" "coverage==7.17.4"
-      - name: Preparación en modo CI (sin AWS)
+      - name: Readiness check in CI mode (no AWS)
         run: python semana-19/preparar/verificar_entorno.py --ci
-      - name: Pruebas sin AWS
+      - name: Tests without AWS
         run: |
           set -o pipefail
           python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --cov=semana-19 --cov-report=term:skip-covered --ignore=semana-19/tests/test_infra_cdk.py --ignore=semana-19/tests/test_infra_computo.py --ignore=semana-19/tests/test_computo_rds_permisos.py --ignore=semana-19/tests/test_infra_gateway.py --ignore=semana-19/tests/test_infra_agentes.py --ignore=semana-19/tests/test_validar_politicas_cobertura.py --ignore=semana-19/tests/test_diagrama_vs_stack.py --ignore=semana-19/tests/test_infra_etiquetas.py --ignore=semana-19/tests/test_infra_presupuesto.py | tee "$RUNNER_TEMP/pytest.txt"
@@ -51,37 +52,37 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0              # gitleaks recorre todo el historial
+          fetch-depth: 0              # gitleaks walks the whole history
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - name: Dependencias CDK (pines de semana-19/spike/cdk/requirements.txt) y checkov 3.4.4
         run: |
           pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4" "pytest==8.4.2"  # 8.4.2: pytest 9 needs packaging>=24, checkov needs <24
-      - name: Sintetizar CDK, perfiles lab y prod (sin AWS)
+      - name: Synthesize CDK, lab and prod profiles (no AWS)
         run: |
           CDK_OUTDIR="$RUNNER_TEMP/cdk-out" python semana-19/spike/cdk/app.py
           PERFIL=prod CDK_OUTDIR="$RUNNER_TEMP/cdk-out-prod" python semana-19/spike/cdk/app.py
           CDK_OUTDIR="$RUNNER_TEMP/cdk-ia" python semana-19/spike/cdk/app_ia.py
-      - name: cdk-nag (AwsSolutions) sin incumplimientos
+      - name: cdk-nag (AwsSolutions) with no findings
         run: |
           python - "$RUNNER_TEMP/cdk-out" "$RUNNER_TEMP/cdk-out-prod" <<'PY'
           import csv, glob, sys
           informes = [f for d in sys.argv[1:] for f in glob.glob(d + "/*NagReport.csv")]
-          assert len(informes) == 2, "debe haber informe de cdk-nag para lab y prod"
+          assert len(informes) == 2, "there must be a cdk-nag report for lab and prod"
           filas = [r for f in informes for r in csv.DictReader(open(f, encoding="utf-8"))]
           malas = [r for r in filas if r["Compliance"] == "Non-Compliant"]
           for r in malas: print("::error::", r["Rule ID"], r["Resource ID"], r["Rule Info"])
           print("reglas:", len(filas), "suprimidas:", sum(r["Compliance"] == "Suppressed" for r in filas))
           sys.exit(1 if malas else 0)
           PY
-      - name: Pruebas de la fundación (CDK, lab y prod, sin AWS)
+      - name: Foundation tests (CDK, lab and prod, no AWS)
         run: |
           set -o pipefail
           python -m pytest -q semana-19/tests/test_infra_cdk.py semana-19/tests/test_infra_computo.py semana-19/tests/test_computo_rds_permisos.py semana-19/tests/test_infra_gateway.py semana-19/tests/test_infra_agentes.py semana-19/tests/test_validar_politicas_cobertura.py semana-19/tests/test_diagrama_vs_stack.py semana-19/tests/test_infra_etiquetas.py semana-19/tests/test_infra_presupuesto.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest_infra.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
 
-      - name: Sintetizar la fundación de la actividad 3 y escanearla con checkov
+      - name: Synthesize activity 3's foundation and scan it with checkov
         run: |
           for perfil in lab prod; do
             rm -rf "$RUNNER_TEMP/fundacion-$perfil"
@@ -89,12 +90,12 @@ jobs:
             checkov -d "$RUNNER_TEMP/fundacion-$perfil" --framework cloudformation --quiet --compact
           done
 
-      - name: Escanear las plantillas de CDK (lab y prod) con checkov
+      - name: Scan the CDK templates (lab and prod) with checkov
         run: |
           checkov -d "$RUNNER_TEMP/cdk-out" --framework cloudformation --quiet --compact
           checkov -d "$RUNNER_TEMP/cdk-out-prod" --framework cloudformation --quiet --compact
           checkov -d "$RUNNER_TEMP/cdk-ia" --framework cloudformation --quiet --compact
-      - name: Todos los stacks (COMPUTO=1, lab y prod) con cdk-nag, checkov y el inventario de supresiones (actividad 9)
+      - name: Every stack (COMPUTO=1, lab and prod) with cdk-nag, checkov and the suppression inventory (activity 9)
         run: |
           python semana-19/infra/paquete_agente.py --sin-dependencias
           for perfil in lab prod; do
@@ -104,7 +105,7 @@ jobs:
           done
           python semana-19/seguridad/supresiones.py --checkov "$(command -v checkov)" \
             --synth lab="$RUNNER_TEMP/todo-lab" --synth prod="$RUNNER_TEMP/todo-prod" --salida "$RUNNER_TEMP/supresiones.json"
-      - name: Políticas IAM sin AWS con parliament 1.6.4 (actividad 10); falla si un hallazgo no tiene regla con motivo
+      - name: IAM policies without AWS, with parliament 1.6.4 (activity 10); fails if a finding has no rule with a reason
         run: |
           python -m venv "$RUNNER_TEMP/parliament"   # aparte: parliament necesita pkg_resources (setuptools < 81)
           "$RUNNER_TEMP/parliament/bin/pip" install --quiet "parliament==1.6.4" "setuptools==80.10.2"
@@ -118,19 +119,19 @@ jobs:
           grep "terraform_1.17.2_linux_amd64.zip" terraform_1.17.2_SHA256SUMS | sha256sum -c -
           unzip -o terraform_1.17.2_linux_amd64.zip -d "$RUNNER_TEMP/tfbin"
           "$RUNNER_TEMP/tfbin/terraform" version
-      - name: Validar Terraform y escanear con checkov 3.4.4
+      - name: Validate Terraform and scan with checkov 3.4.4
         working-directory: semana-19/spike/terraform
         run: |
           "$RUNNER_TEMP/tfbin/terraform" init -backend=false -input=false -no-color
           "$RUNNER_TEMP/tfbin/terraform" validate -no-color
           checkov -d . --framework terraform --quiet --compact
-      - name: Instalar gitleaks 8.30.1 (sha256 fijado del checksums.txt oficial)
+      - name: Install gitleaks 8.30.1 (sha256 pinned from the official checksums.txt)
         run: |
           cd "$RUNNER_TEMP"
           curl -sSfLO https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
           echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks_8.30.1_linux_x64.tar.gz" | sha256sum -c -
           mkdir -p glbin && tar -xzf gitleaks_8.30.1_linux_x64.tar.gz -C glbin gitleaks
-      - name: Escaneo de secretos (historial completo y synth con computo, lab y prod); falla si queda algo sin clasificar
+      - name: Secret scan (full history and the synth with computo, lab and prod); fails if anything is left unclassified
         run: |
           python semana-19/infra/paquete_agente.py --sin-dependencias
           for perfil in lab prod; do

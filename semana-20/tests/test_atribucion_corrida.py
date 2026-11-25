@@ -68,6 +68,6 @@ def test_conciliar_compara_spans_recalculados_con_emf():
 
 
 def test_sin_perfil_de_aplicacion_no_se_manda_nada():
-    with pytest.raises(SystemExit, match="perfil de inferencia de aplicación"):
+    with pytest.raises(SystemExit, match="application inference profile"):
         A.exigir_agente({"MODELO": "us.anthropic.claude-haiku-4-5-20251001-v1:0"})
     A.exigir_agente({"MODELO": "arn:aws:bedrock:us-east-1:111122223333:application-inference-profile/a1b2c3d4e5f6"})

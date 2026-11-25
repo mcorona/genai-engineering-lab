@@ -19,6 +19,7 @@ on:
       - "uv.lock"
       - ".github/workflows/eval-semana-20.yml"
       - ".github/workflows/evals-semana-06.yml"
+      - "!**/README.md"               # no check reads a README (the English notes next to the data)
 
 permissions:
   contents: read

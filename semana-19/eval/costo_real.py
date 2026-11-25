@@ -21,7 +21,7 @@ Before the live call (2026-11-19, reviewed in simulation):
   (crudo_eval_descartada_*.json, their tokens are billed on the same days) and the approval test.
 - The real figures are compared with activity 2's model (costos/modelo.py, imported, lab and prod) per query and per
   hour of stack. The hours are the base stack's own, from CloudFormation's stack history, inside the period. An error
-  beyond ±20 % is flagged: the model is corrected, never the number.
+  beyond ±20% is flagged: the model is corrected, never the number.
 
 After the live call (2026-11-21, offline, no new call): `--informe` recomputes the split from the saved
 costo_real.json and renders resultados/costo_real.md.
@@ -93,7 +93,7 @@ def periodo(desde: str, hasta_de_la_ventana: str, hasta: str | None) -> tuple[st
         return desde, hasta_de_la_ventana
     dt.date.fromisoformat(hasta)
     if hasta < hasta_de_la_ventana:
-        raise ValueError(f"--hasta {hasta} corta la corrida (su ventana termina en {hasta_de_la_ventana})")
+        raise ValueError(f"--hasta {hasta} cuts the run short (its window ends on {hasta_de_la_ventana})")
     return desde, hasta
 
 
@@ -262,7 +262,7 @@ def _usd(x, n=6):
 
 
 def _pct(x):
-    return "—" if x is None else f"{x * 100:+.1f} %"
+    return "—" if x is None else f"{x * 100:+.1f}%"
 
 
 def informe_md(r: dict) -> str:
@@ -312,7 +312,7 @@ def informe_md(r: dict) -> str:
           "Cost Explorer's \"Amazon Bedrock\" line joins the Bedrock judge's job (an eval cost, not a query's), "
           "ApplyGuardrail and Titan; grouping by service cannot split them.", "",
           "## Predicted against real", "",
-          "| Version | Row | Predicted (USD) | Real (USD) | Error | Real, model alone (USD) | Error | Beyond ±20 % |",
+          "| Version | Row | Predicted (USD) | Real (USD) | Error | Real, model alone (USD) | Error | Beyond ±20% |",
           "|---|---|---|---|---|---|---|---|"]
     for v, comp in c.items():
         for fila, f in comp["filas"].items():
@@ -341,9 +341,9 @@ def informe_md(r: dict) -> str:
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     import os
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="hace las 2 llamadas (por omisión solo las muestra)")
-    ap.add_argument("--hasta", help="End exclusivo AAAA-MM-DD: extiende el periodo hasta el fin del teardown")
-    ap.add_argument("--informe", action="store_true", help="sin llamadas: recalcula costo_real.json y escribe costo_real.md")
+    ap.add_argument("--si", "--yes", action="store_true", help="makes the 2 calls (by default it only shows them)")
+    ap.add_argument("--hasta", "--until", help="exclusive End, YYYY-MM-DD: extends the period to the end of the teardown", metavar="UNTIL")
+    ap.add_argument("--informe", "--report", action="store_true", help="no calls: recomputes costo_real.json and writes costo_real.md")
     a = ap.parse_args(argv)
     if a.informe:
         previo = json.loads(SALIDA.read_text(encoding="utf-8"))
@@ -364,9 +364,9 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     print(json.dumps({"ventana_utc": [desde, hasta], "solicitudes": pedidos, "quedan": quedan(registro)},
                      ensure_ascii=False, indent=2))
     if quedan(registro) < len(pedidos):
-        raise SystemExit(f"quedan {quedan(registro)} llamadas a Cost Explorer; hacen falta {len(pedidos)}")
+        raise SystemExit(f"{quedan(registro)} Cost Explorer calls remain; {len(pedidos)} are needed")
     if not a.si:
-        print("Simulación: no se llamó a Cost Explorer. Agrega --si para actuar (USD 0.01 por llamada).")
+        print("Simulation: no Cost Explorer calls were made. Add --si (--yes) to act (USD 0.01 per call).")
         return 0
     import boto3
     sesion = boto3.Session(profile_name=os.environ.get("S19_PERFIL", "semana19-lectura"), region_name="us-east-1")
@@ -379,7 +379,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     for i, p in enumerate(pedidos):
         r = ce.get_cost_and_usage(**p)
         if r.get("NextPageToken"):
-            raise SystemExit("la respuesta tiene más páginas: no se pide otra llamada sin OK")
+            raise SystemExit("the response has more pages: no further call is made without an OK")
         respuestas.append(r)
         registro["llamadas"].append({"n": len(registro["llamadas"]) + 1, "operacion": "GetCostAndUsage",
                                      "parametros": p, "perfil": os.environ.get("S19_PERFIL", "semana19-lectura"),

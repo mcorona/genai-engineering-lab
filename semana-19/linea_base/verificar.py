@@ -262,17 +262,17 @@ def correr_sonda(nombre: str, perfil: str | None) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--perfil", help="perfil de solo lectura (operador)")
-    ap.add_argument("--donde", choices=["mac", "ci"], default="mac")
-    ap.add_argument("--gasto-mes", action="store_true", help="incluye Cost Explorer (1 llamada de $0.01)")
-    ap.add_argument("--sonda", choices=list(SONDAS), help=argparse.SUPPRESS)
+    ap.add_argument("--perfil", "--profile", help="read-only profile (operator)", metavar="PROFILE")
+    ap.add_argument("--donde", "--where", choices=["mac", "ci"], default="mac")
+    ap.add_argument("--gasto-mes", "--monthly-spend", action="store_true", help="incluye Cost Explorer (1 llamada de $0.01)")
+    ap.add_argument("--sonda", "--probe", choices=list(SONDAS), help=argparse.SUPPRESS)
     a = ap.parse_args()
     if a.sonda:
         resultado = SONDAS[a.sonda](a.perfil)
         print(sanear(json.dumps(resultado, ensure_ascii=False)))
         return 0
     if not a.perfil:
-        print("Falta --perfil (operador, solo lectura).", file=sys.stderr)
+        print("--perfil is missing (operator, read-only).", file=sys.stderr)
         return 2
     informe = {"fecha": FECHA, "donde": a.donde, "region": REGION}
     for nombre in SONDAS:

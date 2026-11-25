@@ -466,12 +466,12 @@ def inventario(sesion, region: str, con_control: bool = False, con_base: bool = 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--perfil", required=True, help="perfil de solo lectura (operador)")
+    ap.add_argument("--perfil", "--profile", required=True, help="read-only profile (operator)", metavar="PROFILE")
     ap.add_argument("--region", default="us-east-1")
-    ap.add_argument("--con-control", action="store_true", help="el stack de control se queda (no fue --todo)")
-    ap.add_argument("--con-base", action="store_true", help="antes del teardown: el stack base está arriba a propósito")
-    ap.add_argument("--solo-actividad7", action="store_true",
-                    help="solo las categorías de los stacks desechables de la actividad 7 (deben quedar en cero)")
+    ap.add_argument("--con-control", "--with-control", action="store_true", help="the control stack stays (it was not --todo)")
+    ap.add_argument("--con-base", "--with-base", action="store_true", help="before the teardown: the base stack is up on purpose")
+    ap.add_argument("--solo-actividad7", "--activity7-only", action="store_true",
+                    help="only the categories of the disposable activity 7 stacks (they must be empty)")
     a = ap.parse_args()
     import boto3
     sesion = boto3.Session(profile_name=a.perfil, region_name=a.region)

@@ -72,8 +72,8 @@ def plan(E, tareas: list[dict], calentamiento: list[dict]) -> dict:
 def exigir_presupuesto(variables: dict) -> None:
     valor = variables.get("PRESUPUESTO_TAREA", "semana17")
     if valor != PRESUPUESTO:
-        raise SystemExit(f"el agente desplegado usa PRESUPUESTO_TAREA={valor}: despliega computo con "
-                         f"PRESUPUESTO_TAREA={PRESUPUESTO}; no se manda ninguna tarea")
+        raise SystemExit(f"the deployed agent uses PRESUPUESTO_TAREA={valor}: deploy computo with "
+                         f"PRESUPUESTO_TAREA={PRESUPUESTO}; no task is sent")
 
 
 def descartar_previa(carpeta: Path = SALIDA) -> Path | None:
@@ -87,8 +87,8 @@ def descartar_previa(carpeta: Path = SALIDA) -> Path | None:
 
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--si", action="store_true", help="actuar (por omisión solo simula)")
-    ap.add_argument("--informe", action="store_true", help="escribe el detalle desde el archivo crudo, sin AWS")
+    ap.add_argument("--si", "--yes", action="store_true", help="act (by default it only simulates)")
+    ap.add_argument("--informe", "--report", action="store_true", help="writes the detail from the raw file, without AWS")
     a = ap.parse_args(argv)
     E = _eval_aws()
     tareas, calentamiento = E.tareas_ci(), E.tareas_de_calentamiento()
@@ -99,11 +99,11 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
         return 0
     if not a.si:
         print(json.dumps(plan(E, tareas, calentamiento), ensure_ascii=False, indent=2))
-        print("Simulación: no se llamó a AWS. Agrega --si para actuar.")
+        print("Simulation: no AWS calls were made. Add --si (--yes) to act.")
         return 0
     aws = E.AwsEval(os.environ.get("S19_PERFIL", "manuel-admin"))
     if aws.camino_desplegado != "directo":
-        raise SystemExit(f"el agente desplegado usa {aws.camino_desplegado}; la corrida va por el camino directo")
+        raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; the run goes through the direct path")
     exigir_presupuesto(aws.lam.get_function_configuration(FunctionName=aws.computo["ArnAgente"])
                        ["Environment"]["Variables"])
     todas = tareas + calentamiento
@@ -113,10 +113,10 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     acceso = E.controles_de_acceso(aws.http, token)
     if not all(c["ok"] for c in acceso):
         print(json.dumps(acceso, ensure_ascii=False, indent=2))
-        raise SystemExit("los controles de acceso no dieron 401 y 403: no se manda ninguna tarea")
+        raise SystemExit("the access checks did not return 401 and 403: no task is sent")
     previa = descartar_previa()
     if previa:
-        print(f"corrida previa conservada como {previa.name}; su gasto sigue en el tope")
+        print(f"previous run kept as {previa.name}; its spend still counts toward the cap")
     t = tope(E)
     medir = lambda x: E.C.medir_api(x, "directo", token=token, http=aws.http, spans_entre=aws.spans_entre,  # noqa: E731
                                     largo_respuesta=E.LARGO_RESPUESTA)
