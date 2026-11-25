@@ -479,3 +479,6 @@ README (last).
   (`resultados/atribucion.md` §4).
 - 2026-11-24: activity 1, the last item. Manuel checked Cost Anomaly Detection in the console: a monitor is on, and
   no anomaly is flagged (`resultados/linea_base.md` §4.9). Activity 8 uses it and does not create another one.
+- 2026-11-25: activity 2 closed. One Cost Explorer call (`GetCostAndUsage` for 2026-11-24, 0.01 USD, Manuel's OK):
+  `componente=agente` is 0.0985182 USD, the same as the spans and EMF. The day's total for `proyecto=semana19` is
+  0.1802167 USD, the rest being the stacks' hours (`resultados/atribucion.md` §4).
