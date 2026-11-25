@@ -24,20 +24,20 @@ before moving on to the next. Documentation goes in separate PRs.
   - an alarm that fires before the bill does;
   - measured savings, each with its effect on quality.
 
-  It is also AIP-C01 D4 (efficiency, 12%) and part of D2 and D5. It feeds the ±20% quote, which is the Phase 5 exit
+  It is also AIP-C01 D4 (efficiency, 12%) and part of D2 and D5. It feeds the ±20% quotation, which is the Phase 5 exit
   criterion.
 
 ## Phase 5 context (weeks 19–24)
 
 | Week | Topic | What week 20 takes from the week before | What week 20 must leave for the weeks after |
 |---|---|---|---|
-| 19 | AWS reference architecture, LegacyBridge deployed with IaC | The baseline per task (`semana-19/resultados/eval_aws_detalle.jsonl`), the quote model v2 (`costos/modelo.py`), the `proyecto` tag (on the base and datos stacks only; the preparation puts it on every stack), the `modelo.invocar` interface (added in the preparation over the week 19 Converse adapter), the span schema in CloudWatch Logs, the `lab` and `prod` profiles, and the open findings H1 (throttling) and H4 (async timeout) | — |
+| 19 | AWS reference architecture, LegacyBridge deployed with IaC | The baseline per task (`semana-19/resultados/eval_aws_detalle.jsonl`), the quotation model v2 (`costos/modelo.py`), the `proyecto` tag (on the base and datos stacks only; the preparation puts it on every stack), the `modelo.invocar` interface (added in the preparation over the week 19 Converse adapter), the span schema in CloudWatch Logs, the `lab` and `prod` profiles, and the open findings H1 (throttling) and H4 (async timeout) | — |
 | **20** | **Costs and performance** | — | This plan |
 | 21 | Security, red teaming (garak or PyRIT, OWASP Top 10 for LLM) | — | The router and the cache as new attack surface, listed in the threat model (a cheaper model may obey injected text more easily; a cache must not be shared across users). The X-Ray traces, so the red team can follow an attack through the agent, the gateway and the tools. Throttling (H1) already in place |
 | 22 | Azure and GCP equivalents, a second cloud | — | The cost and observability matrix rows (caching, batch, routing, provisioned capacity, dashboards, tracing), each with its AWS mechanism and its measured effect |
 | 23–24 | AIP-C01 prep | — | D4 concepts with lab evidence in `resultados/aip_c01.md` |
 
-- **The ±20% quote.** Week 19 measured −10.3% per hour and −0.1% (model) or +24.6% (upper bound) per query, with
+- **The ±20% quotation.** Week 19 measured −10.3% per hour and −0.1% (model) or +24.6% (upper bound) per query, with
   model v2. Week 20 changes the cost structure (cache, routing, batch), so model v3 must predict the optimized run
   before the run. `resultados/cotizacion.md` gets the rows for v3 with their error.
 
@@ -68,7 +68,7 @@ decided about the regression. If the regression is still open, fixing it is the 
   - `us-east-1`, `lab` deployed and `prod` only synthesized and quoted;
   - `desplegar.sh` and `destruir.sh` with dry run by default;
   - the read-only inventory must report `"quedan": "nada"` after every session;
-  - every paid run is estimated with the quote model, authorized by Manuel, and capped in code;
+  - every paid run is estimated with the quotation model, authorized by Manuel, and capped in code;
   - Cost Explorer calls (0.01 USD each) are authorized one by one.
 - **One evaluation set for every comparison.**
   - The 10 + 10 CI golden tasks through the public API, with real Cognito tokens.
@@ -119,7 +119,7 @@ decided about the regression. If the regression is still open, fixing it is the 
 
   Batch has a minimum number of records per job (activity 1 verifies it), and the plan sizes the job to it.
 - **Provisioned throughput is priced, not bought.** Activity 6 compares on-demand, cross-region, latency-optimized
-  (if available for the model) and provisioned throughput at client volumes with the quote tool, and writes the
+  (if available for the model) and provisioned throughput at client volumes with the quotation tool, and writes the
   break-even. Nothing is purchased. A commitment is an irreversible spend and needs Manuel's explicit approval, which
   this plan does not ask for.
 - **The budget alarm has three layers:**
@@ -168,7 +168,7 @@ decided about the regression. If the regression is still open, fixing it is the 
 | 3 | Cache points in the Converse adapter, the cacheable prefix measured offline (tokens of system prompt + tools against the model's minimum per cache point) | Week 19 Converse adapter |
 | 4 | The router (R1) with its rules and offline tests; Cascada (R3) on the Mac, $0 in AWS | Week 19 `modelo.invocar`, Manuel's Cascada |
 | 5 | The batch input file (one record per column of the `legado` views) and its schema tests | Week 16 audit, the KB dictionary |
-| 6 | The capacity and provisioned-throughput math with the quote tool, and the throttling values | Activity 1 prices and quotas |
+| 6 | The capacity and provisioned-throughput math with the quotation tool, and the throttling values | Activity 1 prices and quotas |
 
 What must wait: anything that compares live runs (2 first), the dashboard (7), the combined run (3 to 6), and the
 README (last).
@@ -235,7 +235,7 @@ README (last).
   - Count its tokens against the model's minimum per cache point.
   - Decide where the cache points go (after the system prompt and the tools; whether a rolling point on the
     conversation pays off), and which TTL (5 minutes or 1 hour) fits a 6-step loop and the gap between queries.
-  - Predict the saving with the quote model before running.
+  - Predict the saving with the quotation model before running.
 - **Code:** cache points in the Converse adapter behind one config value (`CACHE_PROMPT = off | sistema | sistema+herramientas | ...`).
   - The tokens read and written from the cache are already recorded (week 19 activity 8).
   - Tests: the request carries the cache points only when the flag is on, and the Guardrail and the prompt version are
@@ -248,7 +248,7 @@ README (last).
   - cache hit tokens per step;
   - first-step and later-step latency;
   - success by the week 10 rule.
-- **Deliverable:** `resultados/cache.md`, quote v3 for caching (predicted vs real).
+- **Deliverable:** `resultados/cache.md`, quotation v3 for caching (predicted vs real).
 - **AIP-C01:** D4.
 - **Time:** ~2 h. **Cost:** under a dollar (20 tasks, cheaper than the baseline if caching works), estimated and
   capped.
@@ -319,9 +319,9 @@ README (last).
   Each is fixed and re-checked with `verificar_desplegado.py`, or carried to week 21 with its reason.
 - **Async timeout (H4):** a question whose agent times out or crashes reaches a terminal state (not `pendiente` until
   the TTL). Tested offline and live with a forced timeout.
-- **Provisioned throughput, priced:** with the quote tool, the monthly cost of on-demand, cross-region on-demand,
+- **Provisioned throughput, priced:** with the quotation tool, the monthly cost of on-demand, cross-region on-demand,
   latency-optimized (if it exists for the model) and provisioned throughput (with and without commitment), at three
-  client volumes (queries per day from the quote model's client parameters). It ends with the break-even volume, and
+  client volumes (queries per day from the quotation model's client parameters). It ends with the break-even volume, and
   the recommendation per volume. Nothing is bought.
 - **Deliverable:** `resultados/capacidad.md`, the throttling ADR and its tests.
 - **AIP-C01:** D4, D2.
@@ -370,10 +370,10 @@ README (last).
 - **Time:** ~2 h. **Cost:** cents, plus the dashboard and alarm prices from activity 1 (within the free tier if
   possible).
 
-### 9. Optimized run and quote v3
+### 9. Optimized run and quotation v3
 - **Combined configuration:** the cache settings from activity 3, the routing decision from activity 4, and the
   throttling from activity 6, all on.
-- **Prediction first:** the quote model v3 predicts the cost per query and per hour before the run, and the prediction
+- **Prediction first:** the quotation model v3 predicts the cost per query and per hour before the run, and the prediction
   is committed before the run starts.
 - **Live:** the 20 tasks. Report:
   - success, by the week 10 rule against the baseline;
@@ -384,7 +384,7 @@ README (last).
   - the dashboard during the run.
 - **Real cost:** Cost Explorer by `proyecto` and `componente` the next day (with Manuel's OK). Fill the v3 rows of
   `resultados/cotizacion.md` with the error in %. If the error exceeds ±20%, fix the model, not the number.
-- **The prod quote, updated:** lab and prod monthly quotes with the optimizations, at the three client volumes of
+- **The prod quotation, updated:** lab and prod monthly quotations with the optimizations, at the three client volumes of
   activity 6.
 - **Deliverable:** `resultados/optimizado.md`, `resultados/optimizado_detalle.jsonl` (same schema as week 19's, plus
   route and cache fields) and the updated `cotizacion.md`.
@@ -396,7 +396,7 @@ README (last).
   - the unit tests (router rules, cache points, EMF schema, dashboard widgets against emitted metrics, alarm
     definitions, batch input schema, throttling values);
   - synth and nag of the new constructs;
-  - the quote model v3 tests;
+  - the quotation model v3 tests;
   - no skipped tests.
 - **`semana-20/README.md`:**
   - the baseline, and each optimization with its measured saving and its effect on success;
@@ -405,7 +405,7 @@ README (last).
   - capacity and the provisioned-throughput break-even;
   - the dashboard and the alarms;
   - traces;
-  - quote v3 with its error;
+  - quotation v3 with its error;
   - what is lab-only.
 - **Root README:** criterion 20 with links to evidence. The cost cross-cutting criterion updated with the v3 error.
   The Phase 5 table updated.
@@ -416,7 +416,7 @@ README (last).
   - throttling in place;
   - the open findings still carried from week 19 (H3, H5, H7, H8, H12, H14 and the H13 residual case), and H2 and
     H10 if activity 6 did not close them.
-- **Teardown proof:** the final inventory and the Cost Explorer total for the week.
+- **Teardown evidence:** the final inventory and the Cost Explorer total for the week.
 - **AIP-C01:** D4, D5.
 - **Time:** ~1.5 h. **Cost:** $0.
 

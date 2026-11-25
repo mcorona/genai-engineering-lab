@@ -43,7 +43,7 @@ The plan and the log of decisions are in [`PLAN.md`](PLAN.md).
 | # | Activity | Result | PR |
 |---|---|---|---|
 | 1 | Baseline of Claude Code as a plugin platform | 18 checks without the model on 2.1.316: plugin, marketplace, `plugin eval`, hooks, subagents, `userConfig`, browser and computer use | #111, #112 |
-| 2 | Ground truth | The correct dictionary (46 columns, 9 objects), 13 seeded risks with SQL evidence, 4 injected notes; recomputed in CI and frozen with a hash manifest | #113 |
+| 2 | Ground truth | The correct data dictionary (46 columns, 9 objects), 13 seeded risks with SQL evidence, 4 injected notes; recomputed in CI and frozen with a hash manifest | #113 |
 | 3 | The plugin: skill, commands, read-only server | Sonnet run: 11/11 checks, PK/FK/PII 1.00, 12 of 13 risks, $1.04. Through the week 14 server with OAuth, least privilege hid 5 of 9 objects without the audit knowing, which became a decision for clients | #114, #115 |
 | 4 | Subagents and hooks | 15/15 checks; same quality as one agent at 1.9× the cost and 1.6× the time | #116 |
 | 5 | Plugin eval | `claude plugin eval`: 10 cases, Δ **+0.57** over no plugin. The own evaluator compared Sonnet and Haiku, with and without the plugin. The eval forced two plugin fixes | #117 |

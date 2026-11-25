@@ -7,7 +7,7 @@ Script: `experimentos/asistente.py`. Gold set: `datasets/integrado_{es,en}.jsonl
 | Piece | Choice | Origin |
 |---|---|---|
 | Routing | Haiku 5.5 low, classifies into sql, document or mixed | Activity 6 |
-| NLQ tool | Haiku 5.5 low with the legacy DDL + the full dictionary, executed with the `copilot_ro` read-only role (`search_path = legado`, 5 s timeout) | Activity 2 |
+| NLQ tool | Haiku 5.5 low with the legacy DDL + the full data dictionary, executed with the `copilot_ro` read-only role (`search_path = legado`, 5 s timeout) | Activity 2 |
 | Document tool | pgvector `semana10.chunks` (30 documents, 68 chunks), the tenant and role filter inside the query, top 20 with bge-m3, reranking with Haiku and top 5 | Weeks 8 and 9 |
 | Non-text content | PDF tables with pdfplumber, the scanned inventory record and delivery note with Haiku OCR, image descriptions with Haiku | Activities 3, 4 and 5 |
 | Fallback | If the route is sql and the query fails, returns 0 rows or the NLQ abstains (`NO_SQL`), the documents are also queried | Activity 6 + this analysis |

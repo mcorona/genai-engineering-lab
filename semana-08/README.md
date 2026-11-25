@@ -44,7 +44,7 @@ Fixed window 400/80, 57 chunks, 50 queries per language. Source: `resultados/emb
 | bge-m3 (local, LM Studio) | 1024 | 1.000 | 1.000 | 1.000 | 1.000 | 0 |
 | text-embedding-3-small | 1536 | 0.990 | 1.000 | 0.950 | 0.980 | 0.000129 (ES) / 0.000124 (EN) |
 | text-embedding-3-large | 3072 | 1.000 | 1.000 | 1.000 | 1.000 | 0.000841 (ES) / 0.000809 (EN) |
-| gemini-embedding-2 | 3072 | 0.980 | 1.000 | 0.980 | 1.000 | pending (see limits) |
+| gemini-embedding-2 | 3072 | 0.980 | 1.000 | 0.980 | 1.000 | pending (see limitations) |
 
 OpenAI prices: https://developers.openai.com/api/docs/models (checked 2026-10-22).
 Gemini: $0.20 per million input tokens, the figure the author provided. The source URL and the token count are pending.
@@ -65,7 +65,7 @@ Same vectors (bge-m3, fixed 400/80) in pgvector, Qdrant and OpenSearch. Script: 
 
 Metadata filter (`source = politica_reorden.md`): 5 of 5 correct in all three.
 
-Limits:
+Limitations:
 - Latency is not like-for-like. pgvector runs inside Postgres; Qdrant and OpenSearch are HTTP calls, so part of their latency is network and JSON.
 - Index parameters are the engine defaults. Nothing was tuned.
 - The first OpenSearch filter run returned 1 of 5 because the filter was applied after the k-NN search. Moving it inside the knn clause fixed it.

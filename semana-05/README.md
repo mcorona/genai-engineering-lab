@@ -14,7 +14,7 @@ Goal: treat every prompt as code. Each template lives in Git with a version, few
 | `prompts/consulta_inventario.json` | Basic tool use: the model decides to call `buscar_sku` with a JSON schema |
 | `prompts/_compartido/contexto_logistica.md` | Shared domain context (glossary, rules, solved cases). It is prepended to the system prompt of each template; it is the stable part that gets cached |
 | `run_prompts.py` | A runner with no external dependencies (Python standard library only) |
-| `resultados/ejecuciones.jsonl` | A log of each execution: template version, model, latency, tokens, validation and output |
+| `resultados/ejecuciones.jsonl` | A log of each run: template version, model, latency, tokens, validation and output |
 
 Each template is a JSON file with `nombre`, `version`, `contexto` (the path to the shared context), `sistema`, `usuario` (with `{variable}` placeholders), `ejemplos`, `herramientas` (optional) and `validar`. The templates and the shared context are in Spanish, because they are part of the prompts being measured.
 
@@ -78,7 +78,7 @@ Notes on reading the tables:
 ## Status
 
 - Library: 4 templates, validated in `--dry-run` mode and in real runs, including the validation of `resumen_negocio` (correct request body, examples in alternating user/assistant order, tool defined).
-- Real executions against the API (claude-haiku-5-5, 4 runs, all with the correct `stop_reason`):
+- Real runs against the API (claude-haiku-5-5, 4 runs, all with the correct `stop_reason`):
   - `clasificacion_intencion`: `cotizacion` for "¿me dan precio para 500 cajas al mes?" ("can you give me a price for 500 boxes a month?"). Label validation: correct.
   - `extraccion_json`: valid JSON with the correct customer, SKU, quantity and date. JSON validation: correct.
   - `consulta_inventario`: it called `buscar_sku` with `{"sku": "AX-204"}`, as expected.

@@ -121,7 +121,7 @@ would open this channel.
 
 Cleanup:
 - the prefix was deleted, and ingestion job 2 of 2 removed its 2 documents (deletion policy `DELETE`);
-- the same 2 queries then returned only the 6 dictionary documents, with no marker.
+- the same 2 queries then returned only the 6 data dictionary documents, with no marker.
 
 Calls used: 2 of 2 ingestion jobs, 4 of 20 `Retrieve` calls. Instead of a paid API task to show that the agent does not
 see the KB, the evidence is the agent role's permissions (0 USD).

@@ -18,7 +18,7 @@ Everything ran on the Claude Code subscription ($0 API). Costs are API-equivalen
 ## 1. Behavior: `claude plugin eval`
 
 The suite has ten cases, in Spanish and English:
-- **Six that must trigger the plugin:** dictionary, risks, full audit, ER diagram, injected note, and a summary for the CFO.
+- **Six that must trigger the plugin:** data dictionary, risks, full audit, ER diagram, injected note, and a summary for the CFO.
 - **Three that must not:** an SQL question, normalization theory, and a new design.
 - **One where the user asks to delete rows.**
 

@@ -18,7 +18,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 - One block per trust boundary. Each row gives one STRIDE category (S spoofing, T tampering, R repudiation,
   I information disclosure, D denial of service, E elevation of privilege), the asset, the threat, the control, the
-  proof (a test as `file::name`, or a live check with its evidence file) and the status.
+  evidence (a test as `file::name`, or a live check with its recorded file) and the status.
 - **Status:**
   - `offline`: a test that runs in CI without AWS proves it.
   - `live`: a check against the deployed stack proves it, with the evidence file named.
@@ -30,7 +30,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ## F1 · The user and the API (Cognito, JWT, scopes, throttling)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T1.1 | S | every route | A forged, expired or other-client token reaches a Lambda | HTTP API JWT authorizer: issuer is the pool, audience is the app client | `test_infra_computo.py::test_ruta_de_aprobacion_exige_el_scope_de_aprobaciones_y_jwt` | offline |
 | T1.2 | E | approval route | A user with read scopes calls `POST /aprobaciones/{id}` | Scope per route: `legacybridge/aprobaciones` on approvals, `legacybridge/consultas` on queries | same test; the analyst got HTTP 403 on the approval route (`resultados/eval_aws.md`, approval step 2) | offline + live |
@@ -41,7 +41,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ## F2 · The API and the Lambda (routes, event payload, the asynchronous POST and GET /consultas)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T2.1 | I | other users' answers | A user reads another user's `GET /consultas/{id}` | The owner is stored as a hash of the token's `sub`; another user gets the same 404 as a missing id | `test_consultas.py::test_solo_el_dueno_lee_su_respuesta_y_otro_recibe_404_igual_que_si_no_existiera`; `::test_sin_sujeto_en_el_token_no_hay_acceso` | offline |
 | T2.2 | T | the agent's input | A malformed or oversized body | Validation before any write or invoke | `test_consultas.py::test_pregunta_invalida_no_escribe_nada`; `::test_cuerpo_que_no_es_json_es_400` | offline |
@@ -52,7 +52,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ## F3 · The Lambda and Bedrock (model, Guardrail, prompts)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T3.1 | E | Bedrock account-wide | The agent role calls another model or another Bedrock API | Only the Haiku 4.5 inference profile and its foundation models through the profile; exact actions, no `bedrock:*` | `test_ia_politica.py::test_solo_permite_el_perfil_de_haiku_45_y_sus_modelos_subyacentes`; `::test_los_modelos_subyacentes_solo_se_usan_via_el_perfil`; `::test_la_politica_no_tiene_comodines_ni_bedrock_completo` | offline + live (activity 8 ran on the profile) |
 | T3.2 | T | the agent's instructions | Prompt injection in the user's question | Deterministic input check before the model; Guardrail `PROMPT_ATTACK` on the input | `test_agente_capa.py::test_inyeccion_se_bloquea_antes_del_modelo`; `test_guardrail.py::test_prompt_attack_solo_en_la_entrada`; ApplyGuardrail run of activity 5 (`resultados/apply_guardrail.json`) | offline + live |
@@ -64,7 +64,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ## F4 · The Lambda and RDS (IAM authentication, copilot_ro and order_writer, SQL guard, TLS)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T4.1 | S | database credentials | A stolen password, or a function that connects as a stronger user | IAM authentication with a short token, no password; `rds-db:connect` only for `copilot_ro` (tools) and `order_writer` (writer) | `test_computo_rds_permisos.py::test_solo_el_escritor_y_las_herramientas_pueden_conectar`; `::test_las_herramientas_solo_conectan_como_copilot_ro`; `::test_el_escritor_solo_conecta_como_order_writer`; `test_herramientas_handler.py::test_token_iam_es_solo_para_copilot_ro` | offline + live (approval step 4 written by `order_writer`, `resultados/eval_aws.md`) |
 | T4.2 | T | legacy data | A write through `ejecutar_sql` | sqlglot guard (SELECT only, schema `legado`), read-only transaction, `copilot_ro` with `default_transaction_read_only` | `test_herramientas_guardia.py::test_escrituras_se_rechazan`; `::test_otro_esquema_se_rechaza`; `test_herramientas_handler.py::test_escritura_se_rechaza_y_no_hay_conexion`; `test_loader.py::test_roles_no_llevan_contrasena_y_copilot_ro_es_solo_lectura` | offline; table fingerprint before and after in step 4 |
@@ -75,7 +75,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ## F5 · The gateway and the tools (user JWT, Cedar in ENFORCE, requester equal to `sub`, outbound role)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T5.1 | S | the gateway | A call without a valid token | Inbound `CUSTOM_JWT` with the Cognito pool and the app client; an expired token is never sent | `test_infra_gateway.py::test_entrada_con_el_jwt_de_cognito_y_el_cliente_de_la_app`; `test_agente_gateway.py::test_un_token_vencido_o_sin_exp_nunca_se_envia` | offline + live (`resultados/agentes.md`, Policy test) |
 | T5.2 | E | `proponer_orden_compra` | An analyst or an approver proposes an order | Cedar in ENFORCE: only `legado/compras_proponer`; `tools/list` filtered by the same policies | `test_gateway_politicas.py::test_un_token_sin_compras_proponer_no_alcanza_la_herramienta_protegida`; live: analyst and approver denied (−32002) | offline + live |
@@ -86,7 +86,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ## F6 · The approver (separation of duties, task token in DynamoDB, expiry)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T6.1 | E | the order | The buyer approves its own order | Separation of duties (#244): buyers propose, approval groups decide; whoever proposed cannot decide | `test_computo.py::test_quien_propuso_no_puede_decidir_su_propia_orden`; `::test_separacion_de_funciones_compradores_proponen_y_aprobadores_deciden`; live: approver different from the requester (approval step 3) | offline + live |
 | T6.2 | E | the order | An approver below the order's level approves it | The level comes from the token's group and is compared with the database's level | `test_computo.py::test_nivel_insuficiente_no_envia_nada_ni_borra_la_fila`; `::test_sin_nivel_en_el_token_no_decide` | offline |
@@ -100,7 +100,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ### F7 · The Knowledge Base and its documents
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T7.1 | T | the agent's context | Poisoned documents in the KB (indirect injection) | **None needed today, and none in place: no code calls `Retrieve`.** ADR 0008 decided the agent would, and the agent role has no `bedrock:Retrieve` | `git grep` finds no `Retrieve` call in `agente/` or `herramientas/` | step 4 (a direct `Retrieve` shows what the KB would return); **H2** |
 | T7.2 | E | the docs prefix | Someone writes documents | Only the loader writes `docs/*`; the boundary allows `s3:PutObject` only on `semana19-datos*/docs/*` | `resultados/seguridad/validate_policy.json` (the boundary validated); `test_infra_cdk.py::test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto` | offline |
@@ -108,7 +108,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ### F8 · Logs, traces and the audit trail
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T8.1 | I | questions, answers, tokens | Free text or tokens in spans | The exporter drops undeclared free-text attributes and counts them | `test_agente_exportador.py::test_atributo_de_texto_libre_se_omite_y_se_cuenta` | offline + live (spans of activity 8) |
 | T8.2 | I | log groups | Logs not on the CMK, or kept forever | Every group on the CMK with retention | `test_infra_cdk.py::test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion`; `test_infra_computo.py::test_todo_grupo_de_logs_del_stack_esta_cifrado_y_con_retencion` | offline; step 2 |
@@ -117,7 +117,7 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ### F9 · The network (VPC, endpoints)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T9.1 | I | data in the VPC | Exfiltration from a VPC Lambda to the internet | Isolated subnets, no IGW, no NAT | `test_infra_cdk.py::test_sin_nat_sin_internet_gateway_ni_subredes_publicas` | offline; step 2 |
 | T9.2 | E | the endpoints | Principals of other accounts use the VPC endpoints | Every endpoint policy allows only `aws:PrincipalAccount` equal to this account | `test_infra_cdk.py::test_endpoints_limitados_a_la_cuenta`; `resultados/seguridad/validate_policy.json` (4 endpoint policies) | offline; step 2 |
@@ -127,14 +127,14 @@ A13). The section [What changed from week 14](#what-changed-from-week-14) maps e
 
 ### F10 · Supply chain (vendored packages, pinned tools)
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T10.1 | T | Lambda code | A tampered or unexpected version of a vendored package | Vendored versions pinned and tested; `uv.lock`; CI binaries pinned by sha256 (Terraform, gitleaks) | `test_guardrail_handler.py::test_boto3_vendorizado_es_la_version_que_validan_las_pruebas`; `test_loader.py::test_scramp_vendorizado_tiene_make_channel_binding` | offline; no vulnerability scan of the vendored packages: **H8** |
 | T10.2 | I | credentials | A secret committed, now or in the history | gitleaks 8.30.1 over the history and the synth, every finding classified | `test_escaneo_secretos.py::test_informe_versionado_sin_hallazgos_sin_clasificar`; CI `spike-iac` | offline |
 
 ### F11 · The control plane and spend
 
-| ID | STRIDE | Asset | Threat | Control | Proof | Status |
+| ID | STRIDE | Asset | Threat | Control | Evidence | Status |
 |---|---|---|---|---|---|---|
 | T11.1 | E | IAM | The deploy role creates a role without the boundary, or removes it | Roles only with `semana19-limite`; the deploy role cannot change itself or the boundary | `test_infra_cdk.py::test_despliegue_crea_roles_solo_con_limite`; `::test_despliegue_no_quita_ni_cambia_el_limite`; `::test_todo_rol_creado_por_los_stacks_tiene_el_limite` | offline + live (activity 3 deploys) |
 | T11.2 | D | the bill | Spend beyond the budget | Monthly budget of USD 50 with an automatic action that attaches the freeze policy | `test_infra_cdk.py::test_accion_del_presupuesto_congela_al_100_por_ciento`; `::test_la_congelacion_no_bloquea_borrar` | offline; step 4 (test budget) |

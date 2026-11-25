@@ -69,4 +69,4 @@ uv run python semana-04/benchmark_modelos.py --solo api \
 ```
 
 Outputs: `resultados/<nombre>_detalle.csv` (one row per query) and `resultados/<nombre>_resumen.json`.
-To run both targets in a single execution, omit `--solo` and also pass the local parameters.
+To run both targets in a single run, omit `--solo` and also pass the local parameters.

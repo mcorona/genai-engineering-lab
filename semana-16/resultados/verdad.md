@@ -1,13 +1,13 @@
 # Activity 2: ground truth for the legacy schema audit
 
-The answer key the plugin will be graded against in activities 5 and 6. It is computed from the database, not written by hand, and frozen with a hash manifest like the week 10 and 13 golden sets.
+The answer key the plugin will be graded against in activities 5 and 6. It is computed from the database, not written by hand, and frozen with a hash manifest like the week 10 and 13 gold sets.
 
 | File | Content |
 |---|---|
 | [`verdad/riesgos.sql`](../verdad/riesgos.sql) | Seeds two native legacy tables with the risks the plugin must find (synthetic data) |
 | [`verdad/etiquetas.json`](../verdad/etiquetas.json) | The only hand-written part: meanings of the native tables, logical foreign keys, units, personal-data columns (and hard negatives), each risk's evidence query, and the type of each injected note |
 | [`verdad/construir.py`](../verdad/construir.py) | Computes the truth from the catalog and the data; `--escribir` freezes it, without flags it recomputes and compares |
-| [`verdad/diccionario.json`](../verdad/diccionario.json) | The correct dictionary: 46 columns in 9 tables |
+| [`verdad/diccionario.json`](../verdad/diccionario.json) | The correct data dictionary: 46 columns in 9 tables |
 | [`verdad/riesgos.json`](../verdad/riesgos.json) | 13 seeded risks with their evidence, 15 rules that live outside the database, 4 injected notes |
 | [`verdad/manifiesto.json`](../verdad/manifiesto.json) | Counts and SHA-256 of the five files above |
 
@@ -27,7 +27,7 @@ For each of the 26 columns of the week 10 views, `construir.py` parses `semana-1
 
 ## Seeded risks
 
-Two native legacy tables are added to the `legado` schema. Neither is in inventory-copilot or the week 10 views, so earlier golden sets are unchanged:
+Two native legacy tables are added to the `legado` schema. Neither is in inventory-copilot or the week 10 views, so earlier gold sets are unchanged:
 - `prvcto`: supplier contacts.
 - `movinv`: inventory movements.
 

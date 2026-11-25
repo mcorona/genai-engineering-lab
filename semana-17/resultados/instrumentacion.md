@@ -57,7 +57,7 @@ Langfuse stores 15 observations with the same ids, the same parents and the type
 | `handle_tool` | tool, size and keyed hash of the arguments, result size, status, error type, user hash | arguments, results |
 | `SELECT legado` | `db.system.name`, `db.namespace`, operation, rows returned, tables named, database role, **size and keyed hash of the SQL** | the SQL text, the rows, the error message |
 
-The hash is HMAC-SHA256 with a salt (`LAB_OBS_SALT`), not a plain SHA-256: a dictionary of `analista` or `SKU-0009` does not break it.
+The hash is HMAC-SHA256 with a salt (`LAB_OBS_SALT`), not a plain SHA-256: hashing a list of likely values (`analista`, `SKU-0009`) does not reverse it.
 The agent's hash of the arguments equals the server's, which shows the arguments did not change on the way (checked).
 
 ## Failures show where they happened

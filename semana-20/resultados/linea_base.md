@@ -14,7 +14,7 @@ Date: 2026-11-23. Cost: $0. The only AWS calls were free and read-only: the Pric
 
 `verificar.py` re-runs the hand-off list of `preparar/verificar_entorno.py`. All five items exist:
 - `modelo.invocar`;
-- the quote model;
+- the quotation model;
 - `MODELO_ID` in `ia/config.py`;
 - the span exporter;
 - `etiquetas()` on every stack.
@@ -77,7 +77,7 @@ These figures compare the same tasks: the 3 week 13 runs per task (`semana-13/re
 3. **No prompt change aimed at c02 or c06-en.**
    - Both are model-quality failures on two of the 20 tasks. A prompt tuned to them would fit the eval set, not the product.
    - They become the first escalation cases for activity 4 (routing to a stronger model on a language mismatch or a doubtful abstention).
-4. **The estimate, from the quote model.**
+4. **The estimate, from the quotation model.**
    - `lab` fixed cost: 0.04189 USD/h (`semana-19/costos/modelo.py`, `lineas_fijas_hora`), about 0.13 USD for a 3-hour session.
    - Model: about 0.90 USD expected (20 tasks at about 0.045 USD each), with the hard cap at 2.50 USD.
    - **Expected total: about 1.05 USD**, against the weekly cap of 10 USD.
