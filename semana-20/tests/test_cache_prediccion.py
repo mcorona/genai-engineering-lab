@@ -92,7 +92,7 @@ def test_la_cotizacion_v3_usa_la_prediccion_y_sus_precios_medidos():
 def test_la_corrida_reusa_la_corregida_con_sus_topes_y_su_carpeta(LB):
     c = CORR.corrida(LB)
     assert c.salida.name == "cache" and c.detalle.name == "cache_detalle.jsonl"
-    assert c.exigir == {"PRESUPUESTO_TAREA": "techo_semana20", "CACHE_PROMPT": "historial"}
+    assert c.exigir == {"PRESUPUESTO_TAREA": "techo_semana20", "CACHE_PROMPT": "historial", "CACHE_TTL": None}
     peor = PREDICCION["escenarios"]["peor"]["con_calentamiento_usd"]
     assert peor + 0.12 <= c.tope_usd       # the worst case plus one task at the ceiling fits under the cap
     assert 22 * 100_000 <= c.tope_tokens
