@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ALIASES = dict(line.split("\t") for line in (ROOT / "docs" / "flag-aliases.tsv").read_text(encoding="utf-8").splitlines()[1:])
 UNCHANGED = "(unchanged)"
 # The weeks whose scripts already carry the aliases. Step 4 of the English pass adds the rest, group by group.
-WEEKS = {f"semana-{n:02d}" for n in range(1, 8)}
+WEEKS = {f"semana-{n:02d}" for n in range(1, 13)}
 
 
 def scripts() -> list[str]:
@@ -51,7 +51,7 @@ def test_the_table_maps_every_spanish_flag_once():
 
 
 def test_there_are_scripts_to_check():
-    assert len([p for p in scripts() if calls(p)]) >= 7
+    assert len([p for p in scripts() if calls(p)]) >= 17
 
 
 @pytest.mark.parametrize("path", [p for p in scripts() if calls(p)])

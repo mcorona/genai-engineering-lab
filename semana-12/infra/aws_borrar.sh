@@ -3,11 +3,12 @@
 #   ./aws_borrar.sh                         shows what it would delete (a dry run, the default)
 #   ./aws_borrar.sh --confirmar             deletes the KBs, data sources, vector bucket, document bucket and roles
 #   ./aws_borrar.sh --confirmar --presupuesto   also deletes the budget (only after reviewing the invoice)
+#   English names: --confirm = --confirmar, --budget = --presupuesto; aws_delete.sh = this script.
 # It only touches resources with the semana12 prefix; it does not touch other buckets or budgets in the account.
 set -uo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PAGER=""
-HAZ=0; PRES=0; for a in "$@"; do [ "$a" = "--confirmar" ] && HAZ=1; [ "$a" = "--presupuesto" ] && PRES=1; done
+HAZ=0; PRES=0; for a in "$@"; do case "$a" in --confirmar|--confirm) HAZ=1 ;; --presupuesto|--budget) PRES=1 ;; esac; done
 run() { if [ $HAZ -eq 1 ]; then echo "+ $*"; "$@" >/dev/null || echo "  (failed: $*)"; else echo "[dry run] $*"; fi; }
 R="--region $REGION"
 

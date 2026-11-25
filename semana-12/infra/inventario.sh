@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Week 12: lists the week's resources that still exist in each cloud (the ones that can bill). Read-only.
-#   ./inventario.sh [aws|gcp|todo]
+#   ./inventario.sh [aws|gcp|all]      (todo, the default, also means all)
 set -uo pipefail
 cd "$(dirname "$0")"; source config.sh
 export AWS_PAGER=""
@@ -21,8 +21,8 @@ if [ "$QUE" != aws ]; then
   nombres() { curl -s -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: $P" "$API/$1" | \
     python3 -c "import json,sys; d=json.load(sys.stdin); print(' '.join(x['name'].split('/')[-1] for x in d.get('$1',[])))" 2>/dev/null; }
   echo "Google Cloud ($P, $GCP_UBICACION)"
-  linea "Data stores (todos)" "$(nombres dataStores)"
-  linea "Apps / engines (todos)" "$(nombres engines)"
+  linea "Data stores (all)" "$(nombres dataStores)"
+  linea "Apps / engines (all)" "$(nombres engines)"
   linea "Buckets GCS semana12" "$(gcloud storage buckets list --project=$P --format='value(name)' 2>/dev/null | grep "^$PREFIJO" | tr '\n' ' ')"
   CTA=$(gcloud billing projects describe $P --format='value(billingAccountName.basename())' 2>/dev/null)
   linea "Presupuesto semana12 (sin costo)" "$(gcloud billing budgets list --billing-account=$CTA --filter="displayName=$PREFIJO" --format='value(displayName)' 2>/dev/null)"

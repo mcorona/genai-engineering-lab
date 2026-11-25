@@ -250,10 +250,10 @@ def coseno(a, b):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--claude-modelo", default="claude-haiku-5-5")
-    ap.add_argument("--claude-esfuerzo", default="low", choices=["low", "medium", "high", "xhigh", "max"])
-    ap.add_argument("--sin-claude", action="store_true")
-    ap.add_argument("--regenerar-claude", action="store_true")
+    ap.add_argument("--claude-modelo", "--claude-model", default="claude-haiku-5-5", metavar="CLAUDE_MODEL")
+    ap.add_argument("--claude-esfuerzo", "--claude-effort", default="low", choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--sin-claude", "--no-claude", action="store_true")
+    ap.add_argument("--regenerar-claude", "--regenerate-claude", action="store_true")
     args = ap.parse_args()
 
     generar_pdfs()

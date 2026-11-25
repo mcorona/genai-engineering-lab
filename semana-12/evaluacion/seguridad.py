@@ -27,7 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import suites as s  # noqa: E402  (helpers de Bedrock y Vertex, golden y asistente)
+import suites as s  # noqa: E402  (Bedrock and Vertex helpers, the gold set and the assistant)
 
 a, RAIZ, REPO = s.a, s.RAIZ, s.REPO
 ORDEN_ROLES = ["ventas", "calidad", "compras", "almacen", "finanzas", "operaciones"]  # week 10, seguridad.py

@@ -96,11 +96,11 @@ def llamar(modelo, esfuerzo, sis, pregunta):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", required=True)
-    ap.add_argument("--esfuerzo", required=True, choices=["low", "medium", "high", "xhigh", "max"])
-    ap.add_argument("--variantes", default=",".join(VARIANTES))
-    ap.add_argument("--limite", type=int, default=0, help="only the first N questions per language (test)")
-    ap.add_argument("--reanudar", action="store_true", help="skip the question-variant combinations already saved in the CSV")
+    ap.add_argument("--modelo", "--model", required=True, metavar="MODEL")
+    ap.add_argument("--esfuerzo", "--effort", required=True, choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--variantes", "--variants", default=",".join(VARIANTES), metavar="VARIANTS")
+    ap.add_argument("--limite", "--limit", type=int, default=0, help="only the first N questions per language (test)", metavar="LIMIT")
+    ap.add_argument("--reanudar", "--resume", action="store_true", help="skip the question-variant combinations already saved in the CSV")
     args = ap.parse_args()
     variantes = args.variantes.split(",")
     precio = PRECIOS[f"anthropic:{args.modelo}"]

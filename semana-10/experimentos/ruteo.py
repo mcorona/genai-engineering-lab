@@ -77,8 +77,8 @@ def clasificar(modelo, esfuerzo, pregunta):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", default="claude-haiku-5-5")
-    ap.add_argument("--esfuerzo", default="low", choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--modelo", "--model", default="claude-haiku-5-5", metavar="MODEL")
+    ap.add_argument("--esfuerzo", "--effort", default="low", choices=["low", "medium", "high", "xhigh", "max"])
     args = ap.parse_args()
     items = [json.loads(l) for lang in ("es", "en")
              for l in (RAIZ / "datasets" / f"integrado_{lang}.jsonl").read_text(encoding="utf-8").splitlines()]

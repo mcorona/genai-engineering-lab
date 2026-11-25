@@ -3,10 +3,11 @@
 #   ./gcp_borrar.sh                          dry run (the default)
 #   ./gcp_borrar.sh --confirmar              deletes
 #   ./gcp_borrar.sh --confirmar --presupuesto   also deletes the budget (after reviewing the invoice)
+#   English names: --confirm = --confirmar, --budget = --presupuesto; gcp_delete.sh = this script.
 # It only touches resources with the semana12 prefix in the config.sh project. Requires the owner's session (gcloud auth login).
 set -uo pipefail
 cd "$(dirname "$0")"; source config.sh
-HAZ=0; PRES=0; for a in "$@"; do [ "$a" = "--confirmar" ] && HAZ=1; [ "$a" = "--presupuesto" ] && PRES=1; done
+HAZ=0; PRES=0; for a in "$@"; do case "$a" in --confirmar|--confirm) HAZ=1 ;; --presupuesto|--budget) PRES=1 ;; esac; done
 P=$GCP_PROYECTO
 TOKEN=$(gcloud auth print-access-token)
 API="https://discoveryengine.googleapis.com/v1/projects/$P/locations/$GCP_UBICACION/collections/default_collection"

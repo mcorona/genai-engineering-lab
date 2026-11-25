@@ -179,7 +179,7 @@ def main():
     try:
         conn.execute("SET hnsw.iterative_scan = strict_order")
     except psycopg.Error:
-        print("pgvector: sin hnsw.iterative_scan; se usa ef_search = 100", file=sys.stderr)
+        print("pgvector: no hnsw.iterative_scan; using ef_search = 100", file=sys.stderr)
     print(f"load: pgvector {cargar_pgvector(conn, fs, vecs)}, qdrant {cargar_qdrant(fs, vecs)}, "
           f"opensearch {cargar_opensearch(fs, vecs)} chunks\n")
 

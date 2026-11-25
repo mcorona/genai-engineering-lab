@@ -112,7 +112,7 @@ def suite_recuperacion(items, local):
 
 
 def suite_generacion(items, local):
-    if not local:  # answer relevancy de RAGAS con los embeddings de OpenAI
+    if not local:  # RAGAS answer relevancy with OpenAI's embeddings
         os.environ["LMSTUDIO_BASE_URL"] = "https://api.openai.com/v1"
         os.environ["LMSTUDIO_EMBED_MODEL"] = MODELO_EMB
         os.environ["EMB_API_KEY"] = os.environ["OPENAI_API_KEY"]
@@ -156,9 +156,9 @@ def suite_generacion(items, local):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--suite", choices=("recuperacion", "generacion"), required=True)
-    ap.add_argument("--calibrar", action="store_true", help="first run: prints the values and thresholds, without applying them")
+    ap.add_argument("--calibrar", "--calibrate", action="store_true", help="first run: prints the values and thresholds, without applying them")
     ap.add_argument("--local", action="store_true", help="smoke test with local bge-m3 and the existing index")
-    ap.add_argument("--limite", type=int, default=0, help="N answerable and 1 unanswerable question per language (smoke test)")
+    ap.add_argument("--limite", "--limit", type=int, default=0, help="N answerable and 1 unanswerable question per language (smoke test)", metavar="LIMIT")
     args = ap.parse_args()
     aplicar = not (args.calibrar or args.local or args.limite)
     if aplicar and (UMBRALES is None or args.suite not in UMBRALES):

@@ -253,8 +253,8 @@ def main():
     ap.add_argument("--backend", choices=sorted(BACKENDS), default="propio")
     ap.add_argument("--config", default="", help="bedrock: adm-pred, adm-fijo, adm-fijo-bda or ctl-chunks; "
                     "vertex: <vx-adm|vx-ctl>:<hibrida|vectorial|semantico>")
-    ap.add_argument("--modo", choices=("comun", "rag"), default="comun", help="comun: the common generator; rag: RetrieveAndGenerate")
-    ap.add_argument("--limite", type=int, default=0, help="N questions per language and type (smoke test)")
+    ap.add_argument("--modo", "--mode", choices=("comun", "rag"), default="comun", help="comun: the common generator; rag: RetrieveAndGenerate")
+    ap.add_argument("--limite", "--limit", type=int, default=0, help="N questions per language and type (smoke test)", metavar="LIMIT")
     args = ap.parse_args()
     items = sg.items_todos()
     if args.limite:

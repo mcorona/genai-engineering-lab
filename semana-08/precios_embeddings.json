@@ -1,19 +1,19 @@
 {
-  "_doc": "Precios de embeddings por millón de tokens de entrada, en USD. 'fuente' indica de dónde salió cada cifra y cuándo se consultó. null significa no verificado: el costo de ese modelo no se reporta.",
+  "_doc": "Embedding prices per million input tokens, in USD. 'fuente' (source) says where each figure comes from and when it was retrieved. null means not verified: that model's cost is not reported.",
   "bge-m3 (local)": {
     "in": 0.0,
-    "fuente": "Local en LM Studio. Sin costo de API."
+    "fuente": "Local, in LM Studio. No API cost."
   },
   "openai:text-embedding-3-small": {
     "in": 0.02,
-    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/text-embedding-3-small (consultado 2026-10-22)"
+    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/text-embedding-3-small (retrieved 2026-10-22)"
   },
   "openai:text-embedding-3-large": {
     "in": 0.13,
-    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/text-embedding-3-large (consultado 2026-10-22)"
+    "fuente": "OpenAI, https://developers.openai.com/api/docs/models/text-embedding-3-large (retrieved 2026-10-22)"
   },
   "gemini:gemini-embedding-2": {
     "in": 0.2,
-    "fuente": "Google, precio de gemini-embedding-2 por millón de tokens de entrada, indicado por el autor el 2026-10-22 desde la página oficial. Falta la URL exacta para citarla. Los embeddings no tienen tokens de salida."
+    "fuente": "Google, the price of gemini-embedding-2 per million input tokens, given by the author on 2026-10-22 from the official page. The exact URL to cite is missing. Embeddings have no output tokens."
   }
 }

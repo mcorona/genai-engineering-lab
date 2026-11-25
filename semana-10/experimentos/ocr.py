@@ -174,10 +174,10 @@ def claude(modelo, esfuerzo, regenerar):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelos", default="claude-haiku-5-5,claude-sonnet-5-5")
-    ap.add_argument("--esfuerzo", default="low", choices=["low", "medium", "high", "xhigh", "max"])
-    ap.add_argument("--sin-claude", action="store_true")
-    ap.add_argument("--regenerar-claude", action="store_true")
+    ap.add_argument("--modelos", "--models", default="claude-haiku-5-5,claude-sonnet-5-5", metavar="MODELS")
+    ap.add_argument("--esfuerzo", "--effort", default="low", choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--sin-claude", "--no-claude", action="store_true")
+    ap.add_argument("--regenerar-claude", "--regenerate-claude", action="store_true")
     args = ap.parse_args()
 
     idiomas = subprocess.run(["tesseract", "--list-langs"], capture_output=True, text=True).stdout.split()

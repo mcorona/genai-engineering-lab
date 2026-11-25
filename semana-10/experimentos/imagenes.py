@@ -169,9 +169,9 @@ def llamar_claude(modelo, esfuerzo, img, texto):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", default="claude-haiku-5-5")
-    ap.add_argument("--esfuerzo", default="low", choices=["low", "medium", "high", "xhigh", "max"])
-    ap.add_argument("--regenerar-claude", action="store_true")
+    ap.add_argument("--modelo", "--model", default="claude-haiku-5-5", metavar="MODEL")
+    ap.add_argument("--esfuerzo", "--effort", default="low", choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--regenerar-claude", "--regenerate-claude", action="store_true")
     args = ap.parse_args()
     if "spa" not in subprocess.run(["tesseract", "--list-langs"], capture_output=True, text=True).stdout.split():
         raise SystemExit("Tesseract does not have the 'spa' language.")
