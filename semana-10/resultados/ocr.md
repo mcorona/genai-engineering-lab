@@ -58,7 +58,7 @@ Each scanned page counts 4,840 input tokens (the image plus the prompt). Haiku a
 ## Reading
 
 - **Claude transcribes almost without errors:** Haiku, with a single wrong character in 5 pages; Sonnet, with none.
-- **Tesseract has a CER of 0.9 %, and most of it does not affect the content:** it reads the "•" bullets as "+" or "»", changes some punctuation ("Ficticia," for "Ficticia;") and makes the occasional letter error ("entrega" as "eritrega").
+- **Tesseract has a CER of 0.9%, and most of it does not affect the content:** it reads the "•" bullets as "+" or "»", changes some punctuation ("Ficticia," for "Ficticia;") and makes the occasional letter error ("entrega" as "eritrega").
 - **At this noise level, OCR does not change recall:** the 4 extractors retrieve the same as the original text, in passages and in answers. No Tesseract error fell inside a passage or a figure that was asked about.
 - **Sonnet adds nothing over Haiku for this task:** the same text in 4 of 5 documents, at 20 times the cost and with more latency.
 

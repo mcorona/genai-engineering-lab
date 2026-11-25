@@ -7,7 +7,7 @@ Script: `experimentos/extremo_a_extremo.py` (run on 2026-10-27). Output: `e2e_sa
 - **Full RAG:** retrieval from activity 2 + generation from activity 4 on what was retrieved, with the same metrics (Haiku 5.5 `low` judge). All 75 questions per language.
 - **`adoptado_top5`:** the assistant's pipeline (vector + filter + Haiku reranking, top 5). Answerable questions reuse the activity 2 rankings; the 20 unanswerable ones were ranked here with the same code.
 - **`estres_base_top3`:** no reranking and only 3 chunks. It is not a candidate configuration. The adopted pipeline puts every gold passage in its context, so on its own it gives nothing to attribute to retrieval. This configuration leaves the passage out in 11 questions, to check that the attribution separates the two kinds of failure.
-- **Failure:** an answerable question with correctness 0 (own judge), or an unanswerable question the generator answers instead of declining.
+- **Failure:** an answerable question with correctness 0 (custom judge), or an unanswerable question the generator answers instead of declining.
 - **Attribution, fixed before running:** **retrieval** if any gold passage did not reach the context; **generation** if all passages arrived and the answer failed. Unanswerable questions that get an answer count as generation.
 
 ## Results
@@ -61,7 +61,7 @@ Not a failure, though the passage did not arrive: `rec-28` EN under stress answe
 
 Generation p50 latency: 2.4 s (top 5) and 1.9 s (top 3). Three judge scores are missing in the stress run (Haiku returned the claim list as text twice for faithfulness, once for relevancy); they do not affect correctness or attribution.
 
-## Limits
+## Limitations
 
 - One run; generator and judges are not deterministic.
 - The stress configuration is artificial (3 chunks without reranking) and exists only to exercise the attribution.

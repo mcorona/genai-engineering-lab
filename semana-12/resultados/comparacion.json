@@ -1,7 +1,7 @@
 [
  {
-  "option": "Own pipeline (pgvector + Haiku reranking)",
-  "ingestion": "own chunks",
+  "option": "In-house pipeline (pgvector + Haiku reranking)",
+  "ingestion": "in-house chunks",
   "generator": "common",
   "lang": "ES",
   "recall@5": 1.0,
@@ -17,8 +17,8 @@
   "usd_per_query": "0.00070"
  },
  {
-  "option": "Own pipeline (pgvector + Haiku reranking)",
-  "ingestion": "own chunks",
+  "option": "In-house pipeline (pgvector + Haiku reranking)",
+  "ingestion": "in-house chunks",
   "generator": "common",
   "lang": "EN",
   "recall@5": 1.0,
@@ -137,7 +137,7 @@
  },
  {
   "option": "Bedrock KB, Retrieve",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "ES",
   "recall@5": 1.0,
@@ -154,7 +154,7 @@
  },
  {
   "option": "Bedrock KB, Retrieve",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "EN",
   "recall@5": 1.0,
@@ -239,7 +239,7 @@
  },
  {
   "option": "Bedrock RetrieveAndGenerate",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "Haiku 4.5 (Bedrock)",
   "lang": "ES",
   "recall@5": 1.0,
@@ -256,7 +256,7 @@
  },
  {
   "option": "Bedrock RetrieveAndGenerate",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "Haiku 4.5 (Bedrock)",
   "lang": "EN",
   "recall@5": 1.0,
@@ -375,7 +375,7 @@
  },
  {
   "option": "Vertex AI Search, hybrid",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "ES",
   "recall@5": 1.0,
@@ -392,7 +392,7 @@
  },
  {
   "option": "Vertex AI Search, hybrid",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "EN",
   "recall@5": 0.9615,
@@ -409,7 +409,7 @@
  },
  {
   "option": "Vertex AI Search, vector",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "ES",
   "recall@5": 1.0,
@@ -426,7 +426,7 @@
  },
  {
   "option": "Vertex AI Search, vector",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "EN",
   "recall@5": 1.0,
@@ -443,7 +443,7 @@
  },
  {
   "option": "Vertex AI Search, semantic ranker",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "ES",
   "recall@5": 1.0,
@@ -460,7 +460,7 @@
  },
  {
   "option": "Vertex AI Search, semantic ranker",
-  "ingestion": "controlled: own chunks",
+  "ingestion": "controlled: in-house chunks",
   "generator": "common",
   "lang": "EN",
   "recall@5": 1.0,

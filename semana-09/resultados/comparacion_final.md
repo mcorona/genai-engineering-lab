@@ -52,9 +52,9 @@ Source: `graphrag.md`.
 
 | Test | pgvector | Qdrant | OpenSearch | No filter (contrast) | Source |
 |---|---|---|---|---|---|
-| Permission leak by role (300 queries per database and language) | **0** | **0** | **0** | ~66 % unauthorized chunks | `permisos.md` |
+| Permission leak by role (300 queries per database and language) | **0** | **0** | **0** | ~66% unauthorized chunks | `permisos.md` |
 | Forbidden passages returned (5 cases per language) | **0/5** | **0/5** | **0/5** | 5/5 | `permisos.md` |
-| Leak across tenants (100 queries per database and language) | **0** | **0** | **0** | 36–38 % (alfa) and 62–64 % (beta) from the other tenant | `multitenant.md` |
+| Leak across tenants (100 queries per database and language) | **0** | **0** | **0** | 36–38% (alfa) and 62–64% (beta) from the other tenant | `multitenant.md` |
 | The other tenant's figure in near-identical texts (20 cases) | **0/20** | **0/20** | **0/20** | ranked first in 10/20 | `multitenant.md` |
 
 The filter has no API cost. recall@5 with the filter (0.991) matches exactly what the permissions allow the user to see.
@@ -70,9 +70,9 @@ The filter has no API cost. recall@5 with the filter (0.991) matches exactly wha
 
 Vector search (bge-m3, fixed 400/80) with the tenant and role filter inside the query, and reranking with Haiku when ranking matters or the question spans two documents. Query rewriting, HyDE, contextual retrieval and GraphRAG are not adopted for this corpus.
 
-## Limits of this comparison
+## Limitations of this comparison
 
-- A small corpus (24 documents, 57 chunks): the baseline is already at the recall ceiling on the base questions, and the vector top 20 covers 35 % of the corpus, which favors reranking.
+- A small corpus (24 documents, 57 chunks): the baseline is already at the recall ceiling on the base questions, and the vector top 20 covers 35% of the corpus, which favors reranking.
 - One run per technique (two for query rewriting). Haiku is not deterministic.
 - The latencies come from different runs, on the same Mac, and were not measured on a common benchmark.
 - Every generative technique was tested only with Haiku 5.5.

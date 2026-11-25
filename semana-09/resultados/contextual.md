@@ -26,7 +26,7 @@ Contexts: `contextos.jsonl`. Detail per query: `contextual_detalle.csv`.
 
 - **Indexing (one time):** 42,119 input tokens and 6,111 output tokens, $0.00727 at the price in `semana-07/prices.json` (author's source, 2026-10-21). p50 latency of 1.2 s per chunk.
 - **Query:** no added cost or latency, because search does not call Haiku.
-- **Index size:** 1,471,171 B (`semana8`) vs. 1,490,310 B (`semana9_ctx`), 1.3 % larger.
+- **Index size:** 1,471,171 B (`semana8`) vs. 1,490,310 B (`semana9_ctx`), 1.3% larger.
 
 ## Cases whose recall@5 hit changes
 

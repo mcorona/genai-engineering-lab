@@ -37,7 +37,7 @@ Total leak with the filter: **0**. The script exits with code 0; with any leak i
 ## Reading
 
 - **0 leaks in all three databases and in both languages.** The non-negotiable criterion is met with a single tenant (the cross-tenant test is activity 6).
-- **Without the filter, the risk is real:** about 1,980 of the 3,000 chunks returned (66 %) were not authorized for the user, and all 5 forbidden passages of the gold set appeared.
+- **Without the filter, the risk is real:** about 1,980 of the 3,000 chunks returned (66%) were not authorized for the user, and all 5 forbidden passages of the gold set appeared.
 - **The 0.991 recall with the filter is the correct behavior, not a loss.** It is reproduced exactly by the permissions alone: in `rec-47`, the `compras` role cannot see `transferencias_cedis.md`, and in `rec-49`, the `almacen` role cannot see `ordenes_de_compra.md`. These are questions with two reference passages, and the filter hides the one the user is not allowed to see. The 5 allowed cases keep a recall@5 of 1.000.
 - **No short results.** In pgvector, `iterative_scan` prevents the filter from leaving the HNSW search with fewer than k results.
 - **Small differences without the filter** (1,974 to 1,984) between databases come from each engine ordering the approximate neighbors at the tail of the top 10 differently. They do not affect the leak with the filter.

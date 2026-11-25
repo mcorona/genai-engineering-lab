@@ -25,7 +25,7 @@ Read on 2026-10-31, 48 hours after every resource was deleted (2026-10-29). Sour
 
 By day: $0.47 on Oct 28 and $1.05 on Oct 29; after the deletion, $0.0002 a day (the Cost Explorer queries). Nothing billable was left running.
 
-Against the estimate: 24 % higher, almost all from Haiku 4.5. `RetrieveAndGenerate` sent more context per question than the 2,000 input tokens assumed.
+Against the estimate: 24% higher, almost all from Haiku 4.5. `RetrieveAndGenerate` sent more context per question than the 2,000 input tokens assumed.
 
 ## Anthropic: why it is a bound
 

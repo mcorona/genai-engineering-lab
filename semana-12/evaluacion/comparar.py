@@ -13,22 +13,22 @@ RANKING = COS["precios"]["ranking"]
 
 # (summary name, option, ingestion mode, generator, system in the security results, key in latency, key in costs)
 FILAS = [
-    ("propio", "Own pipeline (pgvector + Haiku reranking)", "own chunks", "common", None, "propio", "propio"),
+    ("propio", "In-house pipeline (pgvector + Haiku reranking)", "in-house chunks", "common", None, "propio", "propio"),
     ("bedrock_adm-pred", "Bedrock KB, Retrieve", "managed: default chunking/parser", "common", "bedrock adm-pred", None, None),
     ("bedrock_adm-fijo", "Bedrock KB, Retrieve", "managed: fixed 100 tok / 20%", "common", "bedrock adm-fijo", None, None),
     ("bedrock_adm-fijo-bda", "Bedrock KB, Retrieve", "managed: fixed + BDA multimodal", "common", "bedrock adm-fijo-bda", None, None),
-    ("bedrock_ctl-chunks", "Bedrock KB, Retrieve", "controlled: own chunks", "common", "bedrock ctl-chunks", "bedrock_ctl", "bedrock_ctl-chunks"),
+    ("bedrock_ctl-chunks", "Bedrock KB, Retrieve", "controlled: in-house chunks", "common", "bedrock ctl-chunks", "bedrock_ctl", "bedrock_ctl-chunks"),
     ("bedrock_adm-pred_rag", "Bedrock RetrieveAndGenerate", "managed: default chunking/parser", "Haiku 4.5 (Bedrock)", None, None, None),
     ("bedrock_adm-fijo-bda_rag", "Bedrock RetrieveAndGenerate", "managed: fixed + BDA multimodal", "Haiku 4.5 (Bedrock)",
      "bedrock adm-fijo-bda RetrieveAndGenerate", "bedrock_bda_rag", "bedrock_adm-fijo-bda"),
-    ("bedrock_ctl-chunks_rag", "Bedrock RetrieveAndGenerate", "controlled: own chunks", "Haiku 4.5 (Bedrock)", None, None, None),
+    ("bedrock_ctl-chunks_rag", "Bedrock RetrieveAndGenerate", "controlled: in-house chunks", "Haiku 4.5 (Bedrock)", None, None, None),
     ("vertex_vx-adm_hibrida", "Vertex AI Search, hybrid", "managed: layout parser", "common", "vertex vx-adm", None, None),
     ("vertex_vx-adm_vectorial", "Vertex AI Search, vector", "managed: layout parser", "common", "vertex vx-adm", None, None),
     ("vertex_vx-adm_semantico", "Vertex AI Search, semantic ranker", "managed: layout parser", "common", "vertex vx-adm",
      "vertex_adm_sem", "vertex_vx-adm"),
-    ("vertex_vx-ctl_hibrida", "Vertex AI Search, hybrid", "controlled: own chunks", "common", "vertex vx-ctl", None, None),
-    ("vertex_vx-ctl_vectorial", "Vertex AI Search, vector", "controlled: own chunks", "common", "vertex vx-ctl", None, None),
-    ("vertex_vx-ctl_semantico", "Vertex AI Search, semantic ranker", "controlled: own chunks", "common", "vertex vx-ctl",
+    ("vertex_vx-ctl_hibrida", "Vertex AI Search, hybrid", "controlled: in-house chunks", "common", "vertex vx-ctl", None, None),
+    ("vertex_vx-ctl_vectorial", "Vertex AI Search, vector", "controlled: in-house chunks", "common", "vertex vx-ctl", None, None),
+    ("vertex_vx-ctl_semantico", "Vertex AI Search, semantic ranker", "controlled: in-house chunks", "common", "vertex vx-ctl",
      "vertex_ctl_sem", "vertex_vx-ctl"),
 ]
 

@@ -30,7 +30,7 @@ With default settings the service returned 0 to 7 results per query, and none fo
 | Data store | Mode | Content | Processing | Imported |
 |---|---|---|---|---|
 | `vx-adm` | **Managed** | The 40 originals | Layout parser, default chunking (500 tokens) | 40/40 |
-| `vx-ctl` | **Controlled** | The own pipeline's 101 chunks, one document each | Digital parser, no chunking | 101/101 |
+| `vx-ctl` | **Controlled** | The in-house pipeline's 101 chunks, one document each | Digital parser, no chunking | 101/101 |
 
 Vertex does not import Markdown with the layout parser (TXT is digital-parser only) or standalone JPG and PNG. So `vx-adm` receives the Markdown converted to HTML (same text, with headings, lists and tables) and each image wrapped in a one-page PDF, which the layout parser OCRs.
 
@@ -46,7 +46,7 @@ Vertex does not import Markdown with the layout parser (TXT is digital-parser on
 
 | Option | recall@1 | recall@5 | MRR | doc_recall@5 | Correctness | faithfulness | Citation precision | False abstention |
 |---|---|---|---|---|---|---|---|---|
-| **Own pipeline (baseline)** | 0.892 / 0.885 | 1.000 / 1.000 | 0.949 / 0.954 | 1.000 / 1.000 | **1.000 / 1.000** | 0.849 / 0.830 | 0.600 / 0.625 | 0 / 0 |
+| **In-house pipeline (baseline)** | 0.892 / 0.885 | 1.000 / 1.000 | 0.949 / 0.954 | 1.000 / 1.000 | **1.000 / 1.000** | 0.849 / 0.830 | 0.600 / 0.625 | 0 / 0 |
 | `vx-adm` hybrid | 0.777 / 0.731 | 0.831 / 0.823 | 0.823 / 0.797 | 1.000 / 0.992 | 0.923 / 0.923 | 0.871 / 0.861 | 0.583 / 0.663 | 4 / 3 |
 | `vx-adm` vector | 0.715 / 0.715 | 0.808 / 0.808 | 0.787 / 0.787 | 0.977 / 0.977 | 0.908 / 0.908 | 0.867 / 0.863 | 0.575 / 0.614 | 4 / 6 |
 | `vx-adm` semantic ranker | 0.815 / 0.800 | 0.831 / 0.831 | 0.839 / 0.831 | 1.000 / 1.000 | 0.923 / 0.923 | 0.852 / 0.854 | 0.615 / 0.667 | 4 / 3 |
@@ -62,7 +62,7 @@ Vertex does not import Markdown with the layout parser (TXT is digital-parser on
 
 | Option | Retrieval USD | Retrieval p50 / p95 (s) | Generation USD (common generator) | Generation p50 / p95 (s) |
 |---|---|---|---|---|
-| Own pipeline (Haiku reranking) | $0.00049 | 2.31 / 3.84 | $0.00021 | 1.69 / 3.39 |
+| In-house pipeline (Haiku reranking) | $0.00049 | 2.31 / 3.84 | $0.00021 | 1.69 / 3.39 |
 | Vertex hybrid or vector | $0 within 10,000 queries per month; $0.004 at Enterprise list price | 0.38 to 0.43 / 0.52 to 0.99 | $0.00021 to $0.00034 | 1.6 to 1.8 / 3.1 to 4.5 |
 | Vertex + semantic ranker | + $0.001 (Ranking API) | 0.71 to 0.78 / 0.87 to 1.33 | $0.00021 to $0.00032 | 1.6 to 1.8 / 3.4 to 5.6 |
 
@@ -71,8 +71,8 @@ Vertex does not import Markdown with the layout parser (TXT is digital-parser on
 
 ## Reading
 
-1. **With the same chunks, Google's semantic ranker beats the own pipeline's reranking.**
-   - `vx-ctl` + semantic ranker: MRR 0.977 / 0.962 and recall@1 0.94 / 0.91, against the own pipeline's 0.949 / 0.954 and 0.89.
+1. **With the same chunks, Google's semantic ranker beats the in-house pipeline's reranking.**
+   - `vx-ctl` + semantic ranker: MRR 0.977 / 0.962 and recall@1 0.94 / 0.91, against the in-house pipeline's 0.949 / 0.954 and 0.89.
    - Retrieval takes 0.7 s instead of 2.3 s, for $0.001 instead of $0.0005 per query.
    - Correctness is 0.985, with one generator slip per language (`rec-02` ES, `rec-23` EN). Their passages were in the context.
 2. **Hybrid is good in Spanish and weaker in English.**
@@ -102,7 +102,7 @@ Vertex does not import Markdown with the layout parser (TXT is digital-parser on
 | Vertex: layout parser on about 60 pages, import, index and storage | estimated < $1; within the free tier for queries and index; to confirm on the bill (activity 10) |
 | **Total** | **≈ $2** (estimate $2) |
 
-## Limits
+## Limitations
 
 - **One run per configuration.**
 - **"Vector" is a ranking formula over the service's candidates, not a separate vector index.** Vertex does not expose pure vector retrieval for these data stores.

@@ -10,7 +10,7 @@ Haiku extracted entities and relations from each of the 57 week 8 chunks (fixed 
 - **Size:** 426 unique entities and 532 relations.
 - **Validity:** 57 of 57 extractions with valid JSON (the script does not load the graph if any fails). Cache: `grafo_extraccion.jsonl`.
 - **One-time extraction cost:** 25,936 input tokens and 90,017 output tokens, **$0.0476**. p50 latency of 6.9 s per chunk. The output is large because Haiku reasons before the JSON.
-- **Generic entities:** none appears in more than 30 % of the chunks (a threshold set before the run), so none was excluded from the expansion. The expansion weights each entity by 1/df.
+- **Generic entities:** none appears in more than 30% of the chunks (a threshold set before the run), so none was excluded from the expansion. The expansion weights each entity by 1/df.
 
 ## Questions
 
@@ -57,14 +57,14 @@ Detail per query: `graphrag_detalle.csv`.
 
 - **Vector + reranking is the best method in all four groups.** It retrieves both passages in the top 5 for 10 of 10 questions in every set and language, and it has the best nDCG@10. It costs about $0.0005 per query and adds about 2.3 s.
 - **GraphRAG does not beat that baseline, not even in the most favorable case (bridge).** In bridge EN, G+Q retrieves 7 of 10 and V+R 10 of 10; in bridge ES both reach 10 of 10, but G+Q with a worse ranking (nDCG@10 0.867 vs. 0.941).
-- **Why reranking wins on this corpus:** V+R only reorders the first 20 vector candidates, and it retrieved both passages for all 40 questions, so in every case both passages were already in the vector top 20. With 57 chunks, the top 20 is 35 % of the corpus. The vector search's problem was ranking the second passage, not finding it, and a reranker solves that.
+- **Why reranking wins on this corpus:** V+R only reorders the first 20 vector candidates, and it retrieved both passages for all 40 questions, so in every case both passages were already in the vector top 20. With 57 chunks, the top 20 is 35% of the corpus. The vector search's problem was ranking the second passage, not finding it, and a reranker solves that.
 - **G (expansion, no query cost)** improves on vector search for some questions (`ms-01`, `pt-05`) but makes others worse (`pt-08` and `pt-10` in ES): the graph neighbors displace vector results that were correct. On balance it ties or loses, except in compound ES and bridge EN.
 - **G+Q (entities from the question)** helps mainly in English (compound EN from 7 to 9 of 10; bridge EN from 5 to 7 of 10). It found graph entities for 40 of 40 questions, including English questions against a Spanish graph. It costs $0.00014 to $0.00016 per query, a third of reranking, but retrieves less.
 - **Total cost of the graph:** $0.048 of one-time extraction, plus the per-query cost of G+Q. With a corpus of this size, that investment does not pay off.
 
 ## Conclusion
 
-GraphRAG adds nothing over the vector + reranking baseline on this corpus, neither on compound questions nor in the most favorable case, with the bridge entity hidden. It is not adopted. It is documented without adjusting the metric: the metrics, the thresholds (30 % for generic entities, 3 seeds, RRF k=60) and the question sets were fixed before the run.
+GraphRAG adds nothing over the vector + reranking baseline on this corpus, neither on compound questions nor in the most favorable case, with the bridge entity hidden. It is not adopted. It is documented without adjusting the metric: the metrics, the thresholds (30% for generic entities, 3 seeds, RRF k=60) and the question sets were fixed before the run.
 
 The case in which GraphRAG could win is a much larger corpus, where the second passage falls outside the vector top 20 and the reranker cannot see it. That case was not tested here.
 
@@ -75,7 +75,7 @@ The case in which GraphRAG could win is a much larger corpus, where the second p
 
 ## Limitations
 
-- 10 questions per set and language: one question moves "both in the top 5" by 10 %.
+- 10 questions per set and language: one question moves "both in the top 5" by 10%.
 - A small corpus (57 chunks): the top 20 covers a third of the corpus, which favors reranking.
 - A graph without entity resolution beyond normalization: variants such as `cedis monterrey` and `cedis monterrey.md` appear.
 - A single local GraphRAG configuration (1 hop). Community summaries (global GraphRAG) were not tested.

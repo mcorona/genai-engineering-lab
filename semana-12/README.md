@@ -4,7 +4,7 @@
 
 Status: complete. Every resource was deleted on 2026-10-29. Real cost from the bills: AWS $1.50 (covered by credits), Google Cloud MXN 16.64, Anthropic at most $4.94, OpenAI $0 ([`resultados/costo_real.md`](resultados/costo_real.md)).
 
-Goal: load the same document base into a managed RAG on AWS (Bedrock Knowledge Bases with S3 Vectors) and on Google Cloud (Vertex AI Search), and compare both with the own pipeline from weeks 8 to 10. The comparison covers quality, latency, cost and security, using the week 11 suites.
+Goal: load the same document base into a managed RAG on AWS (Bedrock Knowledge Bases with S3 Vectors) and on Google Cloud (Vertex AI Search), and compare both with the in-house pipeline from weeks 8 to 10. The comparison covers quality, latency, cost and security, using the week 11 suites.
 
 ## 1. Accounts, permissions and cost control
 
@@ -86,7 +86,7 @@ Cost of activity 1: $0. Budgets, IAM roles, service accounts and price catalog q
 
 ### Contents
 
-The base is the own pipeline's index (week 10, activity 7) plus the week 9 `beta` tenant, which activity 6 needs for cross-tenant leak tests.
+The base is the in-house pipeline's index (week 10, activity 7) plus the week 9 `beta` tenant, which activity 6 needs for cross-tenant leak tests.
 
 | Tenant | Documents | Original formats | Chunks (fixed 400/80) |
 |---|---|---|---|
@@ -98,8 +98,8 @@ The package has one folder per ingestion mode:
 | Folder | Mode | What it holds |
 |---|---|---|
 | `administrado/<tenant>/` | Managed | The original files. Each service parses, chunks and embeds them with its native options |
-| `controlado/textos/<tenant>/` | Controlled | The text the own pipeline indexes: pdfplumber for PDF, Haiku transcription for scans, Haiku description for images, Markdown as is |
-| `controlado/chunks/<tenant>/` | Controlled | The own pipeline's 101 chunks, one per file, to ingest without re-chunking (Bedrock chunking strategy `NONE`). This isolates index and ranking quality |
+| `controlado/textos/<tenant>/` | Controlled | The text the in-house pipeline indexes: pdfplumber for PDF, Haiku transcription for scans, Haiku description for images, Markdown as is |
+| `controlado/chunks/<tenant>/` | Controlled | The in-house pipeline's 101 chunks, one per file, to ingest without re-chunking (Bedrock chunking strategy `NONE`). This isolates index and ranking quality |
 
 ### Permissions in each service's format
 
@@ -123,11 +123,11 @@ How each service receives them:
 | Check | Result |
 |---|---|
 | Documents per tenant | 30 `alfa`, 10 `beta` |
-| `alfa` chunks equal to the own index | 68 |
+| `alfa` chunks equal to the in-house index | 68 |
 | Documents without roles | 0 |
 | Original files identical to their sources (sha256) | 40/40 |
 | Week 11 gold passages intact in a chunk of their document | 136/136 |
-| Multitenant passages (`alfa` and `beta`) intact | 40/40 |
+| Multi-tenant passages (`alfa` and `beta`) intact | 40/40 |
 | Gold sets unchanged against `main` (week 11 `eval_rag_{es,en}`, week 9 `multitenant_{es,en}`) | yes; sha256 recorded |
 | Vertex document ids unique and ≤ 63 characters | yes (max 38) |
 
@@ -135,7 +135,7 @@ The `infra-semana-12` CI check rebuilds the package on every PR that touches `se
 
 **To check in activities 4 and 5:** which original formats each service ingests in managed mode. The default Bedrock parser does not read images (that needs Bedrock Data Automation or a model parser), and Vertex AI Search may not accept JPG or PNG as unstructured documents. The controlled mode covers those documents with their extracted text either way.
 
-## 3. Baseline: own pipeline with the week 11 suites
+## 3. Baseline: in-house pipeline with the week 11 suites
 
 [`evaluacion/suites.py`](evaluacion/suites.py) is the evaluator for the whole week. Each option is a retrieval backend; the gold set, the common generator (Haiku 5.5 `medium`, `solo_documentos`), the judge (Haiku 5.5 `low`) and the metrics stay the same. Results: [`resultados/linea_base.md`](resultados/linea_base.md); the reference for every comparison is `resultados/propio_resumen.json`.
 
@@ -154,16 +154,16 @@ Four knowledge bases on S3 Vectors with Cohere Embed Multilingual v3, created an
 
 | Option (ES) | recall@5 | MRR | doc_recall@5 | Correctness | faithfulness |
 |---|---|---|---|---|---|
-| Own pipeline (baseline) | 1.000 | 0.949 | 1.000 | 1.000 | 0.849 |
+| In-house pipeline (baseline) | 1.000 | 0.949 | 1.000 | 1.000 | 0.849 |
 | `adm-pred`: originals, default chunking and parser | 0.823 | 0.755 | 0.831 | 0.815 | 0.815 |
 | `adm-fijo`: fixed 100 tokens / 20% | 0.815 | 0.728 | 0.846 | 0.831 | 0.888 |
 | `adm-fijo-bda`: BDA multimodal parser | 0.739 | 0.659 | 0.985 | 0.708 | 0.761 |
-| `ctl-chunks`: own chunks, no re-chunking | 1.000 | 0.863 | 1.000 | 0.985 | 0.881 |
+| `ctl-chunks`: in-house chunks, no re-chunking | 1.000 | 0.863 | 1.000 | 0.985 | 0.881 |
 | `adm-fijo-bda` + RetrieveAndGenerate (Haiku 4.5) | 0.739 | 0.659 | 0.985 | **0.969** | 0.739 |
 | `ctl-chunks` + RetrieveAndGenerate (Haiku 4.5) | 1.000 | 0.863 | 1.000 | 0.985 | **0.947** |
 
 - **Ingestion:**
-  - With the own chunks, Bedrock matches the own pipeline on coverage. The remaining gap is reranking.
+  - With the in-house chunks, Bedrock matches the in-house pipeline on coverage. The remaining gap is reranking.
   - The default parser loses every scan and image.
   - BDA multimodal returns PDFs and images as images: only RetrieveAndGenerate, which passes them to Claude, uses them.
 - **Leakage:** 0 chunks from another tenant in every run.
@@ -177,20 +177,20 @@ Four knowledge bases on S3 Vectors with Cohere Embed Multilingual v3, created an
 Two data stores in project `ejemplo1-9xub`, created by [`infra/vertex_crear.py`](infra/vertex_crear.py) with the operator service account (impersonation, no keys) and measured with the common evaluator. Results: [`resultados/vertex.md`](resultados/vertex.md).
 
 - **Managed:** `vx-adm`, originals parsed by the layout parser with default 500-token chunking. Markdown becomes HTML and images become PDF, because the service does not import them as they are.
-- **Controlled:** `vx-ctl`, the own 101 chunks pushed as documents.
+- **Controlled:** `vx-ctl`, the 101 in-house chunks pushed as documents.
 - **Filters:** `tenant_id` and `roles` are filterable in the schema and applied inside the query.
 - **Search modes:** hybrid (default), vector (`semantic_similarity_score` ranking) and the semantic ranker (Ranking API).
 
 | Option (ES / EN) | recall@5 | MRR | doc_recall@5 | Correctness |
 |---|---|---|---|---|
-| Own pipeline (baseline) | 1.000 / 1.000 | 0.949 / 0.954 | 1.000 / 1.000 | 1.000 / 1.000 |
+| In-house pipeline (baseline) | 1.000 / 1.000 | 0.949 / 0.954 | 1.000 / 1.000 | 1.000 / 1.000 |
 | `vx-adm` hybrid / vector / semantic | 0.83 / 0.81 / 0.83 | 0.82 / 0.79 / 0.84 | 1.00 / 0.98 / 1.00 | 0.92 / 0.91 / 0.92 |
 | `vx-ctl` hybrid | 1.000 / 0.962 | 0.949 / 0.860 | 1.000 / 0.985 | 1.000 / 0.969 |
 | `vx-ctl` vector | 1.000 / 1.000 | 0.897 / 0.881 | 1.000 / 1.000 | 1.000 / 0.985 |
 | `vx-ctl` semantic ranker | **1.000 / 1.000** | **0.977 / 0.962** | 1.000 / 1.000 | 0.985 / 0.985 |
 
 - **Ranking:**
-  - With the same chunks, Google's semantic ranker ranks better than the own Haiku reranking: MRR 0.97 vs 0.95, 0.7 s instead of 2.3 s.
+  - With the same chunks, Google's semantic ranker ranks better than the in-house Haiku reranking: MRR 0.97 vs 0.95, 0.7 s instead of 2.3 s.
   - Hybrid search loses in English because of its keyword component.
 - **Managed ingestion:** it reads PDFs and scans, but OCR alone cannot tie chart values to their labels, so the 5 image questions fail.
 - **Leakage:** 0 in every run. Correct abstention: 10/10 everywhere.
@@ -216,15 +216,15 @@ Two data stores in project `ejemplo1-9xub`, created by [`infra/vertex_crear.py`]
 
 Same client and location (one Mac in Guadalajara), concurrency 1, 100 questions with the options in random order per question. Results: [`resultados/latencia_costo.md`](resultados/latencia_costo.md).
 
-| Option | Full answer p50 / p95 (s) | Fixed USD per month | USD per query | Monthly USD at 10k / 100k queries | More expensive than own pipeline from |
+| Option | Full answer p50 / p95 (s) | Fixed USD per month | USD per query | Monthly USD at 10k / 100k queries | More expensive than in-house pipeline from |
 |---|---|---|---|---|---|
-| Own pipeline (hosted on RDS db.t4g.micro) | 3.89 / 6.07 | 13.98 | 0.000703 | 21.01 / 84.28 | — |
+| In-house pipeline (hosted on RDS db.t4g.micro) | 3.89 / 6.07 | 13.98 | 0.000703 | 21.01 / 84.28 | — |
 | Bedrock `Retrieve` + common generator | 2.58 / 4.09 | ≈ 0 | **0.000269** | **2.69 / 26.90** | never |
 | Bedrock RetrieveAndGenerate (Haiku 4.5) | **1.50 / 2.21** | ≈ 0 | 0.001083 (est.) | 10.83 / 108.30 | ≈ 37,000 per month |
 | Vertex + semantic ranker | 2.40 / 3.94 | ≈ 0 | 0.001213 + $0.004 past 10k per month | 12.13 / 481.30 | ≈ 12,000 per month |
 
 - **One-time ingestion:** under $0.05 on Bedrock, and $0.40 on Vertex (layout parser on 40 pages).
-- **Retrieval:** the own reranking adds 2.2 s. RetrieveAndGenerate is the fastest full answer, because it makes a single call inside AWS.
+- **Retrieval:** the in-house reranking adds 2.2 s. RetrieveAndGenerate is the fastest full answer, because it makes a single call inside AWS.
 - **Cost of the activity:** ≈ $0.50.
 
 ## 8. Final comparison and decision
@@ -233,13 +233,13 @@ Same client and location (one Mac in Guadalajara), concurrency 1, 100 questions 
 
 | Need | Choice |
 |---|---|
-| Accuracy and portability | Own pipeline (correctness 1.000; runs anywhere) |
+| Accuracy and portability | In-house pipeline (correctness 1.000; runs anywhere) |
 | Ranking without building a reranker | Vertex semantic ranker (nDCG@10 0.98 / 0.97) |
 | Mixed formats without your own extraction | Bedrock BDA multimodal + RetrieveAndGenerate (0.969) |
-| Lowest cost and latency | Bedrock `Retrieve` + own generator ($0.00027); RetrieveAndGenerate (1.5 s p50) |
-| High volume | Own pipeline or Bedrock `Retrieve`; Vertex costs about 6 times more at 100,000 queries a month |
+| Lowest cost and latency | Bedrock `Retrieve` + common generator ($0.00027); RetrieveAndGenerate (1.5 s p50) |
+| High volume | In-house pipeline or Bedrock `Retrieve`; Vertex costs about 6 times more at 100,000 queries a month |
 
-Both services keep leakage at 0, so security does not decide between them. Lock-in, model choice (RetrieveAndGenerate depends on the account's Bedrock models) and data residency favor the own pipeline.
+Both services keep leakage at 0, so security does not decide between them. Lock-in, model choice (RetrieveAndGenerate depends on the account's Bedrock models) and data residency favor the in-house pipeline.
 
 ## 9. Reproducible evaluation and CI
 
@@ -291,9 +291,9 @@ The semantic ranker works with the read-only CI identity (Discovery Engine viewe
 
 **The bill.** Charges take 24 to 48 hours to settle. [`infra/costo_real.sh`](infra/costo_real.sh) makes one Cost Explorer query ($0.01) and summarizes AWS cost by service and day; Google Cloud (billing reports, project `ejemplo1-9xub`, in MXN), Anthropic and OpenAI usage come from their consoles. The real cost goes to `resultados/costo_real.md` and is compared with the estimate in [`resultados/costos_fijos.md`](resultados/costos_fijos.md) (≈ $3 to $4). The activity cost notes in this README add up to about $5.2. After that review, `--presupuesto` deletes the budgets. **Result (2026-10-31):** [`resultados/costo_real.md`](resultados/costo_real.md).
 
-## 11. Limits, decisions and failed cases
+## 11. Limitations, decisions and failed cases
 
-### Limits
+### Limitations
 
 - **Small corpus.** 30 documents, 101 chunks and 150 questions (75 per language). Fixed costs round to zero at this size; the conclusions about fixed versus per-query cost do not carry over to a corpus of many GB without measuring it.
 - **Not the same generator in managed mode.** RetrieveAndGenerate uses Haiku 4.5, because Haiku 5.5 has quota 0 on this AWS account. Its correctness and cost are therefore not a like-for-like comparison with the common generator (Haiku 5.5).
@@ -325,8 +325,8 @@ The decision on which option to use is in section 8.
 |---|---|---|
 | Cohere embeddings denied | The Marketplace agreement did not exist | Agreement accepted; wait for propagation |
 | BDA configuration rejected or images ignored | An empty configuration is rejected; text-only BDA ignores images; multimodal needs supplemental storage at a bucket root | A separate multimodal bucket |
-| Default parser loses scans and images (`adm-pred`, `adm-fijo`) | It only extracts text | Measured and documented; BDA or the own chunks |
-| `rec-11` and `rec-48` miss in Bedrock managed mode | Bedrock's chunking split their passages | Controlled mode with the own chunks |
+| Default parser loses scans and images (`adm-pred`, `adm-fijo`) | It only extracts text | Measured and documented; BDA or the in-house chunks |
+| `rec-11` and `rec-48` miss in Bedrock managed mode | Bedrock's chunking split their passages | Controlled mode with the in-house chunks |
 | 5 image questions per language fail in `vx-adm` | OCR extracts chart labels and values without pairing them | Not fixed in the service; week 10 solves it with a Haiku description at indexing time |
 | Vertex did not import TXT, Markdown or standalone images | Layout parser limits | Markdown to HTML, images to PDF |
 | Few Vertex results | Default relevance threshold | `relevanceThreshold: LOWEST` and automatic query expansion |

@@ -52,7 +52,7 @@ The workflow runs on every pull request. A first job checks whether the PR touch
 |---|---|---|---|---|---|---|
 | faithfulness (RAGAS) | 0.833 | 0.864 | 0.80 | 0.829 | 0.830 | 0.75 |
 | answer relevancy (RAGAS) | 0.850 | 0.853 | 0.80 | 0.819 | 0.836 | 0.75 |
-| correctness (own judge) | 1.000 | 1.000 | 0.95 | 1.000 | 1.000 | 0.95 |
+| correctness (custom judge) | 1.000 | 1.000 | 0.95 | 1.000 | 1.000 | 0.95 |
 | citation precision | 0.728 | 0.684 | 0.65 | 0.759 | 0.782 | 0.70 |
 | no false abstention | 1.000 | 1.000 | 0.95 | 1.000 | 1.000 | 0.95 |
 | correct abstention (n = 10) | 1.000 | 1.000 | 0.90 | 1.000 | 1.000 | 0.90 |

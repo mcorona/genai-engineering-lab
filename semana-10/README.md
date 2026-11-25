@@ -28,7 +28,7 @@ Validation of the integrated set: [`golden_validacion.md`](resultados/golden_val
 | 5 | Images (chart, floor plan) | Associated facts: Tesseract 0/7, Haiku description 7/7; recall@5 5/5 with the description | Haiku describes and extracts at indexing time | [`imagenes.md`](resultados/imagenes.md) |
 | 6 | Question routing | Haiku 5.5 low: ES 0.882, EN 0.863 (majority floor 0.588); SQL 30/30, mixed 12/12; 9 harmful document → SQL errors | Router with fallback to documents | [`ruteo.md`](resultados/ruteo.md) |
 | 7 | Integrated assistant | Judge accuracy **ES 0.961, EN 0.980** vs SQL only 0.294 and documents only 0.608; mixed 5/6 vs at most 1/6 for either tool alone; $0.00083 per question, p50 5.3 s | Integrated, with SQL abstention on the SQL route | [`asistente.md`](resultados/asistente.md) |
-| 8 | Assistant security | Hardened NLQ: **0 writes**; leakage **0** by role (56), across tenants (40) and through SQL (32); injected instructions followed **0/48** | Hardened NLQ (`copilot_nlq` + rolled-back READ ONLY transaction) | [`seguridad.md`](resultados/seguridad.md) |
+| 8 | Assistant security | Hardened NLQ: **0 writes**; leakage **0** by role (56), across tenants (40) and through SQL (32); injected instructions followed **0/48** | Hardened NLQ (`copilot_nlq` + rolled-back `READ ONLY` transaction) | [`seguridad.md`](resultados/seguridad.md) |
 | 9 | CI | Workflow `eval-semana-10` on every PR touching `semana-10/**`; thresholds calibrated on the first run | Thresholds 0.85 / 0.90 / 0.90 | [`ci_calibracion.md`](resultados/ci_calibracion.md) |
 
 ## The assistant
@@ -51,7 +51,7 @@ Indexed content: week 8 text corpus, PDF tables extracted by pdfplumber, scans t
 | Mixed | 0.833 / 0.833 | 0 / 0 | 0.167 / 0.167 |
 | **Total** | **0.961 / 0.980** | 0.294 / 0.294 | 0.608 / 0.608 |
 
-SQL citation correct (cited `[SQL]` and the result matches the reference): 18/21 ES, 19/21 EN. Document citation precision is a lower bound (0.741 / 0.656), because a cited passage that is relevant but is not the reference passage counts as without evidence.
+SQL citation correct (cited `[SQL]` and the result matches the reference): 18/21 ES, 19/21 EN. Document citation precision is a lower bound (0.741 / 0.656), because a cited passage that is relevant but is not the reference passage counts as unsupported.
 
 ## Security
 
@@ -61,7 +61,7 @@ SQL citation correct (cited `[SQL]` and the result matches the reference): 18/21
 | Leakage 0 by role and across tenants, also through the assistant | **0** in 128 cases | Unauthorized chunks in the assistant's context (passages or SQL rows) and unauthorized data in the answer |
 | Injected instructions in a PDF or an image are not followed | **0/48** followed; correct data 48/48 | 2 PDFs and 2 images with an instruction (table row, 8 pt footnote, visible box, near-invisible text); Sonnet 5.5 low as judge |
 
-**What the security tests found:** the week 7 / activity 7 NLQ connection was never read-only. psycopg ignores `read_only` in autocommit, so `SELECT lo_create(0)` passed the single-SELECT filter and **wrote large objects**. In addition, `copilot_ro` could read the document table without the role filter. The assistant never triggered either (Haiku abstained), but the tool allowed it. The hardened NLQ (role `copilot_nlq` limited to the legacy views, each query inside a READ ONLY transaction that always rolls back) closes both, and is what `experimentos/asistente.py` uses since PR #44.
+**What the security tests found:** the week 7 / activity 7 NLQ connection was never read-only. psycopg ignores `read_only` in autocommit, so `SELECT lo_create(0)` passed the single-SELECT filter and **wrote large objects**. In addition, `copilot_ro` could read the document table without the role filter. The assistant never triggered either (Haiku abstained), but the tool allowed it. The hardened NLQ (role `copilot_nlq` limited to the legacy views, each query inside a `READ ONLY` transaction that always rolls back) closes both, and is what `experimentos/asistente.py` has used since PR #44.
 
 Haiku also acted as a first barrier when indexing images: it detected the injected text and left it out of the description. The answer model was then tested with a literal transcription that does carry the instruction, and still did not follow it.
 
@@ -116,7 +116,7 @@ These are recorded in each results file, because they changed how a result shoul
 | 9 CI (calibration and thresholds) | 0.23 |
 | **Total** | **~2.88** |
 
-## Limits
+## Limitations
 
 - Everything is synthetic: database (seed 42), documents, scans, images, roles and tenants. Real legacy schemas have hundreds of tables and abbreviations without a pattern; real scans and photos are noisier.
 - Small sets: 43 SQL questions, 15 per type and 6 mixed per language, 4 injected documents. One question moves accuracy by 0.02 to 0.17.

@@ -1,4 +1,4 @@
-# Activity 3: baseline (own pipeline) with the week 11 suites
+# Activity 3: baseline (in-house pipeline) with the week 11 suites
 
 Script: [`evaluacion/suites.py`](../evaluacion/suites.py) `--backend propio` (run on 2026-10-28). The same evaluator runs every option of the week. Each option is only a retrieval backend; the gold set, generator, judge and metrics are shared.
 
@@ -12,11 +12,11 @@ Files:
 
 | Item | Value |
 |---|---|
-| Golden set | Week 11 `eval_rag_{es,en}.jsonl`, unchanged: 65 answerable and 10 unanswerable questions per language |
+| Gold set | Week 11 `eval_rag_{es,en}.jsonl`, unchanged: 65 answerable and 10 unanswerable questions per language |
 | User | Tenant `alfa` with every role |
 | Retrieval | bge-m3 (LM Studio), pgvector `semana10.chunks` (68 chunks, fixed 400/80), tenant and role filter inside the query, top 20, Haiku 5.5 reranking |
 | Generator | Haiku 5.5 `medium` on the top 5, `solo_documentos` prompt (week 11 decision) |
-| Judge | Haiku 5.5 `low`: faithfulness and answer relevancy (RAGAS 0.4.3), own correctness judge, abstention class |
+| Judge | Haiku 5.5 `low`: faithfulness and answer relevancy (RAGAS 0.4.3), custom correctness judge, abstention class |
 | Retrieval metrics | Exact relevance (a chunk of the gold document that contains the literal passage), plus `doc_recall@5`. `doc_recall@5` asks only whether the gold document is in the top 5, so it does not depend on where each service cuts its chunks |
 | Failure attribution | **Retrieval** if a gold passage is missing from the top 5; **generation** otherwise (week 11, activity 5) |
 
