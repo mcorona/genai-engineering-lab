@@ -1,7 +1,7 @@
 # Week 20, activity 2: cost attribution
 
-Status: the code is in place and tested offline ($0). The small paid run, and the cost of a query measured three
-ways, wait for Manuel's OK and for the `componente` tag to be active in Billing (section 4).
+Status: the code is merged (#333, #335) and the run is done (2026-11-24, 4/4 tasks). Spans and EMF agree to the
+last digit; the Cost Explorer figure by `componente` comes the next day (section 4).
 
 ## 1. Application inference profiles
 
@@ -58,7 +58,7 @@ ways, wait for Manuel's OK and for the `componente` tag to be active in Billing 
   test holds the count. Activity 4 adds models and routes, so it must recount (beyond 10: 0.30 USD per metric-month,
   prorated by the hour).
 
-## 4. The small run (pending Manuel's OK)
+## 4. The small run (2026-11-24)
 
 `semana-20/atribucion/corrida.py`, simulation by default. Four tasks that passed in activity 1's corrected run
 (`s03-es`, `s06-es`, `s03-en`, `v01-en`, 0.117 USD there), through the public API. Before sending anything it checks
@@ -72,13 +72,45 @@ that the agent runs the ceiling budget, the direct path, and an application prof
 | Cost Explorer the next day: one GetCostAndUsage | 0.01 |
 | **Total** | **≈ 0.30** |
 
-The cost of a query three ways, filled in after the run:
+**Setup, as deployed:** the `componente` and `perfil` tags were activated in Billing on 2026-11-24. The stacks went
+up the same day, and the agent Lambda's `MODELO` was checked to be the `semana19-agente` application profile, with
+`PRESUPUESTO_TAREA=techo_semana20` and `CAMINO_HERRAMIENTAS=directo`. The three profiles carry `proyecto=semana19`,
+`perfil=lab` and their own `componente`, checked with ListTagsForResource. Two fixes were needed before the deploy
+went through (#335). CloudFormation's early validation rejected a comma in the profile description, and the
+bootstrap step's echo printed the account. Both are now covered by tests.
 
-| Way | Source | USD |
-|---|---|---|
-| 1. Spans | tokens of each agent span × Price List (1.10 / 5.50 per 1M, regional on-demand), recomputed | — |
-| 2. EMF | sum of `LegacyBridge/CostoUSD` over the run's window (GetMetricData) | — |
-| 3. Cost Explorer | Bedrock cost on the run's day, `componente=agente` | — |
+**Result** ([crudo.json](atribucion/crudo.json), [emf.json](atribucion/emf.json)):
+
+| Task | Steps | Input tokens | Output tokens | USD (spans, recomputed) | Baseline USD (activity 1) |
+|---|---|---|---|---|---|
+| s03-es | 3 | 11,900 | 968 | 0.0184140 | 0.0175769 |
+| s06-es | 5 | 22,323 | 1,442 | 0.0324863 | 0.0392337 |
+| s03-en | 4 | 15,730 | 688 | 0.0210870 | 0.0315029 |
+| v01-en | 5 | 19,429 | 938 | 0.0265309 | 0.0282931 |
+| **Total** | **17** | **69,382** | **4,036** | **0.0985182** | 0.1166066 |
+
+- 4/4 answered and verified, 2 per language. No cache tokens (caching is activity 3).
+- The model spent 0.0985 USD against the 0.40 cap, below the 0.12 estimate.
+- Time: the agent Lambda's own time adds up to 70.6 s (`LatenciaMs` sum: 70,624). End to end through the API it is 99.6 s (`latencia_s`).
+
+The cost of a query three ways:
+
+| Way | Source | USD (4 tasks) | Per task |
+|---|---|---|---|
+| 1. Spans | tokens of each agent span × Price List (1.10 / 5.50 per 1M, regional on-demand), recomputed | 0.0985182 | 0.0246296 |
+| 2. EMF | sum of `LegacyBridge/CostoUSD` over the run's window (GetMetricData) | 0.0985182 | 0.0246296 |
+| 3. Cost Explorer | Bedrock cost on the run's day, `componente=agente` | pending (2026-11-25) | — |
+
+- **1 = 2, exactly.** The EMF value is the span's own `lab.run.cost_usd`, and the recomputation from tokens and
+  Price List prices gives the same total. Every EMF line was accepted: the sum of `Respondida` is 4, and `Pasos`
+  sums to 17, as in the spans.
+- **3** is a daily total by usage type. It includes any other call that went through the profile that day, and it may
+  take up to 24 h to show.
+
+**Teardown:** `destruir.sh --si --todo` ended in `"quedan": "nada"`, checked again with the read-only role. What is
+left is the allowed list: the read-only role, and 5 KMS keys pending deletion between 2026-11-26 and 2026-12-01. The
+teardown took 63 min, 40 of them in computo (the VPC Lambdas' network interfaces), close to 2026-11-23's times
+(`semana-19/resultados/tiempos_despliegue.jsonl`).
 
 Expected differences, to be checked against the measurement:
 - 1 and 2 come from the same span values, so they should match to rounding, unless an EMF line is rejected

@@ -1,0 +1,738 @@
+{
+  "exito": {
+    "en": {
+      "abortadas": 0,
+      "exito": 2,
+      "ic95": [
+        0.342,
+        1.0
+      ],
+      "n": 2,
+      "tasa": 1.0
+    },
+    "es": {
+      "abortadas": 0,
+      "exito": 2,
+      "ic95": [
+        0.342,
+        1.0
+      ],
+      "n": 2,
+      "tasa": 1.0
+    },
+    "total": {
+      "abortadas": 0,
+      "exito": 4,
+      "ic95": [
+        0.51,
+        1.0
+      ],
+      "n": 4,
+      "tasa": 1.0
+    }
+  },
+  "fecha": "2026-11-24",
+  "filas": [
+    {
+      "arranque": {
+        "agente": {
+          "frio": true,
+          "init_ms": 93.44,
+          "reportes": 1
+        },
+        "clase": "frio",
+        "consultas": {
+          "frio": true,
+          "init_ms": 101.92,
+          "reportes": 26
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "Global Parts Inc",
+              6
+            ]
+          ],
+          "sql": "SELECT p.prv_nm as proveedor, COUNT(a.art_cd) as cantidad_productos_criticos FROM legado.prvmst p LEFT JOIN legado.artmst a ON p.prv_id = a.art_prv WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY cantidad_productos_criticos DESC, p.prv_nm ASC LIMIT 1"
+        }
+      ],
+      "costo_usd": 0.018414,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795563866.5,
+      "herramientas": 3,
+      "id_tarea": "s03-es",
+      "idioma": "es",
+      "inicio": 1795563819.474,
+      "latencia_s": 47.03,
+      "motivo": "responder",
+      "pasos": 3,
+      "respuesta": "El proveedor con la mayor cantidad de productos críticos es **Global Parts Inc** con **6 productos críticos**.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT p.prv_nm as proveedor, COUNT(a.art_cd) as cantidad_productos_criticos FROM legado.prvmst p LEFT JOIN legado.artmst a ON p.prv_id = a.art_prv WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY cantidad_productos_criticos DESC, p.prv_nm ASC LIMIT 1",
+          "valor": [
+            [
+              "Global Parts Inc",
+              6
+            ]
+          ]
+        }
+      ],
+      "run_id": "74e2ad10fd9f",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 15,
+          "lab.tool.args.hmac": "c1a3e1fb587dae1b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 50,
+          "lab.tool.args.hmac": "888d66536cb5b2cf",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1751,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 304,
+          "lab.tool.args.hmac": "9d4e0f8b462da548",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 85,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 11900,
+      "tokens_salida": 968,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.666667
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.952381
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 15
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "SKU-0012",
+              "Racor push-in Chico",
+              504,
+              235
+            ],
+            [
+              "SKU-0092",
+              "Regulador de presion 1\"",
+              776,
+              383
+            ],
+            [
+              "SKU-0104",
+              "Pelicula estirable XL",
+              1758,
+              853
+            ]
+          ],
+          "sql": "SELECT a.art_cd, a.art_dsc, e.exi_qty AS existencia, a.art_ptr AS punto_reorden FROM legado.exidet e JOIN legado.artmst a ON e.exi_art = a.art_cd WHERE e.exi_alm = 2 AND e.exi_qty > (a.art_ptr * 2) ORDER BY a.art_cd"
+        }
+      ],
+      "costo_usd": 0.0324863,
+      "errores_herramienta": 1,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795563887.55,
+      "herramientas": 6,
+      "id_tarea": "s06-es",
+      "idioma": "es",
+      "inicio": 1795563867.464,
+      "latencia_s": 20.09,
+      "motivo": "responder",
+      "pasos": 5,
+      "respuesta": "Los productos con existencias en el almacén de Guadalajara (CEDIS Occidente) mayores al doble de su punto de reorden son 3:\n\n1. **SKU-0012**: Racor push-in Chico - Existencia: 504 unidades (Punto de reorden: 235, Doble: 470)\n2. **SKU-0092**: Regulador de presion 1\" - Existencia: 776 unidades (Punto de reorden: 383, Doble: 766)\n3. **SKU-0104**: Pelicula estirable XL - Existencia: 1,758 unidades (Punto de reorden: 853, Doble: 1,706)\n\nEstos tres productos tienen existencias significativamente por encima del nivel de seguridad (doble del punto de reorden), lo que indica que el almacén de Guadalajara tiene inventario holgado de estos artículos.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT a.art_cd, a.art_dsc, e.exi_qty AS existencia, a.art_ptr AS punto_reorden FROM legado.exidet e JOIN legado.artmst a ON e.exi_art = a.art_cd WHERE e.exi_alm = 2 AND e.exi_qty > (a.art_ptr * 2) ORDER BY a.art_cd",
+          "valor": [
+            [
+              "SKU-0012",
+              "Racor push-in Chico",
+              504,
+              235
+            ],
+            [
+              "SKU-0092",
+              "Regulador de presion 1\"",
+              776,
+              383
+            ],
+            [
+              "SKU-0104",
+              "Pelicula estirable XL",
+              1758,
+              853
+            ]
+          ]
+        }
+      ],
+      "run_id": "7a0c110ef451",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 39,
+          "lab.tool.args.hmac": "d0d3c28ec98f002b",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 64,
+          "lab.tool.args.hmac": "45f3652957ac535f",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1685,
+          "lab.tool.status": "ok"
+        },
+        {
+          "error.type": "columna_desconocida",
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 53,
+          "lab.tool.args.hmac": "56f70e23d16b6301",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 152,
+          "lab.tool.status": "error"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 50,
+          "lab.tool.args.hmac": "bc117cd21ef6c2ef",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 209,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 84,
+          "lab.tool.args.hmac": "ca6b3fe7b0a7c6a2",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 170,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 6,
+          "lab.tool.args.chars": 308,
+          "lab.tool.args.hmac": "eaed602a0ea5001d",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 222,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 22323,
+      "tokens_salida": 1442,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 0.833333
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.333333
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.904762
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 11
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              "Global Parts Inc"
+            ]
+          ],
+          "sql": "SELECT p.prv_nm FROM artmst a JOIN prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY COUNT(a.art_cd) DESC, p.prv_nm ASC LIMIT 1"
+        }
+      ],
+      "costo_usd": 0.021087,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795563903.153,
+      "herramientas": 3,
+      "id_tarea": "s03-en",
+      "idioma": "en",
+      "inicio": 1795563888.81,
+      "latencia_s": 14.34,
+      "motivo": "responder",
+      "pasos": 4,
+      "respuesta": "The supplier with the largest number of critical products is **Global Parts Inc** with 6 critical products.",
+      "resultados": [
+        {
+          "clave": "filas",
+          "sql": "SELECT p.prv_nm FROM artmst a JOIN prvmst p ON a.art_prv = p.prv_id WHERE a.art_crt = true GROUP BY p.prv_id, p.prv_nm ORDER BY COUNT(a.art_cd) DESC, p.prv_nm ASC LIMIT 1",
+          "valor": "Global Parts Inc"
+        }
+      ],
+      "run_id": "ae3c60b3fe40",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "7df17071c0158e64",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "buscar_regla_negocio",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 51,
+          "lab.tool.args.hmac": "f12a53ff4ba7e081",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 2172,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 241,
+          "lab.tool.args.hmac": "a7c3950e2d5d04d0",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 351,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "simple",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 15730,
+      "tokens_salida": 688,
+      "trayectoria": {
+        "fallan": [],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": true,
+            "puntaje": 0.5
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": true,
+        "puntaje": 0.928571
+      },
+      "verificacion": {
+        "claves": {
+          "filas": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    },
+    {
+      "arranque": {
+        "agente": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 1
+        },
+        "clase": "caliente",
+        "consultas": {
+          "frio": false,
+          "init_ms": null,
+          "reportes": 11
+        }
+      },
+      "bloqueos_capa": 0,
+      "bloqueos_guardrail": 0,
+      "bloqueos_politica": 0,
+      "camino": "directo",
+      "contexto": [
+        {
+          "error": null,
+          "filas": [
+            [
+              7
+            ]
+          ],
+          "sql": "SELECT COUNT(DISTINCT art.art_cd) as n FROM legado.artmst art JOIN legado.prvmst prv ON art.art_prv = prv.prv_id WHERE art.art_lin = 'Tornilleria' AND prv.prv_pais = 'US'"
+        }
+      ],
+      "costo_usd": 0.026530900000000003,
+      "errores_herramienta": 0,
+      "estado": "respondida",
+      "estado_esperado": "respondida",
+      "fin": 1795563922.793,
+      "herramientas": 5,
+      "id_tarea": "v01-en",
+      "idioma": "en",
+      "inicio": 1795563904.698,
+      "latencia_s": 18.09,
+      "motivo": "responder",
+      "pasos": 5,
+      "respuesta": "There are 7 Tornillería line products that are supplied by United States suppliers.",
+      "resultados": [
+        {
+          "clave": "n",
+          "sql": "SELECT COUNT(DISTINCT art.art_cd) as n FROM legado.artmst art JOIN legado.prvmst prv ON art.art_prv = prv.prv_id WHERE art.art_lin = 'Tornilleria' AND prv.prv_pais = 'US'",
+          "valor": 7
+        }
+      ],
+      "run_id": "1831d6c05017",
+      "spans_completos": true,
+      "spans_herramientas": [
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "describir_esquema",
+          "gen_ai.tool.type": "function",
+          "lab.step": 1,
+          "lab.tool.args.chars": 2,
+          "lab.tool.args.hmac": "7df17071c0158e64",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 1403,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 2,
+          "lab.tool.args.chars": 39,
+          "lab.tool.args.hmac": "26163b7f93210fa5",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 294,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "muestrear_valores",
+          "gen_ai.tool.type": "function",
+          "lab.step": 3,
+          "lab.tool.args.chars": 38,
+          "lab.tool.args.hmac": "13cccc779645f440",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 392,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 4,
+          "lab.tool.args.chars": 188,
+          "lab.tool.args.hmac": "d90650761a3b56ae",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        },
+        {
+          "gen_ai.operation.name": "execute_tool",
+          "gen_ai.tool.name": "ejecutar_sql",
+          "gen_ai.tool.type": "function",
+          "lab.step": 5,
+          "lab.tool.args.chars": 202,
+          "lab.tool.args.hmac": "b6d84d51bcda3ac8",
+          "lab.tool.known": true,
+          "lab.tool.result.chars": 62,
+          "lab.tool.status": "ok"
+        }
+      ],
+      "tipo": "valores",
+      "tipos_de_herramienta": [
+        "function"
+      ],
+      "tokens_cache_escritura": 0,
+      "tokens_cache_lectura": 0,
+      "tokens_entrada": 19429,
+      "tokens_salida": 938,
+      "trayectoria": {
+        "fallan": [
+          "pasos"
+        ],
+        "notas": {
+          "herramientas_prohibidas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "llamadas_fallidas": {
+            "ok": null,
+            "puntaje": 1.0
+          },
+          "llamadas_redundantes": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "orden": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "pasos": {
+            "ok": false,
+            "puntaje": 0.6
+          },
+          "precision_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recall_herramientas": {
+            "ok": true,
+            "puntaje": 1.0
+          },
+          "recuperacion": {
+            "ok": true,
+            "puntaje": 1.0
+          }
+        },
+        "ok": false,
+        "puntaje": 0.942857
+      },
+      "verificacion": {
+        "claves": {
+          "n": {
+            "coherente": true,
+            "error": null,
+            "exacta": true,
+            "reportada": true
+          }
+        },
+        "coherencia_claves": 1.0,
+        "estado_ok": true,
+        "exactitud_claves": 1.0,
+        "exito": true
+      }
+    }
+  ],
+  "gasto": {
+    "tokens": 73418,
+    "usd": 0.098518
+  },
+  "modelo": "perfil de aplicación semana19-agente",
+  "tope": {
+    "tokens": 400000,
+    "usd": 0.4
+  }
+}
