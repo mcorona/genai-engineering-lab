@@ -135,9 +135,9 @@ The model lists the tables it read on a final `TABLES:` line. Correct answers st
 
 - Exact match between cited and reference tables: 0.91 to 0.98.
 - Precision: 0.97 to 0.99.
-- Exhaustiveness: 0.99 to 1.00.
+- Recall: 0.99 to 1.00.
 
-The reference tables come from a regex over the reference SQL, so the citation scores are a proxy, not a ground truth.
+The reference tables come from a regex over the reference SQL, so the citation scores are a proxy, not ground truth.
 
 ### Experiment 3: follow-up questions (`--set seguimiento`)
 
@@ -153,7 +153,7 @@ This score does not show that the previous turn is what makes the answers correc
 2. **Two follow-ups reworded to remove ambiguity (`seg-003`, `seg-016`, both languages).** The reference SQL did not change. The wording was changed after the first run had been read, and that run is archived as the before-state.
 3. **Control flag added.** `--sin-historial` omits the previous turn.
 4. **Follow-up `seg-011` reworded (after the results were read).** The follow-up "And what is its average unit cost?" was read by one model as the average over critical products only. The reference averages all products in the category. The wording now says "all products ... including the non-critical ones". The reference SQL did not change. The runs with the earlier wording are archived in `resultados/previos/`.
-5. **Two empty-result questions removed.** The old `hard-039` (category "Seguridad") and `hard-040` (a threshold) returned no rows. Rather than correct them after seeing the results, they were removed. Questions old `hard-041` to `048` were renumbered to `039` to `046`. The validated set was remapped by language and SQL, so the 43 valid questions per language are unchanged and the results above still apply. The earlier runs in `resultados/previos/` use the old numbering.
+5. **Two empty-result questions removed.** The old `hard-039` (category "Seguridad") and `hard-040` (a threshold) returned no rows. Rather than correct them after seeing the results, they were removed. The old questions `hard-041` to `048` were renumbered to `039` to `046`. The validated set was remapped by language and SQL, so the 43 valid questions per language are unchanged and the results above still apply. The earlier runs in `resultados/previos/` use the old numbering.
 
 ### Results after the corrected runs
 
@@ -189,7 +189,7 @@ The follow-up set is saturated with history, and its wording was tuned after rea
 
 - 16 chains in Spanish and English (`build_cadenas_dataset.py`, 32 lines). Each chain has two previous turns, with their reference SQL, and a final question that depends on them.
 - The chains include corrections ("Change it", "Remove the ones..."), references to a turn two steps back, ellipsis ("Now the same for Monterrey"), and unit-of-measure carry-over.
-- `cad-14` was reworded after the first run (`cad-14-es`, `cad-14-en`): "¿Y cuántas unidades vendieron en agosto?" became "¿Y cuántas unidades vendieron en total en agosto de 2026?", because the first wording invited a per-SKU breakdown. The reference SQL did not change.
+- `cad-14` was reworded after the first run (`cad-14-es`, `cad-14-en`): "¿Y cuántas unidades vendieron en agosto?" became "¿Y cuántas unidades vendieron en total en agosto de 2026?", because the first wording (in English: "And how many units did they sell in August?") invited a per-SKU breakdown. The reference SQL did not change.
 - Every final question has a single reference SQL. Ambiguous references were avoided on purpose. Any change after the first run must be documented here and the earlier runs archived.
 
 ### Results (run `20261022T061851Z`, superseded: `cad-14` was reworded, see below)
@@ -210,11 +210,10 @@ Totals out of 32: claude-haiku-5-5 31, gemini-3.8-flash 31, gpt-5.6-terra 30, gp
 Failures, reviewed:
 
 - **`cad-14` (5 of 7 failures).** The follow-up "And how many units did they sell in August 2026?" refers to a list of products. Five answers from three models (Haiku EN, Luna EN and ES, Terra EN and ES) returned a per-SKU breakdown, and the reference expects one total. The wording is ambiguous, and the same problem appeared in `seg-016`. The reference SQL did not change.
-- **`cad-10` (gpt-5.6-luna, ES).** The model returned a ranking as a CTE. The truncated SQL does not show whether it applies `LIMIT 1`, so this is not fully inspected.
+- **`cad-10` (gpt-5.6-luna, ES).** The model returned a ranking as a CTE. The truncated SQL does not show whether it applies `LIMIT 1`, so this failure was not fully diagnosed.
 - **`cad-14-es` (gemini-3.8-flash).** Empty output with no SQL. This is an output failure, not a reasoning error.
 
 `cad-14` was reworded after this run (see Changes). This table is superseded, and its run is archived in `resultados/previos/`. A rerun is pending.
-
 
 ### Results after the `cad-14` rewrite (run `20261022T062215Z`)
 
@@ -270,7 +269,7 @@ Three failures remain, and they are not reworded. They are documented as they ar
 
 The chains set is closed with these results. The three failures stay in the record as known limits.
 
-## Limits
+## Limitations
 
 - **The easy set is saturated.** A perfect score for every model means that its questions are too easy to rank models; the harder set addresses this.
 - **Template-generated questions.** They are less varied than real user questions.

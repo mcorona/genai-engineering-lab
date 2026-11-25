@@ -43,7 +43,7 @@ For long variables, use `--archivo variable=path.txt` instead of `--var`.
 
 - **Default model:** `claude-haiku-5-5`. No `temperature` is sent, because this model accepts only the value 1.
 - **Prompt caching:** the `system` block carries `cache_control`. The shared context (about 9,900 characters, roughly 2,800 tokens) goes first, so that the fixed part is a cacheable prefix. The log records `tokens_cache_escritura` and `tokens_cache_lectura` (cache write and cache read tokens) to measure the effect.
-- **No dependencies:** the runner uses `urllib` so as not to depend on SDKs. That way an SDK change does not alter the library's results.
+- **No dependencies:** the runner uses `urllib` instead of an SDK, so an SDK update cannot change the library's results.
 - **Versioning:** a template changes version when its expected behavior changes. The log keeps the version used in each run, so before and after can be compared.
 
 ## Provider comparison (one sample per cell)
@@ -69,7 +69,7 @@ Results of `gpt-5.6-terra` (the same input as luna, one sample per template):
 Notes on reading the tables:
 
 - With OpenAI, `consulta_inventario` needs `reasoning_effort: "none"`. Without it, `gpt-5.6-luna` rejects the tool with HTTP 400 on `chat/completions`. The runner already includes it.
-- The input tokens are not directly comparable: OpenAI and Gemini count the shared context (about 2,300 tokens) as input, while Anthropic reports it separately as cache write or cache read. Comparing cost requires adding input plus cache for each provider.
+- The input tokens are not directly comparable: OpenAI and Gemini count the shared context (about 2,300 tokens) as input, while Anthropic reports it separately as cache write or cache read. To compare cost, add the input and cache tokens of each provider.
 - Anthropic's cache was written for every template. A cache read happened only in the second run of `resumen_negocio`, within 5 minutes.
 - Gemini reports no cache tokens in these runs.
 - The OpenAI prices (luna: $1.00 / $6.00 per million; terra: $2.50 / $15.00) come from a third-party source and are not verified against official documentation.
@@ -82,8 +82,8 @@ Notes on reading the tables:
   - `clasificacion_intencion`: `cotizacion` for "¿me dan precio para 500 cajas al mes?" ("can you give me a price for 500 boxes a month?"). Label validation: correct.
   - `extraccion_json`: valid JSON with the correct customer, SKU, quantity and date. JSON validation: correct.
   - `consulta_inventario`: it called `buscar_sku` with `{"sku": "AX-204"}`, as expected.
-  - `resumen_negocio`: three bullets in Spanish, with no introduction. No automatic validation at that point.
-- Prompt caching verified: two consecutive runs of `resumen_negocio`. The first wrote 3,852 tokens to the cache (`tokens_cache_escritura`) and the second read them (`tokens_cache_lectura`). In the first version, without the shared context, the cache stayed at 0. The latency difference between the two runs (1.38 s and 1.11 s) is a single sample and is no evidence of an improvement.
+  - `resumen_negocio`: three bullets in Spanish, with no introduction. It had no automatic validation yet.
+- Prompt caching verified: two consecutive runs of `resumen_negocio`. The first wrote 3,852 tokens to the cache (`tokens_cache_escritura`) and the second read them (`tokens_cache_lectura`). In the first version, without the shared context, the cache stayed at 0. The latency difference between the two runs (1.38 s and 1.11 s) comes from a single sample and is not evidence of an improvement.
 - Validation of `resumen_negocio`: implemented and tested with six synthetic cases (three bullets, two bullets, no dash, too many words, the exact fallback answer, and the fallback with extra text). All pass.
 - Observed latencies: 0.8 to 2.0 s per call. These are four runs, so they are not a benchmark.
 - Multi-model comparison: complete. Four templates with Anthropic, OpenAI (luna and terra) and Gemini (3.8 flash).
