@@ -218,15 +218,15 @@ def revisar() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", default="sonnet")
-    ap.add_argument("--max-turnos", type=int, default=80)
-    ap.add_argument("--revisar-solo", action="store_true")
-    ap.add_argument("--modo", choices=["plugin", "sin-plugin"], default="plugin")
+    ap.add_argument("--modelo", "--model", default="sonnet", metavar="MODEL")
+    ap.add_argument("--max-turnos", "--max-turns", type=int, default=80, metavar="MAX_TURNS")
+    ap.add_argument("--revisar-solo", "--review-only", action="store_true")
+    ap.add_argument("--modo", "--mode", choices=["plugin", "sin-plugin"], default="plugin")
     ap.add_argument("--prompt", choices=["comando", "natural"], default="comando",
                     help="comando: /legacy-schema-audit:auditoria-completa; natural: the same prompt for every arm")
-    ap.add_argument("--sin-subagentes", action="store_true", help="disallow the Agent tool (single-agent mode)")
-    ap.add_argument("--salida", default="corrida_subagentes",
-                    help="folder under resultados/ (activity 3: corrida_manual; activity 4: corrida_subagentes)")
+    ap.add_argument("--sin-subagentes", "--no-subagents", action="store_true", help="disallow the Agent tool (single-agent mode)")
+    ap.add_argument("--salida", "--output", default="corrida_subagentes",
+                    help="folder under resultados/ (activity 3: corrida_manual; activity 4: corrida_subagentes)", metavar="OUTPUT")
     a = ap.parse_args(argv)
     global SALIDA
     SALIDA = S16 / "resultados" / a.salida

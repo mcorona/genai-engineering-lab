@@ -20,13 +20,13 @@ from workflow.semana10 import resolver  # noqa: E402
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tareas", nargs="*")
-    ap.add_argument("--idiomas", nargs="+", default=["es", "en"])
-    ap.add_argument("--corrida", default="workflow_s10")
+    ap.add_argument("--tareas", "--tasks", nargs="*", metavar="TASKS")
+    ap.add_argument("--idiomas", "--languages", nargs="+", default=["es", "en"], metavar="LANGUAGES")
+    ap.add_argument("--corrida", "--run", default="workflow_s10", metavar="RUN")
     ap.add_argument("--k", type=int, default=3)
-    ap.add_argument("--paralelo", type=int, default=4)
-    ap.add_argument("--reanudar", action="store_true")
-    ap.add_argument("--tope-usd", type=float, default=0.50)
+    ap.add_argument("--paralelo", "--parallel", type=int, default=4, metavar="PARALLEL")
+    ap.add_argument("--reanudar", "--resume", action="store_true")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=0.50, metavar="MAX_USD")
     a = ap.parse_args()
     detalle = AQUI / "resultados" / f"{a.corrida}_detalle.jsonl"
     hechas = set()

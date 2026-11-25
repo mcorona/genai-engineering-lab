@@ -21,10 +21,10 @@ estado() {
 }
 
 case "${1:-}" in
-  --estado) estado; exit 0 ;;
-  --detener) "$RAIZ/semana-14/auth/arrancar.sh" --detener; "$RAIZ/semana-17/observabilidad/arrancar.sh" --detener; exit 0 ;;
+  --estado|--status) estado; exit 0 ;;
+  --detener|--stop) "$RAIZ/semana-14/auth/arrancar.sh" --detener; "$RAIZ/semana-17/observabilidad/arrancar.sh" --detener; exit 0 ;;
   "") ;;
-  *) echo "usage: $0 [--estado|--detener]" >&2; exit 2 ;;
+  *) echo "usage: $0 [--estado|--status|--detener|--stop]" >&2; exit 2 ;;
 esac
 
 command -v docker >/dev/null || { echo "[v1] docker is required" >&2; exit 1; }

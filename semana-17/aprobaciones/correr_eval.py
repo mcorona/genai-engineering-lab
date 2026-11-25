@@ -184,10 +184,10 @@ def control(lab, lang: str, real: bool) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--confirmo-gasto", action="store_true", help="real model (costs money)")
-    ap.add_argument("--escenarios", nargs="*", default=list(C.ESCENARIOS))
-    ap.add_argument("--salida", default=None)
-    ap.add_argument("--esquema", help="keep the store in this schema (replaced if it exists) instead of a throwaway one")
+    ap.add_argument("--confirmo-gasto", "--confirm-spend", action="store_true", help="real model (costs money)")
+    ap.add_argument("--escenarios", "--scenarios", nargs="*", default=list(C.ESCENARIOS), metavar="SCENARIOS")
+    ap.add_argument("--salida", "--output", default=None, metavar="OUTPUT")
+    ap.add_argument("--esquema", "--schema", help="keep the store in this schema (replaced if it exists) instead of a throwaway one", metavar="SCHEMA")
     ap.add_argument("--otlp", action="store_true", help="also export the spans to the Collector (and on to Langfuse and its file)")
     a = ap.parse_args(argv)
     real = a.confirmo_gasto

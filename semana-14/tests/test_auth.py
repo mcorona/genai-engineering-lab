@@ -376,7 +376,7 @@ def test_token_no_se_reenvia_ni_se_registra(jwks, tmp_path, monkeypatch):
 @pytest.fixture(scope="module")
 def roles_bd(conexion):
     if not os.environ.get("PG_ADMIN_DSN"):
-        pytest.skip("los roles por perfil se crean con PG_ADMIN_DSN")
+        pytest.skip("the per-profile roles are created with PG_ADMIN_DSN")
     oauth.aplicar_roles_bd(os.environ["PG_ADMIN_DSN"])
     return conexion
 

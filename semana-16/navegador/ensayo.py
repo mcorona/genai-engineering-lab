@@ -129,8 +129,8 @@ def perfecto() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--ejecutable")
-    ap.add_argument("--salida", default=str(AQUI.parent / "resultados" / "navegador" / "ensayo.json"))
+    ap.add_argument("--ejecutable", "--executable", metavar="EXECUTABLE")
+    ap.add_argument("--salida", "--output", default=str(AQUI.parent / "resultados" / "navegador" / "ensayo.json"), metavar="OUTPUT")
     a = ap.parse_args(argv)
     canario = "VALIDADO-ensayo"
     with tempfile.TemporaryDirectory() as raiz:

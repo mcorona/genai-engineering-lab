@@ -202,8 +202,8 @@ def elegir(runs: list[dict], dist: dict) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--salida", default=str(S17 / "resultados" / "presupuestos_calibracion.json"))
-    ap.add_argument("--politica", default=str(Path(__file__).with_name("politica_calibrada.json")))
+    ap.add_argument("--salida", "--output", default=str(S17 / "resultados" / "presupuestos_calibracion.json"), metavar="OUTPUT")
+    ap.add_argument("--politica", "--policy", default=str(Path(__file__).with_name("politica_calibrada.json")), metavar="POLICY")
     a = ap.parse_args(argv)
     runs = cargar()
     dist = distribucion(runs)

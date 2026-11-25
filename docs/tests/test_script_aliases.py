@@ -19,7 +19,7 @@ COVERED = [(es, en) for es, en in PAIRS if es.split("/")[0] in WEEKS]
 
 
 def test_every_original_exists():
-    assert len(PAIRS) == 18
+    assert len(PAIRS) == 17
     for es, en in PAIRS:
         assert (ROOT / es).is_file(), es
         assert Path(es).parent == Path(en).parent, (es, en)

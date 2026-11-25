@@ -24,27 +24,27 @@ def validar_agent_card(card: dict, url_esperada: str, emisor: str) -> None:
     (another host or port: impersonation or SSRF), another name, a protocol version it does not speak, and a card whose
     OAuth scheme points to another authorization server (token theft through mix-up) or does not require the purchasing scope."""
     if not isinstance(card, dict):
-        raise ErrorA2A("agent card inválida")
+        raise ErrorA2A("invalid agent card")
     if card.get("name") != NOMBRE_ESPECIALISTA:
-        raise ErrorA2A(f"nombre inesperado: {card.get('name')!r}")
+        raise ErrorA2A(f"unexpected name: {card.get('name')!r}")
     u, e = urlparse(card.get("url", "")), urlparse(url_esperada)
     if (u.scheme, u.hostname, u.port) != (e.scheme, e.hostname, e.port):
-        raise ErrorA2A(f"la tarjeta anuncia otra URL: {card.get('url')!r}")
+        raise ErrorA2A(f"the card advertises another URL: {card.get('url')!r}")
     if u.hostname not in ("127.0.0.1", "localhost") and u.scheme != "https":
-        raise ErrorA2A("solo https o loopback")
+        raise ErrorA2A("https or loopback only")
     if card.get("protocolVersion") not in VERSIONES_A2A:
-        raise ErrorA2A(f"versión de protocolo no soportada: {card.get('protocolVersion')!r}")
+        raise ErrorA2A(f"unsupported protocol version: {card.get('protocolVersion')!r}")
     esquemas = card.get("securitySchemes") or {}
     oauth = [s for s in esquemas.values() if s.get("type") == "oauth2"]
     if not oauth:
-        raise ErrorA2A("la tarjeta no exige OAuth")
+        raise ErrorA2A("the card does not require OAuth")
     for s in oauth:
         for flujo in (s.get("flows") or {}).values():
             for campo in ("authorizationUrl", "tokenUrl"):
                 if flujo.get(campo) and not flujo[campo].startswith(emisor.rstrip("/") + "/"):
-                    raise ErrorA2A(f"{campo} de otro emisor: {flujo[campo]!r}")
+                    raise ErrorA2A(f"{campo} from another issuer: {flujo[campo]!r}")
             if SCOPE_COMPRAS not in (flujo.get("scopes") or {}):
-                raise ErrorA2A("la tarjeta no pide el scope de compras")
+                raise ErrorA2A("the card does not ask for the purchasing scope")
 
 
 def leer_agent_card(url: str) -> dict:

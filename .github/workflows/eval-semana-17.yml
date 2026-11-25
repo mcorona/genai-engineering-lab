@@ -17,6 +17,7 @@ on:
       - "semana-13/agente/**"
       - "semana-13/seguridad/**"      # activity 5: artnot.sql and the security cases the guardrails measure
       - "semana-13/resultados/**"     # activity 7: the recorded runs that calibrate and test the trajectories
+      - "!semana-13/resultados/**/*.md"   # its Markdown reports: no step reads them
       - "semana-14/servidor/**"
       - "semana-14/cliente/**"
       - "semana-14/seguridad/**"
@@ -27,6 +28,7 @@ on:
       - "semana-10/legado/**"
       - "pyproject.toml"
       - ".github/workflows/eval-semana-17.yml"
+      - "!**/README.md"               # no eval reads a README (the English notes next to the data)
 
 permissions:
   contents: read

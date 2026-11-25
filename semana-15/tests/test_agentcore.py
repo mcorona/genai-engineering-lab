@@ -35,10 +35,10 @@ def test_paquete_solo_lleva_el_codigo_necesario():
     assert "main.py" in nombres and "semana-13/agente/loop.py" in nombres
 
 
-@pytest.mark.skipif(not HAY_ST, reason="sin el entorno de Strands")
+@pytest.mark.skipif(not HAY_ST, reason="no Strands environment")
 def test_paquete_funciona_fuera_del_repositorio(tmp_path):
-    """Lo que el agente lee al resolver una tarea tiene que venir en el zip (en AgentCore no hay repositorio).
-    Primer despliegue: faltaba semana-07/prices.json y todas las tareas fallaron con FileNotFoundError."""
+    """What the agent reads to solve a task must come in the zip (AgentCore has no repository).
+    First deployment: semana-07/prices.json was missing and every task failed with FileNotFoundError."""
     import subprocess
     import zipfile
     zipfile.ZipFile(empaquetar.armar(sin_dependencias=True)).extractall(tmp_path)
@@ -95,7 +95,7 @@ def test_crear_y_borrar_en_simulacion_no_tocan_aws(monkeypatch, tmp_path):
 @pytest.fixture(scope="module")
 def local():
     if not HAY_ST:
-        pytest.skip("sin el entorno de Strands")
+        pytest.skip("no Strands environment")
     from eval.agentcore import Local
     d = Local()
     yield d

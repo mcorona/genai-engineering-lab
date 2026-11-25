@@ -364,8 +364,8 @@ def borrar(confirmar: bool, presupuesto: bool) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("accion", choices=["crear", "borrar", "inventario", "probar-jwt"])
-    ap.add_argument("--confirmar", action="store_true", help="without this, it only shows what it would do")
-    ap.add_argument("--presupuesto", action="store_true", help="also delete the budget")
+    ap.add_argument("--confirmar", "--confirm", action="store_true", help="without this, it only shows what it would do")
+    ap.add_argument("--presupuesto", "--budget", action="store_true", help="also delete the budget")
     ap.add_argument("--zip", type=Path, default=AQUI / "build" / "agente.zip")
     a = ap.parse_args(argv)
     if a.accion == "inventario":

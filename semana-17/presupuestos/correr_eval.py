@@ -104,13 +104,13 @@ def base_semana_13() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--reproduccion", action="store_true", help="$0: replay the recorded turns of week 13 (the default)")
-    ap.add_argument("--confirmo-gasto", action="store_true", help="use the real model; costs money")
-    ap.add_argument("--degradar", action="store_true", help="the agent is built with Sonnet and the policy names Haiku as its cheaper model")
-    ap.add_argument("--repeticiones", type=int, default=1, help="runs of each task (the replay only has repetition 0)")
-    ap.add_argument("--paralelo", type=int, default=4)
-    ap.add_argument("--tareas", nargs="*", help="base ids (s03, r02...); none: all 84")
-    ap.add_argument("--salida", help="report path (default resultados/presupuestos_eval[_reproduccion].json)")
+    ap.add_argument("--reproduccion", "--replay", action="store_true", help="$0: replay the recorded turns of week 13 (the default)")
+    ap.add_argument("--confirmo-gasto", "--confirm-spend", action="store_true", help="use the real model; costs money")
+    ap.add_argument("--degradar", "--degrade", action="store_true", help="the agent is built with Sonnet and the policy names Haiku as its cheaper model")
+    ap.add_argument("--repeticiones", "--repetitions", type=int, default=1, help="runs of each task (the replay only has repetition 0)", metavar="REPETITIONS")
+    ap.add_argument("--paralelo", "--parallel", type=int, default=4, metavar="PARALLEL")
+    ap.add_argument("--tareas", "--tasks", nargs="*", help="base ids (s03, r02...); none: all 84", metavar="TASKS")
+    ap.add_argument("--salida", "--output", help="report path (default resultados/presupuestos_eval[_reproduccion].json)", metavar="OUTPUT")
     a = ap.parse_args(argv)
     real = a.confirmo_gasto
     if real and not os.environ.get("ANTHROPIC_API_KEY"):

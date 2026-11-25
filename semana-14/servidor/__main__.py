@@ -57,13 +57,13 @@ def servidor_oauth(a):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--transporte", choices=["stdio", "http"], default="stdio")
-    p.add_argument("--usuario", default=os.environ.get("MCP_USUARIO", "analista"))
-    p.add_argument("--idioma", choices=["es", "en"], default=os.environ.get("MCP_IDIOMA", "es"))
-    p.add_argument("--puerto", type=int, default=8014)
-    p.add_argument("--trazas", type=Path, default=None, help="a JSONL file of traces per request (http only)")
+    p.add_argument("--transporte", "--transport", choices=["stdio", "http"], default="stdio")
+    p.add_argument("--usuario", "--user", default=os.environ.get("MCP_USUARIO", "analista"), metavar="USER")
+    p.add_argument("--idioma", "--language", choices=["es", "en"], default=os.environ.get("MCP_IDIOMA", "es"))
+    p.add_argument("--puerto", "--port", type=int, default=8014, metavar="PORT")
+    p.add_argument("--trazas", "--traces", type=Path, default=None, help="a JSONL file of traces per request (http only)", metavar="TRACES")
     p.add_argument("--oauth", action="store_true", help="OAuth resource server: the user and the permissions come from the token")
-    p.add_argument("--emisor", default=os.environ.get("OAUTH_EMISOR", "http://127.0.0.1:8180/realms/legacybridge"))
+    p.add_argument("--emisor", "--issuer", default=os.environ.get("OAUTH_EMISOR", "http://127.0.0.1:8180/realms/legacybridge"), metavar="ISSUER")
     a = p.parse_args()
     if a.oauth and a.transporte == "http":
         servidor, extra = servidor_oauth(a)

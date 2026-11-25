@@ -27,7 +27,7 @@ class ClienteA2A:
     def enviar(self, texto: str, contexto: str | None = None) -> tuple[str, dict]:
         self.conectar()
         if len(texto) > MAX_PEDIDO:
-            raise ErrorA2A(f"pedido de {len(texto)} caracteres (máximo {MAX_PEDIDO})")
+            raise ErrorA2A(f"a request of {len(texto)} characters (maximum {MAX_PEDIDO})")
         cuerpo = {"jsonrpc": "2.0", "id": uuid.uuid4().hex, "method": "message/send", "params": {"message": {
             "role": "user", "kind": "message", "messageId": uuid.uuid4().hex, "parts": [{"kind": "text", "text": texto}],
             **({"contextId": contexto} if contexto else {})}}}

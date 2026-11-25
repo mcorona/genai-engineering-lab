@@ -73,7 +73,7 @@ def revisar(ruta: Path = ZIP) -> list[str]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--sin-dependencias", action="store_true", help="only the in-house code (tests)")
+    ap.add_argument("--sin-dependencias", "--no-dependencies", action="store_true", help="only the in-house code (tests)")
     a = ap.parse_args(argv)
     ruta = armar(a.sin_dependencias)
     malos = revisar(ruta)

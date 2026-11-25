@@ -44,7 +44,7 @@ class ServidorHTTP:
         fin = time.time() + 10
         while not self.server.started:
             if time.time() > fin:
-                raise RuntimeError("uvicorn no arrancó")
+                raise RuntimeError("uvicorn did not start")
             time.sleep(0.02)
         self.url = f"http://{HOST}:{self.puerto}{RUTA}"
 

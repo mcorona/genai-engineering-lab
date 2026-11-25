@@ -108,9 +108,9 @@ def resumen_job(lineas):
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", choices=["keycloak", "prueba"], default="keycloak")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--simular", action="store_true", help="$0: a simulated model (validates everything except the model)")
+    ap.add_argument("--emisor", "--issuer", choices=["keycloak", "prueba"], default="keycloak")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
+    ap.add_argument("--simular", "--simulate", action="store_true", help="$0: a simulated model (validates everything except the model)")
     a = ap.parse_args(argv)
     if not a.simular and not os.environ.get("ANTHROPIC_API_KEY"):
         if os.environ.get("PR_DE_FORK") == "true":

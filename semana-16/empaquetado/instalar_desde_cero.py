@@ -54,7 +54,7 @@ def evento(herramienta: str, entrada: dict, proyecto: Path, sesion: str = "s") -
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--github", help="owner/repo (optionally with #ref): add the marketplace from GitHub")
-    ap.add_argument("--salida", help="where to write the JSON report (default resultados/empaquetado/...)")
+    ap.add_argument("--salida", "--output", help="where to write the JSON report (default resultados/empaquetado/...)", metavar="OUTPUT")
     a = ap.parse_args(argv)
     fuente = a.github or str(RAIZ)
     version = json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text())["version"]

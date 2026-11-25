@@ -218,7 +218,7 @@ def langfuse(vs, T: str, esperados: int) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--salida", default=str(S17 / "resultados" / "frameworks.json"))
+    ap.add_argument("--salida", "--output", default=str(S17 / "resultados" / "frameworks.json"), metavar="OUTPUT")
     ap.add_argument("--langfuse", action="store_true", help="also read the Strands trace back from Langfuse (needs the stack)")
     a = ap.parse_args(argv)
     for v in ("st", "lg"):

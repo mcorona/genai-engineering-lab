@@ -38,8 +38,8 @@ def decidir(caso: dict) -> tuple[str, str] | None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--otra-vez", action="store_true", help="overwrite the report of a previous run (it is run once)")
-    ap.add_argument("--reglas-finales", action="store_true",
+    ap.add_argument("--otra-vez", "--again", action="store_true", help="overwrite the report of a previous run (it is run once)")
+    ap.add_argument("--reglas-finales", "--final-rules", action="store_true",
                     help="recompute with the final rules into a second file, next to the untouched one-shot report")
     a = ap.parse_args(argv)
     primera = S17 / "resultados" / "guardrails_heldout.json"

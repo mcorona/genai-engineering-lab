@@ -2,7 +2,7 @@
 # Week 17, activity 2: the observability stack (self-hosted Langfuse v4 + OpenTelemetry Collector).
 # Idempotent: running it again duplicates nothing. The secrets are generated once in .secretos.env (chmod 600,
 # ignored by Git) and are NEVER printed. The images are pulled by digest from ../preparar/versiones.json.
-#
+#   English names: start.sh runs this script; --status, --stop, --restart, --sampling, --delete and --secrets.
 #   ./arrancar.sh              starts it (or confirms it is already running) and waits until everything responds
 #   ./arrancar.sh --estado     shows the containers and the health of Langfuse and the Collector
 #   ./arrancar.sh --detener    stops the containers (keeps volumes and data)
@@ -28,19 +28,19 @@ con_secretos=no
 con_muestreo=no
 for a in "$@"; do
   case "$a" in
-    --estado) accion=estado ;;
-    --detener) accion=detener ;;
-    --reiniciar) accion=reiniciar ;;
-    --muestreo) con_muestreo=si ;;
-    --borrar) accion=borrar ;;
-    --secretos) con_secretos=si ;;
+    --estado|--status) accion=estado ;;
+    --detener|--stop) accion=detener ;;
+    --reiniciar|--restart) accion=reiniciar ;;
+    --muestreo|--sampling) con_muestreo=si ;;
+    --borrar|--delete) accion=borrar ;;
+    --secretos|--secrets) con_secretos=si ;;
     -h|--help) uso ;;
     *) echo "unknown option: $a" >&2; uso ;;
   esac
 done
-if [[ "$con_muestreo" == si && "$accion" != arrancar && "$accion" != reiniciar ]]; then echo "--muestreo is only used when starting or restarting" >&2; exit 2; fi
+if [[ "$con_muestreo" == si && "$accion" != arrancar && "$accion" != reiniciar ]]; then echo "--muestreo (--sampling) is only used when starting or restarting" >&2; exit 2; fi
 if [[ "$con_muestreo" == si ]]; then export COLLECTOR_CAPA=muestreo; else export COLLECTOR_CAPA=sin_muestreo; fi
-if [[ "$con_secretos" == si && "$accion" != borrar ]]; then echo "--secretos is only used with --borrar" >&2; exit 2; fi
+if [[ "$con_secretos" == si && "$accion" != borrar ]]; then echo "--secretos (--secrets) is only used with --borrar (--delete)" >&2; exit 2; fi
 
 command -v docker >/dev/null || { echo "[stack] Docker is missing" >&2; exit 1; }
 command -v openssl >/dev/null || { echo "[stack] openssl is missing (it generates the secrets)" >&2; exit 1; }

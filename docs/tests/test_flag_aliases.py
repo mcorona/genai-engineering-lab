@@ -10,6 +10,7 @@ English pass has covered, the test checks three things:
   with no conflict between an alias and another flag of the same script.
 """
 import argparse
+import re
 import ast
 import subprocess
 from pathlib import Path
@@ -20,13 +21,24 @@ ROOT = Path(__file__).resolve().parents[2]
 ALIASES = dict(line.split("\t") for line in (ROOT / "docs" / "flag-aliases.tsv").read_text(encoding="utf-8").splitlines()[1:])
 UNCHANGED = "(unchanged)"
 # The weeks whose scripts already carry the aliases. Step 4 of the English pass adds the rest, group by group.
-WEEKS = {f"semana-{n:02d}" for n in range(1, 13)}
+WEEKS = {f"semana-{n:02d}" for n in range(1, 19)}
+# Frozen files: a manifest pins their hash, so they keep their Spanish flags (docs/language-audit.md, exceptions).
+FROZEN = {
+    "semana-13/golden/construir_tareas.py": "semana-13/golden/manifiesto.json",
+    "semana-16/verdad/construir.py": "semana-16/verdad/manifiesto.json",
+}
 
 
 def scripts() -> list[str]:
     out = subprocess.run(["git", "ls-files", "semana-*/**.py", "semana-*/*.py"], cwd=ROOT, capture_output=True,
                          text=True, check=True).stdout.split()
-    return sorted({p for p in out if p.split("/")[0] in WEEKS and "/vendor/" not in p and "/.build/" not in p})
+    return sorted({p for p in out if p.split("/")[0] in WEEKS and "/vendor/" not in p and "/.build/" not in p
+                   and p not in FROZEN})
+
+
+def test_the_frozen_files_are_pinned_by_their_manifest():
+    for path, manifest in FROZEN.items():
+        assert Path(path).name in (ROOT / manifest).read_text(encoding="utf-8"), (path, manifest)
 
 
 def calls(path: str) -> list[tuple[str, list[str]]]:
@@ -51,7 +63,7 @@ def test_the_table_maps_every_spanish_flag_once():
 
 
 def test_there_are_scripts_to_check():
-    assert len([p for p in scripts() if calls(p)]) >= 17
+    assert len([p for p in scripts() if calls(p)]) >= 60
 
 
 @pytest.mark.parametrize("path", [p for p in scripts() if calls(p)])
@@ -70,3 +82,25 @@ def test_each_spanish_flag_has_its_english_alias(path):
             assert action.dest == spanish[0].lstrip("-").replace("-", "_")
             for name in opts:
                 assert parser._option_string_actions[name] is action
+
+
+# ---------- shell scripts: `case` patterns (`--detener|--stop)`) and `[ "$a" = "--x" ]` tests ----------
+CASE = re.compile(r"^\s*\(?((?:--?[\w-]+\|)*--?[\w-]+)\)", re.M)
+TEST_EQ = re.compile(r"""\[\s*"\$\w+"\s*==?\s*"(--[\w-]+)"\s*\]""")
+
+
+def shell_scripts() -> list[str]:
+    out = subprocess.run(["git", "ls-files", "semana-*/**.sh", "semana-*/*.sh"], cwd=ROOT, capture_output=True,
+                         text=True, check=True).stdout.split()
+    return sorted({p for p in out if p.split("/")[0] in WEEKS and "/vendor/" not in p and "/.build/" not in p})
+
+
+@pytest.mark.parametrize("path", shell_scripts())
+def test_each_spanish_shell_option_has_its_english_alias(path):
+    text = (ROOT / path).read_text(encoding="utf-8")
+    for group in CASE.findall(text):
+        names = group.split("|")
+        for es in (n for n in names if n in ALIASES and ALIASES[n] != UNCHANGED):
+            assert ALIASES[es] in names, f"{path}: the pattern {group}) has no {ALIASES[es]}"
+    lone = [f for f in TEST_EQ.findall(text) if f in ALIASES and ALIASES[f] != UNCHANGED]
+    assert not lone, f"{path}: {lone} is matched alone; use a case pattern with its English alias"

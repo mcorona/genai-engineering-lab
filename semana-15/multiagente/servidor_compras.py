@@ -161,11 +161,11 @@ def crear_app(emisor: str, jwks_url: str, base_url: str | None = None, inyectar:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", required=True)
+    ap.add_argument("--emisor", "--issuer", required=True, metavar="ISSUER")
     ap.add_argument("--jwks", required=True)
     ap.add_argument("--base-url")
-    ap.add_argument("--inyectar", action="store_true")
-    ap.add_argument("--puerto", type=int, default=A2A_PUERTO)
+    ap.add_argument("--inyectar", "--inject", action="store_true")
+    ap.add_argument("--puerto", "--port", type=int, default=A2A_PUERTO, metavar="PORT")
     a = ap.parse_args()
     uvicorn.run(crear_app(a.emisor, a.jwks, a.base_url, a.inyectar, recurso=f"http://127.0.0.1:{a.puerto}/"),
                 host="127.0.0.1", port=a.puerto, log_level="warning")

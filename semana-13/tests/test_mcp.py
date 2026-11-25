@@ -46,7 +46,7 @@ def normal(r):
 @pytest.mark.parametrize("nombre,args", CASOS)
 def test_misma_respuesta_sin_base(nombre, args, mcp_analista, mcp_almacenista):
     if HAY_BASE and nombre in ("validar_sql",) and "DELETE" not in args.get("sql", "") and "lo_create" not in args.get("sql", ""):
-        pytest.skip("con base, validar_sql agrega EXPLAIN; se compara en la prueba con base")
+        pytest.skip("with a database, validar_sql adds EXPLAIN; the test with a database compares it")
     for usuario, m in (("analista", mcp_analista), ("almacenista", mcp_almacenista)):
         nativo = Herramientas(Contexto.de_usuario(usuario)).llamar(nombre, args)
         if HAY_BASE and nativo.get("error", {}).get("tipo") == "sin_base":

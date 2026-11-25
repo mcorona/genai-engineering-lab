@@ -45,8 +45,8 @@ def entorno(emisor: str):
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", choices=["keycloak", "prueba"], default="keycloak")
-    ap.add_argument("--solo", default=",".join(SPIKES))
+    ap.add_argument("--emisor", "--issuer", choices=["keycloak", "prueba"], default="keycloak")
+    ap.add_argument("--solo", "--only", default=",".join(SPIKES), metavar="ONLY")
     a = ap.parse_args(argv)
     ent = entorno(a.emisor)
     srv = ent.servidores["normal"]

@@ -30,7 +30,7 @@ def tarea(id_: str, adm=None) -> dict:
 @pytest.fixture(scope="session")
 def adm():
     if not HAY_BASE:
-        pytest.skip("sin base de datos (PG_ADMIN_DSN)")
+        pytest.skip("no database (PG_ADMIN_DSN)")
     import psycopg
     c = psycopg.connect(os.environ["PG_ADMIN_DSN"], autocommit=True)
     c.execute("SET search_path = copilot, public")

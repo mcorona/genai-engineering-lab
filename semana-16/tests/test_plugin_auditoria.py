@@ -125,7 +125,7 @@ def test_herramientas_contra_la_base():
 
 @pytest.mark.skipif(not ADMIN, reason="sin PG_ADMIN_DSN")
 def test_transaccion_de_solo_lectura_aun_con_rol_administrador():
-    """Si la guardia fallara, la transacción READ ONLY sigue impidiendo escribir (segunda capa)."""
+    """If the guard failed, the READ ONLY transaction still prevents writes (the second layer)."""
     db = srv.Database(ADMIN, "legado")
     with pytest.raises(srv.ToolError) as e:
         db.query("INSERT INTO movinv (mov_id) VALUES (999)")

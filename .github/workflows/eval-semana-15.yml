@@ -12,6 +12,7 @@ on:
       - "!semana-15/resultados/**"
       - "semana-13/agente/**"
       - ".github/workflows/eval-semana-15.yml"
+      - "!**/README.md"               # no eval reads a README (the English notes next to the data)
 
 permissions:
   contents: read

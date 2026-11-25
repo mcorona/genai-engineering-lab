@@ -89,7 +89,7 @@ def test_guardia_sin_sqlglot_usa_regex_estricta(monkeypatch):
 
     def sin_sqlglot(nombre, *a, **k):
         if nombre.startswith("sqlglot"):
-            raise ImportError("sin sqlglot")
+            raise ImportError("no sqlglot")
         return real(nombre, *a, **k)
 
     monkeypatch.setattr(builtins, "__import__", sin_sqlglot)
@@ -145,7 +145,7 @@ def test_yaml_en_espanol():
 @pytest.mark.skipif(not DSN, reason="sin base")
 @pytest.mark.parametrize("corrida", ["corrida_manual", "corrida_subagentes"])
 def test_calidad_de_las_corridas_de_referencia(corrida):
-    """Las corridas de las actividades 3 y 4 son la línea base del evaluador: si cambia, revisa el cambio."""
+    """The runs of activities 3 and 4 are the evaluator's baseline: if a score changes, review the change."""
     r = cal.evaluar(corrida, DSN)
     d, k = r["diccionario"], r["riesgos"]
     assert d["columnas_cubiertas"] == 46 and d["significado_exacto"] >= 0.95

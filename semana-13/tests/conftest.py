@@ -14,7 +14,7 @@ HAY_BASE = bool(os.environ.get("NLQ_LEGADO_DSN") or os.environ.get("PG_ADMIN_DSN
 @pytest.fixture(scope="session")
 def conexion():
     if not HAY_BASE:
-        pytest.skip("sin base de datos (define PG_ADMIN_DSN, NLQ_LEGADO_DSN o PG_DSN)")
+        pytest.skip("no database (set PG_ADMIN_DSN, NLQ_LEGADO_DSN or PG_DSN)")
     from herramientas.conexion import conectar
     conn, rol = conectar()
     yield conn

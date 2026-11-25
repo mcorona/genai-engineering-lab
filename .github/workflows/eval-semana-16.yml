@@ -20,6 +20,7 @@ on:
       - "semana-14/auth/**"
       - ".github/workflows/eval-semana-16.yml"
       - ".claude-plugin/**"
+      - "!**/README.md"               # no eval reads a README (the English notes next to the data)
 
 permissions:
   contents: read

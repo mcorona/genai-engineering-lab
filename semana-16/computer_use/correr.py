@@ -325,13 +325,13 @@ def evaluar_corrida(d: Path) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--modelo", default="claude-haiku-5-5", choices=sorted(PRECIOS))
-    ap.add_argument("--tope", type=float, default=0.25, help="USD cap for this run")
-    ap.add_argument("--pasos", type=int, default=40, help="maximum computer actions")
+    ap.add_argument("--modelo", "--model", default="claude-haiku-5-5", choices=sorted(PRECIOS))
+    ap.add_argument("--tope", "--cap", type=float, default=0.25, help="USD cap for this run", metavar="CAP")
+    ap.add_argument("--pasos", "--steps", type=int, default=40, help="maximum computer actions", metavar="STEPS")
     ap.add_argument("--max-tokens", type=int, default=8192, help="per response; thinking counts against it")
-    ap.add_argument("--modo", choices=("docker", "local"), default="docker")
+    ap.add_argument("--modo", "--mode", choices=("docker", "local"), default="docker")
     ap.add_argument("--chrome", help="Chromium binary for --modo local")
-    ap.add_argument("--revisar", action="store_true", help="re-score the saved run, no API")
+    ap.add_argument("--revisar", "--review", action="store_true", help="re-score the saved run, no API")
     a = ap.parse_args(argv)
     if a.tope > 1.50:
         raise SystemExit("The plan caps activity 8 at $1.50.")

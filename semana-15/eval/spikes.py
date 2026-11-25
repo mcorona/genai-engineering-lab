@@ -39,11 +39,11 @@ def tareas_ci() -> list[dict]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", choices=["auto", "keycloak", "prueba"], default="auto")
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--hilos", type=int, default=2)
-    ap.add_argument("--simular", action="store_true")
-    ap.add_argument("--solo-reporte", action="store_true")
+    ap.add_argument("--emisor", "--issuer", choices=["auto", "keycloak", "prueba"], default="auto")
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
+    ap.add_argument("--hilos", "--threads", type=int, default=2, metavar="THREADS")
+    ap.add_argument("--simular", "--simulate", action="store_true")
+    ap.add_argument("--solo-reporte", "--report-only", action="store_true")
     a = ap.parse_args(argv)
     if a.solo_reporte:
         return reporte(json.loads((RES / "spikes_meta.json").read_text()))
@@ -139,7 +139,7 @@ def reporte(meta) -> int:
         if (RES / "frameworks_detalle.jsonl").exists() else []
     for fw in ("langgraph", "strands"):
         grupos[f"{fw} (activity 5, k = 3)"] = [f for f in previos if f["framework"] == fw and f["id"] in ids]
-    for nombre, archivo in (("own loop (week 13, k = 3)", "eval_haiku_low_detalle.jsonl"),
+    for nombre, archivo in (("hand-written loop (week 13, k = 3)", "eval_haiku_low_detalle.jsonl"),
                             ("Claude Agent SDK (week 13, k = 3)", "eval_sdk_low_detalle.jsonl")):
         grupos[nombre] = [json.loads(x) for x in open(base.S13 / "resultados" / archivo, encoding="utf-8")
                           if json.loads(x)["id"] in ids]

@@ -26,7 +26,7 @@ class Trazador:
     def __call__(self, tipo: str, paso: int, **campos):
         ev = {"ts": round(time.time(), 3), **self.base, "tipo": tipo, "paso": paso, **campos}
         if problemas := validar_evento(ev):
-            raise ValueError(f"evento de traza inválido: {problemas}")
+            raise ValueError(f"invalid trace event: {problemas}")
         self.eventos.append(ev)
         if self.ruta:
             self.ruta.parent.mkdir(parents=True, exist_ok=True)
@@ -37,6 +37,6 @@ class Trazador:
 
 def validar_evento(ev: dict) -> list[str]:
     if ev.get("tipo") not in TIPOS:
-        return [f"tipo inválido: {ev.get('tipo')!r}"]
+        return [f"invalid tipo: {ev.get('tipo')!r}"]
     faltan = [k for k in COMUNES + POR_TIPO[ev["tipo"]] if k not in ev]
     return [f"faltan campos: {faltan}"] if faltan else []

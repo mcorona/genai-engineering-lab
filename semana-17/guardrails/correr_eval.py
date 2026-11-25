@@ -60,13 +60,13 @@ def totales_actividad_4(real: bool) -> dict | None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--reproduccion", action="store_true", help="$0: replay the recorded turns of week 13 (the default)")
-    ap.add_argument("--confirmo-gasto", action="store_true", help="use the real model; costs money")
-    ap.add_argument("--paralelo", type=int, default=4)
-    ap.add_argument("--tareas", nargs="*", help="base ids (s03, r02...); none: all 84")
-    ap.add_argument("--fundamentacion", choices=N.MODOS_FUNDAMENTACION, default="auditar",
+    ap.add_argument("--reproduccion", "--replay", action="store_true", help="$0: replay the recorded turns of week 13 (the default)")
+    ap.add_argument("--confirmo-gasto", "--confirm-spend", action="store_true", help="use the real model; costs money")
+    ap.add_argument("--paralelo", "--parallel", type=int, default=4, metavar="PARALLEL")
+    ap.add_argument("--tareas", "--tasks", nargs="*", help="base ids (s03, r02...); none: all 84", metavar="TASKS")
+    ap.add_argument("--fundamentacion", "--grounding", choices=N.MODOS_FUNDAMENTACION, default="auditar",
                     help="`rechazar` refuses an answer with an ungrounded figure (the mode the paid run measured and rejected); `auditar` only records it")
-    ap.add_argument("--salida", help="report path (default resultados/guardrails_falsos_positivos[_reproduccion].json)")
+    ap.add_argument("--salida", "--output", help="report path (default resultados/guardrails_falsos_positivos[_reproduccion].json)", metavar="OUTPUT")
     a = ap.parse_args(argv)
     real = a.confirmo_gasto
     if real and not os.environ.get("ANTHROPIC_API_KEY"):

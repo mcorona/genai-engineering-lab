@@ -102,7 +102,7 @@ def sonda_cache(tracer_provider) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--salida", default=str(S17 / "resultados" / "instrumentacion.json"))
+    ap.add_argument("--salida", "--output", default=str(S17 / "resultados" / "instrumentacion.json"), metavar="OUTPUT")
     a = ap.parse_args(argv)
     if vs.peticion("http://127.0.0.1:3100/api/public/health")[0] != 200 or vs.peticion("http://127.0.0.1:13133/")[0] != 200:
         print("[verificar] the stack is not up: run semana-17/observabilidad/arrancar.sh first", file=sys.stderr)

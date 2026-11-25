@@ -114,7 +114,7 @@ def por_tarea(filas) -> dict[str, list[bool]]:
 
 
 def bootstrap_pareado(a: dict[str, list[bool]], b: dict[str, list[bool]], reps: int = 10000, semilla: int = SEMILLA):
-    """The difference in mean success per task (a − b) over the common tasks, with a 95 % CI by bootstrapping tasks."""
+    """The difference in mean success per task (a − b) over the common tasks, with a 95% CI by bootstrapping tasks."""
     ids = sorted(set(a) & set(b))
     d = [st.mean(a[i]) - st.mean(b[i]) for i in ids]
     rnd = random.Random(semilla)
@@ -166,20 +166,20 @@ def costo_desarrollo() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--emisor", choices=["auto", "keycloak", "prueba"], default="auto")
+    ap.add_argument("--emisor", "--issuer", choices=["auto", "keycloak", "prueba"], default="auto")
     ap.add_argument("--k", type=int, default=K)
-    ap.add_argument("--tope-usd", type=float, default=TOPE_USD)
-    ap.add_argument("--hilos", type=int, default=3, help="workers per framework")
-    ap.add_argument("--fases", default="tareas,seguridad")
-    ap.add_argument("--simular", action="store_true")
-    ap.add_argument("--solo-reporte", action="store_true")
-    ap.add_argument("--conjunto", choices=["subconjunto14", "ci"], default="subconjunto14",
+    ap.add_argument("--tope-usd", "--max-usd", type=float, default=TOPE_USD, metavar="MAX_USD")
+    ap.add_argument("--hilos", "--threads", type=int, default=3, help="workers per framework", metavar="THREADS")
+    ap.add_argument("--fases", "--phases", default="tareas,seguridad", metavar="PHASES")
+    ap.add_argument("--simular", "--simulate", action="store_true")
+    ap.add_argument("--solo-reporte", "--report-only", action="store_true")
+    ap.add_argument("--conjunto", "--subset", choices=["subconjunto14", "ci"], default="subconjunto14",
                     help="ci: the 10 tasks × ES/EN of the week 13 CI (the activity 10 mini eval)")
-    ap.add_argument("--casos", default="todos", help="comma-separated security case ids (all 38 by default)")
+    ap.add_argument("--casos", "--cases", default="todos", help="comma-separated security case ids (all 38 by default)", metavar="CASES")
     ap.add_argument("--dir", type=Path, default=None, help="output folder (resultados/ by default)")
-    ap.add_argument("--recalcular-esperado", action="store_true",
+    ap.add_argument("--recalcular-esperado", "--recompute-expected", action="store_true",
                     help="recompute each key's expected result with its reference SQL on this database (CI)")
-    ap.add_argument("--reanudar", action="store_true",
+    ap.add_argument("--reanudar", "--resume", action="store_true",
                     help="keep the runs already recorded (except those that ended in error) and launch only the missing ones")
     a = ap.parse_args(argv)
     global RES
@@ -312,7 +312,7 @@ def main(argv=None) -> int:
         cliente, mal = seg.preparar(c, ent, defensas=True)
         with cliente:
             if cliente.definiciones() and "legado" in cliente.bloqueados:
-                raise RuntimeError(f"el servidor legítimo quedó bloqueado: {cliente.eventos}")
+                raise RuntimeError(f"the legitimate server was blocked: {cliente.eventos}")
             gw = abrir_pasarela(cliente)
             try:
                 out = con_puente(fw, lambda p: p.resolver(tarea={"id": c["id"], "tarea": c["tarea"]}, mcp_url=gw.url,
@@ -378,7 +378,7 @@ def reporte(meta) -> int:
         if (RES / "frameworks_seguridad_detalle.jsonl").exists() else []
     ids = {f["id"] for f in filas}
     ref = {}
-    for nombre, archivo in (("own loop (week 13)", "eval_haiku_low_detalle.jsonl"),
+    for nombre, archivo in (("hand-written loop (week 13)", "eval_haiku_low_detalle.jsonl"),
                             ("Claude Agent SDK (week 13)", "eval_sdk_low_detalle.jsonl")):
         ref[nombre] = [json.loads(x) for x in open(S13 / "resultados" / archivo, encoding="utf-8")
                        if json.loads(x)["id"] in ids]

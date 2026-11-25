@@ -68,7 +68,7 @@ def normalizar_uso(uso) -> tuple[int, int]:
     tin = next((leer(k) for k in _CLAVES_ENTRADA if leer(k) is not None), 0)
     tout = next((leer(k) for k in _CLAVES_SALIDA if leer(k) is not None), 0)
     if not all(isinstance(x, int) and x >= 0 for x in (tin, tout)):
-        raise ValueError(f"uso inválido: {uso!r}")
+        raise ValueError(f"invalid usage: {uso!r}")
     return tin, tout
 
 
@@ -90,7 +90,7 @@ def validar_resultado(r, tarea: dict | None = None, modelo: str = "claude-haiku-
         if not (isinstance(v, int) and v >= 0):
             problemas.append(f"{campo} debe ser entero ≥ 0: {v!r}")
     if not (isinstance(r.segundos, (int, float)) and r.segundos >= 0):
-        problemas.append(f"segundos inválido: {r.segundos!r}")
+        problemas.append(f"invalid segundos: {r.segundos!r}")
     esperado = costo(modelo, r.tokens_in, r.tokens_out) if not problemas else None
     if esperado is not None and not math.isclose(r.costo_usd, esperado, rel_tol=1e-9, abs_tol=1e-12):
         problemas.append(f"costo_usd {r.costo_usd} ≠ costo de sus tokens {esperado}")

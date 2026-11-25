@@ -148,11 +148,11 @@ def escribir_y_leer_scores(por_traza: dict[str, dict], espera_s: int = 180) -> d
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--confirmo-gasto", action="store_true", help="real model; costs money")
+    ap.add_argument("--confirmo-gasto", "--confirm-spend", action="store_true", help="real model; costs money")
     ap.add_argument("--langfuse", action="store_true", help="export the spans to the Collector and write the scores to Langfuse")
-    ap.add_argument("--paralelo", type=int, default=4)
-    ap.add_argument("--tareas", nargs="*")
-    ap.add_argument("--salida")
+    ap.add_argument("--paralelo", "--parallel", type=int, default=4, metavar="PARALLEL")
+    ap.add_argument("--tareas", "--tasks", nargs="*", metavar="TASKS")
+    ap.add_argument("--salida", "--output", metavar="OUTPUT")
     a = ap.parse_args(argv)
     real = a.confirmo_gasto
     if real and not os.environ.get("ANTHROPIC_API_KEY"):

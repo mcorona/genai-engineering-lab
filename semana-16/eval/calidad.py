@@ -258,8 +258,8 @@ def evaluar(corrida: str, dsn: str | None) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("corridas", nargs="+")
-    ap.add_argument("--sin-base", action="store_true")
-    ap.add_argument("--salida", default=str(RES / "calidad.json"))
+    ap.add_argument("--sin-base", "--no-baseline", action="store_true")
+    ap.add_argument("--salida", "--output", default=str(RES / "calidad.json"), metavar="OUTPUT")
     a = ap.parse_args(argv)
     dsn = None if a.sin_base else (os.environ.get("PG_ADMIN_DSN") or os.environ.get("PG_DSN"))
     res = [evaluar(c, dsn) for c in a.corridas]
@@ -273,7 +273,7 @@ def main(argv=None) -> int:
               f"{pr(d['llave_foranea']):>9} {pr(d['datos_personales']):>9} {k['encontrados']:>3}/{k['sembrados']:<3} "
               f"{str(k['sql_reejecutado_ok']) + '/' + str(k['sql']):>7} {r['costo_equivalente_usd'] or 0:>6.2f} "
               f"{r['segundos'] or 0:>5} {r['tokens']['salida'] or 0:>8}")
-    print(f"\nDetalle en {a.salida}")
+    print(f"\nDetail in {a.salida}")
     return 0
 
 

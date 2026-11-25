@@ -15,6 +15,7 @@ on:
       - "semana-14/servidor/**"
       - "semana-14/cliente/**"
       - ".github/workflows/eval-semana-18.yml"
+      - "!**/README.md"               # no eval reads a README (the English notes next to the data)
 
 permissions:
   contents: read

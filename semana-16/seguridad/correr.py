@@ -354,10 +354,10 @@ def tabla(res: list[dict]) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", default="haiku")
-    ap.add_argument("--caso", type=int, action="append")
-    ap.add_argument("--max-turnos", type=int, default=30)
-    ap.add_argument("--revisar", action="store_true", help="re-check the saved runs of --modelo without the model")
+    ap.add_argument("--modelo", "--model", default="haiku", metavar="MODEL")
+    ap.add_argument("--caso", "--case", type=int, action="append", metavar="CASE")
+    ap.add_argument("--max-turnos", "--max-turns", type=int, default=30, metavar="MAX_TURNS")
+    ap.add_argument("--revisar", "--review", action="store_true", help="re-check the saved runs of --modelo without the model")
     a = ap.parse_args(argv)
     admin = None if a.revisar else os.environ["PG_ADMIN_DSN"]
     res = []
