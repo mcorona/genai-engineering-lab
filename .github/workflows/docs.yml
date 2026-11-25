@@ -4,7 +4,9 @@ name: docs
 # its terms, the root README's index lists every week (docs/tests), and every file the PR changes keeps its figures
 # (docs/check_figures.py: a translation never changes a number). A PR whose new figures are the point (a results
 # report filled from a new measurement) carries the label `cifras-nuevas`, and the figures step is skipped for it; the
-# documentation tests still run. Adding or removing the label reruns the workflow.
+# documentation tests still run. Adding or removing the label reruns the workflow. The step reads the PR's labels when
+# it runs, not from the event: `gh pr create --label` opens the PR and adds the label a moment later, so the run of
+# the "opened" event did not see it and failed next to the passing run of the "labeled" event (#353).
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
@@ -15,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   docs:
@@ -32,5 +35,12 @@ jobs:
       - name: Documentation tests
         run: python -m pytest -q -p no:cacheprovider docs/tests
       - name: Figures check
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'cifras-nuevas') }}
-        run: python docs/check_figures.py --base origin/${{ github.base_ref }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pulls/$PR" --jq '.labels[].name' | grep -qx 'cifras-nuevas'; then
+            echo "PR labeled cifras-nuevas: its new figures are the point; figures check skipped"
+          else
+            python docs/check_figures.py --base origin/${{ github.base_ref }}
+          fi
