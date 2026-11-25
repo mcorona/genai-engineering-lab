@@ -21,13 +21,13 @@ A Phase 1 practice: how many tokens the same text costs in Spanish and in Englis
 
 ### Method
 
-| Tokenizer | Kind of count | Notes |
+| Tokenizer | Count type | Notes |
 |---|---|---|
 | tiktoken `o200k_base` | Exact for that tokenizer | An open proxy, not Claude's tokenizer |
 | Qwen2.5 (`Qwen/Qwen2.5-7B-Instruct`) | Exact for its tokenizer | Qwen3 may differ; reported as a proxy for the family |
 | Claude `claude-sonnet-5-5` | Official, `count_tokens` API | The 8 message-formatting tokens are subtracted (measured with the letter "a") |
 
-The cost uses the `claude-sonnet-5-5` input rate: **USD 2 per million tokens**, confirmed.
+The cost uses the confirmed `claude-sonnet-5-5` input price: **USD 2 per million tokens**.
 
 ### Results
 
@@ -40,8 +40,8 @@ The cost uses the `claude-sonnet-5-5` input rate: **USD 2 per million tokens**, 
 ### Conclusions
 
 - With Claude, the same content costs 36% more tokens in Spanish than in English.
-- The open proxy (tiktoken) underestimates that overhead: 14% vs. 36%. A budget built with an open tokenizer comes out about 20 points below the real cost in Spanish.
-- Qwen is also less efficient in Spanish than tiktoken (30%).
+- The open proxy (tiktoken) underestimates that overhead: 14% vs. 36%. A budget built with an open tokenizer comes out about 20 percentage points below the real cost in Spanish.
+- Qwen's tokenizer also has a larger Spanish overhead than tiktoken (30%).
 - The cost per text is small, but it scales with volume. For proposals, use Claude's official count and state that the others are estimates.
 
 ### Limitations
@@ -76,8 +76,8 @@ The cost uses the `claude-sonnet-5-5` input rate: **USD 2 per million tokens**, 
 ### Conclusions
 
 - **Temperature:** from 0.7 to 1.0 the variability clearly increases; the intervals do not overlap.
-- **Top_p:** at 0.5 the variability is clearly lower. Between 0.9 and 1.0 the intervals overlap, so this experiment cannot show that they differ.
-- **Temperature 0.0** does not always give zero: run 1 gave 0.150. The cause is not identified; it could be runtime non-determinism in that execution.
+- **`top_p`:** at 0.5 the variability is clearly lower. Between 0.9 and 1.0 the intervals overlap, so this experiment cannot show that they differ.
+- **Temperature 0.0** does not always give zero: run 1 gave 0.150. The cause was not identified; it may be runtime nondeterminism in that run.
 
 ### Limitations
 

@@ -30,13 +30,13 @@ The loss is the average negative log-likelihood, `-log p(correct next character)
 
 ## Why the regularization term exists
 
-The `0.01 * mean(W²)` term penalizes large weights. Without it, the logits of rare bigrams can grow without bound to fit specific cases, and the model becomes overconfident. With 228 thousand pairs the practical effect is small, but in large models it keeps the training loss from being misleading.
+The `0.01 * mean(W²)` term penalizes large weights. Without it, the logits of rare bigrams can grow without bound to fit specific cases, and the model becomes overconfident. With 228 thousand bigrams the practical effect is small. In large models, it keeps the training loss from being misleadingly low.
 
-## Glossary of the four concepts
+## Four key concepts
 
 - **BPE tokenization:** text is converted into tokens. BPE starts from characters or bytes and merges the most frequent pairs until it reaches the vocabulary size. A text in Spanish usually takes more tokens than the same text in English. Karpathy's mini-GPT uses characters; BPE is the next step.
 - **Context window:** the maximum number of tokens the model processes in one pass. In the code it appears as `block_size`. The cost of attention grows with the square of the sequence length.
-- **Attention:** each token computes `softmax(Q·Kᵀ/√d)·V`. Q queries, K is matched against, and V carries the information. The causal mask prevents attending to future tokens.
+- **Attention:** each token computes `softmax(Q·Kᵀ/√d)·V`. Q is the query, K is what each query is matched against, and V carries the information. The causal mask prevents attending to future tokens.
 - **KV cache:** stores the K and V tensors already computed so they are not recomputed during generation. It takes memory: per token, `2 × layers × KV_heads × head_dim × bytes`. For a 7B-parameter model in fp16 with 4,096 tokens, it is about 2 GB.
 
 ## Review questions
@@ -60,7 +60,7 @@ Conclusions:
 - The learning rate was the dominant factor. Lowering it from 3e-3 to 1e-3 improved validation by 0.13. With a width of 128, an `lr` of 3e-3 makes the loss oscillate and progress more slowly, because Adam's updates add up over more connections.
 - With this training budget, going from a width of 64 to 128 improves validation by only 0.02.
 - The val-train gap is almost the same at both widths (0.17 and 0.18). There is no overfitting attributable to capacity in 2000 steps (about 4 passes over the text).
-- Observing overfitting needs more training, for example 10,000 steps, to see whether validation stops improving while training loss keeps falling.
+- Observing overfitting would take longer training, for example 10,000 steps, to see whether validation stops improving while the training loss keeps falling.
 - The training loss is measured on a single batch and is noisy. For fine comparisons, measure it with `eval_loss` over several batches.
 - Samples: all three runs produce text formatted like a play (character names in capitals, line breaks) with recognizable words, and with the spelling errors typical of a character-level model.
 - Not comparable with the bigram model: the datasets differ (names vs. Shakespeare, with different vocabularies).
@@ -79,15 +79,15 @@ Key results:
 - Weights in fp16: about 16 GB (8B) and 140 GB (70B). With many concurrent queries, the cache outweighs the weights.
 - With RAG and 4,096 tokens per query, the cache drops to 25 GiB (8B) and 62.5 GiB (70B).
 
-Decision: RAG as the main lever to reduce memory.
+Decision: use RAG as the main lever to reduce memory.
 
-The trade-off to disclose to the client: answers that require combining distant parts of the manual, because the retriever can return incomplete chunks.
+The trade-off to disclose to the client: questions whose answers combine distant parts of the manual can fail, because the retriever may return incomplete chunks.
 
 Mitigation and measurement:
 
 - Measure **hit@k**: the share of questions for which the correct chunk is among the k retrieved.
-- Use the client's real questions, including infrequent questions and those that span sections.
-- Keep only the most-consulted sections in a fixed context, with prefix caching. That fixed memory also consumes cache, so the savings are not total.
+- Use the client's real questions, including rare ones and ones that span several sections.
+- Keep only the most-consulted sections in a fixed context, with prefix caching. That fixed context also takes cache memory, so the savings are partial.
 
 ## Next steps (as written at the close of week 1)
 
