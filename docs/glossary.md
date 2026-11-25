@@ -239,6 +239,31 @@ results folder also gets its own schema of keys in step 4 of the English pass.
 | `exito`, `exitos` | success, successes |
 | `marca`, `fuente`, `fecha`, `valor`, `unidad` | mark, source, date, value, unit (price lists) |
 
+### Prompt caching (week 20, activity 3)
+
+| Term | Meaning |
+|---|---|
+| `CACHE_PROMPT` | the agent's prompt-cache mode (`ia/config.py`, and the Lambda variable): `off`, `sistema`, `historial`, `historial+sistema` |
+| `sistema` (cache mode) | system: one cache point after the system prompt and the tools |
+| `historial` (cache mode) | history: the cache point at the end of the message history, which advances each step |
+| `CACHE_TTL` | the cache's time to live: `5m` or `1h` |
+| `cache_lectura`, `tokens_cache_lectura` | cache read tokens (billed at 0.1× input) |
+| `cache_escritura`, `tokens_cache_escritura` | cache write tokens (billed at 1.25× input with 5 minutes, 2× with 1 hour) |
+| `sin_cache` | uncached input tokens |
+| `costo_cache` | the USD of the cache tokens of one task |
+| `tokens_equivalentes` | cache tokens counted as the input tokens of the same price (the task budget's token count) |
+| `estimar_entrada` | estimate the next call's input |
+| `por_llamada`, `pasos_modelo`, `spans_modelo` | per model call: its tokens, cost and duration |
+| `duracion_pasos_ms` | each model call's duration, in milliseconds |
+| `aciertos_cache`: `posibles`, `leyeron`, `tasa` | cache hits: the calls that could read (the call before wrote), those that read, and the rate |
+| `latencia_primer_paso_ms`, `latencia_pasos_siguientes_ms_mediana` | latency of the first step, and the median of the later steps |
+| `prefijo_fijo` | fixed prefix: the tool definitions and the system prompt |
+| `paso_que_alcanza_el_minimo` | the first step whose prefix reaches the minimum tokens per cache point |
+| `razon_chars_por_token` | characters-per-token ratio |
+| `optimista`, `pesimista`, `peor`, `equilibrio` | the prediction's scenarios: optimistic, pessimistic, worst, and break-even |
+| `p_acierto` | the probability that a call is served where the call before wrote |
+| `cache_medicion.json`, `cache_prediccion.json`, `cache_comparacion.json` | the offline measurement, the prediction committed before the run, and the comparison after it |
+
 ## Command-line flags
 
 The scripts take Spanish flags. Step 4 of the English pass adds the English alias on each flag. Until then:
