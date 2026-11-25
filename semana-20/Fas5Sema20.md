@@ -470,3 +470,8 @@ README (last).
   - the prod window stays out of week 20. Prod is still only synthesized and quoted from the model (activity 9), as
     the default decisions say, and its per-hour figure stays unmeasured. Deploying prod would be its own session, with
     its own estimate and OK.
+- 2026-11-24: activity 2, the run. `componente` and `perfil` were activated in Billing. The deploy needed #335: the
+  profile description had a comma, which CloudFormation's pattern rejects, and the bootstrap echo printed the account.
+  The run: 4/4 tasks answered, 0.0985182 USD from the spans and the same from EMF, against the 0.40 cap. The teardown
+  ended in `"quedan": "nada"`. Cost Explorer by `componente` the next day closes the activity
+  (`resultados/atribucion.md` §4).
