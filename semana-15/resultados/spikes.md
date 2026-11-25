@@ -15,7 +15,7 @@ Code: [`adaptadores/openai_agents.py`](../adaptadores/openai_agents.py) and [`ad
 | Google ADK | **0.950** (0.764 to 0.991) | **$0.0046** | **36,204** | 13.9 / 25.5 | 3.70 | 5.90 |
 | LangGraph (activity 5, same tasks, k = 3) | 1.000 (0.940 to 1.000) | $0.0030 | 21,400 | 6.4 / 19.5 | 3.65 | 5.63 |
 | Strands (activity 5, same tasks, k = 3) | 1.000 (0.940 to 1.000) | $0.0029 | 21,097 | 6.5 / 19.0 | 3.58 | 5.62 |
-| Own loop (week 13, k = 3) | 1.000 (0.940 to 1.000) | $0.0027 | 19,130 | 6.6 / 14.9 | 3.58 | 5.50 |
+| Hand-written loop (week 13, k = 3) | 1.000 (0.940 to 1.000) | $0.0027 | 19,130 | 6.6 / 14.9 | 3.58 | 5.50 |
 
 Each spike failed one run, both on the ambiguous task `a01`: it answered instead of asking for clarification (`a01-en` in OpenAI, `a01-es` in ADK). With k = 1 and 20 runs, 0.950 is not distinguishable from 1.000 (the intervals overlap). The spikes measure friction and cost, not a quality ranking.
 

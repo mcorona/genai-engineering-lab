@@ -3,7 +3,7 @@
 Every run of the LegacyBridge agent now gets a trajectory score, written back to Langfuse on its trace. The trajectory is read **from the
 spans** (the same `execute_tool` and `chat` spans the Collector's file and Langfuse hold), compared against a frozen reference for its
 golden task, and scored by eight deterministic graders. In the paid run (84 tasks, Haiku 5.5 `low`, guardrails and budgets on, $0.2356)
-**91.7 % of the trajectories pass**. The span reading matched the loop's own records on 84 of 84 runs, and 756 of 756 scores were
+**91.7% of the trajectories pass**. The span reading matched the loop's own records on 84 of 84 runs, and 756 of 756 scores were
 written and read back.
 
 Files: `trayectorias/` (`criterios.py` written before any run was scored, `construir_referencias.py` with `referencias.jsonl` and
@@ -32,14 +32,14 @@ they were fixed before anything was scored.
 
 ## Results
 
-| | Runs | Trajectory ok (95 % CI) | Answer ok (95 % CI) | Good answer, bad path | Bad answer, good path |
+| | Runs | Trajectory ok (95% CI) | Answer ok (95% CI) | Good answer, bad path | Bad answer, good path |
 |---|---|---|---|---|---|
 | Week 13 loop, no guardrails or budget (k = 3) | 252 | 0.921 [0.865, 0.968] | 0.921 [0.861, 0.972] | 8 | 8 |
 | Week 13 Agent SDK (k = 3) | 252 | **0.318** [0.234, 0.409] | 0.889 [0.825, 0.944] | 148 | 4 |
 | Week 13 Agent SDK, without the steps rule | 252 | 0.941 [0.889, 0.984] | 0.889 [0.825, 0.944] | 4 | 17 |
 | **This activity: loop with guardrails and budgets, paid (k = 1)** | 84 | **0.917** [0.857, 0.964] | 0.881 [0.810, 0.952] | 2 | 5 |
 
-| Difference (paired bootstrap over tasks) | Value | 95 % CI |
+| Difference (paired bootstrap over tasks) | Value | 95% CI |
 |---|---|---|
 | SDK − loop, trajectory | −0.603 | [−0.691, −0.512] |
 | SDK without the steps rule − loop, trajectory | +0.020 | [+0.004, +0.040] |
@@ -51,7 +51,7 @@ What fails in the paid run (7 tasks): `a03` and `a04` in both languages ran SQL 
 their answers fail too, as they did 3 of 3 in week 13); `c08-es` was stopped by the session budget before any model call (`recall`, 0 steps);
 `v02-es` and `v03-es` sampled the values AFTER the SQL that filters on them (`orden`), and still answered correctly.
 
-The $0 replay of week 13's recorded turns through today's stack gives the same picture (91.7 %, 84 of 84 adapter matches, the same scores
+The $0 replay of week 13's recorded turns through today's stack gives the same picture (91.7%, 84 of 84 adapter matches, the same scores
 in Langfuse).
 
 ## Findings

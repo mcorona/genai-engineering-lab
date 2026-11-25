@@ -1,6 +1,6 @@
 # Activity 3: the agent in LangGraph
 
-Code: [`adaptadores/langgraph.py`](../adaptadores/langgraph.py) (about 145 lines of code without docstrings). Tests: [`tests/test_equivalencia.py`](../tests/test_equivalencia.py) (15 per framework, no API calls, $0; the same tests cover Strands in activity 4), run against the week 13 own loop with **the same simulated model script and the same week 14 MCP server**.
+Code: [`adaptadores/langgraph.py`](../adaptadores/langgraph.py) (about 145 lines of code without docstrings). Tests: [`tests/test_equivalencia.py`](../tests/test_equivalencia.py) (15 per framework, no API calls, $0; the same tests cover Strands in activity 4), run against the week 13 hand-written loop with **the same simulated model script and the same week 14 MCP server**.
 
 ## The graph
 
@@ -27,12 +27,12 @@ It is an explicit `StateGraph`, not the prebuilt `create_react_agent`, so every 
 | Checkpoints | `InMemorySaver`, one thread per run |
 | **Human in the loop** | Before `proponer_orden_compra` the graph stops with `interrupt()` and waits for `Command(resume="aprobar" | "rechazar")`. In evals the `aprobacion` policy decides; in week 17 a person decides through the `decidir` hook. A rejected proposal never reaches the server and goes back to the model as `rechazada_por_humano` |
 
-## Tests (vs. the week 13 own loop, same script)
+## Tests (vs. the week 13 hand-written loop, same script)
 
 | Test | Result |
 |---|---|
 | **Contract equivalence**, 7 scripts: correct answer, wrong SQL, abstention, clarification, never calls `responder`, invalid then corrected answer, `responder` together with another tool | Identical state, final answer, steps, tools, tokens, cost, tool errors, stop reason and parallel turns; the same verifier verdict; **the same calls to the MCP server in the same order**; the same requests to the model (system prompt, model, `max_tokens`, `effort`, tool set, first message); valid common traces |
-| **Limits** `max_pasos`, `max_herramientas`, `max_tokens_total` | Same stop reason and the same counters as the own loop |
+| **Limits** `max_pasos`, `max_herramientas`, `max_tokens_total` | Same stop reason and the same counters as the hand-written loop |
 | 3 tool errors in a row | Both stop with `errores_herramienta` after 3 |
 | **Interrupt before `proponer_orden_compra`**, approve | One pause with the tool and its arguments; the server receives the proposal; ≥ 4 checkpoints |
 | Interrupt, reject | One pause; **the server receives nothing**; the model gets `rechazada_por_humano` |

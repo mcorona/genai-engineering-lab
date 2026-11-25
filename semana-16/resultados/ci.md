@@ -21,7 +21,7 @@ exist, the API part is skipped and reported.
    (`regex`, `file_exists`, `tool_used`): risks, the CFO summary and the three cases that must not trigger. Each
    case is one call with `--case`, `--ablation none --runs 1`, mocks answered by Haiku, and `--max-cost-usd` set to
    what is left of the cap. That gives 21 scored graders.
-2. **Quality**, with the own evaluator (`eval/calidad.py`), on 2 real audits with `claude -p --plugin-dir`:
+2. **Quality**, with the custom evaluator (`eval/calidad.py`), on 2 real audits with `claude -p --plugin-dir`:
    - **dsn:** `/legacy-schema-audit:auditoria-completa` through the bundled server. It runs with a role created for
      the run (random password, SELECT on `legado` only), against the CI database with the 13 seeded risks.
      Dictionary meaning, PK, FK and personal-data recall, risk recall, and every evidence `SELECT` run again.
@@ -54,14 +54,14 @@ The plan called for 2 calibration runs. A third run then applied the thresholds:
 
 | Metric | n | Run 1 | Run 2 | Threshold | False alarm per run | Run 3 (enforced) |
 |---|---|---|---|---|---|---|
-| eval (deterministic graders) | 21 | 1.000 | 1.000 | **0.90** | 3.1 % | 1.000 ✅ |
-| dsn.significado | 46 | 0.978 | 0.957 | **0.90** | 1.8 % | 0.957 ✅ |
-| dsn.pk_recall | 11 | 0.545 | 0.727 | **0.45** | 6.2 % | 0.545 ✅ |
-| dsn.fk_recall | 9 | 1.000 | 1.000 | **0.85** | 3.4 % | 0.889 ✅ |
-| dsn.pii_recall | 5 | 1.000 | 1.000 | **0.80** | 1.0 % | 1.000 ✅ |
-| dsn.riesgos | 13 | 0.462 | 0.615 | **0.35** | 8.2 % | 0.615 ✅ |
-| token.cobertura_visible | 30 | (invalid) | 1.000 | **0.90** | 1.7 % | 1.000 ✅ |
-| token.significado_visible | 30 | (invalid) | 1.000 | **0.90** | 1.7 % | 1.000 ✅ |
+| eval (deterministic graders) | 21 | 1.000 | 1.000 | **0.90** | 3.1% | 1.000 ✅ |
+| dsn.significado | 46 | 0.978 | 0.957 | **0.90** | 1.8% | 0.957 ✅ |
+| dsn.pk_recall | 11 | 0.545 | 0.727 | **0.45** | 6.2% | 0.545 ✅ |
+| dsn.fk_recall | 9 | 1.000 | 1.000 | **0.85** | 3.4% | 0.889 ✅ |
+| dsn.pii_recall | 5 | 1.000 | 1.000 | **0.80** | 1.0% | 1.000 ✅ |
+| dsn.riesgos | 13 | 0.462 | 0.615 | **0.35** | 8.2% | 0.615 ✅ |
+| token.cobertura_visible | 30 | (invalid) | 1.000 | **0.90** | 1.7% | 1.000 ✅ |
+| token.significado_visible | 30 | (invalid) | 1.000 | **0.90** | 1.7% | 1.000 ✅ |
 | Security, dsn (10 checks) | | ✅ | ✅ | no threshold | | ✅ |
 | Security, token (10 checks) | | ❌ (a wrong check) | ✅ | no threshold | | ✅ |
 | Cost | | $0.1164 | $0.1099 | cap $0.40 | | $0.1156 |
@@ -69,7 +69,7 @@ The plan called for 2 calibration runs. A third run then applied the thresholds:
 Evidence: the job summaries of the three runs on PR #124, and the full `resumen.json` of runs 2 and 3 ([`ci/corrida2_resumen.json`](ci/corrida2_resumen.json), [`ci/corrida3_resumen.json`](ci/corrida3_resumen.json)). Run 1 has no artifact; the upload was added after it.
 
 **The rule.** Each threshold is the multiple of 0.05 just below the lower of the two values minus
-max(0.03, 1/n). The threshold is then lowered while its probability of failing a correct run is above 10 %. That
+max(0.03, 1/n). The threshold is then lowered while its probability of failing a correct run is above 10%. That
 probability is binomial, with n and p = 1 − the mean of the two runs, at least 4/120 (the week 13 failure rate).
 `tests/test_eval_ci.py` recomputes every threshold from the recorded runs.
 

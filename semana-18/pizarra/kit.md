@@ -42,7 +42,7 @@ Time budget (a guide, not a rule): zone 1, 3 min · zone 2, 7 min · zone 3, 7 m
 
 ## Evaluation checklist (weeks 10 to 17)
 
-- **Golden set** of tasks with execution-based checks (the answer recomputed from the source), in every language used.
+- **Gold set** of tasks with execution-based checks (the answer recomputed from the source), in every language used.
 - **Security suites with no threshold:** writes, leaks, instructions obeyed, orders without approval, secrets in traces, spend over a cap.
 - **Trajectory graders** on the trace: tools, order, redundant and failed calls, recovery, steps; scores written to the observability.
 - **Thresholds** set by a rule fixed before running (week 10: the multiple of 0.05 below the first run minus max(0.03, 1/n), with
@@ -62,7 +62,7 @@ Time budget (a guide, not a rule): zone 1, 3 min · zone 2, 7 min · zone 3, 7 m
 | 2 | Agent boundaries | each agent has one job and a reason; the single-agent alternative is weighed with its cost |
 | 3 | MCP design | servers, tools, transports, ownership and auth are on the board; which agent calls what |
 | 4 | Security boundaries | the trust lines are drawn and the checklist items that apply are placed on them |
-| 5 | Evaluation plan | golden set, security suites, trajectory, thresholds by a rule, cost; before and after go-live |
+| 5 | Evaluation plan | gold set, security suites, trajectory, thresholds by a rule, cost; before and after go-live |
 | 6 | Trade-offs and cost | at least two explicit trade-offs and a rough cost per task or per month |
 | 7 | Time | delivered in 30:00 or less (3 = with the five zones complete; 2 = one zone thin; 0 = over time) |
 

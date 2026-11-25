@@ -34,7 +34,7 @@ python -m servidor --transporte http --oauth --trazas resultados/trazas/oauth.js
    | `leer` + `ventas` + `proveedores` | `legado_perfil_lvp` |
 
    - The basic read role (`legado_r_leer`) reads `artmst` **only through its non-sensitive columns**. `art_prv` (supplier FK) and `art_cst` (cost) belong to `legado_r_proveedores`.
-   - The transaction stays READ ONLY and is always rolled back.
+   - The transaction stays `READ ONLY` and is always rolled back.
 
 ## JWT validation (`VerificadorJWT`)
 

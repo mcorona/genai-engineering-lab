@@ -14,7 +14,7 @@ Harness: [`eval/correr.py`](../eval/correr.py) and [`eval/pasarela.py`](../eval/
 |---|---|---|---|---|---|---|
 | **LangGraph** | **0.900** (0.833 to 0.942) | 0.900 | $0.0030 | 6.84 / 15.82 | 3.71 | 5.65 |
 | **Strands** | **0.900** (0.833 to 0.942) | 0.900 | $0.0030 | 6.74 / 14.05 | 3.67 | 5.58 |
-| Own loop (week 13, in process) | 0.917 (0.853 to 0.954) | 0.900 | $0.0028 | 6.89 / 14.92 | 3.69 | 5.55 |
+| Hand-written loop (week 13, in process) | 0.917 (0.853 to 0.954) | 0.900 | $0.0028 | 6.89 / 14.92 | 3.69 | 5.55 |
 | Claude Agent SDK (week 13, in process) | 0.875 (0.804 to 0.923) | 0.825 | $0.0021 | 10.07 / 19.66 | 6.37 | 5.34 |
 
 Paired comparison, bootstrap over the 40 tasks:
@@ -22,7 +22,7 @@ Paired comparison, bootstrap over the 40 tasks:
 | Comparison | Difference | 95% CI |
 |---|---|---|
 | LangGraph − Strands | **+0.000** | +0.000 to +0.000 |
-| LangGraph or Strands − own loop | −0.017 | −0.050 to +0.000 |
+| LangGraph or Strands − hand-written loop | −0.017 | −0.050 to +0.000 |
 | LangGraph or Strands − Claude Agent SDK | +0.025 | −0.008 to +0.075 |
 
 **Security** (the 38 week 14 cases with client defenses, in each framework): **38/38 in LangGraph and 38/38 in Strands**, with 0 instructions obeyed, 0 writes and 0 leaks. The 2 calls to a "malicious" server per framework are the legitimate use of `tipos_cambio` in the result-injection case (`ir-1`). That server is approved; its injected result arrived as data, and neither the DELETE nor the proposal was executed, the same as in week 14.
@@ -38,7 +38,7 @@ Paired comparison, bootstrap over the 40 tasks:
 ## Reading
 
 1. **The framework does not change the result.** LangGraph and Strands failed **exactly the same 12 runs**: `c05` and `a03`, in both languages, 3 out of 3 times. Those are the same tasks that failed in week 13 in process and in week 14 over MCP. Cost per task, tokens, steps and latency agree within 2%. Same model, same prompt, same tools and same rules give the same agent. What differs is the code that expresses it and what each framework makes easy or hard (activities 3 and 4).
-2. **Moving from in-process to MCP costs little.** The two frameworks sit 0.017 below the own loop (CI −0.050 to 0.000). That is the run-to-run variation of the same `c05` failure (20/24 composite tasks against 18/24), and it reproduces the week 14 result. Cost per task rises from $0.0028 to $0.0030 because MCP tool results reach the model as text, slightly longer.
+2. **Moving from in-process to MCP costs little.** The two frameworks sit 0.017 below the hand-written loop (CI −0.050 to 0.000). That is the run-to-run variation of the same `c05` failure (20/24 composite tasks against 18/24), and it reproduces the week 14 result. Cost per task rises from $0.0028 to $0.0030 because MCP tool results reach the model as text, slightly longer.
 3. **Both beat the Claude Agent SDK on consistency** (pass^3 0.900 against 0.825), with fewer steps (3.7 against 6.4) and lower p95 latency. The success difference (+0.025) is not significant with 40 tasks.
 4. **Security does not depend on the framework but on where the defenses live.** Putting the week 14 secure client behind an **MCP gateway** gave both frameworks the same defenses with no code in either adapter. It is the pattern to recommend to a client running several frameworks.
 5. **Development cost is the real difference.** LangGraph needed fewer lines and less time. Strands needs fewer direct dependencies, but more knowledge of its internals: when metrics update, how a cancelled call is reported, and that tools run concurrently by default.

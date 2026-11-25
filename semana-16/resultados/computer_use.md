@@ -144,7 +144,7 @@ keep or retake images.
   - human confirmation for consequential actions;
   - evidence of every action and screenshot.
 
-## Limits
+## Limitations
 
 - One screen and one model. The labels and help texts are explicit and the screen fits in one 1280×800 view. Dense or
   scrolling screens would need more steps, zooms and history.

@@ -95,7 +95,7 @@ The gold set runs as `analista`, who can read everything.
 
 Dependencies added: `sqlglot` and `pytest` (dev).
 
-## 3. Own agentic loop
+## 3. Hand-written agentic loop
 
 [`agente/loop.py`](agente/loop.py) implements tool use directly on the Anthropic Messages API, with no framework. The model asks for tools, the system runs them (the activity 2 tools) and returns `tool_result` blocks, until the model calls `responder` or a limit is reached.
 
@@ -186,26 +186,26 @@ The MCP path adds about one second per task: process spawn and JSON-RPC over std
 
 ## 5. Agent evaluation
 
-The own agentic loop was run on the full gold set (42 tasks × 2 languages = 84 tasks), k = 3 independent runs per task, with Haiku 5.5 at effort `low` and `medium`. Sonnet 5.5 `low` was run on the subset where Haiku fell short.
+The hand-written agentic loop was run on the full gold set (42 tasks × 2 languages = 84 tasks), k = 3 independent runs per task, with Haiku 5.5 at effort `low` and `medium`. Sonnet 5.5 `low` was run on the subset where Haiku fell short.
 - Report: [`resultados/agente.md`](resultados/agente.md), built by [`agente/evaluar.py`](agente/evaluar.py) from the run details and traces.
 - Machine-readable: [`resultados/agente_resumen.json`](resultados/agente_resumen.json).
-- Confidence intervals: 95 %, bootstrap over tasks. Differences between configurations use a paired bootstrap by task.
+- Confidence intervals: 95%, bootstrap over tasks. Differences between configurations use a paired bootstrap by task.
 
-| Configuration | Runs | pass@1 [95 % CI] | pass^3 [95 % CI] | Key accuracy | Correct clarification | Correct abstention | p50 / p95 per task | Cost |
+| Configuration | Runs | pass@1 [95% CI] | pass^3 [95% CI] | Key accuracy | Correct clarification | Correct abstention | p50 / p95 per task | Cost |
 |---|---|---|---|---|---|---|---|---|
 | Haiku 5.5 `low` | 252 | **0.921** [0.861, 0.972] | **0.905** [0.833, 0.964] | 0.970 | 0.500 | 1.000 | $0.0026 / $0.0052 · 7.1 / 14.8 s | $0.72 |
 | Haiku 5.5 `medium` | 252 | 0.913 [0.849, 0.964] | 0.893 [0.821, 0.952] | 0.962 | 0.500 | 1.000 | $0.0031 / $0.0062 · 8.9 / 21.0 s | $0.88 |
 | Sonnet 5.5 `low`, subset (a01–a04, c05; 10 tasks) | 30 | 1.000 | 1.000 | 1.000 | 1.000 | — | $0.0173 / $0.0393 · 3.7 / 7.8 s | $0.56 |
 
 **What the numbers say**
-- **`medium` buys nothing on this set.** The paired difference with `low` is −0.008 [−0.032, 0.016]. It costs about 20 % more and its p95 latency is 42 % higher. `low` is the default.
-- **Haiku fails on clarification.** It asks for clarification on only half of the ambiguous tasks, with either effort. On a03 ("give me the products with low inventory") and a04 ("how much inventory do we have at *the* distribution center?") it picks an interpretation and answers, 12 of 12 times. It never asks for clarification or abstains on a task that has an answer, and it abstains correctly 100 % of the time.
+- **`medium` buys nothing on this set.** The paired difference with `low` is −0.008 [−0.032, 0.016]. It costs about 20% more and its p95 latency is 42% higher. `low` is the default.
+- **Haiku fails on clarification.** It asks for clarification on only half of the ambiguous tasks, with either effort. On a03 ("give me the products with low inventory") and a04 ("how much inventory do we have at *the* distribution center?") it picks an interpretation and answers, 12 of 12 times. It never asks for clarification or abstains on a task that has an answer, and it abstains correctly 100% of the time.
 - **Sonnet 5.5 `low` fixes both weak spots** on the subset: 30 of 30. Clarification goes from 0.500 to 1.000, and it avoids the c05 rounding error. Against Haiku `low`, the paired difference is +0.533 [0.233, 0.800]. It costs about 7 times more per task, but it needs fewer model calls (p50 2 instead of 4) and is faster (3.7 s p50).
 - **Trajectory:**
-  - 100 % of tool calls are valid (the tool exists and the arguments pass the schema), and 98.8 % to 99.8 % succeed.
+  - 100% of tool calls are valid (the tool exists and the arguments pass the schema), and 98.8% to 99.8% succeed.
   - The agent uses 1.56 times the minimum number of model calls with `low` and 1.73 times with `medium`.
   - There are no redundant calls (same tool and arguments twice in one run).
-  - Runs with a tool error recover and end successfully 90.5 % of the time with `low` and 81.8 % with `medium`.
+  - Runs with a tool error recover and end successfully 90.5% of the time with `low` and 81.8% with `medium`.
 - **Free text, judged:** a Haiku 5.5 `low` judge grades only the clarification question or the abstention explanation, against the reason in the gold set. It was validated first on 2 good and 2 bad known cases, and got 4/4.
   - Haiku: 35/36 adequate with `low` and 33/36 with `medium`.
   - Sonnet: 20/24. The judge is strict: it marks a question as not adequate when it asks for only one of the two missing pieces, for example the distribution center but not units versus value.
@@ -259,7 +259,7 @@ The week 10 assistant was run as a **workflow with fixed routing** on the same g
 
 To compare only the orchestration, the NLQ gets the same output information as the agent: each key's description and the shape contract. The workflow has no clarification step.
 
-| Task type | Tasks | Agent pass@1 / pass^3 | Workflow pass@1 / pass^3 | Agent − workflow [95 % CI] | USD per task p50, agent / workflow | Seconds p50 / p95, agent / workflow |
+| Task type | Tasks | Agent pass@1 / pass^3 | Workflow pass@1 / pass^3 | Agent − workflow [95% CI] | USD per task p50, agent / workflow | Seconds p50 / p95, agent / workflow |
 |---|---|---|---|---|---|---|
 | simple | 20 | 0.967 / 0.950 | 0.950 / 0.950 | +0.017 [−0.100, +0.150] | $0.0022 / $0.0005 | 6.4 / 9.4 · 3.1 / 4.3 |
 | business rules | 24 | 0.972 / 0.958 | 0.139 / 0.083 | **+0.833** [+0.694, +0.958] | $0.0033 / $0.0004 | 9.2 / 14.6 · 2.8 / 6.6 |
@@ -294,7 +294,7 @@ Cost of the activity: $0.14 (workflow runs; the agent was not re-run).
 
 ## 7. Basic security through the agent
 
-[`seguridad/correr.py`](seguridad/correr.py) runs a security suite through the own agentic loop: Haiku 5.5 `low`, 35 cases × 2 languages = 70 cases, k = 2, so 140 runs. The cases are in [`seguridad/casos.py`](seguridad/casos.py). Report: [`resultados/seguridad.md`](resultados/seguridad.md). The pass criteria were fixed before running.
+[`seguridad/correr.py`](seguridad/correr.py) runs a security suite through the hand-written agentic loop: Haiku 5.5 `low`, 35 cases × 2 languages = 70 cases, k = 2, so 140 runs. The cases are in [`seguridad/casos.py`](seguridad/casos.py). Report: [`resultados/seguridad.md`](resultados/seguridad.md). The pass criteria were fixed before running.
 
 **New pieces needed to test each point**
 - **`proponer_orden_compra`:** the "proposed action". It only registers a proposal (`PENDING_APPROVAL`, `ejecutada: false`) and writes nothing to the database. Only the purchasing role may use it. The model cannot send a status; if it tries, it gets `argumentos_invalidos`.
@@ -336,7 +336,7 @@ Cost of the activity: agent $0.21, judge $0.0004.
 
 **Steps.**
 1. **Unit and contract tests**, with no API calls: the full `tests/` suite against the CI database.
-2. **Reduced agent suite** ([`ci/eval_ci.py`](ci/eval_ci.py)): 10 tasks per language, stratified by type (2 simple, 3 business rules, 2 compound, 1 value trap, 1 ambiguous, 1 no-answer), all with pass^3 = 1 in activity 5. They run through the own loop with Haiku 5.5 `low`, k = 2 (20 runs per language; k = 1 until PR #84). Each key's expected result is recomputed on the CI database with its reference SQL, because the gold set froze the values of the local database. There is one success threshold per language.
+2. **Reduced agent suite** ([`ci/eval_ci.py`](ci/eval_ci.py)): 10 tasks per language, stratified by type (2 simple, 3 business rules, 2 compound, 1 value trap, 1 ambiguous, 1 no-answer), all with pass^3 = 1 in activity 5. They run through the hand-written loop with Haiku 5.5 `low`, k = 2 (20 runs per language; k = 1 until PR #84). Each key's expected result is recomputed on the CI database with its reference SQL, because the gold set froze the values of the local database. There is one success threshold per language.
 3. **Security** (no threshold; any failure breaks the PR): 18 cases × 2 languages from the activity 7 suite, covering writes, proposals, leakage by role and across tenants, injection in SQL results and in rules, and a loop. The run takes the MD5 fingerprint of every table before and after. **Any write, leak or obeyed instruction fails the PR.**
 4. **Cost per run** is printed and added to the job summary (`GITHUB_STEP_SUMMARY`). There is a cap of $0.60 per run.
 
@@ -365,7 +365,7 @@ The second run, with no code change, scored 0.900 in Spanish and 1.000 in Englis
 |---|---|---|
 | 1. Task gold set | 42 tasks × 2 languages, 15 business rules from the inventory-copilot documents, 44 output keys validated on the database | $0 |
 | 2. Shared tools | 5 tools (6 after activity 7) with strict JSON Schema, structured errors and permissions injected by the system; sqlglot guard plus `EXPLAIN`; `copilot_nlq` and read-only transactions | $0 |
-| 3. Own agentic loop | Tool use with parallel calls, bounded retry, stop states, Pydantic final answer, JSONL traces. Pilot 10/12, then 12/12 after two fixes | $0.07 |
+| 3. Hand-written agentic loop | Tool use with parallel calls, bounded retry, stop states, Pydantic final answer, JSONL traces. Pilot 10/12, then 12/12 after two fixes | $0.07 |
 | 4. MCP server | stdio server with the same catalog. Identical to the native tools: 107/107 calls, 12/12 gold keys, 39/39 permission cases. Agent through MCP 12/12. Tested with MCP Inspector and registered in Claude Code | $0.03 |
 | 5. Agent evaluation | Haiku 5.5 `low`: pass@1 **0.921** [0.861, 0.972], pass^3 0.905. `medium` adds nothing (−0.008). Clarification 0.500 with Haiku and 1.000 with Sonnet 5.5 `low` on the subset | $4.09 |
 | 6. Agent vs workflow | Agent 0.921, workflow 0.504 (+0.417 [0.310, 0.528]). Tie on direct questions; the agent wins on rules (+0.833), compound tasks (+0.667) and ambiguity (+0.500) | $0.14 |
@@ -377,16 +377,16 @@ The second run, with no code change, scored 0.900 in Spanish and 1.000 in Englis
 
 | Decision | Why |
 |---|---|
-| Own loop first, no framework | Every step is measured and traced. The Claude Agent SDK and other frameworks are compared against this baseline |
-| Haiku 5.5 `low` as the default agent model | Same success as `medium` (−0.008 [−0.032, 0.016]), 20 % cheaper and with a lower p95 |
-| Sonnet 5.5 for requests that may be ambiguous | It asks for clarification 100 % of the time on the subset; Haiku does 50 % |
+| Hand-written loop first, no framework | Every step is measured and traced. The Claude Agent SDK and other frameworks are compared against this baseline |
+| Haiku 5.5 `low` as the default agent model | Same success as `medium` (−0.008 [−0.032, 0.016]), 20% cheaper and with a lower p95 |
+| Sonnet 5.5 for requests that may be ambiguous | It asks for clarification 100% of the time on the subset; Haiku does 50% |
 | Workflow for direct data questions; agent for rules, multi-part and ambiguous requests | Activity 6: they tie on direct questions, where the workflow is 4 to 8 times cheaper; the agent is the only one that solves rules and multi-part tasks |
 | One tool contract for every path (native, MCP, workflow) | Patterns differ only in orchestration; MCP adds no logic and gives identical results |
 | Permissions in a `Contexto` created by the system, never in tool arguments | The model cannot escalate. Tested with arguments, by role and through MCP |
 | Actions with effects only as proposals (`PENDING_APPROVAL`) | Nothing is executed without a person (human-in-the-loop is week 17) |
 | Expected results recomputed on the CI database | The gold set froze the local values; CI uses synthetic data |
 
-### Limits
+### Limitations
 
 - **Small domain:** one legacy schema with 6 tables plus `artnot`, 84 tasks, synthetic company rules. The numbers do not carry over to large or messy schemas without measuring them.
 - **Model coverage:** Sonnet was measured only on a subset of 10 tasks. Haiku was the only model on the full set.
@@ -417,7 +417,7 @@ The second run, with no code change, scored 0.900 in Spanish and 1.000 in Englis
 ### Phase 4 exit criterion (proposed in the root README)
 
 One verifiable criterion per week (13 to 18), plus the cross-cutting security criterion, confirmed on 2026-10-29. This week:
-- **Criterion 13: marked after activity 10.** It asks for the flow in at least two patterns, *workflow and agent with the Claude Agent SDK*, compared on success, cost and latency with the same frozen gold set. Activity 9 left it pending because the agent was only the own loop. Activity 10 adds the SDK agent on the same 84 tasks and k = 3, compared with the workflow and with the own loop (section 10).
+- **Criterion 13: marked after activity 10.** It asks for the flow in at least two patterns, *workflow and agent with the Claude Agent SDK*, compared on success, cost and latency with the same frozen gold set. Activity 9 left it pending because the agent was only the hand-written loop. Activity 10 adds the SDK agent on the same 84 tasks and k = 3, compared with the workflow and with the hand-written loop (section 10).
 - **Cross-cutting security: marked.** Zero unapproved writes, zero leaks by role and across tenants, and zero obeyed injected instructions, with a CI check (activities 7 and 8). It is reviewed every week of the phase, and unmarked if a later week breaks it.
 
 ## 10. The same agent on the Claude Agent SDK
@@ -440,13 +440,13 @@ The CLI uses the API key, not the claude.ai account; it warns that the claude.ai
 
 **How it is measured:**
 - **Cost:** `ResultMessage.total_cost_usd`.
-- **Traces:** the same format as the own loop. They also record the 5 calls the SDK rejected on schema validation before they reached the tool.
-- **Turns:** the SDK counts turns (`num_turns`) differently from the own loop's model calls, so the comparison uses success, tool calls, cost and seconds.
+- **Traces:** the same format as the hand-written loop. They also record the 5 calls the SDK rejected on schema validation before they reached the tool.
+- **Turns:** the SDK counts turns (`num_turns`) differently from the hand-written loop's model calls, so the comparison uses success, tool calls, cost and seconds.
 - **Tests:** 3 new tests with no API calls: same catalog and schemas, same answers as the native tools, and `responder` checked against the task. The week has 106 tests.
 
 **Results.** The pilot got 12/12 for $0.027. Full gold set: 84 tasks, k = 3, 252 runs. Report: [`resultados/patrones.md`](resultados/patrones.md).
 
-| Task type | Workflow pass@1 / pass^3 | Own loop | Agent SDK | SDK − own loop [95 % CI] | SDK − workflow [95 % CI] |
+| Task type | Workflow pass@1 / pass^3 | Hand-written loop | Agent SDK | SDK − hand-written loop [95% CI] | SDK − workflow [95% CI] |
 |---|---|---|---|---|---|
 | simple | 0.950 / 0.950 | 0.967 / 0.950 | 0.900 / 0.900 | −0.067 [−0.183, 0.000] | −0.050 [−0.150, 0.000] |
 | business rules | 0.139 / 0.083 | 0.972 / 0.958 | 0.944 / 0.875 | −0.028 [−0.111, +0.056] | **+0.806** [+0.653, +0.931] |
@@ -456,7 +456,7 @@ The CLI uses the API key, not the claude.ai account; it warns that the claude.ai
 | no answer | 1.000 / 1.000 | 1.000 / 1.000 | 1.000 / 1.000 | 0 | 0 |
 | **Total** | 0.504 / 0.488 | **0.921 / 0.905** | 0.889 / 0.845 | −0.032 [−0.071, +0.004] | **+0.385** [+0.282, +0.496] |
 
-| | Workflow | Own loop | Agent SDK |
+| | Workflow | Hand-written loop | Agent SDK |
 |---|---|---|---|
 | USD per task, p50 | $0.0004 | $0.0026 | $0.0018 |
 | Seconds per task, p50 / p95 | 3.0 / 9.4 | 7.1 / 14.8 | 10.2 / 19.0 |
@@ -464,7 +464,7 @@ The CLI uses the API key, not the claude.ai account; it warns that the claude.ai
 | Key accuracy / key consistency | — | 0.970 / 0.992 | 0.928 / 0.958 |
 
 **Reading**
-- **The SDK agent is as good as the own loop within the noise, but not better.**
+- **The SDK agent is as good as the hand-written loop within the noise, but not better.**
   - The total difference is −0.032 [−0.071, +0.004], and the interval includes 0.
   - It is less consistent: pass^3 is 0.845 against 0.905.
   - Its remaining failures are the same kind of real errors:
@@ -473,10 +473,10 @@ The CLI uses the API key, not the claude.ai account; it warns that the claude.ai
     - one false clarification;
     - two unreported keys.
   - There were no instrument problems.
-- **It is 26 % cheaper** ($0.53 against $0.72). The CLI uses prompt caching: median input of about 32k tokens, mostly read from cache.
+- **It is 26% cheaper** ($0.53 against $0.72). The CLI uses prompt caching: median input of about 32k tokens, mostly read from cache.
 - **It is slower:** p50 10.2 s against 7.1 s. Each task starts a CLI process, and the SDK makes more turns.
 - **Decision for this flow:**
-  - The own loop stays the reference for evaluation: it is faster, more consistent, and every step is visible.
+  - The hand-written loop stays the reference for evaluation: it is faster, more consistent, and every step is visible.
   - The SDK is the option when its built-in features pay off: hooks, permission modes, sessions, subagents and the Claude Code toolset. Those are topics of weeks 15 to 17.
   - Both beat the workflow by about 0.4 on rules, compound tasks and ambiguity.
 

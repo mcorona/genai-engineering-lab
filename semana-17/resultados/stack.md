@@ -68,7 +68,7 @@ activity 7 scores them all. The policies are OR-ed, so a trace is kept if any on
 | `con-error` | any trace with a span in `ERROR` |
 | `tarea-no-respondida` | `lab.outcome.status` in `abstenida`, `requiere_aclaracion`, `limite_alcanzado`, `error` (everything but `respondida`) |
 | `lentas` | traces longer than 60 s |
-| `muestra` | 10 % of the rest, by trace id |
+| `muestra` | 10% of the rest, by trace id |
 
 `decision_wait` is 60 s (longer than a task), `num_traces` 5000. Measured on the Mac with the activity 2 stack, **$0**
 ([`muestreo.json`](muestreo.json), written by [`observabilidad/verificar_muestreo.py`](../observabilidad/verificar_muestreo.py)): 51 synthetic
@@ -77,7 +77,7 @@ traces, 40 plain and 11 critical (4 with an error, 3 abstained, 2 at the limit, 
 | Check | Result |
 |---|---|
 | Critical traces kept | **11 of 11** in Langfuse and in the file; they arrived 66 s after sending (the 60 s wait) |
-| Plain traces | **6 of 40** kept (the 10 % policy is by trace id, so a small batch is not exact) |
+| Plain traces | **6 of 40** kept (the 10% policy is by trace id, so a small batch is not exact) |
 | Langfuse and the file agree | the same set of traces in both |
 | Redaction ran first | the canary is not in the file, kept traces included |
 | Back to the default | the Collector's arguments name `sin_muestreo.yaml`, and **10 of 10** traces arrive |
