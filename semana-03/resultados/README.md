@@ -4,8 +4,8 @@
 
 The runs of `evaluar_sql.py` on the evaluation pairs (`../data/pares_eval.jsonl`). Each run is named with
 `--nombre`, and writes one detail file (one line per pair: the model's SQL, the reference SQL and the checks) and one
-summary file. `evaluar_sql.py --reevaluar` recomputes the checks of a saved detail file without calling a model and
-writes a `*_reevaluado_resumen.json`. `estadistica.py` reads the detail files to compute the confidence intervals and
+summary file. `evaluar_sql.py --reevaluar` runs the saved SQL of a detail file again against the database, without calling a
+model, and writes the recomputed rates to a `*_reevaluado_resumen.json`. `estadistica.py` reads the detail files to compute the confidence intervals and
 the paired comparisons.
 
 **Recorded evidence:** these are the raw outputs of the runs, kept exactly as recorded (not edited, not translated).
@@ -25,8 +25,8 @@ The questions and the error messages are Spanish. The English summary of the res
 | `base7b_reglas_*` | Qwen2.5-Coder-7B with all the business rules in the prompt | Written by `evaluar_sql.py`; the detail file is read by `estadistica.py` |
 | `lora7b_detalle.jsonl`, `lora7b_resumen.json` | Qwen2.5-Coder-7B with the week 3 LoRA adapter | Written by `evaluar_sql.py`; the detail file is read by `estadistica.py` |
 | `destilacion150_*` | Qwen2.5-Coder-7B with the week 4 distillation adapter (checkpoint 150), evaluated with this week's script | Written by `evaluar_sql.py`; the detail file is read by `estadistica.py` |
-| `*_reevaluado_resumen.json` | The checks of a saved run, recomputed without a model (`--reevaluar`) | Written by `evaluar_sql.py --reevaluar` |
-| `sin_razonamiento_roto_base_*` | A discarded 27B run with reasoning turned off and a short output limit; most answers had no SQL. Its summary still carries the name `base`, the name it was run under | Written by `evaluar_sql.py` |
+| `*_reevaluado_resumen.json` | The rates of a saved run, recomputed by running its SQL again, without a model (`--reevaluar`) | Written by `evaluar_sql.py --reevaluar` |
+| `sin_razonamiento_roto_base_*` | A discarded 27B run with reasoning turned off (`/no_think`) and a 1024-token output limit: 28 of 46 answers had no SQL. Its summary still carries the name `base`, the name it was run under | Written by `evaluar_sql.py` |
 
 ## Keys
 
@@ -37,8 +37,9 @@ The questions and the error messages are Spanish. The English summary of the res
 | `sql_modelo` | The SQL the model wrote (empty when no SQL was found in the answer) |
 | `sql_referencia` | The reference SQL |
 | `ejecuta` | The model's SQL runs and returns rows (a rate in the summary) |
-| `coincide_resultado` | The model's rows equal the reference rows, order ignored. The primary metric (a rate in the summary) |
+| `coincide_resultado` | The model's rows equal the reference rows, order ignored and numbers normalized. The primary metric (a rate in the summary) |
 | `coincide_sql` | The SQL text equals the reference after normalization. A weak measure (a rate in the summary) |
+| `error` | Why the model's SQL failed: the database error class, or `sin SQL (finish_reason=...)` = no SQL in the answer. `null` when it ran |
 | `modelo` | Model id |
 | `nombre` | The run name given with `--nombre` |
 | `pares` | Number of pairs evaluated |

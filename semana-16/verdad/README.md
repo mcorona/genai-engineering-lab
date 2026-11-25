@@ -36,7 +36,7 @@ Translating them would change what was measured and break the manifest's hashes.
 | `tipo` | Data type, from the catalog |
 | `llave_primaria` | Primary key (`true` or `false`) |
 | `llave_foranea` | Foreign key: the referenced `table.column`, or `null` |
-| `fuente_llave_foranea` | Source of the foreign key: `restriccion_tabla_base` (a constraint of the base table) or `etiqueta` (a hand label: a logical key that is not declared) |
+| `fuente_llave_foranea` | Source of the foreign key: `restriccion_tabla_base` (a constraint of the base table), `etiqueta` (a hand label: a logical key that is not declared), or `null` when there is none |
 | `unidad` | Unit of measure |
 | `datos_personales` | Personal data (PII). In `etiquetas.json`, the personal-data columns with what each one holds |
 | `no_personales` | Hard negatives: columns that look personal but are not |

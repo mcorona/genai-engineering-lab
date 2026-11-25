@@ -29,6 +29,7 @@ combined confidence intervals, is in the week README:
 | `valor` | The value of the swept parameter |
 | `corrida` | The number of the response within its condition (1 to N), not the run. The run is the folder name |
 | `respuesta` | The model's response, in Spanish |
+| `n` | Number of responses per condition (20 in every run) |
 | `variabilidad` | 1 minus the mean Jaccard similarity between the responses of a condition (0 = all identical) |
 | `desv_estandar` | Standard deviation of the per-response variability |
 | `ic95_inf`, `ic95_sup` | Lower and upper bounds of the 95% confidence interval |

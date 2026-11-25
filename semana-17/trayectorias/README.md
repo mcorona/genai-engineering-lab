@@ -27,7 +27,7 @@ The results are in [trayectorias.md](../resultados/trayectorias.md) and in the
 | `adaptadores.py` | The adapter from week 13's trace lines to an abstract trajectory (the span adapter is in `correr_eval.py`) | `correr_eval.py`, `puntuar_semana13.py`, `analisis.py` |
 | `construir_referencias.py` | Builds `referencias.jsonl` and `manifiesto.json` from the gold set ($0) | — |
 | `puntuar_semana13.py` | Runs the graders on week 13's recorded runs ($0) | Writes `../resultados/trayectorias_semana13.json` |
-| `correr_eval.py` | The trajectory eval on the trace, with the scores written to Langfuse ($0 replay, or paid with `--confirmo-gasto`) | Writes `../resultados/trayectorias_real.json` and `../resultados/trayectorias_reproduccion.json` |
+| `correr_eval.py` | The trajectory eval on the trace ($0 replay, or paid with `--confirmo-gasto`). With `--langfuse`, it also writes the scores to Langfuse | Writes `../resultados/trayectorias_real.json` and `../resultados/trayectorias_reproduccion.json` |
 | `analisis.py` | The analysis with confidence intervals ($0, reads committed files only) | Writes `../resultados/trayectorias_analisis.json` |
 | `__init__.py` | Marks the folder as a Python package | — |
 
@@ -37,7 +37,7 @@ The results are in [trayectorias.md](../resultados/trayectorias.md) and in the
 |---|---|
 | `id` | Gold-set task ID; the suffix is the language (`-es`, `-en`) |
 | `tipo` | Task type: `simple`, `regla` (business rule), `compuesta` (compound), `valores` (value lookup), `ambigua` (ambiguous), `sin_respuesta` (unanswerable) |
-| `estado_esperado` | Expected final status: `respondida` (answered) or `requiere_aclaracion` (needs clarification) |
+| `estado_esperado` | Expected final status: `respondida` (answered), `requiere_aclaracion` (needs clarification) or `abstenida` (abstained) |
 | `requeridas` | Required tools: each must have at least one successful call |
 | `permitidas` | Extra tools that are allowed, beyond the required ones |
 | `prohibidas` | Forbidden tools (`proponer_orden_compra`, propose a purchase order, on every task) |

@@ -8,7 +8,7 @@ The Spanish data files of week 13 that sit outside a folder with its own README.
 - `herramientas/diccionario_extra.json` extends the data dictionary that the `describir_esquema` tool returns with the
   `artnot` table. `herramientas/herramientas.py` merges it into the dictionary it loads.
 - `seguridad/artnot.sql` creates `legado.artnot`, a legacy free-text notes table per article, and grants read access to
-  the read-only roles. Some notes carry injected instructions on purpose: they are the prompt injection in SQL results
+  the read-only roles. Four of its ten notes carry injected instructions on purpose: they are the prompt injection in SQL results
   that the security suite tests (section 7 of the [week 13 README](../../semana-13/README.md)). `seguridad/correr.py` and
   `ci/eval_ci.py` load it with the admin role; week 19 loads a copy into the deployed database.
 

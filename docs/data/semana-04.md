@@ -2,7 +2,7 @@
 
 [Glossary](../glossary.md) · [Week 4 README](../../semana-04/README.md)
 
-The query set of the inference benchmark. `benchmark_modelos.py` sends each query to the local model and to the API,
+This guide describes the query set of the inference benchmark. `benchmark_modelos.py` sends each query to the local model and to the API,
 and measures latency, throughput and cost. The set was generated for this practice; the week README explains why it
 is not comparable with other benchmarks. The benchmark runs are in [`resultados/`](../../semana-04/resultados/README.md), and the
 distillation and DPO data are in `entrenamiento/` ([data](../../semana-04/entrenamiento/data/README.md),
@@ -17,7 +17,7 @@ latency and the cost that were measured.
 
 | File | What it is | Written by / Read by |
 |---|---|---|
-| `consultas.jsonl` | The benchmark queries, one JSON object per line, spread evenly over five categories | Read by `benchmark_modelos.py` (`--consultas`) |
+| `consultas.jsonl` | The 50 benchmark queries, one JSON object per line: 10 in each of five categories | Read by `benchmark_modelos.py` (`--consultas`) |
 
 ## Keys
 
@@ -25,3 +25,4 @@ latency and the cost that were measured.
 |---|---|
 | `categoria` | Query category: `codigo` (coding), `redaccion` (writing), `razonamiento` (reasoning), `negocio` (business), `explicacion` (technical explanation) |
 | `pregunta` | The query, in Spanish |
+| `id` | Query id (`c01` to `c50`), copied to the detail file of each run |

@@ -10,8 +10,8 @@ PDF, then compares how each extractor recovers the table rows. The results are i
   `../fuentes/tarifas_flete.md`.
 - `matriz_proveedores.pdf`: supplier matrix by category (supplier, country, category, rating, agreed lead time).
   Source: `../fuentes/matriz_proveedores.md`.
-- `ordenes_de_compra.pdf`, `proveedores.pdf`: the purchase order policy (with its approval-level table) and the
-  supplier document (with lead times), from the week 8 corpus.
+- `ordenes_de_compra.pdf`, `proveedores.pdf`: the purchase order procedure (with its approval-level table) and the
+  supplier evaluation document (with reference lead times), from the week 8 corpus.
 
 The first two hold answers that exist only in these PDFs, never in the text corpus.
 
@@ -22,4 +22,4 @@ matched against the Spanish original; translating the documents would change wha
 
 | File(s) | What it is | Written by / Read by |
 |---|---|---|
-| `*.pdf` | The four rendered documents | Written by `../experimentos/pdf_tablas.py`. Read by `../experimentos/pdf_tablas.py` and `../ci/eval_ci.py` |
+| `*.pdf` | The four rendered documents | Written by `../experimentos/pdf_tablas.py`. Read by `../experimentos/pdf_tablas.py`; `../ci/eval_ci.py` and `semana-12/ingesta/construir_paquete.py` read the first two |

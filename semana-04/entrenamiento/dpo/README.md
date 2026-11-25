@@ -2,8 +2,8 @@
 
 [Glossary](../../../docs/glossary.md) · [Week 4 README](../../README.md) · [Distillation and DPO README](../README.md)
 
-The preference pairs for DPO: for each training question where the teacher's result did not match the reference,
-`chosen` is the reference SQL and `rejected` is the teacher's SQL. `construir_datasets.py` builds the file from the
+The 42 preference pairs for DPO. For each training question where the teacher wrote SQL that differs from the
+reference and whose result did not match it, `chosen` is the reference SQL and `rejected` is the teacher's SQL. `construir_datasets.py` builds the file from the
 teacher answers in [`../data/`](../data/README.md). DPO was not trained: the installed mlx-lm CLI has no DPO mode,
 so no script reads this file yet.
 

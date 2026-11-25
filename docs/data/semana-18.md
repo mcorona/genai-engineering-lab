@@ -2,14 +2,14 @@
 
 [Glossary](../glossary.md) · [Week 18 README](../../semana-18/README.md)
 
-Week 18's data file outside a results folder: the seals of the whiteboard design briefs (activity 6). Each brief is
-generated at random and sealed before any rehearsal. Its text lives only in a git-ignored folder (`pizarra/.sellados/`),
+Week 18 has one data file: the seals of the whiteboard design briefs (activity 6). Each brief is generated at random
+and sealed before any rehearsal. Its text lives only in a git-ignored folder (`pizarra/.sellados/`),
 and the repository keeps its SHA-256. A brief revealed later can then be shown to be the one sealed earlier. How the
 kit is used is in [`pizarra/kit.md`](../../semana-18/pizarra/kit.md).
 
-**Why it is in Spanish:** only the keys are Spanish. They follow the lab's naming, and the file is kept as written,
-because `sellar_casos.py` rewrites it when a brief is revealed and its hashes are the seal. The keys are explained
-below.
+**Why it is in Spanish:** only the keys are Spanish; the values are in English. The keys follow the lab's naming. The
+file is kept as written because its hashes are the seal, and `sellar_casos.py` reads and rewrites it by these keys.
+The keys are explained below.
 
 ## Files
 
@@ -24,6 +24,6 @@ below.
 | `fecha` | When the briefs were sealed (UTC) |
 | `metodo` | How each seal is computed |
 | `casos` | The sealed briefs, by name (`caso-1` … = case 1 …) |
-| `uso` | The planned use of the brief: a rehearsal, the final, or a spare |
+| `uso` | The planned use of the brief: `rehearsal 1` to `rehearsal 3`, `final`, or `spare` |
 | `sha256` | The seal: the SHA-256 of the brief's file |
 | `revelado` | When the brief was revealed (UTC); `null` while it is still sealed |

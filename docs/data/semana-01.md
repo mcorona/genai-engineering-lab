@@ -2,11 +2,11 @@
 
 [Glossary](../glossary.md) · [Week 1 README](../../semana-01/README.md)
 
-The training input of the bigram models and the loss logs of the mini-GPT runs. The bigram scripts (`bigram.py`,
-`bigram_grad.py`, `bigram_mlx.py`) read `names.txt`. `train_minigpt_mlx.py` trains the mini-GPT on Tiny Shakespeare
-and writes its loss log to `perdidas.csv`; the other `perdidas_*.csv` files are the logs of the runs with other
-settings, saved under a name that gives the width (`n`, the embedding size) and, when it differs, the learning rate
-(`lr`).
+This guide describes the training input of the bigram models and the loss logs of the mini-GPT runs. The bigram
+scripts (`bigram.py`, `bigram_grad.py`, `bigram_mlx.py`) read `names.txt`. `train_minigpt_mlx.py` trains the
+mini-GPT on Tiny Shakespeare and writes its loss log to `perdidas.csv`. The other `perdidas_*.csv` files are the logs
+of the runs with other settings, saved under a name that gives the width (`n`, the embedding size) and, when it
+differs, the learning rate (`lr`). Each run took 2000 steps.
 
 **Language of the input:** `names.txt` is not Spanish. It is the list of English first names from Andrej Karpathy's
 *makemore* repository, downloaded by `get_data.sh`. It is kept as the input the bigram models were trained on.

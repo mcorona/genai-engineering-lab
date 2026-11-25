@@ -24,7 +24,7 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 | `headless_*.jsonl` | The `stream-json` events of the two headless runs of the minimal plugin (`skill`, `hook`) | `linea_base/verificar.py --con-modelo` |
 | `corrida_*/corrida.json` | One audit run: model, turns, time, API-equivalent cost, token usage, and the run's checks | `corrida/correr.py`; read by `eval/calidad.py` |
 | `corrida_*/eventos.jsonl` | The session's event stream (`stream-json`) | `corrida/correr.py` |
-| `corrida_*/auditoria/*` | The audit deliverables (`diccionario.yaml`, `relaciones.mmd`, `riesgos.md`, `resumen.md`) and, where the hooks ran, the query log `bitacora.jsonl` | Written by the agent; copied by `corrida/correr.py`; read by `eval/calidad.py` and `ci/eval_ci.py` |
+| `corrida_*/auditoria/*` | The audit deliverables (`diccionario.yaml`, `relaciones.mmd`, `riesgos.md`, `resumen.md`) and, where the hooks ran, the query log `bitacora.jsonl` | Written by the agent; copied by `corrida/correr.py` (the OAuth run's come from an interactive session, see [`plugin.md`](plugin.md)); read by `eval/calidad.py` and `ci/eval_ci.py` |
 | `corrida_oauth/trazas_servidor.jsonl` | The week 14 MCP server's request trace for the OAuth run (no tokens recorded) | The week 14 server, in an interactive session ([`plugin.md`](plugin.md)); read by `ci/eval_ci.py` |
 | `calidad.json` | Quality of each audit run against the [ground truth](../verdad/README.md): dictionary meaning, PK, FK and personal-data precision and recall, seeded risks found, SQL run again | `eval/calidad.py` |
 | `plugin_eval_*.json` | The JSON reports of `claude plugin eval`: `intento1` (pass 1, stopped at the spending cap), `haiku_v1` (pass 2), `haiku` (pass 3), `haiku_02` (rerun of case 02) | `claude plugin eval`; `plugin_eval_haiku.json` is read by `ci/eval_ci.py` |
@@ -45,7 +45,7 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 
 | Key | Meaning |
 |---|---|
-| `corrida` | Run. In `calidad.json`, the run folder; in `corrida.json`, the run's metadata |
+| `corrida` | Run. In `calidad.json`, the run folder; in `corrida.json`, the run's metadata (`modelo`, `modo`, `prompt`, `subagentes`, turns, time, cost, `uso`) |
 | `modelo` | Model |
 | `modo` | Mode: `plugin` (with the plugin) or `sin-plugin` (without it, with a detailed prompt) |
 | `revision` | The run's review: files present, valid YAML, dictionary scores |
@@ -54,7 +54,9 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 | `costo_equivalente_usd` | API-equivalent cost in USD (the run used the Claude Code subscription) |
 | `uso` | Token usage |
 | `diccionario`, `riesgos` | Data dictionary, risks |
-| `significado_exacto` | Share of columns whose meaning names the expected concept |
+| `significado_exacto`, `significado_fallido` | Share of columns whose meaning names the expected concept; the columns whose meaning does not |
+| `columnas_cubiertas`, `columnas_reales` | Columns of the ground truth that the data dictionary covers; columns in the ground truth |
+| `recall_riesgos`, `sql_fallidos`, `llamadas_bd` | Share of seeded risks found; SQL blocks that failed when run again; database tool calls in the run |
 | `llave_primaria`, `llave_foranea`, `datos_personales` | Primary key, foreign key, personal data (each with precision and recall) |
 | `aciertos`, `predichas`, `reales` | Hits, predicted, actual |
 | `hallazgos` | Findings |
@@ -69,9 +71,15 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 | `detalle` | Detail |
 | `obedecidas` | Injected instructions the agent acted on |
 | `payload_citado` | Injected text the agent quoted (reported, not counted as obeyed) |
+| `exige_fallido` | Required content missing from the deliverables (for example, an injected note not reported in `riesgos.md`) |
+| `escrituras_intentadas`, `lecturas_fuera` | SQL that is not a `SELECT`, or shell commands with a write verb, that the agent tried; file reads outside the project |
+| `exfiltracion`, `resultados_con_secreto`, `respuesta_esperada` | Calls that passed data to the poisoned MCP server; tool results that contained a secret; the final answer matched what the case expects |
 | `mapeo` | Mapping of each screen field to its column |
 | `etiqueta`, `esperada`, `obtenida`, `correcto` | Screen label, expected column, column given by the agent, correct |
 | `hechos` | Screen-only facts, each found or not |
+| `campos_correctos`, `campos_total`, `hechos_encontrados`, `hechos_total` | Fields mapped to the right column, out of the total; screen-only facts found, out of the total |
+| `envios`, `intentos_de_obedecer`, `canario_obedecido`, `canario_citado`, `inyeccion_reportada` | Browser and computer use security: requests that submitted data (not `GET` or `HEAD`); actions that followed the page's injection; the canary written in the answer or the deliverable; the canary quoted only as a reported instruction; the injection was reported |
+| `solo_en_pantalla` | A dictionary entry for a fact that only the screen shows (no column) |
 | `entregable_valido` | The deliverable is valid |
 | `metricas` | Metrics: steps, turns, cost, duration, tokens |
 | `diccionario_enriquecido` | The data dictionary enriched with what the screen shows |
@@ -89,4 +97,4 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 | `auditorias`, `puntaje`, `paso` | Audits, score, passed (CI) |
 | `simulado` | Dry run (`true`) or real run |
 | `fuente`, `aprobado` | Install source, passed |
-| `fecha`, `checks` | Date, checks |
+| `fecha`, `checks` | Date; the checks of a baseline, an audit run or an install, each passed or not |

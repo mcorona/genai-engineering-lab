@@ -18,5 +18,5 @@ English summary of the distillation results is in the
 
 | File | What it is | Written by / Read by |
 |---|---|---|
-| `train.jsonl` | All the distillation examples, one chat example per line (system prompt, question, teacher's SQL) | Written by `construir_datasets.py` |
-| `lora/*.jsonl` | The same examples, split into `train.jsonl` and `valid.jsonl` | Split for `mlx_lm.lora` (no script in the repository writes them); read by `mlx_lm.lora` |
+| `train.jsonl` | All 106 distillation examples, one chat example per line (system prompt, question, teacher's SQL) | Written by `construir_datasets.py` |
+| `lora/*.jsonl` | The same 106 examples, split into `train.jsonl` (95) and `valid.jsonl` (11) | Split for `mlx_lm.lora` (no script in the repository writes them); read by `mlx_lm.lora` |

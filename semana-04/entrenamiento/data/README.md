@@ -15,8 +15,8 @@ on.
 
 | File | What it is | Written by / Read by |
 |---|---|---|
-| `teacher.jsonl` | The teacher's answer to every training question, with the checks: whether its SQL runs and whether its result matches the reference | Written by `generar_teacher.py`; read by `construir_datasets.py` |
-| `teacher_reintento.jsonl` | A second attempt for the questions where the first pass produced no SQL. Its answers replace the empty ones | Written by `generar_teacher.py --reintentar`; read by `construir_datasets.py` |
+| `teacher.jsonl` | The teacher's answer to each of the 157 training questions, with the checks: whether its SQL runs and whether its result matches the reference. 49 answers have no SQL | Written by `generar_teacher.py`; read by `construir_datasets.py` |
+| `teacher_reintento.jsonl` | A second attempt for the 49 questions where the first pass produced no SQL; 9 still have none. `construir_datasets.py` uses these answers in place of the empty ones | Written by `generar_teacher.py --reintentar`; read by `construir_datasets.py` |
 
 ## Keys
 
@@ -27,5 +27,6 @@ on.
 | `referencia` | The reference SQL |
 | `sql_maestro` | The teacher's SQL (`null` when no SQL was found in the answer) |
 | `ejecuta` | The teacher's SQL runs and returns rows |
-| `coincide` | The teacher's rows equal the reference rows, order ignored |
+| `coincide` | The teacher's rows equal the reference rows, order ignored and numbers normalized |
+| `error` | Why the teacher's SQL failed: the database error class, or `sin SQL (finish_reason=...)` = no SQL in the answer. `null` when it ran |
 | `finish` | The model's `finish_reason` (`length` means the output limit was reached) |

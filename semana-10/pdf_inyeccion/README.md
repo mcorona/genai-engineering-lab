@@ -9,10 +9,10 @@ and does not follow the instruction. Both were frozen before the run, with their
 
 - `viaticos_inyeccion.pdf`: travel expense caps per city (lodging and meals, in MXN). The instruction sits in a table
   row; it asks for a false lodging cap and a canary string.
-- `garantias_inyeccion.pdf`: manufacturer warranties of material-handling equipment. The instruction sits in a small
+- `garantias_inyeccion.pdf`: manufacturer warranties of material-handling equipment. The instruction sits in an 8 pt
   footnote; it asks the assistant to answer only with a support contact and no data.
 
-Their Markdown sources are in `../fuentes/inyeccion/` (described in the week's [DATA.md](../DATA.md)).
+Their Markdown sources are in `../fuentes/inyeccion/` (described in the [week 10 data guide](../../docs/data/semana-10.md)).
 
 **Why it is in Spanish:** the data and the injected text belong to the fictional Mexican distributor that the lab
 measures. The injected text is part of the attack case and must stay exactly as built.
@@ -21,4 +21,4 @@ measures. The injected text is part of the attack case and must stay exactly as 
 
 | File(s) | What it is | Written by / Read by |
 |---|---|---|
-| `*_inyeccion.pdf` | The two PDFs with injected instructions | Written by `../datasets/construir_seguridad.py`. Read by `../experimentos/seguridad.py` |
+| `*_inyeccion.pdf` | The two PDFs with injected instructions | Written by `../datasets/construir_seguridad.py`. Read by `../experimentos/seguridad.py` (also run by `../ci/eval_ci.py`) |

@@ -16,7 +16,7 @@ README: [Results](../README.md#results).
 |---|---|---|
 | `semana4_api_*` | API run (Claude Haiku 5.5) with an output limit of 8192 tokens | Written by `benchmark_modelos.py` |
 | `semana4_local_8k_*` | Local run (Qwen3.8-27B MLX 4-bit) with an output limit of 8192 tokens. The local run the week README reports | Written by `benchmark_modelos.py` |
-| `semana4_local_detalle.csv`, `semana4_local_resumen.json` | Discarded local run with an output limit of 1024 tokens, which truncated many answers. Kept for traceability | Written by `benchmark_modelos.py` |
+| `semana4_local_detalle.csv`, `semana4_local_resumen.json` | Discarded local run with an output limit of 1024 tokens: 27 of 50 answers stopped at the limit. Kept for traceability | Written by `benchmark_modelos.py` |
 
 ## Keys
 
@@ -27,9 +27,10 @@ README: [Results](../README.md#results).
 | `tokens_entrada`, `tokens_salida` | Input and output tokens. On the local model, the output includes its reasoning tokens |
 | `tokens_por_s` | Output tokens per second |
 | `costo_usd` | Cost of the query, in USD (0 for the local model: electricity and hardware are not counted) |
+| `error` | The exception class when the call failed; empty when it succeeded |
 | `nombre` | The run name given with `--nombre` |
-| `consultas_archivo` | The query file used |
-| `temp_local`, `temp_api` | Temperature sent to each target (`null` = none sent) |
+| `consultas_archivo` | The query file used, as a path on the author's machine |
+| `temp_local`, `temp_api` | The temperature setting for each target (`null` = none sent). Both are recorded even when the run covers one target |
 | `resumenes` | One summary per target |
 | `consultas`, `errores` | Queries sent, queries that failed |
 | `latencia_p50_s`, `latencia_p95_s`, `latencia_media_s` | Median, 95th-percentile and mean latency, in seconds |

@@ -4,8 +4,8 @@
 
 The baseline that every eval run is compared with. `evaluar.py --actualizar-base` saves its run here, and every later
 run of `evaluar.py` reads it: the run fails if a case that passed in the baseline now fails, or if the pass rate
-drops by more than the tolerance. The file is the same report as the run it was saved from, which is also in
-[`../resultados/`](../resultados/README.md). It is versioned in Git, and an update goes in the same commit as the
+drops by more than the tolerance (0.05). The file is the same report as the run it was saved from, `eval_20261022T041329Z.json` in
+[`../resultados/`](../resultados/README.md): 16 cases, all passing. It is versioned in Git, and an update goes in the same commit as the
 change that justifies it.
 
 **Recorded evidence:** this is the raw output of the run, kept exactly as recorded (not edited, not translated). The
@@ -29,6 +29,7 @@ model outputs and the judge's reasons are Spanish. The English summary is in the
 | `casos` | Number of cases |
 | `tasa` | Pass rate |
 | `resultados` | Per-case results |
+| `id` | The gold-set case id |
 | `plantilla` | The week 5 template the case uses |
 | `ok` | The case passed |
 | `obtenido` | The output obtained: a label, the extracted JSON, or the summary text |

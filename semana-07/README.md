@@ -27,7 +27,7 @@ This set is held out for measurement only. Prompts are not tuned on it.
 | `schema_completo.sql` | Full schema snapshot (`inventory-copilot` files 01 to 03), without roles or grants |
 | `datasets/` | Question sets, and their validated versions (`*_validado.jsonl`) |
 | `schema.sql` | Schema given to the model (trimmed to the columns the questions use) |
-| `run_eval.py` | Runs validation, generates SQL with each model, executes it, compares results and reports. Flags: `--set facil\|dificil\|seguimiento`, `--esquema corto\|completo`, `--citas`, `--sin-historial` |
+| `run_eval.py` | Runs validation, generates SQL with each model, executes it, compares results and reports. Flags: `--set facil\|dificil\|seguimiento\|cadenas`, `--esquema corto\|completo`, `--citas`, `--sin-historial` |
 | `prices.json` | Prices per million tokens, with the source of each figure. `null` means unverified |
 | `resultados/` | Per-question detail and per-model summary, one file per run |
 

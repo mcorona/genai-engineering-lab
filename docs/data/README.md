@@ -7,9 +7,9 @@ corpus or a gold set would change what was measured, and editing a recorded outp
 results folder has an English `README.md` that says what its files are, which script writes or reads them, and what
 their Spanish keys mean.
 
-Some files sit outside those folders: loose files in a week folder, and folders that cannot hold a README because code
-reads every file in them (the corpora, the week 12 ingestion package, the week 16 plugin, the week 19 loader). The
-guides below describe them, one per week. They live here, not in the week folders, because the paid eval workflows
+Some files sit outside those folders: loose files in a week folder, and folders that cannot hold a README because
+code reads, hashes, packages or deploys every file in them (the corpora, the week 12 ingestion package, the week 16
+plugin, the week 19 loader). The guides below describe them, one per week. They live here, not in the week folders, because the paid eval workflows
 run on any change in a week folder except a `README.md`.
 
 `docs/tests/test_data_readmes.py` checks that every Spanish data file and every recorded result is described, that

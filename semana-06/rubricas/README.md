@@ -4,7 +4,7 @@
 
 The rubric of the LLM judge that scores the faithfulness of the summaries. `evaluar.py` fills the `{documento}` and
 `{resumen}` placeholders with the source document and the summary, and sends it for the gold-set cases marked
-`juez: true` ([`../golden/`](../golden/README.md)). The judge answers with JSON: a faithfulness score on a 1-to-5
+`juez: true` ([`../golden/`](../golden/README.md)), once the summary passes its structural check. The judge answers with JSON: a faithfulness score on a 1-to-5
 scale and a short reason. A summary passes with a score of 4 or 5.
 
 **Why it is in Spanish:** the documents and the summaries are Spanish, and the judge is instructed in the same

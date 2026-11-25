@@ -32,10 +32,10 @@ Script paths are relative to `semana-17/`.
 | `aprobaciones_*` | Activity 6, human approval: the scripted and the real-model runs, the console output of the real run, and the Keycloak token check | `aprobaciones/correr_eval.py`, `aprobaciones/keycloak.py` / `tests/test_aprobaciones.py` |
 | `trayectorias_*` | Activity 7, trajectory eval: the paid run and its $0 replay, the console output of the paid run, the graders on week 13's recorded runs, and the analysis with confidence intervals | `trayectorias/correr_eval.py`, `trayectorias/puntuar_semana13.py`, `trayectorias/analisis.py` / `tests/test_trayectorias.py`, `tablero/` |
 | `tablero/datos.json`, `tablero/index.html` | Activity 8: the dashboard's data and its static, self-contained snapshot page | `tablero/exportar.py` / `tests/test_tablero.py` |
-| `tablero/corrida_hitl.json` | Activity 8: the approval run of activity 6 exported for the dashboard (same format as `aprobaciones_*.json`) | `aprobaciones/correr_eval.py` / `tablero/exportar.py` |
+| `tablero/corrida_hitl.json` | Activity 8: a $0 rerun of activity 6's approval eval, with its traces sent to Langfuse for the dashboard (same format as `aprobaciones_*.json`) | `aprobaciones/correr_eval.py --otlp` / `tablero/exportar.py` |
 | `tablero/runbook.md` | Activity 8: the runbook, five operator questions with their commands (in English) | Written by hand / answered by `tablero/preguntar.py` |
 | `seguridad_obs_*.json` | Activity 9, security of the observability: canaries, retention, tenant isolation | `seguridad_obs/verificar_canarios.py`, `seguridad_obs/retencion.py`, `seguridad_obs/tenants.py` / `tests/test_seguridad_obs.py` |
-| `eval_ci_local.json` | Activity 10: the report of the CI mini eval, from a local run with the real model | `ci/eval_ci.py` / `semana-19/eval/eval_aws.py` (week 19's baseline) |
+| `eval_ci_local.json` | Activity 10: the report of the CI mini eval, from a local run with the real model (the script names it `eval_ci.json`) | `ci/eval_ci.py` / `semana-19/eval/eval_aws.py` (week 19's baseline) |
 
 ## Keys
 
@@ -44,7 +44,7 @@ Script paths are relative to `semana-17/`.
 | `fecha` | Date of the run |
 | `modo` | Run mode: `modelo real` (the real model, paid), `modelo guionado (sin costo)` (a scripted model, $0), `modelo simulado (sin costo)` (a simulated model, $0), `modelo obediente (guion), sin costo` (a scripted model that obeys every injected instruction, $0), `reproduccion de la semana 13 (sin modelo)` (a replay of week 13's recorded turns, no model call) |
 | `modelo`, `esfuerzo` | Model id, reasoning effort |
-| `donde` | Where the probes ran: `mac` or `contenedor` (the lab container) |
+| `donde` | Where the probes ran: `mac` or `contenedor` (the lab container). Inside the `collector` probe: how the Collector ran (`docker` or `binary`) |
 | `sondas` | Probes, one entry per probe |
 | `tareas`, `por_tarea` | Tasks, per-task detail |
 | `corridas`, `por_corrida` | Runs, per-run detail |
@@ -57,6 +57,7 @@ Script paths are relative to `semana-17/`.
 | `tablas_modificadas` | Tables modified (expected: none) |
 | `politica` | The budget policy: the caps per task, session and tenant-day |
 | `tareas_cortadas` | Tasks stopped by a budget, with the reason (`motivo`) |
+| `motivo` | Reason. For a stopped task: `presupuesto_tarea` (the per-task budget) or `presupuesto_sesion` (the session budget). For a finished task: `responder` (the agent answered) |
 | `base_semana_13` | The week 13 run used as the comparison |
 | `trayectoria_ok`, `puntaje_medio` | The trajectory passes its reference; mean trajectory score |
 | `exito_respuesta` | Answer success (the week 13 checker) |

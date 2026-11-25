@@ -29,7 +29,7 @@ its English text in `en`. The keys are explained below.
 
 | Key | Meaning |
 |---|---|
-| `id` | Task ID and language (`s01-es`). The prefix gives the type: `s` simple, `r` business rule, `c` compound, `v` value trap, `a` ambiguous, `n` unanswerable |
+| `id` | Task ID and language (`s01-es`). The prefix gives the type: `s` simple, `r` business rule, `c` compound, `v` value trap, `a` ambiguous, `n` unanswerable. In `reglas_negocio.json`: the rule ID (`R-COB`) |
 | `lang` | Language: `es` or `en` |
 | `tipo` | Task type: `simple`, `regla` (business rule), `compuesta` (compound), `valores` (value trap), `ambigua` (ambiguous), `sin_respuesta` (unanswerable). Inside an output key: the result shape, `filas` (rows), `conjunto` (set), `numero` (number) or `texto` (text) |
 | `tarea` | The task, as the user asks it |
@@ -40,7 +40,7 @@ its English text in `en`. The keys are explained below.
 | `sql_ref` | The reference SQL, over the original (non-legacy) tables |
 | `esperado` | The expected result of the reference SQL |
 | `reglas` | IDs of the business rules the task needs. In `reglas_negocio.json`: the list of rules |
-| `pasos_min`, `herramientas_min` | Minimum steps and minimum tools for the task, used to score the trajectory |
+| `pasos_min`, `herramientas_min` | Minimum steps and the tools the task requires. Week 13 reports steps over the minimum; week 17's trajectory eval uses both |
 | `motivo` | Why the task needs clarification or has no answer (the reference for the LLM judge) |
 | `origen` | The week 7 hard-set question the task comes from (simple tasks) |
 | `nombre`, `nombre_en` | Rule name in Spanish and in English |
@@ -49,5 +49,6 @@ its English text in `en`. The keys are explained below.
 | `nota` | A note on where the rules come from and how they are interpreted |
 | `tareas_por_idioma`, `por_tipo` | Tasks per language; tasks per type |
 | `claves_de_salida` | Number of output keys across the answerable tasks |
-| `datos`, `fecha_corte` | The data snapshot the expected results come from; its cutoff date (the last date with sales) |
+| `datos`, `fecha_corte` | The data snapshot the expected results come from (row counts of the original tables); its cutoff date (the last date with sales) |
+| `sha256` | The SHA-256 hashes that freeze the set |
 | `resultados_vacios_o_cero` | Output keys whose expected result is empty or zero, listed for review because they do not discriminate (empty in this set) |

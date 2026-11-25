@@ -14,9 +14,9 @@ The questions are Spanish and English. The English summary of the results, with 
 superseded, is in the week README: [Results](../README.md#results-final-run-100-questions-per-language),
 [Public results](../README.md#public-results-nlq-inventory-harder-set),
 [Changes made during the evaluation](../README.md#changes-made-during-the-evaluation) and the second and third
-iteration sections. The `costo_usd` values in the easy-set and harder-set summaries are the old costs (third-party
-prices for OpenAI, no price for Gemini); the week README recomputes them with the official prices in
-`../prices.json`.
+iteration sections. The `costo_usd` and `costo_por_respuesta_correcta` values in every summary are the costs at run
+time, with third-party prices for OpenAI and no price for Gemini. The official prices were recorded later in
+`../prices.json`, and the week README recomputes the easy-set and harder-set costs with them.
 
 ## Files
 
@@ -56,14 +56,14 @@ prompt that existed then (short schema, no citations).
 | `categoria` | Outcome: `correcta` (correct), `resultado_distinto` (valid SQL, different result), `error_ejecucion` (the database rejected the query), `sin_sql` (no valid SELECT in the answer) |
 | `sql_predicho` | The SQL extracted from the model's answer |
 | `latencia_s` | Latency of the call, in seconds |
-| `tablas_citadas` | With `--citas`: the tables the model says it read (`null` without citations) |
-| `tablas_referencia` | The tables of the reference SQL, taken with a regex (a proxy for the citation check) |
+| `tablas_citadas` | With `--citas`: the tables the model says it read (`null` without citations; absent in the earliest runs) |
+| `tablas_referencia` | The tables of the reference SQL, taken with a regex, for the citation check (absent in the earliest runs) |
 | `idioma` | Language: `es` or `en` |
 | `correctas` | Correct answers |
 | `exactitud` | Execution accuracy: correct answers over questions |
-| `costo_usd` | Cost of the run for that model and language, in USD (`null` = no verified price at run time) |
+| `costo_usd` | Cost of the run for that model and language, in USD, at the prices used at run time (`null` = no price at run time) |
 | `costo_por_respuesta_correcta` | Cost per correct answer, in USD |
-| `errores` | Failures per category |
+| `errores` | Failures per `categoria` |
 | `esquema` | Schema in the prompt: `corto` (`schema.sql`) or `completo` (`schema_completo.sql`) |
 | `citas` | The run asked the model to cite the tables it read |
 | `sin_historial` | The run left out the previous turns (the follow-up control) |

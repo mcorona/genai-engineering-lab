@@ -3,10 +3,10 @@
 [Glossary](../../docs/glossary.md) · [Week 9 README](../README.md)
 
 The gold sets of the week 9 advanced RAG experiments, frozen before any experiment ran, and the scripts that built
-them. Each JSONL line is one question with its gold passages: exact sentences from the week 8 corpus
+them. Each JSONL line is one question with its gold passages: exact text from the week 8 corpus
 (`semana-08/corpus/`) or from the tenant `beta` corpus (`../corpus_beta/`). The English files hold the same questions
 in English with the same Spanish gold passages. The [week 9 README](../README.md) lists each set, its size and its
-purpose; the [DATA.md](../DATA.md) describes `corpus_beta/`.
+purpose; the [week 9 data guide](../../docs/data/semana-09.md) describes `corpus_beta/`.
 
 **Why it is in Spanish:** the corpus is Spanish, and the gold passages must match it word for word. The lab measures
 RAG over Spanish documents; translating the data would change what was measured. The keys and values are explained
@@ -16,11 +16,11 @@ below.
 
 | File(s) | What it is | Written by / Read by |
 |---|---|---|
-| `avanzado_es.jsonl`, `avanzado_en.jsonl` | Main set: the week 8 base questions, plus follow-up questions and permission questions | `construir_golden.py`. Read by `../experimentos/reescritura.py`, `hyde.py`, `contextual.py`, `permisos.py`, `multitenant.py` and `../ci/permisos_ci.py` |
-| `permisos.json` | The synthetic access model: which roles may read each corpus document | `construir_golden.py`. Read by `../experimentos/permisos.py` and `../ci/permisos_ci.py` |
-| `multitenant_es.jsonl`, `multitenant_en.jsonl` | Multi-tenant set: near-identical documents in tenants `alfa` and `beta`, with a different figure in each | `construir_multitenant.py` (which also writes `../corpus_beta/`). Read by `../experimentos/multitenant.py`, `../ci/permisos_ci.py` and week 10's security tests |
-| `multisalto_es.jsonl`, `multisalto_en.jsonl` | Multi-hop, compound: two documents per question, both topics named in the question (the control) | `construir_multisalto.py`. Read by `../experimentos/graphrag.py` |
-| `multisalto_puente_es.jsonl`, `multisalto_puente_en.jsonl` | Multi-hop, bridge: two documents per question, the entity that links them is not named (the best case for GraphRAG) | `construir_multisalto.py`. Read by `../experimentos/graphrag.py` |
+| `avanzado_es.jsonl`, `avanzado_en.jsonl` | Main set, 75 questions per language: the 50 week 8 base questions, 15 follow-up questions and 10 permission questions | `construir_golden.py`. Read by `../experimentos/reescritura.py`, `hyde.py`, `contextual.py`, `permisos.py`, `multitenant.py`, `../ci/permisos_ci.py` and `semana-10/datasets/construir_integrado.py` |
+| `permisos.json` | The synthetic access model: which roles may read each week 8 corpus document | `construir_golden.py`. Read by `../experimentos/permisos.py` and `../ci/permisos_ci.py` |
+| `multitenant_es.jsonl`, `multitenant_en.jsonl` | Multi-tenant set, 10 questions per language: each answer is in a document that both tenants hold, with a different value in each | `construir_multitenant.py` (which also writes `../corpus_beta/`). Read by `../experimentos/multitenant.py`, `../ci/permisos_ci.py`, and week 10's security tests (`semana-10/datasets/construir_seguridad.py`, `semana-10/ci/eval_ci.py`) |
+| `multisalto_es.jsonl`, `multisalto_en.jsonl` | Multi-hop, compound, 10 questions per language: two documents per question, both topics named in the question (the control) | `construir_multisalto.py`. Read by `../experimentos/graphrag.py` |
+| `multisalto_puente_es.jsonl`, `multisalto_puente_en.jsonl` | Multi-hop, bridge, 10 questions per language: two documents per question; the entity that links them is not named (the best case for GraphRAG) | `construir_multisalto.py`. Read by `../experimentos/graphrag.py` |
 | `construir_*.py` | The builders of the sets above, with their checks on the gold passages | Run when the sets were frozen, before the experiments |
 
 ## Keys
@@ -34,7 +34,7 @@ below.
 | `pregunta_previa` | Follow-up questions only: the previous question in the conversation, which the follow-up depends on |
 | `usuario` | Permission questions only: the user who asks, as `tenant` and `roles` |
 | `permitido` | Permission questions only: `true` if the user's roles may read the gold document |
-| `gold` | The gold passages: a list of `source` (corpus file) and `passage` (exact Spanish sentence). In the multi-tenant set, an object with tenant `alfa`'s passage and tenant `beta`'s |
+| `gold` | The gold passages: a list of objects with `source` (corpus file) and `passage` (the exact Spanish text). In the multi-tenant set, an object with two passages, keyed `alfa` and `beta` |
 | `set` | Multi-hop sets: `compuestas` (compound) or `puente` (bridge) |
 | `base` | Compound multi-hop only: the IDs of the two base questions whose passages it combines |
 | `source` | The corpus file name (in `gold`, or at the top level in the multi-tenant set) |

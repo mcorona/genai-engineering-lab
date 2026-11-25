@@ -17,7 +17,7 @@ summary of the results is in the [week 9 README](../README.md) and in the report
 
 | File(s) | What it is | Written by / Read by |
 |---|---|---|
-| `*.md` | English reports, one per activity, plus the final comparison ([`comparacion_final.md`](comparacion_final.md)) and the CI run ([`ci_semana09.md`](ci_semana09.md)) | Written from the runs of the scripts each one names |
+| `*.md` | English reports, one per activity, plus the final comparison ([`comparacion_final.md`](comparacion_final.md)) and the CI run ([`ci_semana09.md`](ci_semana09.md), from `../ci/permisos_ci.py`) | Written from the runs of the scripts each one names |
 | `reescritura_detalle.csv` | Query rewriting: one row per question, with the original and the rewritten query and their hits | `../experimentos/reescritura.py` |
 | `hyde_detalle.csv` | HyDE: one row per question, with the generated hypothetical passage and the hits with and without it | `../experimentos/hyde.py` |
 | `contextos.jsonl` | Contextual retrieval: the context the model wrote for each chunk, cached and reused | Written and read by `../experimentos/contextual.py` |
@@ -37,11 +37,12 @@ summary of the results is in the [week 9 README](../README.md) and in the report
 | `pasaje_hyde` | The hypothetical passage generated for HyDE |
 | `acierto_original_r5`, `acierto_reescrita_r5`, `acierto_hyde_r5` | Hit at 5 (`1` if a gold passage is in the top 5) with the original question, the rewritten query, the HyDE passage |
 | `acierto_base_r5`, `acierto_contextual_r5` | Hit at 5 with the baseline index and with the contextual index |
-| `tipos_bloque` | The content block types the model returned (for example `thinking`, `text`) |
+| `tipos_bloque` | The content block types the model returned, joined with `\|` (`text`, `thinking\|text`) |
 | `latencia_ms` | Latency in milliseconds |
+| `costo_usd` | Cost of the model call, in USD |
 | `set` | Multi-hop set: `compuestas` (compound) or `puente` (bridge) |
-| `entidades_pregunta`, `entidades_en_grafo` | Entities found in the question; those of them present in the graph |
-| `recall5_V`, `recall5_V+R`, `recall5_G`, `recall5_G+Q` | recall@5 per method: `V` vector, `V+R` vector + reranking, `G` graph expansion from vector seeds, `G+Q` graph lookup of the question's entities fused with vector results |
+| `entidades_pregunta`, `entidades_en_grafo` | The entities the model extracted from the question; the graph entities they matched |
+| `recall5_V`, `recall5_V+R`, `recall5_G`, `recall5_G+Q` | recall@5 per method (the share of the question's two gold passages in the top 5): `V` vector, `V+R` vector + reranking, `G` graph expansion from vector seeds, `G+Q` graph lookup of the question's entities fused with vector results |
 | `huella` | Fingerprint of the chunk (a hash of source, position and text), the cache key |
 | `contexto` | The context sentence the model wrote for the chunk |
 | `ok` | `true` if the model returned valid JSON for the chunk |

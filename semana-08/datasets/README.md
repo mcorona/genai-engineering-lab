@@ -3,8 +3,9 @@
 [Glossary](../../docs/glossary.md) · [Week 8 README](../README.md)
 
 The questions that every week 8 retrieval experiment runs against the Spanish corpus in `../corpus/`. Each line is
-one question with its gold passages: exact sentences copied from a corpus document. A retrieved chunk counts as a hit
-when it contains a gold passage verbatim, so the metric does not depend on how the text is split. The English file
+one question with its gold passages: exact text copied from a corpus document. A retrieved chunk counts as a hit
+when it comes from the passage's document and contains the whole passage verbatim, so the same set scores every
+chunking strategy. The English file
 holds the same questions, translated, with the same Spanish gold passages, so it measures cross-lingual retrieval
 (English question, Spanish corpus). The week 8 README gives the question count and the results. Later weeks build on
 this set (`semana-09/datasets/construir_golden.py`, `semana-11/datasets/construir_eval_rag.py`).
@@ -27,4 +28,6 @@ set; the English questions are part of the experiment, not a translation for the
 | `id` | Question ID (`rec-NN`); the same ID in both languages |
 | `lang` | Language of the question (`es`, `en`) |
 | `question` | The question |
-| `gold` | The gold passages: a list of `source` (corpus file name) and `passage` (the exact Spanish sentence) |
+| `gold` | The gold passages: a list of objects with `source` and `passage` |
+| `source` | The corpus file that holds the passage (`devoluciones.md`) |
+| `passage` | The exact Spanish text of the passage, copied from that file |

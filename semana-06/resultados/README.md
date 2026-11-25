@@ -2,7 +2,8 @@
 
 [Glossary](../../docs/glossary.md) · [Week 6 README](../README.md)
 
-The report of each `evaluar.py` run, named by its UTC timestamp. Each report has the run's settings, its pass rate,
+The report of each `evaluar.py` run, named by its UTC timestamp. There are two runs, of 16 cases each, and both pass
+all 16. Each report has the run's settings, its pass rate,
 and the per-case result: the output obtained, the tool calls for the tool-use cases, and the LLM judge's verdict for
 the summaries it scores. The later of the two runs is identical to the baseline in
 [`../baseline/`](../baseline/README.md).
@@ -28,6 +29,7 @@ repeated, so they have no `aprobados` or `repeticiones` keys.
 | `casos` | Number of cases |
 | `tasa` | Pass rate |
 | `resultados` | Per-case results |
+| `id` | The gold-set case id |
 | `plantilla` | The week 5 template the case uses |
 | `ok` | The case passed |
 | `obtenido` | The output obtained: a label, the extracted JSON, or the summary text |

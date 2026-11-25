@@ -10,9 +10,10 @@ a folder are described in their week's data guide, docs/data/semana-NN.md. Each 
   one folder, `**` crosses folders);
 - optionally, a `## Keys` table whose first column lists the Spanish keys of the files, with their English meaning.
 
-The test checks four things:
+The test checks five things:
 
-- each document in DOCS exists and links the glossary;
+- each document in DOCS exists, starts with its title, links the glossary and has a `## Files` table;
+- the index, docs/data/README.md, links every data guide, and every guide on disk is in GUIDES;
 - every class B or C file of the audit is matched by a pattern of a document in one of its parent folders;
 - every tracked file in a README's folder is matched by one of its patterns, and every pattern matches a file;
 - every key in a Keys table appears in at least one file the document covers.
