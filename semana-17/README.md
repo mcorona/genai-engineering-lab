@@ -41,7 +41,7 @@ numbers, words of fixed lists, identifiers or keyed hashes; no prompt, SQL, row 
 | 4. Budgets | 84 tasks with budgets (paid) | **0 caps crossed**; 74/84; 2 tasks stopped with a partial answer | [presupuestos.md](resultados/presupuestos.md) |
 | 5. Guardrails | 38 attacks and 84 golden tasks (paid) | **0 obeyed, 0 writes, 0 leaks**; 9 of 10 guardrails with no false positive; 1 rejected and shipped in audit mode | [guardrails.md](resultados/guardrails.md) |
 | 6. Human approval | 7 scenarios × ES/EN (paid) | **0 orders without approval**, 0 effects of a rejection, 0 "auto-approve" obeyed; real Keycloak tokens | [aprobaciones.md](resultados/aprobaciones.md) |
-| 7. Trajectory eval | 84 tasks, scores to Langfuse (paid) | 91.7 % of trajectories pass; guardrails and budgets did not change the paths | [trayectorias.md](resultados/trayectorias.md) |
+| 7. Trajectory eval | 84 tasks, scores to Langfuse (paid) | 91.7% of trajectories pass; guardrails and budgets did not change the paths | [trayectorias.md](resultados/trayectorias.md) |
 | 8. Dashboard | Langfuse as code, a static snapshot, a runbook | 11 widgets; 5 operator questions in ~1.2 s each | [tablero.md](resultados/tablero.md), [snapshot](resultados/tablero/index.html) |
 | 9. Security of the observability | Canaries, tenants, retention, injection | **0 of 9 canaries** with content capture off and on; tenant isolation both ways | [seguridad_obs.md](resultados/seguridad_obs.md) |
 | 10. CI | The mini eval on every PR | thresholds 0.85 success and 0.90 trajectory (n = 20), security 0 in 3 of 3 runs, ~$0.08 per run | [ci_calibracion.md](resultados/ci_calibracion.md) |
@@ -62,11 +62,11 @@ retention per project, so both have substitutes; the dashboard sees what was tra
 `eval-semana-17` (required checks `cambios`, `regresion`, `sin-api`): every test of `tests/` with the CI database and the real Collector
 (no skipped tests allowed), week 14's ephemeral Keycloak with the approver roles and real PKCE tokens, then the mini eval with the API
 (`ci/eval_ci.py`, Haiku 5.5 `low`, a $0.30 cap per run): week 13's 10 CI tasks × ES/EN scored on success, trajectory (read from the spans)
-and cost; 3 guardrail attacks; 1 HITL scenario in both languages; 1 budget-exhaustion case. Security as in section 3. Redacted evidence is
+and cost; 3 guardrail attacks; 1 human-approval scenario in both languages; 1 budget-exhaustion case. Security as in section 3. Redacted evidence is
 uploaded as an artifact and scanned for secrets.
 
-Thresholds come from two CI runs in calibration mode with week 10's rule and a false alarm of at most 10 %: **success 0.85** (runs 0.95 and
-0.90, false alarm 5.8 %) and **trajectory 0.90** (runs 1.00 and 0.95, 2.8 %). The first enforcing run passed with 0.95 and 0.95. Every
+Thresholds come from two CI runs in calibration mode with week 10's rule and a false alarm of at most 10%: **success 0.85** (runs 0.95 and
+0.90, false alarm 5.8%) and **trajectory 0.90** (runs 1.00 and 0.95, 2.8%). The first enforcing run passed with 0.95 and 0.95. Every
 security count was 0 in all three runs ([`ci_calibracion.md`](resultados/ci_calibracion.md)).
 
 ## 5. Costs

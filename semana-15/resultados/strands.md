@@ -1,6 +1,6 @@
 # Activity 4: the agent in Strands Agents
 
-Code: [`adaptadores/strands.py`](../adaptadores/strands.py) (about 164 lines of code without docstrings; LangGraph: 145). Tests: [`tests/test_equivalencia.py`](../tests/test_equivalencia.py), **the same 15 tests as LangGraph**, run against the week 13 own loop with the same simulated model script and the same week 14 MCP server ($0).
+Code: [`adaptadores/strands.py`](../adaptadores/strands.py) (about 164 lines of code without docstrings; LangGraph: 145). Tests: [`tests/test_equivalencia.py`](../tests/test_equivalencia.py), **the same 15 tests as LangGraph**, run against the week 13 hand-written loop with the same simulated model script and the same week 14 MCP server ($0).
 
 ## Same agent, different design
 

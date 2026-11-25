@@ -12,7 +12,7 @@ Files: `presupuestos/` (`estimacion.py`, `politica.py`, `almacen.py`, `agente_pr
 | Plan bullet | Result |
 |---|---|
 | A budget per task, per session and per tenant per day, in tokens and USD; a small store for the per-day budgets | ✅ `politica.py` (three scopes, two dimensions) and `almacen.py` (SQLite, WAL, integer nano-dollars). Reservations are made in one `BEGIN IMMEDIATE` transaction over every scope or none, so two tasks of a tenant can never both get the last dollar (8 threads, 500 trajectories and 8 concurrent tasks in the tests) |
-| The loop checks before each model call with the upper estimate (whole previous prompt plus the maximum output) | ✅ `estimacion.py`: previous prompt + previous output + the new message at 1.5 characters per token, plus a 10 % margin. It never fell below the real prompt in 930 recorded calls (minimum ratio 1.096) nor in the 84 paid ones. The output is capped, not guessed: each call is sent with the largest `max_tokens` the tightest scope can pay for |
+| The loop checks before each model call with the upper estimate (whole previous prompt plus the maximum output) | ✅ `estimacion.py`: previous prompt + previous output + the new message at 1.5 characters per token, plus a 10% margin. It never fell below the real prompt in 930 recorded calls (minimum ratio 1.096) nor in the 84 paid ones. The output is capped, not guessed: each call is sent with the largest `max_tokens` the tightest scope can pay for |
 | At a budget: stop with a partial answer that says why | ✅ 2 in the paid run (`presupuesto_tarea`, `presupuesto_sesion`). The answer names the scope, the limit, the spend and the number of calls, in the task's language (templates, no model call) |
 | Where a policy allows it, degrade to a cheaper model | ✅ `Politica.degradar` names the pairs (default: none, Haiku has no cheaper model). Tested on the scripted loop, in Langfuse (`degrada` scenario) and on the real API: 2 tasks with the agent built on Sonnet 5.5 and `Sonnet→Haiku` both degraded on their first decision, 0 calls were made with Sonnet, and the run cost $0.0050 (`presupuestos_degradacion.json`). The 84-task paid run did not use it |
 | Never retry silently | ✅ an API error releases its reservation and ends the task (`error`), with no second call. The only repetition is re-deciding a call that lost a reservation race, up to 3 times, with fresh numbers and never with another model or prompt |
@@ -33,19 +33,19 @@ What each task cap would have done to those 252 recorded runs (the same pure `de
 
 | Cap at | USD | Tokens | Runs cut | Of them successful | Success lost | Cost with budget | Largest run |
 |---|---|---|---|---|---|---|---|
-| p90 | 0.00468 | 34,842 | 39 | 38 | 15.1 % | $0.6525 | 0.004542 |
-| p95 | 0.005237 | 37,971 | 17 | 17 | 6.8 % | $0.6885 | 0.004942 |
-| **p99 (chosen)** | **0.0063** | **46,000** | **4** | **4** | **1.6 %** | **$0.7109** | **0.0056** |
-| max | 0.007772 | 60,308 | 1 | 1 | 0.4 % | $0.7179 | 0.006776 |
+| p90 | 0.00468 | 34,842 | 39 | 38 | 15.1% | $0.6525 | 0.004542 |
+| p95 | 0.005237 | 37,971 | 17 | 17 | 6.8% | $0.6885 | 0.004942 |
+| **p99 (chosen)** | **0.0063** | **46,000** | **4** | **4** | **1.6%** | **$0.7109** | **0.0056** |
+| max | 0.007772 | 60,308 | 1 | 1 | 0.4% | $0.7179 | 0.006776 |
 
-Week 13 spent $0.7196. A cap is a guarantee, not a saving: the p99 cap saves 1.2 % and removes the tail (week 13's worst run cost 23 % more than the cap).
+Week 13 spent $0.7196. A cap is a guarantee, not a saving: the p99 cap saves 1.2% and removes the tail (week 13's worst run cost 23% more than the cap).
 The session cap ($0.039, 300,000 tokens) and the tenant-day cap ($0.32, 2.4 M tokens) are the p99 of the sum of 10 and of 100 tasks (bootstrap, seed 17, 2,000 draws).
 
 ## Evaluation with the budget on (84 tasks, k = 1, Haiku 5.5 `low`, 4 in parallel, sessions of 10 consecutive tasks)
 
 | | Week 13 (same tasks, repetition 0) | Replay of the recorded turns ($0) | **Paid run (real model)** |
 |---|---|---|---|
-| Success | 78 / 84 (92.86 %; 92.06 % over 3 runs) | 77 / 84 (91.67 %) | **74 / 84 (88.10 %)** |
+| Success | 78 / 84 (92.86%; 92.06% over 3 runs) | 77 / 84 (91.67%) | **74 / 84 (88.10%)** |
 | Stopped by the budget | – | 1 (`presupuesto_tarea`) | **2** (`presupuesto_tarea`, `presupuesto_sesion`) |
 | Cost, total | $0.2399 | $0.2366 | **$0.2344** |
 | Cost per task p50 / p95 / max | 0.00259 / 0.00478 / 0.00777 | 0.00259 / 0.00471 / 0.00562 | **0.00268 / 0.00480 / 0.00555** |

@@ -19,14 +19,14 @@ Cost controls: a new push cancels the previous run of the same PR (`concurrency`
 
 ## Threshold calibration
 
-Rule fixed before the first run (week 10): threshold = the multiple of 0.05 just below (first value − max(0.03, 1/n)), with n = 20 runs per language. Added from the week 13 experience: if that threshold gives more than 10 % false alarms per run (binomial, n = 20, p = max(observed failure rate, 4/120 from week 13 CI on these same tasks)), it drops by 0.05.
+Rule fixed before the first run (week 10): threshold = the multiple of 0.05 just below (first value − max(0.03, 1/n)), with n = 20 runs per language. Added from the week 13 experience: if that threshold gives more than 10% false alarms per run (binomial, n = 20, p = max(observed failure rate, 4/120 from week 13 CI on these same tasks)), it drops by 0.05.
 
 | | ES | EN |
 |---|---|---|
 | Calibration run (PR #95) | **0.950** (19/20; `r12-es` abstained once) | **1.000** (20/20) |
 | Week 10 rule | 0.90 | 0.95 |
-| False alarms per run at that threshold | 7.5 % | 13.7 % → too high |
-| **Threshold set** | **0.90** | **0.90** (2.8 % false alarms) |
+| False alarms per run at that threshold | 7.5% | 13.7% → too high |
+| **Threshold set** | **0.90** | **0.90** (2.8% false alarms) |
 
 Same calibration run: poisoning **38/38**, fingerprint unchanged, cost **$0.1955**, eval step about 2 min 15 s, whole job 4 min 5 s.
 

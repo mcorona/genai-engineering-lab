@@ -102,7 +102,7 @@ The user signed in to Keycloak as `analista`, and the command was `/legacy-schem
 | Least privilege | 1 `permiso_denegado`; the server named `prvmst`, `vtadia` and `ocpcab` but did not serve them | ✅ |
 | No unproven deliverable | In a first attempt the server had started without a database pool (`sin_base`: the terminal had no `PG_ADMIN_DSN`). The skill **wrote nothing** and asked for access to be fixed, instead of writing a dictionary from descriptions | ✅ |
 | Deliverables | `diccionario.yaml` and `relaciones.mmd` for the 4 visible objects: 16 columns, with keys, FKs (3 inferred, 0 orphans) and units correct against the truth. The header says it used the remote server, which tables it could not see, and that types and keys are inferred because the server exposes no constraints | ✅ |
-| Database | Read only through the server's `legado_r_leer` role (`SET LOCAL ROLE` in each transaction) | ✅ |
+| Database | Read-only through the server's `legado_r_leer` role (`SET LOCAL ROLE` in each transaction) | ✅ |
 
 **What least privilege hides from an auditor.** The `analista` token sees 4 of the 9 objects and 16 of the 46 columns. It misses three things, and the plugin can only report the first:
 - **Named but denied:** `prvmst`, `vtadia` and `ocpcab`. The plugin reported these under its limits.

@@ -80,7 +80,7 @@ Full matrix: [`seguridad/amenazas.md`](seguridad/amenazas.md). **13/13 threats c
 | A07 | Token theft or wrong audience | 5-minute tokens, JWKS signature, fixed RS256, exact `iss` and `aud` | `test_auth.py`, `test_keycloak.py` |
 | A08 | DNS rebinding | Bind to `127.0.0.1`; `Origin` and `Host` checked | `test_transporte.py` |
 | A09 | Leak across roles and tenants | Filtered catalogs; 403 `insufficient_scope`; DB roles; other tenants' tables denied | `test_auth.py`; agent eval |
-| A10 | Unapproved write | DB role without writes, READ ONLY + rollback, SQL guard, proposals only | database fingerprint in every eval |
+| A10 | Unapproved write | DB role without writes, `READ ONLY` + rollback, SQL guard, proposals only | database fingerprint in every eval |
 | A11 | Header and body mismatch | SDK `-32020`, plus the case the SDK misses (version header vs `_meta`) | `test_transporte.py` |
 | A12 | SSRF and mix-up during discovery | Expected issuer only, loopback-only `http`, exact metadata | client tests |
 | A13 | Denial of service and cost | Body, concurrency, time and row limits; agent loop limits; CI cost cap | `test_transporte.py`; agent eval |
@@ -158,6 +158,6 @@ The week runs only on loopback, where the specification allows `http://`. Nothin
 | Transport | `http://127.0.0.1:8014/mcp` | HTTPS only (TLS at the load balancer); the canonical URI `https://…/mcp` becomes the resource, the audience and the `Host`/`Origin` allowlists |
 | Authorization server | Keycloak `start-dev` in Docker, one realm import | A managed or HA identity provider; per-resource audience instead of the realm-wide mapper (finding 3), offline tokens only if the client needs them; Client ID Metadata Documents instead of a pre-registered client |
 | Secrets | `auth/.secretos.env` (local, `chmod 600`) | Secret Manager / AWS Secrets Manager; database credentials through IAM or a private connection |
-| Database | Local PostgreSQL | Private network only; the same per-profile roles and READ ONLY transactions |
+| Database | Local PostgreSQL | Private network only; the same per-profile roles and `READ ONLY` transactions |
 | Limits and observability | Process limits and JSONL traces | Rate limits per subject at the gateway; traces to OpenTelemetry (week 17) |
 | CI | Ephemeral Keycloak and Postgres per job | Same tests, plus a staging deployment before production |

@@ -289,7 +289,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   - **tokens:** input, cache read, output and reasoning;
   - **tool errors and recovery;**
   - **guardrail blocks** by type;
-  - **HITL:** requests, waiting time and decisions;
+  - **Human approval:** requests, waiting time and decisions;
   - **trajectory and success scores** over time.
 - A static export for the repo (`resultados/tablero/`) generated from the Langfuse API: charts and tables from a
   fixed eval run. The dashboard is local, so the repo carries a reproducible snapshot and the script that builds it.
@@ -317,9 +317,9 @@ observability (needs the stack and the instrumentation), and CI with API (last).
 - `eval-semana-17` workflow:
   - ephemeral PostgreSQL, Keycloak and the Collector (file exporter). Langfuse stays out of CI: its ClickHouse
     stack is heavy, and the trace checks run on the OTLP file;
-  - tests without API: span schema, propagation, redaction, budgets, guardrail decisions, HITL state machine,
+  - tests without API: span schema, propagation, redaction, budgets, guardrail decisions, human approval state machine,
     trajectory graders on fixed traces;
-  - a mini eval with API: the 10-task subset with Haiku, scored on success, trajectory and cost, plus 1 HITL case,
+  - a mini eval with API: the 10-task subset with Haiku, scored on success, trajectory and cost, plus 1 human-approval case,
     3 guardrail attacks and 1 budget-exhaustion case;
   - thresholds calibrated with the week 10 rule and false-alarm control;
   - security without a threshold (writes, leaks, instructions obeyed, secrets in traces, orders without approval,
@@ -339,7 +339,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
 | Estimated total time | ~17.5 h |
 | Estimated API cost | ~$1.00 to $1.50 for activities 4 to 7, plus ~$0.40 for CI calibration. Each paid run is authorized first, with a cap |
 | Cloud | None. Langfuse and the Collector are self-hosted in Docker. Langfuse Cloud is documented only as an option |
-| Risks | GenAI conventions still Development (pin and lock the schema); Langfuse v4 needs ClickHouse ≥ 25.12 and about 4 GB of RAM (run it on the Mac, not in CI); content capture leaking data (off by default, redaction tested with capture on); guardrail false positives hurting success (measured on the golden tasks before adoption); HITL tests needing a real second user (simulated approver with a distinct Keycloak role); trajectory references too strict for valid alternative plans (allowed extras and order only where it matters) |
+| Risks | GenAI conventions still Development (pin and lock the schema); Langfuse v4 needs ClickHouse ≥ 25.12 and about 4 GB of RAM (run it on the Mac, not in CI); content capture leaking data (off by default, redaction tested with capture on); guardrail false positives hurting success (measured on the golden tasks before adoption); human approval tests needing a real second user (simulated approver with a distinct Keycloak role); trajectory references too strict for valid alternative plans (allowed extras and order only where it matters) |
 
 ## Log
 
@@ -372,7 +372,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   the optional LangGraph/Strands comparison was not run.
 - 2026-11-03: the two optionals of activities 2 and 3, before activity 4 ($0, no model call).
   Tail sampling: `observabilidad/muestreo.yaml` is an overlay merged as a second `--config` with `arrancar.sh --muestreo`
-  (errors, tasks not answered and traces over 60 s kept in full, 10 % of the rest); the default stack keeps every trace
+  (errors, tasks not answered and traces over 60 s kept in full, 10% of the rest); the default stack keeps every trace
   because activity 7 scores them all. Measured with Langfuse: 11 of 11 critical traces kept, 6 of 40 plain ones, canary
   absent, default restored (`resultados/muestreo.json`, `resultados/stack.md`). LangGraph/Strands: the same scripted task
   through both, with the real server (`comparacion/`, `resultados/frameworks.md`). Strands continues the trace into the
@@ -395,7 +395,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
 - 2026-11-03: activity 5, guardrails. `guardrails/` puts three deterministic layers around the week 13 loop and the activity 4 budget without
   editing them: input (the request, the tool results and the tool descriptions), tool (allowlist, argument schema, SQL guard, scopes of the token
   subject, reusing week 14's tables) and output (personal values, grounded figures, refusal without evidence). Every decision is a
-  `gen_ai.guardrail.decision` span event (5 attributes, `reason` from a fixed list; the schema now has 18 event keys). The criteria (0 obeyed, 2 %
+  `gen_ai.guardrail.decision` span event (5 attributes, `reason` from a fixed list; the schema now has 18 event keys). The criteria (0 obeyed, 2%
   false positives per guardrail = 1 task of 84) and a 30-case held-out set were committed before any rule was written. Attacks, real model (38 runs,
   $0.0636): 0 obeyed, 0 writes, 0 leaks. With a model scripted to obey everything the guardrails stop 44 of 44 dangerous actions (26 run without them,
   18 more are refused by the legitimate server anyway). False positives on the 84 golden tasks, paid run ($0.2336): nine of ten guardrails never fired
@@ -419,7 +419,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   order where one tool feeds another, a step ceiling whose margin is the p90 of a calibration set only) with a hash manifest, and scores
   trajectories with eight pure graders, validated first on 17 hand-made bad and 14 good trajectories. The trajectory is read from the spans
   (`execute_tool`, `chat`), checked against the loop's own lines on every run (84 of 84 equal), and 9 scores per trace are written to Langfuse
-  (`POST /api/public/scores`, read back with v3: 84 of 84). Paid run (84 tasks, guardrails and budgets on, $0.2356): 91.7 % of trajectories
+  (`POST /api/public/scores`, read back with v3: 84 of 84). Paid run (84 tasks, guardrails and budgets on, $0.2356): 91.7% of trajectories
   pass [0.857, 0.964]. Analysis with week 13's bootstrap: guardrails and budgets did not change the paths (−0.004 [−0.044, +0.032]); the
   Agent SDK fails the steps rule on 172 of 252 runs because it always makes one model call after `responder`, and without that rule it is
   not worse than the loop (+0.020). No LLM judge: on the ambiguous tasks the deterministic verdict agrees with the golden one 8 of 8
@@ -429,7 +429,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   the `unstable` dashboards API, idempotent): cost per day and model, latency p50/p95 by step type and p95 by tool, tokens, tool errors,
   runs that did not answer, trajectory and answer scores. `tablero/exportar.py` writes a self-contained snapshot to `resultados/tablero/`
   for a fixed run (activity 7's 84 paid tasks and 14 approval runs) from the Langfuse API plus the Collector's file, because Langfuse has no
-  task or tenant dimension and does not show span events: guardrail blocks, budget stops and HITL decisions come from the OTel backend.
+  task or tenant dimension and does not show span events: guardrail blocks, budget stops and human approval decisions come from the OTel backend.
   `runbook.md` answers the five operator questions with one command each in about 1.2 s. Findings: the dashboard shows what was traced,
   not what was billed (runs that did not export are invisible; scripted runs must be excluded), and each evaluation used its own budget
   store, so activity 4's tenant-day cap was enforced per process, not across the day; who approved an order is answered by the approvals
@@ -445,7 +445,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   removes nothing; the Collector checks keys, not value shapes; the raw file still holds the optional Strands run's content until it
   rotates (`resultados/seguridad_obs.md`).
 - 2026-11-04: activity 10, CI (part 1, before calibration). `ci/eval_ci.py` is the mini eval with API: week 13's 10 CI tasks x ES/EN
-  through the full week 17 agent (success, trajectory read from the spans, cost), 3 guardrail attacks, 1 HITL scenario in both languages
+  through the full week 17 agent (success, trajectory read from the spans, cost), 3 guardrail attacks, 1 human-approval scenario in both languages
   and 1 budget-exhaustion case, with the spans through the real Collector (binary in CI, the pinned image with Docker on the Mac); security
   with no threshold (writes by fingerprint of every `legado` table, leaks, instructions obeyed, orders without approval, runs over a cap,
   secrets in traces and evidence); thresholds by week 10's rule, in calibration mode until two CI runs. Local real run: $0.0782, 20/20
@@ -453,7 +453,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   imports the approver roles and verifies real PKCE tokens (activity 6's open caveat, closed; Keycloak 26 needed a full profile and the
   `basic` client scope for `sub`), the mini eval and its evidence as an artifact.
 - 2026-11-04: activity 10 closed. The mini eval was calibrated on two CI runs of PR #138 (success 0.95 and 0.90, trajectory 1.00 and 0.95;
-  security 0 in both): thresholds 0.85 and 0.90 by week 10's rule with a false alarm of at most 10 % (`resultados/ci_calibracion.md`); the
+  security 0 in both): thresholds 0.85 and 0.90 by week 10's rule with a false alarm of at most 10% (`resultados/ci_calibracion.md`); the
   first enforcing run passed with 0.95 and 0.95 and security 0. PRs #134 to #138 merged with the three required checks green. `README.md`
   of the week, the root README (criterion 17 verified, phase status) in a separate documentation PR. Real API spend of the week: $1.18
   ($0.61 of it under the standing $2 authorization for activities 6 to 10).

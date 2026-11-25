@@ -132,7 +132,7 @@ was scored correctly.
 4. **Playwright MCP over Claude in Chrome** for this work: an in-memory profile, no access to the user's sessions,
    and an origin allowlist. Claude in Chrome stays blocked in the plugin.
 
-## Limits and pending work
+## Limitations and pending work
 
 - One screen and one run. The mapping is easy when labels and help texts are explicit. Real legacy screens have
   codes with no help, tabs, pop-up lookups and session logins. Those would need more steps and possibly vision

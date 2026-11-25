@@ -107,7 +107,7 @@ the guard now blocks reads outside the project and of shell profiles ([`resultad
 5 deterministic behavior cases plus 2 real Haiku audits per pull request, one with a read-only DSN and one with a
 Keycloak token through the week 14 server.
 
-The thresholds were calibrated on 2 runs with the week 10 rule (false alarm ≤ 10 %), then enforced on a third run:
+The thresholds were calibrated on 2 runs with the week 10 rule (false alarm ≤ 10%), then enforced on a third run:
 - graders 0.90;
 - meaning 0.90;
 - PK 0.45;

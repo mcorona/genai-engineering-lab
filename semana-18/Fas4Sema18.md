@@ -15,7 +15,7 @@ the next. Documentation goes in separate PRs.
 
 | Week | Piece | Where |
 |---|---|---|
-| 13 | The agent loop and its golden set (84 tasks, execution-based checks), security suite | `semana-13/` |
+| 13 | The agent loop and its gold set (84 tasks, execution-based checks), security suite | `semana-13/` |
 | 14 | Remote MCP server, Streamable HTTP, Keycloak OAuth (PKCE, RFC 8707), least privilege, tool-poisoning defenses | `semana-14/` |
 | 15 | Multi-agent over A2A (supervisor + specialist), the same agent in other frameworks, AgentCore, decision matrix | `semana-15/` |
 | 16 | `legacy-schema-audit` plugin for clients, its eval, marketplace | `semana-16/` |
@@ -94,7 +94,7 @@ v1 does not add capabilities. It integrates them behind one entry point and one 
 - **Security checklist** from weeks 14, 16 and 17: identity and OAuth audiences per server, least-privilege scopes and DB roles,
   consequential actions behind human approval, data-is-not-instructions guardrails, tool poisoning and allowlists, budgets, secrets and
   redaction in traces, tenant isolation, kill switch.
-- **Evaluation checklist** from weeks 10 to 17: golden set with execution-based checks, security suites with no threshold, trajectory
+- **Evaluation checklist** from weeks 10 to 17: gold set with execution-based checks, security suites with no threshold, trajectory
   graders, thresholds by the week 10 rule, cost and latency, online monitoring.
 - **Rubric** (fixed before the first rehearsal, 0 to 3 per item): architecture fits the goal; agent boundaries justified (or why not
   multi-agent); MCP design (servers, tools, auth); security boundaries complete; evaluation plan measurable; trade-offs and cost stated;

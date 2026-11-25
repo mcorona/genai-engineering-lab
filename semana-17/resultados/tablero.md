@@ -18,7 +18,7 @@ Files: `tablero/` (`langfuse_tablero.py`, `fuentes.py`, `exportar.py`, `pregunta
 | Tokens: input, cache read, output and reasoning | ✅ input and output per day in Langfuse; totals in the export (1,730,173 in, 132,148 out). ⚠️ Cache read is 0 because the week 13 loop sets no prompt cache, and reasoning tokens are not reported separately at effort `low` (they are inside output): both panels say so instead of showing an empty bar |
 | Tool errors and recovery | ✅ errors by tool in Langfuse; errors and how many were recovered by a later call of the same tool in the export (2 `muestrear_valores` errors, both recovered) |
 | Guardrail blocks by type | ⚠️ **Only in the static export**: Langfuse does not show span events (activity 4, finding 3). From the OTel backend: blocks and sanitizations by guardrail and reason, and the audit-mode observations (`salida_fundamentacion`, 3) |
-| HITL: requests, waiting time and decisions | ⚠️ **Only in the static export**, for the same reason: 14 requests, every decision by type and reason (applied and refused), waiting time of the applied ones (median 8 min, max 61 min, simulated approver on an injected clock), resumes by final state |
+| Human approval: requests, waiting time and decisions | ⚠️ **Only in the static export**, for the same reason: 14 requests, every decision by type and reason (applied and refused), waiting time of the applied ones (median 8 min, max 61 min, simulated approver on an injected clock), resumes by final state |
 | Trajectory and success scores over time | ✅ in Langfuse (mean trajectory score over time; trajectory ok and answer ok rates) and in the export, per run: replay 0.917 / 0.917, paid run 0.917 / 0.881. `respuesta.ok` (week 13's execution check) was published as a score next to `trayectoria.*` for the 168 runs of activity 7 |
 | A static export for the repo, from the Langfuse API, for a fixed eval run | ✅ `exportar.py` (2.5 s): a self-contained page (inline SVG, no script, no external asset, light and dark) and the data behind it |
 | Runbook: five operator questions in under a minute each | ✅ `runbook.md` and `preguntar.py`: why did task X fail (1.45 s), what did tenant Y spend today (1.29 s), which tool is slowing things down (1.15 s), who approved order Z (1.15 s), did yesterday's change make trajectories worse (1.14 s), each with its Langfuse path too |
@@ -27,7 +27,7 @@ Files: `tablero/` (`langfuse_tablero.py`, `fuentes.py`, `exportar.py`, `pregunta
 ## Findings
 
 1. **Two backends are needed, and that is a design decision, not a gap to close later.** Langfuse answers cost, latency, tokens, tool
-   errors and scores, by its own dimensions (type, name, model, time, level). The lab's decisions (guardrail, budget, HITL) are span events
+   errors and scores, by its own dimensions (type, name, model, time, level). The lab's decisions (guardrail, budget, human approval) are span events
    and its business keys (task, tenant, outcome) are span attributes: Langfuse v4 shows neither as a dimension. The OTel backend (here the
    Collector's file; in production any OTLP store) is where an operator answers "why" and "who".
 2. **The dashboard shows what was traced, not what was billed, and the tenant's daily cap was per process.** The first answer to "what

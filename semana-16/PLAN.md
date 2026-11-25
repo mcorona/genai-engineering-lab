@@ -25,7 +25,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Credentials outside the plugin:** `userConfig` with `sensitive: true` for the token or DSN (stored in the OS credential store, not `settings.json`). No keys in the repo or in the report.
 - **Two eval levels:**
     1. `claude plugin eval`, which measures **behavior**: fires the right skill, uses only read tools, produces the files, compares against the no-plugin baseline (Δ).
-    2. An **own evaluator**, because `plugin eval` has no code graders. It measures **quality** against the ground truth: precision and recall of the dictionary, of inferred foreign keys and of personal-data detection.
+    2. A **custom evaluator**, because `plugin eval` has no code graders. It measures **quality** against the ground truth: precision and recall of the dictionary, of inferred foreign keys and of personal-data detection.
 - **Model and cost:**
     - Development and local evals: the Claude Code subscription (counts against the plan, not the API).
     - CI: the API with Haiku 5.5 and a subset of deterministic graders, `--ablation none`, `--runs 1` and `--max-cost-usd`.
@@ -92,7 +92,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 
 ### 5. Plugin eval ✅
 - **Behavior with `claude plugin eval`:** 8 to 12 cases with realistic prompts in Spanish and English, including cases that must **not** trigger the plugin. Deterministic graders (`tool_used: Skill`, `file_exists`, `regex` over the dictionary and report, `tool_order`) and a few `llm` graders with a PASS/FAIL rubric. MCP mocks for the behavior cases. A no-plugin baseline to measure Δ.
-- **Quality with the own evaluator** (`eval/calidad.py`), over the outputs of `claude -p` runs against the real read-only database:
+- **Quality with the custom evaluator** (`eval/calidad.py`), over the outputs of `claude -p` runs against the real read-only database:
   - Dictionary: accuracy of meaning per column, precision and recall of foreign keys and personal data.
   - Risks: recall of the seeded risks, with SQL evidence re-executed.
   - Cost, tokens and time per audit.
@@ -139,7 +139,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - `eval-semana-16` workflow:
   - Ephemeral Postgres and Keycloak.
   - `claude plugin validate --strict`.
-  - Tests without API for hooks, ground truth and the own evaluator.
+  - Tests without API for hooks, ground truth and the custom evaluator.
   - Mini eval with API: `claude plugin eval` with deterministic graders (`--ablation none --runs 1 --max-cost-usd`) plus the quality evaluator on 1 or 2 audits.
   - Calibrated thresholds (week 10 rule with false-alarm control).
   - Security without a threshold: any failure breaks the PR.
@@ -155,7 +155,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 | Estimated total time | ~16.5 h (15 without the optional activity) |
 | Estimated API cost | ~$0.60 to $1.20 if the activity 5 and 6 evals run on the subscription; ~$2.50 to $5.00 if they run through the API (each run authorized first) |
 | Cloud | None |
-| Risks | The plugin does not trigger on natural phrasing (tune the `description` and measure with Δ); unstable `llm` graders (prefer deterministic ones and the own evaluator); hooks bypassed through another tool (activity 6 cases); frequent Claude Code changes (pin version and model in CI); computer use cost; the `plugin eval` sandbox needs `bubblewrap` and `socat` on Linux to grant `Bash` |
+| Risks | The plugin does not trigger on natural phrasing (tune the `description` and measure with Δ); unstable `llm` graders (prefer deterministic ones and the custom evaluator); hooks bypassed through another tool (activity 6 cases); frequent Claude Code changes (pin version and model in CI); computer use cost; the `plugin eval` sandbox needs `bubblewrap` and `socat` on Linux to grant `Bash` |
 
 ## Log
 

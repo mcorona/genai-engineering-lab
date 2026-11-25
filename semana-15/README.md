@@ -4,7 +4,7 @@
 
 **Result:** the week 13 agent (same prompt, model, tools, output contract and limits) was rebuilt in **LangGraph** and **Strands Agents**, and as spikes in the **OpenAI Agents SDK** and **Google ADK**. All of them reach the same quality.
 - **LangGraph and Strands:** 0.900 and 0.900 on 40 tasks, with identical failures; **38/38** poisoning cases in each through an MCP gateway.
-- **Spikes and own loop:** 0.950–1.000 on 20 tasks for the spikes and the own loop.
+- **Spikes and hand-written loop:** 0.950–1.000 on 20 tasks for the spikes and the hand-written loop.
 
 The framework changes cost, protocols, observability, hosting and team effort, not quality. That evidence feeds a **client decision matrix**. Two further results:
 - **Multi-agent** (a LangGraph supervisor plus a Strands specialist over A2A with its own OAuth audience) ties the single agent at 1.7× the cost and 3× the latency.
@@ -73,7 +73,7 @@ Multi-agent and A2A (activity 7) and AgentCore (activity 8) each have their own 
 |---|---|---|---|---|---|
 | LangGraph | 40 × 3 | **0.900** | $0.0030 | 6.8 / 15.8 | **38/38** |
 | Strands | 40 × 3 | **0.900** | $0.0030 | 6.7 / 14.1 | **38/38** |
-| Own loop (week 13, in process) | 40 × 3 | 0.917 | $0.0028 | 6.9 / 14.9 | 140/140 (week 13 suite) |
+| Hand-written loop (week 13, in process) | 40 × 3 | 0.917 | $0.0028 | 6.9 / 14.9 | 140/140 (week 13 suite) |
 | Claude Agent SDK (week 13) | 40 × 3 | 0.875 | $0.0021 | 10.1 / 19.7 | — |
 | OpenAI Agents SDK (spike) | 20 × 1 | 0.950 | $0.0032 | 7.2 / 28.4 | not run |
 | Google ADK (spike) | 20 × 1 | 0.950 | **$0.0046** | 13.9 / 25.5 | not run |
