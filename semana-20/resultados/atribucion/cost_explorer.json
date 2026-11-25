@@ -1,0 +1,298 @@
+{
+  "consulta": {
+    "Filter": {
+      "Tags": {
+        "Key": "proyecto",
+        "Values": [
+          "semana19"
+        ]
+      }
+    },
+    "Granularity": "DAILY",
+    "GroupBy": [
+      {
+        "Key": "componente",
+        "Type": "TAG"
+      },
+      {
+        "Key": "USAGE_TYPE",
+        "Type": "DIMENSION"
+      }
+    ],
+    "Metrics": [
+      "UnblendedCost"
+    ],
+    "TimePeriod": {
+      "End": "2026-11-25",
+      "Start": "2026-11-24"
+    }
+  },
+  "grupos": [
+    {
+      "claves": [
+        "componente$",
+        "us-east-1-KMS-Requests"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$agente",
+        "USE1-MP:USE1_InputTokenCount-Units"
+      ],
+      "usd": 0.0763202
+    },
+    {
+      "claves": [
+        "componente$agente",
+        "USE1-MP:USE1_OutputTokenCount-Units"
+      ],
+      "usd": 0.022198
+    },
+    {
+      "claves": [
+        "componente$base",
+        "Lambda-GB-Second"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$base",
+        "Request"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$base",
+        "USE1-VendedLog-Bytes"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$base",
+        "USE1-VpcEndpoint-Hours"
+      ],
+      "usd": 0.04
+    },
+    {
+      "claves": [
+        "componente$base",
+        "us-east-1-KMS-Keys"
+      ],
+      "usd": 0.0013888889
+    },
+    {
+      "claves": [
+        "componente$base",
+        "us-east-1-KMS-Requests"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "DataTransfer-Out-Bytes"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "Lambda-GB-Second"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "ReadRequestUnits"
+      ],
+      "usd": 3.25e-06
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "Request"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "USE1-ApiGatewayHttpRequest"
+      ],
+      "usd": 5.5e-05
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "USE1-CognitoEssentialsMAU"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "USE1-VendedLog-Bytes"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$computo",
+        "WriteRequestUnits"
+      ],
+      "usd": 1.1875e-05
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Global-Bucket-Hrs-FreeTier"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "InstanceUsage:db.t4g.micro"
+      ],
+      "usd": 0.015595552
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Lambda-GB-Second"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "RDS:GP3-Storage"
+      ],
+      "usd": 0.003113696
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Request"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Requests-Tier1"
+      ],
+      "usd": 6.5e-05
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Requests-Tier2"
+      ],
+      "usd": 2.04e-05
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "USE1-AWSSecretsManager-Secrets"
+      ],
+      "usd": 0.0005765559
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "USE1-AWSSecretsManagerAPIRequest"
+      ],
+      "usd": 0.000115
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "USE1-DataTransfer-xAZ-In-Bytes"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "USE1-DataTransfer-xAZ-Out-Bytes"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "USE1-VpcEndpoint-Bytes"
+      ],
+      "usd": 1.892e-07
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "USE1-VpcEndpoint-Hours"
+      ],
+      "usd": 0.02
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Vectors-Put-Bytes"
+      ],
+      "usd": 0.0001430511
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Vectors-Request-Tier1"
+      ],
+      "usd": 0.00011
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Vectors-Request-Tier2"
+      ],
+      "usd": 0.000495
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Vectors-Request-Tier3"
+      ],
+      "usd": 5e-06
+    },
+    {
+      "claves": [
+        "componente$datos",
+        "Vectors-TimedStorage-ByteHrs"
+      ],
+      "usd": 6e-10
+    },
+    {
+      "claves": [
+        "componente$ia",
+        "Lambda-GB-Second"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$ia",
+        "Request"
+      ],
+      "usd": 0.0
+    },
+    {
+      "claves": [
+        "componente$ia",
+        "USE1-VendedLog-Bytes"
+      ],
+      "usd": 0.0
+    }
+  ]
+}

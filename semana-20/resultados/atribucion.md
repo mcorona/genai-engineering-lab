@@ -1,7 +1,7 @@
 # Week 20, activity 2: cost attribution
 
-Status: the code is merged (#333, #335) and the run is done (2026-11-24, 4/4 tasks). Spans and EMF agree to the
-last digit; the Cost Explorer figure by `componente` comes the next day (section 4).
+Status: closed. The code is merged (#333, #335) and the run is done (2026-11-24, 4/4 tasks). Spans, EMF and Cost
+Explorer by `componente` agree to the last digit: 0.0985182 USD for the 4 tasks (section 4).
 
 ## 1. Application inference profiles
 
@@ -79,7 +79,8 @@ up the same day, and the agent Lambda's `MODELO` was checked to be the `semana19
 went through (#335). CloudFormation's early validation rejected a comma in the profile description, and the
 bootstrap step's echo printed the account. Both are now covered by tests.
 
-**Result** ([crudo.json](atribucion/crudo.json), [emf.json](atribucion/emf.json)):
+**Result** ([crudo.json](atribucion/crudo.json), [emf.json](atribucion/emf.json),
+[cost_explorer.json](atribucion/cost_explorer.json)):
 
 | Task | Steps | Input tokens | Output tokens | USD (spans, recomputed) | Baseline USD (activity 1) |
 |---|---|---|---|---|---|
@@ -99,20 +100,39 @@ The cost of a query three ways:
 |---|---|---|---|
 | 1. Spans | tokens of each agent span × Price List (1.10 / 5.50 per 1M, regional on-demand), recomputed | 0.0985182 | 0.0246296 |
 | 2. EMF | sum of `LegacyBridge/CostoUSD` over the run's window (GetMetricData) | 0.0985182 | 0.0246296 |
-| 3. Cost Explorer | Bedrock cost on the run's day, `componente=agente` | pending (2026-11-25) | — |
+| 3. Cost Explorer | `GetCostAndUsage` of 2026-11-24, `proyecto=semana19`, grouped by `componente` and usage type; the `agente` rows | 0.0985182 | 0.0246296 |
 
 - **1 = 2, exactly.** The EMF value is the span's own `lab.run.cost_usd`, and the recomputation from tokens and
   Price List prices gives the same total. Every EMF line was accepted: the sum of `Respondida` is 4, and `Pasos`
   sums to 17, as in the spans.
-- **3** is a daily total by usage type. It includes any other call that went through the profile that day, and it may
-  take up to 24 h to show.
+- **3 = 1, exactly.** Cost Explorer has two `componente=agente` rows for the day:
+  `USE1-MP:USE1_InputTokenCount-Units` at 0.0763202 USD and `USE1-MP:USE1_OutputTokenCount-Units` at 0.022198 USD.
+  They are the spans' 69,382 input tokens × 1.10 and 4,036 output tokens × 5.50 per 1M. No other call went through
+  the agent's profile that day, and the tag counted on the day it was activated. Queried on 2026-11-25 (one call,
+  0.01 USD, Manuel's OK).
+- **What the agent's tag does not cover.** The same query gives the rest of the day's cost by component. The total is
+  0.1802167 USD for `proyecto=semana19`:
+
+  | `componente` | USD (2026-11-24) | Main usage types |
+  |---|---|---|
+  | `agente` | 0.0985182 | model input and output tokens |
+  | `base` | 0.0413889 | VPC interface endpoints (0.04), KMS keys |
+  | `datos` | 0.0402394 | RDS `db.t4g.micro` and its storage (0.0187), VPC endpoint (0.02), S3 Vectors, Secrets Manager |
+  | `computo` | 0.0000701 | API Gateway requests, read and write request units |
+  | `ia` | 0 | |
+  | no `componente` | 0 | KMS requests |
+
+  The stacks' share (0.0817 USD) is the hours they were up that day, not a per-query cost. A query's full cost is the
+  model's 0.0246 USD plus the per-hour cost of the stack, which is week 19's 0.037562 USD per hour
+  ([`semana-19/resultados/costo_real.md`](../../semana-19/resultados/costo_real.md)).
 
 **Teardown:** `destruir.sh --si --todo` ended in `"quedan": "nada"`, checked again with the read-only role. What is
 left is the allowed list: the read-only role, and 5 KMS keys pending deletion between 2026-11-26 and 2026-12-01. The
 teardown took 63 min, 40 of them in computo (the VPC Lambdas' network interfaces), close to 2026-11-23's times
 (`semana-19/resultados/tiempos_despliegue.jsonl`).
 
-Expected differences, to be checked against the measurement:
+Expected differences, written before the measurement, and what happened:
 - 1 and 2 come from the same span values, so they should match to rounding, unless an EMF line is rejected
-  (`AWS/Logs` EMF error metrics).
-- 3 is a daily total by usage type and includes any other call of the day through the profile.
+  (`AWS/Logs` EMF error metrics). They matched exactly.
+- 3 is a daily total by usage type and includes any other call of the day through the profile. There was none, so it
+  matched exactly too.
