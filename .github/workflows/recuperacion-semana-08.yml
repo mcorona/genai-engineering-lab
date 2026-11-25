@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "semana-08/**"
+      - "!semana-08/README.md"
+      - "!semana-08/resultados/**/*.md"
       - ".github/workflows/recuperacion-semana-08.yml"
 
 permissions:

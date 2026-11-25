@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "semana-07/**"
+      - "!semana-07/README.md"
+      - "!semana-07/resultados/**/*.md"
       - "semana-05/run_prompts.py"
       - "**/prompts/**"
       - ".github/workflows/nlq-semana-07.yml"
