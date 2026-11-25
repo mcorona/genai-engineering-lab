@@ -3,6 +3,18 @@ calls Bedrock Converse. This adapter translates both ways, so the loop is reused
 
 Pure functions: no AWS here. The Lambda passes the real Converse call (with the guardrail config of the activity 5
 adapter) as `llamar`.
+
+Week 20, activity 3: the prompt cache points (`cache=`, the CACHE_PROMPT value; ADR 0014). Bedrock reads the cache
+in the order tools -> system -> messages and checks the minimum (4,096 tokens on Haiku 4.5) on the whole prefix
+before each point; a point under it is not cached and the call still succeeds (prompt-caching docs, read 2026-11-25).
+- "off": no point; the request is week 19's, byte for byte (tests/snapshots/converse_semana19.json).
+- "sistema": one point after the system prompt, so it covers the tools and the system prompt. About 2,800 tokens:
+  it never caches on Haiku 4.5 (kept for models with a lower minimum, such as Haiku 5.5's 512).
+- "historial": a point at the end of the last message, from the second call on, and one at the end of the message
+  the previous call ended with (where that call put its point), so a step reads what the step before wrote without
+  relying on Bedrock's 20-block lookback. Never on the first call: that prefix (system, tools and the question) is the
+  only one two users could share; every later one holds this query's own toolUseIds.
+- "historial+sistema": both. At most 3 of the 4 points a request may carry.
 """
 from __future__ import annotations
 
@@ -32,9 +44,40 @@ def _mensaje_a_converse(m: dict) -> dict:
     return {"role": m["role"], "content": bloques}
 
 
-def peticion_a_converse(cuerpo: dict, *, modelo_id: str, guardrail: dict | None = None) -> dict:
+MODOS_CACHE = ("off", "sistema", "historial", "historial+sistema")
+TTLS_CACHE = ("5m", "1h")
+MAX_PUNTOS_CACHE = 4     # per request (prompt-caching docs)
+
+
+def punto_de_cache(ttl: str = "5m") -> dict:
+    """A Converse cache point block. The 5-minute TTL is the default and goes without `ttl`."""
+    if ttl not in TTLS_CACHE:
+        raise ValueError(f"TTL de caché desconocido: {ttl}")
+    return {"cachePoint": {"type": "default"} if ttl == "5m" else {"type": "default", "ttl": ttl}}
+
+
+def posiciones_de_cache(n_mensajes: int) -> list[int]:
+    """Indexes of the messages that end with a history cache point: the last one and the one two before it (the
+    previous call's last message), each only when a model turn comes before it. Empty on the first call."""
+    return [i for i in (n_mensajes - 3, n_mensajes - 1) if i >= 2]
+
+
+def _con_cache(req: dict, modo: str, ttl: str) -> dict:
+    if modo not in MODOS_CACHE:
+        raise ValueError(f"modo de caché desconocido: {modo}")
+    if modo in ("sistema", "historial+sistema"):
+        req["system"].append(punto_de_cache(ttl))
+    if modo in ("historial", "historial+sistema"):
+        for i in posiciones_de_cache(len(req["messages"])):
+            req["messages"][i]["content"].append(punto_de_cache(ttl))
+    return req
+
+
+def peticion_a_converse(cuerpo: dict, *, modelo_id: str, guardrail: dict | None = None, cache: str = "off",
+                        ttl: str = "5m") -> dict:
     """The loop's body (Anthropic format) -> Converse request. `output_config.effort` has no Converse equivalent for
-    this model and is dropped on purpose; the loop's own limits still apply."""
+    this model and is dropped on purpose; the loop's own limits still apply. The request's lists are built here, so
+    the cache points never touch the loop's history."""
     req: dict[str, Any] = {
         "modelId": modelo_id,
         "system": [{"text": cuerpo["system"]}],
@@ -48,7 +91,7 @@ def peticion_a_converse(cuerpo: dict, *, modelo_id: str, guardrail: dict | None 
             "inputSchema": {"json": h.get("input_schema", {"type": "object"})}}} for h in herramientas]}
     if guardrail:
         req["guardrailConfig"] = guardrail
-    return req
+    return req if cache == "off" else _con_cache(req, cache, ttl)
 
 
 def respuesta_a_anthropic(resp: dict) -> dict:

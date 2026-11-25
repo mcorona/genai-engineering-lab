@@ -43,7 +43,8 @@ def _correr(pregunta="¿Cuántos SKU hay en el catálogo?"):
                       definiciones=C.definiciones_semana19(), api_modelo=api,
                       politica=Politica(tarea=Limite(usd=1.0, tokens=10_000_000)),
                       precios=Precios(entrada_1m=1.1, salida_1m=5.5), exportar=lineas.append)
-    return [json.loads(x) for x in lineas]
+    # week 20, activity 3: a chat line per model call comes before the agent line; EMF rides only on the agent's
+    return [x for x in map(json.loads, lineas) if x["tipo"] != "chat"]
 
 
 # ---------------------------------------------------------------- the metric count

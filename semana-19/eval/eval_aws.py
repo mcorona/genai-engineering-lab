@@ -201,7 +201,7 @@ def correr(tareas: list[dict], *, medir: Callable[[dict], dict], ejecutar_sql: C
         if not tope.cabe_otra():
             return {"id_tarea": t["id"], "idioma": t["idioma"], "estado": "no_corrida", "motivo": "tope_del_script"}
         f = medir(t)
-        tope.sumar(f.get("costo_usd") or 0.0, (f.get("tokens_entrada") or 0) + (f.get("tokens_salida") or 0))
+        tope.sumar(f.get("costo_usd") or 0.0, tokens_de(f))
         return f
 
     if en_paralelo:
@@ -223,10 +223,18 @@ def correr(tareas: list[dict], *, medir: Callable[[dict], dict], ejecutar_sql: C
     return filas
 
 
+def tokens_de(f: dict) -> int:
+    """The tokens a row counts against the script's cap: input, output and (week 20, activity 3) the cache tokens
+    read and written, each as one token, so the cap bounds everything the model processed. Rows of runs without a
+    cache point have 0 cache tokens, so their count is unchanged."""
+    return sum(int(f.get(k) or 0) for k in ("tokens_entrada", "tokens_salida", "tokens_cache_lectura",
+                                             "tokens_cache_escritura"))
+
+
 def gasto(filas: list[dict]) -> dict:
     hechas = [f for f in filas if f.get("estado") != "no_corrida"]
     return {"usd": round(sum(f.get("costo_usd") or 0 for f in hechas), 6),
-            "tokens": sum((f.get("tokens_entrada") or 0) + (f.get("tokens_salida") or 0) for f in hechas)}
+            "tokens": sum(tokens_de(f) for f in hechas)}
 
 
 # ---------------------------------------------------------------- aggregation

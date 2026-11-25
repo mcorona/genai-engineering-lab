@@ -1,0 +1,143 @@
+{
+ "cuerpo": {
+  "max_tokens": 900,
+  "messages": [
+   {
+    "content": "pregunta",
+    "role": "user"
+   },
+   {
+    "content": [
+     {
+      "id": "tu1",
+      "input": {},
+      "name": "describir_esquema",
+      "type": "tool_use"
+     }
+    ],
+    "role": "assistant"
+   },
+   {
+    "content": [
+     {
+      "content": "{\"ok\": true}",
+      "tool_use_id": "tu1",
+      "type": "tool_result"
+     }
+    ],
+    "role": "user"
+   },
+   {
+    "content": [
+     {
+      "text": "listo",
+      "type": "text"
+     }
+    ],
+    "role": "assistant"
+   },
+   {
+    "content": "Deliver your final answer by calling the responder tool.",
+    "role": "user"
+   }
+  ],
+  "model": "claude-haiku-4-5-20251001",
+  "output_config": {
+   "effort": "low"
+  },
+  "system": "SISTEMA de prueba",
+  "tools": [
+   {
+    "description": "d",
+    "input_schema": {
+     "type": "object"
+    },
+    "name": "describir_esquema"
+   }
+  ]
+ },
+ "peticion": {
+  "guardrailConfig": {
+   "guardrailIdentifier": "gid",
+   "guardrailVersion": "3"
+  },
+  "inferenceConfig": {
+   "maxTokens": 900
+  },
+  "messages": [
+   {
+    "content": [
+     {
+      "text": "pregunta"
+     }
+    ],
+    "role": "user"
+   },
+   {
+    "content": [
+     {
+      "toolUse": {
+       "input": {},
+       "name": "describir_esquema",
+       "toolUseId": "tu1"
+      }
+     }
+    ],
+    "role": "assistant"
+   },
+   {
+    "content": [
+     {
+      "toolResult": {
+       "content": [
+        {
+         "text": "{\"ok\": true}"
+        }
+       ],
+       "status": "success",
+       "toolUseId": "tu1"
+      }
+     }
+    ],
+    "role": "user"
+   },
+   {
+    "content": [
+     {
+      "text": "listo"
+     }
+    ],
+    "role": "assistant"
+   },
+   {
+    "content": [
+     {
+      "text": "Deliver your final answer by calling the responder tool."
+     }
+    ],
+    "role": "user"
+   }
+  ],
+  "modelId": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "system": [
+   {
+    "text": "SISTEMA de prueba"
+   }
+  ],
+  "toolConfig": {
+   "tools": [
+    {
+     "toolSpec": {
+      "description": "d",
+      "inputSchema": {
+       "json": {
+        "type": "object"
+       }
+      },
+      "name": "describir_esquema"
+     }
+    }
+   ]
+  }
+ }
+}

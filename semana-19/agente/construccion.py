@@ -49,6 +49,21 @@ _RAZON_PRECIO = 1.1 / 0.1     # Haiku 4.5 over Haiku 5.5 in week 7's table, inpu
 # calibrated limit is set from that run; this ceiling is not a calibration.
 _TECHO_SEMANA20 = {"usd": 0.12, "tokens": 100_000}
 PRECIOS = Precios(entrada_1m=1.1, salida_1m=5.5)   # Haiku 4.5, USD per million tokens (week 7's table)
+# Week 20, activity 3: the cache prices of Haiku 4.5, regional (the us. profile), from the Price List
+# (semana-20/resultados/linea_base.md §4.1): read 0.11, write 1.375 with the 5-minute TTL and 2.20 with 1 hour.
+CACHE_PROMPT = "CACHE_PROMPT"   # environment variable, set by the stack: one of MODOS_CACHE (absent: the default)
+CACHE_TTL = "CACHE_TTL"         # 5m | 1h (absent: the default)
+MODOS_CACHE = modelo.MODOS_CACHE
+TTLS_CACHE = modelo.TTLS_CACHE
+CACHE_PROMPT_POR_OMISION = "off"   # equal to ia/config.py CACHE_PROMPT and CACHE_TTL (test_agente_cache.py)
+CACHE_TTL_POR_OMISION = "5m"
+_CACHE_ESCRITURA_1M = {"5m": 1.375, "1h": 2.2}
+_CACHE_LECTURA_1M = 0.11
+
+
+def precios(ttl: str = "5m") -> Precios:
+    return Precios(entrada_1m=PRECIOS.entrada_1m, salida_1m=PRECIOS.salida_1m, cache_lectura_1m=_CACHE_LECTURA_1M,
+                   cache_escritura_1m=_CACHE_ESCRITURA_1M[ttl])
 
 
 def _es_del_nombre(nombre: str, prefijos: tuple[str, ...]) -> bool:
@@ -125,6 +140,17 @@ def politica_de_la_tarea(entorno=None) -> Politica:
     return Politica(tarea=Limite(usd=round(tope["usd"] * _RAZON_PRECIO, 6), tokens=tope["tokens"]))
 
 
+def cache(entorno) -> tuple[str, str]:
+    """(mode, TTL) of prompt caching. Unknown values are an error, never a silent fall back to the default."""
+    modo = entorno.get(CACHE_PROMPT) or CACHE_PROMPT_POR_OMISION
+    ttl = entorno.get(CACHE_TTL) or CACHE_TTL_POR_OMISION
+    if modo not in MODOS_CACHE:
+        raise RuntimeError(f"{CACHE_PROMPT} desconocido: {modo}")
+    if ttl not in TTLS_CACHE:
+        raise RuntimeError(f"{CACHE_TTL} desconocido: {ttl}")
+    return modo, ttl
+
+
 def camino(entorno) -> str:
     """The tools path. Unknown values are an error, never a silent fall back to the default."""
     valor = entorno.get(CAMINO_HERRAMIENTAS) or "directo"
@@ -155,7 +181,9 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
     def llamar_converse(req: dict) -> dict:
         return cliente_converse.converse(**req)
 
-    api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=entorno[MODELO], guardrail=guardrail))
+    modo_cache, ttl = cache(entorno)
+    api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=entorno[MODELO], guardrail=guardrail,
+                                                                 cache=modo_cache, ttl=ttl))
     cerrar = None
     if via == "gateway":
         from agente.cliente_gateway import LlamadorGateway
@@ -171,7 +199,7 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         "definiciones": definiciones,
         "api_modelo": api,
         "politica": politica_de_la_tarea(entorno),
-        "precios": PRECIOS,
+        "precios": precios(ttl),
         "exportar": exportar or SumideroCloudWatch(cliente_logs, entorno[GRUPO_SPANS], flujo_spans),
         "camino": via,
         "cerrar": cerrar,

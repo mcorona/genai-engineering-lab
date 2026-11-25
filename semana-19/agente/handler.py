@@ -176,6 +176,26 @@ def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definicion
                    herramientas=herramientas, resultados=resultados, inicio=inicio)
 
 
+def _spans_chat(llamadas: list[dict]) -> list[dict]:
+    """One `chat` span per model call (week 17's locked shape), with its tokens, cache tokens and cost (week 20,
+    activity 3: the cache read and written per step). The call's duration is not an attribute of that shape; it goes on
+    the agent line as `duracion_pasos_ms`."""
+    return [{"name": f"chat {MODELO}", "tipo": "chat", "attrs": {
+        "gen_ai.operation.name": "chat", "gen_ai.request.model": MODELO, "lab.step": x["paso"],
+        "gen_ai.usage.input_tokens": x["entrada"], "gen_ai.usage.output_tokens": x["salida"],
+        "gen_ai.usage.cache_read.input_tokens": x["lectura"],
+        "gen_ai.usage.cache_creation.input_tokens": x["escritura"], "lab.cost.usd": x["usd"]}} for x in llamadas]
+
+
+def _costo(r, presupuesto) -> float | None:
+    """The query's model cost: the loop's (input and output tokens) plus the prompt cache's, which the loop does not
+    price (week 20, activity 3). Without a cache point the second term is 0 and the cost is week 19's."""
+    base = getattr(r, "costo_usd", None)
+    if base is None:
+        return None
+    return base + (getattr(presupuesto, "costo_cache", 0.0) or 0.0)
+
+
 def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo, herramientas=None,
             resultados=None, inicio=None):
     atributos = {
@@ -196,17 +216,19 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
         "lab.run.tool_errors": getattr(r, "errores_herramienta", None),
         "lab.run.tokens.input": getattr(r, "tokens_in", None),
         "lab.run.tokens.output": getattr(r, "tokens_out", None),
-        "lab.run.cost_usd": getattr(r, "costo_usd", None),
+        "lab.run.cost_usd": _costo(r, presupuesto),
         "lab.run.tokens.cache_read": getattr(presupuesto, "cache_lectura", None),
         "lab.run.tokens.cache_creation": getattr(presupuesto, "cache_escritura", None),
     }
-    spans = [*(herramientas.spans if herramientas else []),
+    llamadas = list(getattr(presupuesto, "por_llamada", None) or [])
+    spans = [*(herramientas.spans if herramientas else []), *_spans_chat(llamadas),
              {"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",
               "attrs": {k: v for k, v in atributos.items() if v is not None}}]
     latencia_ms = (time.monotonic() - inicio) * 1000 if inicio is not None else 0.0
     emf = metricas.miembros_emf(atributos, latencia_ms=latencia_ms, modelo=MODELO, ruta=RUTA,
                                 ahora_ms=int(time.time() * 1000))
-    ExportadorSpans(escribir=exportar).exportar(spans, emf=emf)
+    ExportadorSpans(escribir=exportar).exportar(spans, emf=emf,
+                                                extra={"duracion_pasos_ms": [x["ms"] for x in llamadas]})
     return Resultado(estado, texto, [_decision(d) for d in decisiones], spans, resultados or [])
 
 

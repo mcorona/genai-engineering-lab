@@ -186,7 +186,10 @@ def _spans_de_la_tarea(lineas: list[dict], run_id: str | None) -> dict:
     agente = [l for l in lineas if l.get("tipo") == "invoke_agent"]
     propio = [l for l in agente if l["attrs"].get("lab.run.id") == run_id]
     herramientas = [l for l in lineas if l.get("tipo") == "execute_tool"]
+    modelo = [l for l in lineas if l.get("tipo") == "chat"]   # week 20, activity 3: one per model call
     return {"agente": propio[0]["attrs"] if len(propio) == 1 else None, "herramientas": [h["attrs"] for h in herramientas],
+            "modelo": [m["attrs"] for m in modelo],
+            "duracion_pasos_ms": propio[0].get("duracion_pasos_ms") if len(propio) == 1 else None,
             "ajenos": len(agente) - len(propio)}
 
 
@@ -231,6 +234,8 @@ def medir_api(tarea: dict, camino: str, *, token: str, http: Callable, spans_ent
         "inicio": round(inicio, 3), "fin": round(fin, 3), "run_id": run_id_de(id_consulta),
         "tokens_cache_lectura": a.get("lab.run.tokens.cache_read"), "tokens_cache_escritura": a.get("lab.run.tokens.cache_creation"),
         "spans_herramientas": herr,
+        # Week 20, activity 3: per model call (chat spans) and each call's duration. Absent before activity 3.
+        "spans_modelo": s.get("modelo") or [], "duracion_pasos_ms": s.get("duracion_pasos_ms"),
     }
 
 

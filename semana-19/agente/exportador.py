@@ -44,9 +44,10 @@ class ExportadorSpans:
         self.escribir = escribir or (lambda linea: print(linea, flush=True))
         self.exportados = 0
 
-    def exportar(self, spans: list[dict], emf: dict | None = None) -> int:
-        """spans: [{"name", "tipo", "attrs"}]. `emf`: the EMF members of the invoke_agent line (or None). Returns how
-        many were written."""
+    def exportar(self, spans: list[dict], emf: dict | None = None, extra: dict | None = None) -> int:
+        """spans: [{"name", "tipo", "attrs"}]. `emf`: the EMF members of the invoke_agent line (or None). `extra`:
+        other top-level fields of that line, outside the locked attributes (week 20, activity 3: each model call's
+        duration, `duracion_pasos_ms`). Returns how many were written."""
         for span in spans:
             kept, dropped = _limpio(span)
             linea = {"schema": esquema.SCHEMA_VERSION, "span": span["name"], "tipo": span["tipo"],
@@ -56,6 +57,11 @@ class ExportadorSpans:
                 if choque:
                     raise ValueError(f"EMF no puede reemplazar claves del span: {sorted(choque)}")
                 linea.update(emf)
+            if extra and span["tipo"] == "invoke_agent":
+                choque = set(extra) & set(linea)
+                if choque:
+                    raise ValueError(f"extra no puede reemplazar claves del span: {sorted(choque)}")
+                linea.update(extra)
             self.escribir(json.dumps(linea, ensure_ascii=False, sort_keys=True))
             self.exportados += 1
         return len(spans)
