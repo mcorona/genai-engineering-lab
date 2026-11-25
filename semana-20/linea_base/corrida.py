@@ -15,7 +15,8 @@ differences, from `resultados/linea_base.md` section 3:
 Its output goes to `resultados/corrida_corregida/`, and the detail to `resultados/corrida_corregida_detalle.jsonl`.
 
 Week 20, activity 3 reuses this run as it is (`cache/corrida.py`): `Corrida` holds what changes from one run to the
-next (its folder, caps, expected cost, the agent environment it requires, extra detail columns), and `main` takes one.
+next (its folder, caps, expected cost, the agent environment it requires, extra detail columns, the agent files whose
+deployed code must be the repository's), and `main` takes one.
 """
 from __future__ import annotations
 
@@ -25,6 +26,9 @@ import json
 import os
 import sys
 import time
+import urllib.request
+import zipfile
+from io import BytesIO
 from pathlib import Path
 from typing import Callable
 
@@ -39,6 +43,8 @@ PRESUPUESTO = "techo_semana20"
 TOPE_USD = 2.50
 TOPE_TOKENS = 2_200_000
 COSTO_ESPERADO_TAREA = 0.045   # USD: week 19's median 0.037, plus the steps the cut tasks still needed
+# The agent package (semana-19/infra/paquete_agente.py, CODIGO) puts semana-19/agente under app/agente in the zip.
+PREFIJO_PAQUETE = "app/"
 
 
 class Corrida:
@@ -47,11 +53,13 @@ class Corrida:
 
     def __init__(self, *, salida: Path, detalle: Path, tope_usd: float, tope_tokens: int, costo_esperado_tarea: float,
                  exigir: dict | None = None,
-                 columnas_detalle: Callable[[dict, list[dict]], list[dict]] | None = None):
+                 columnas_detalle: Callable[[dict, list[dict]], list[dict]] | None = None,
+                 codigo_al_dia: tuple[str, ...] = ()):
         self.salida, self.detalle = salida, detalle
         self.tope_usd, self.tope_tokens, self.costo_esperado_tarea = tope_usd, tope_tokens, costo_esperado_tarea
         self.exigir = dict(exigir or {"PRESUPUESTO_TAREA": PRESUPUESTO})
         self.columnas_detalle = columnas_detalle   # (raw run, detail lines) -> lines with the run's own columns
+        self.codigo_al_dia = tuple(codigo_al_dia)   # files under semana-19/ the deployed package must match; () = no check
 
 
 CORREGIDA = Corrida(salida=SALIDA, detalle=DETALLE, tope_usd=TOPE_USD, tope_tokens=TOPE_TOKENS,
@@ -107,6 +115,25 @@ def exigir_entorno(variables: dict, corrida: Corrida = CORREGIDA) -> None:
                              f"{clave}={valor}; no task is sent")
 
 
+def codigo_desplegado_al_dia(zip_bytes: bytes, raiz: Path, archivos: tuple[str, ...]) -> list[str]:
+    """The files (relative to semana-19/) whose bytes in the deployed agent package differ from the repository's,
+    or that the package lacks."""
+    with zipfile.ZipFile(BytesIO(zip_bytes)) as z:
+        presentes = set(z.namelist())
+        return [a for a in archivos
+                if PREFIJO_PAQUETE + a not in presentes or z.read(PREFIJO_PAQUETE + a) != (raiz / a).read_bytes()]
+
+
+def exigir_codigo(zip_bytes: bytes, corrida: Corrida = CORREGIDA, raiz: Path = S19) -> None:
+    """Nothing is sent unless the deployed agent runs the repository's code for the files the run depends on."""
+    if not corrida.codigo_al_dia:
+        return
+    distintos = codigo_desplegado_al_dia(zip_bytes, raiz, corrida.codigo_al_dia)
+    if distintos:
+        raise SystemExit(f"the deployed agent code differs from the repository in {', '.join(distintos)}: rebuild with "
+                         "semana-19/infra/paquete_agente.py and deploy computo; no task is sent")
+
+
 def escribir_detalle(E, datos: dict, corrida: Corrida = CORREGIDA) -> Path:
     lineas = E.detalle(datos)
     if corrida.columnas_detalle is None:
@@ -150,6 +177,12 @@ def main(argv=None, corrida: Corrida = CORREGIDA) -> int:  # pragma: no cover - 
         raise SystemExit(f"the deployed agent uses {aws.camino_desplegado}; the run goes through the direct path")
     exigir_entorno(aws.lam.get_function_configuration(FunctionName=aws.computo["ArnAgente"])
                    ["Environment"]["Variables"], corrida)
+    if corrida.codigo_al_dia:   # GetFunction is free and read-only; Code.Location is a presigned HTTPS URL to the zip
+        ubicacion = aws.lam.get_function(FunctionName=aws.computo["ArnAgente"])["Code"]["Location"]
+        if not ubicacion.startswith("https://"):
+            raise SystemExit("GetFunction did not return an HTTPS URL for the agent code; no task is sent")
+        with urllib.request.urlopen(ubicacion, timeout=120) as r:  # noqa: S310 - https only, checked above
+            exigir_codigo(r.read(), corrida)
     todas = tareas + calentamiento
     esperados = aws.cargador_invoca({"modo": "esperados", "consultas": E.consultas_esperadas(todas)})["esperados"]
     tareas, calentamiento = E.con_esperados(tareas, esperados), E.con_esperados(calentamiento, esperados)

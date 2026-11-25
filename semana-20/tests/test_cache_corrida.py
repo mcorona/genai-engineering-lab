@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 import sys
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -48,6 +50,49 @@ def test_sin_la_cache_desplegada_no_se_manda_nada(LB, variables):
 def test_la_corrida_corregida_sigue_igual(LB):
     assert LB.CORREGIDA.exigir == {"PRESUPUESTO_TAREA": "techo_semana20"} and LB.CORREGIDA.tope_usd == 2.50
     LB.exigir_entorno({"PRESUPUESTO_TAREA": "techo_semana20"})
+
+
+def _paquete(archivos: dict[str, bytes]) -> bytes:
+    """A deployment zip with the agent package's layout (app/agente/...)."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("app/__init__.py", "")
+        for nombre, contenido in archivos.items():
+            z.writestr("app/" + nombre, contenido)
+    return buf.getvalue()
+
+
+@pytest.fixture
+def repo(tmp_path):
+    (tmp_path / "agente").mkdir()
+    archivos = {a: f"# {a}\nCACHE = True\n".encode() for a in CORR.CODIGO_CACHE}
+    for a, contenido in archivos.items():
+        (tmp_path / a).write_bytes(contenido)
+    return tmp_path, archivos
+
+
+def test_el_codigo_desplegado_igual_al_repositorio_pasa(LB, repo):
+    raiz, archivos = repo
+    assert LB.codigo_desplegado_al_dia(_paquete(archivos), raiz, CORR.CODIGO_CACHE) == []
+    LB.exigir_codigo(_paquete(archivos), CORR.corrida(LB), raiz)
+
+
+def test_un_archivo_cambiado_o_ausente_detiene_la_corrida(LB, repo):
+    raiz, archivos = repo
+    viejo = {**archivos, "agente/converse_adaptador.py": b"# before the cache\n"}
+    assert LB.codigo_desplegado_al_dia(_paquete(viejo), raiz, CORR.CODIGO_CACHE) == ["agente/converse_adaptador.py"]
+    sin = {a: c for a, c in archivos.items() if a != "agente/presupuesto.py"}
+    assert LB.codigo_desplegado_al_dia(_paquete(sin), raiz, CORR.CODIGO_CACHE) == ["agente/presupuesto.py"]
+    with pytest.raises(SystemExit, match="agente/converse_adaptador.py.*no task is sent"):
+        LB.exigir_codigo(_paquete(viejo), CORR.corrida(LB), raiz)
+
+
+def test_solo_la_corrida_con_cache_revisa_el_codigo(LB):
+    assert LB.CORREGIDA.codigo_al_dia == ()
+    LB.exigir_codigo(b"", LB.CORREGIDA)   # no files to check: the zip is not even opened
+    c = CORR.corrida(LB)
+    assert c.codigo_al_dia == CORR.CODIGO_CACHE and "agente/converse_adaptador.py" in c.codigo_al_dia
+    assert all((LB.S19 / a).is_file() for a in c.codigo_al_dia)
 
 
 def test_el_tope_del_script_cuenta_los_tokens_de_cache(LB):

@@ -10,6 +10,8 @@ the 10 + 10 CI golden tasks through the public API with real Cognito tokens, the
 graders and the week 10 rule. What changes:
 - the deployed agent must run CACHE_PROMPT=historial (and the 0.12 USD / 100,000-token ceiling); nothing is sent
   otherwise;
+- the deployed agent code (Lambda GetFunction, its zip) must match the repository's for the files that implement the
+  cache (`CODIGO_CACHE`), so a stale package with the flag set cannot pass for a cache run; nothing is sent otherwise;
 - its own caps, over its own files (`resultados/cache/`);
 - the detail (`resultados/cache_detalle.jsonl`) has the corrected run's columns plus, per task, each model call's
   tokens (input, output, cache read and written), cost and duration, from the agent's chat spans;
@@ -41,6 +43,9 @@ COMPARACION = S20 / "resultados" / "cache_comparacion.json"
 TOPE_USD = 1.50
 TOPE_TOKENS = 2_200_000     # 22 tasks at the 100,000-token ceiling, counting cache tokens as tokens (eval_aws.tokens_de)
 COSTO_ESPERADO_TAREA = 0.0257   # prediction, optimistic scenario with the warm-up: 0.565418 USD / 22
+# The agent files the cache support changed (#356), relative to semana-19/: the deployed package must carry these bytes.
+CODIGO_CACHE = ("agente/converse_adaptador.py", "agente/modelo.py", "agente/presupuesto.py", "agente/handler.py",
+                "agente/exportador.py", "agente/construccion.py")
 
 
 def _cargar(nombre: str, ruta: Path):
@@ -143,7 +148,7 @@ def corrida(LB):
     return LB.Corrida(salida=SALIDA, detalle=DETALLE, tope_usd=TOPE_USD, tope_tokens=TOPE_TOKENS,
                       costo_esperado_tarea=COSTO_ESPERADO_TAREA,
                       exigir={"PRESUPUESTO_TAREA": LB.PRESUPUESTO, "CACHE_PROMPT": "historial"},
-                      columnas_detalle=columnas)
+                      columnas_detalle=columnas, codigo_al_dia=CODIGO_CACHE)
 
 
 # ---------------------------------------------------------------- CLI
