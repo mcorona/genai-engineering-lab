@@ -2,7 +2,7 @@
 
 Each row: concept → the activity → where the lab shows it → its evidence. Status: **measured**, **documented** (with a link), **partial**, **fails** or **pending**; nothing is marked without its evidence. Domains and weights are the exam guide's ([AIP-C01 exam guide](https://docs.aws.amazon.com/aws-certification/latest/ai-professional-01/ai-professional-01.html)).
 
-## D1: Foundation model integration, data management and compliance (31 %)
+## D1: Foundation model integration, data management and compliance (31%)
 
 11 concepts.
 
@@ -20,7 +20,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | Bedrock Agents with the same tools as an action group, as a comparison | 7 | stack `semana19-agentes-comparacion` (#253), its offline tests | `agentes.md`: `CreateAgent` refused by the service ("Maintenance Mode ... accounts without prior service usage"); nothing measured | fails (AWS restriction on the account) |
 | Which week 13 to 17 controls survive each orchestration option | 7 | `agentes.md`, "What survives on each path" | (a) and (b) keep budgets, deterministic layer and spans; (c) from the design: loses them | documented (c from the design) |
 
-## D2: Implementation and integration (26 %)
+## D2: Implementation and integration (26%)
 
 11 concepts.
 
@@ -38,7 +38,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | A deploy and teardown runbook with measured times | 10 | `semana-19/README.md` | `tiempos_despliegue.jsonl`, `base.md` | measured |
 | Verifiable exit criteria: each part of criterion 19 linked to its evidence | 10 | root `README.md`, `docs/exit-criteria.md` | 8 parts, each with its evidence file: 6 met; KMS at rest partial (H10, H14); the mini eval in regression, 9/20 | done 2026-11-23 |
 
-## D3: AI safety, security and governance (20 %)
+## D3: AI safety, security and governance (20%)
 
 27 concepts.
 
@@ -48,14 +48,14 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | Budgets with alerts at actual and forecast thresholds | 1 | `infra/presupuesto.py`, deployed in `semana19-control` (activity 3) | the production budget `semana19` read 4.953 USD of gross spend (`seguridad.md`, step 4.5); its action was tested live in activity 9 | measured 2026-11-22 |
 | Least-privilege readiness: named admin and operator profiles, no access keys | 1 | `preparar/verificar_entorno.py` | activity 1: admin and operator were one identity (`linea_base.md` §7); activity 3 added the read-only role `semana19-lectura` and the deploy role `semana19-despliegue` (`base.md`) | measured (fixed in activity 3) |
 | Tag-based resource inventory and a teardown proof | 1 | `infra/inventario.py` (Tagging API plus name prefix) | `"quedan": "nada"` from the Mac run | measured 2026-11-12 |
-| KMS key pending deletion billing | 1 | KMS pricing doc (no es artículo del catálogo) | `resultados/linea_base.md` §3 (D con enlace) | documented |
+| KMS key pending deletion billing | 1 | KMS pricing page (not a catalog item) | `resultados/linea_base.md` §3 (D, with a link) | documented |
 | KMS key policy vs IAM policy: the key policy must allow the principal even if IAM does; roles named, root delegates with `kms:*` | 3 | `infra/cdk/app.py` (`Base`, key policy), `infra/cdk/excepciones.py` (RaizDeLaCuenta) | `test_infra_cdk.py` (no open principal; roles named) | synth tested, not deployed |
 | `kms:ViaService` / encryption context for a service principal (CloudWatch Logs) | 3 | `LogsDelProyectoConLaLlave` (ArnLike on `kms:EncryptionContext:aws:logs:arn`) | test on the EncryptionContext condition | synth tested |
-| Permission boundary and delegation of role creation (`iam:CreateRole` only with the boundary) | 3 | `politica_limite`, `politica_ejecucion_cfn`, `Despliegue` | `test_todo_rol_creado_por_los_stacks_tiene_el_limite`, `test_despliegue_crea_roles_solo_con_limite` | synth tested |
+| Permissions boundary and delegation of role creation (`iam:CreateRole` only with the boundary) | 3 | `politica_limite`, `politica_ejecucion_cfn`, `Despliegue` | `test_todo_rol_creado_por_los_stacks_tiene_el_limite`, `test_despliegue_crea_roles_solo_con_limite` | synth tested |
 | Gateway endpoint (S3, route tables, no hourly charge) vs interface endpoint (ENI per AZ, hourly and per GB) | 3 | `Base` (`EndpointS3`, `EndpointLogs`, `EndpointStepFunctions`) | ADR 0005 and 0006, `test_endpoints_son_exactamente_los_del_adr_0005` | synth tested |
 | Endpoint policy limited by `aws:PrincipalAccount` | 3 | `politica_cuenta` in `Base` | `test_endpoints_limitados_a_la_cuenta` | synth tested |
 | VPC flow logs to an encrypted group with short retention | 3 | `GrupoFlowLogs`, `FlujosDeLaRed` | `test_flow_logs_con_retencion_del_perfil` | synth tested |
-| Budget action (APPLY_IAM_POLICY at 100 %) and why it must not block deletes | 3 | `AccionPresupuesto`, `CREAR_Y_ACTUALIZAR` | `test_la_congelacion_no_bloquea_borrar` | synth tested; limitation (bootstrap roles) in `resultados/base.md` |
+| Budget action (APPLY_IAM_POLICY at 100%) and why it must not block deletes | 3 | `AccionPresupuesto`, `CREAR_Y_ACTUALIZAR` | `test_la_congelacion_no_bloquea_borrar` | synth tested; limitation (bootstrap roles) in `resultados/base.md` |
 | Cost Anomaly Detection (not deployed: its price is N) | 3 | not in the stack | `test_sin_monitor_de_anomalias_hasta_confirmar_su_precio` | price N |
 | Log retention in every group | 3 | `RetencionDeLogs` aspect | `test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion` | tested |
 | Bedrock Guardrail as code against a deterministic layer on the same inputs | 5 | `guardrail/comparar_determinista.py`, stack `semana19-ia` | `resultados/comparacion_determinista.json`: 20 golden inputs, 0 blocked by either; 4 attacks, the Guardrail intervened on 1, the deterministic layer blocked 3 (2 tool-definition injections the Guardrail let through) | measured 2026-11-15 |
@@ -72,7 +72,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | Budget action that applies an IAM deny policy, and why it must count gross spend | 9 | `seguridad/prueba_accion_presupuesto.py` (#311, #312) | EXECUTION_SUCCESS: deny policy attached to the test role; the first budget, net of credits, read 0.0 USD and never fired | measured 2026-11-22 |
 | Cost of a security review, read back by service and record type | 9 | `seguridad/costo_actividad9.py` (#316) | about 0.73 USD of usage against an estimate of 0.52 nominal and 0.89 upper; the model line reconciles with the spans | measured 2026-11-23 |
 
-## D4: Operational efficiency and optimization (12 %)
+## D4: Operational efficiency and optimization (12%)
 
 9 concepts.
 
@@ -84,11 +84,11 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | Prompt caching on Converse needs a `cachePoint` | 8 | `agente/converse_adaptador.py` (cache tokens read, none sent) | 0 cache read and 0 cache write tokens on every task | fails (not used) |
 | Per-task token budget calibrated per model | 8 | `agente/construccion.py` (week 17's 46,000 tokens, Haiku 5.5) | 5 of 20 tasks stopped by it on Haiku 4.5 | fails |
 | Real cost per query from the bill, reconciled with the spans (other activities' runs on the same UTC day set apart) | 8 | `eval/costo_real.py` | `resultados/costo_real.md`: 0.030913 USD per task for the model alone, 0.038562 USD with every per-query line (upper bound), 57 tasks; the Haiku line minus activity 7's runs equals the spans to the cent | measured 2026-11-21 |
-| Quotation error and the model's correction, both versions kept | 8 | `costos/modelo.py --version v1/v2` | `cotizacion.md`: v1 −61.3 % per query (model part), v2 −0.1 %; per hour −10.3 % (lab), prod n/a | measured 2026-11-21 |
+| Quotation error and the model's correction, both versions kept | 8 | `costos/modelo.py --version v1/v2` | `cotizacion.md`: v1 −61.3% per query (model part), v2 −0.1%; per hour −10.3% (lab), prod n/a | measured 2026-11-21 |
 | Fixed per hour against per query, from the bill | 8 | `costo_real.FIJOS`, `FUERA` | 0.037562 USD per hour over 26.004 h; VPC above the model (3 interface endpoints, not 2), RDS below (cause not verified) | measured 2026-11-21 |
 | Real cost per query from Cost Explorer by the `proyecto` tag, against activity 2's model | 8 | `eval/costo_real.py` | `costo_real.md` (the row above: 0.030913 USD per task for the model, 0.038562 USD upper bound) | measured 2026-11-21 |
 
-## D5: Testing, validation and troubleshooting (11 %)
+## D5: Testing, validation and troubleshooting (11%)
 
 13 concepts.
 
@@ -106,7 +106,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | IaC tests in CI with no AWS: synth of every stack, cdk-nag, checkov, gitleaks, no skipped test | 10 | `.github/workflows/eval-semana-19.yml` (jobs `sin-aws`, `spike-iac`) | #318: 707 tests in `sin-aws` and 226 in `spike-iac` passed, 0 skipped; `supresiones.py` verdict ok | measured 2026-11-23 |
 | Offline IAM policy linting in CI, every finding classified with its reason | 10 | `seguridad/parliament_offline.py` (#318) | `resultados/seguridad/parliament.json`: 50 policies per profile, 150 findings, 0 unclassified | measured 2026-11-23 |
 | A test that the architecture diagram matches the synthesized resources, both ways | 10 | `tests/test_diagrama_vs_stack.py` (#318) | 22 nodes mapped, every component type drawn or listed with a reason; checked by mutation | measured 2026-11-23 |
-| Test coverage reported in CI | 10 | `sin-aws` with pytest-cov 7.1.0 | #318: total 53 %, `costos/modelo.py` 82 % | measured 2026-11-23 |
+| Test coverage reported in CI | 10 | `sin-aws` with pytest-cov 7.1.0 | #318: total 53%, `costos/modelo.py` 82% | measured 2026-11-23 |
 
 ## Gaps: what the exam guide asks and week 19 did not show
 

@@ -9,7 +9,7 @@ Two stacks per profile (`semana-19/infra/cdk/app.py`, profile values in `semana-
 
 | Stack | Persists | Contents | How it is deployed |
 |---|---|---|---|
-| `semana19-control` | yes, $0/h | boundary `semana19-limite`, freeze `semana19-congelar`, CDK execution policy `semana19-cfn-exec`, deploy role `semana19-despliegue`, budget `semana19` ($5, alerts ACTUAL 50 %, ACTUAL 100 %, FORECASTED 100 %), budget action (APPLY_IAM_POLICY at 100 % ACTUAL), role of the action. The Cost Anomaly monitor is **not** in the stack: its price is N (decision b, 2026-11-13) | `aws cloudformation deploy` (no assets, so no bootstrap needed) |
+| `semana19-control` | yes, $0/h | boundary `semana19-limite`, freeze `semana19-congelar`, CDK execution policy `semana19-cfn-exec`, deploy role `semana19-despliegue`, budget `semana19` ($5, alerts ACTUAL 50%, ACTUAL 100%, FORECASTED 100%), budget action (APPLY_IAM_POLICY at 100% ACTUAL), role of the action. The Cost Anomaly monitor is **not** in the stack: its price is N (decision b, 2026-11-13) | `aws cloudformation deploy` (no assets, so no bootstrap needed) |
 | `semana19-base` | no, per session | KMS key `alias/semana19` (rotation on), VPC (2 private isolated subnets in lab, 3 in prod, no IGW, no NAT, default SG restricted), S3 gateway endpoint, interface endpoints CloudWatch Logs and Step Functions (ADR 0005) in 1 AZ in lab and 3 in prod (ADR 0006), security groups (tools Lambda SG empty; endpoint SG 443 only from it), VPC flow logs to an encrypted group (1 day in lab, 365 in prod), flow-log role | `cdk deploy` with the `s19` qualifier after the bootstrap |
 | bootstrap `semana19-cdktoolkit` | no | CDK bootstrap, qualifier `s19`, execution policy `semana19-cfn-exec` (not AdministratorAccess), trust only `semana19-despliegue` | `cdk bootstrap` with the admin profile |
 
@@ -26,7 +26,7 @@ that control created) → base (CDK, through the deploy role).
 
 ## Freeze (option B, chosen by Manuel 2026-11-13)
 
-The budget action at 100 % attaches `semana19-congelar` (create and update denied, delete allowed) to:
+The budget action at 100% attaches `semana19-congelar` (create and update denied, delete allowed) to:
 
 - `semana19-despliegue` always;
 - `cdk-s19-deploy-role-<account>-us-east-1` and `cdk-s19-cfn-exec-role-<account>-us-east-1` **when the parameter
@@ -48,7 +48,7 @@ in the freeze). To deploy again, detach the policy from the roles in the IAM con
   retention; the key has rotation and a window of 7 (lab) or 30 (prod); no key policy with an open principal;
   endpoints are exactly the two interface and one gateway of ADR 0005, with 1 AZ in lab and 3 in prod; endpoints limited
   to the account; the endpoint group accepts 443 only from the tools SG; no NAT, no IGW, no public subnets; the freeze
-  does not deny any delete action; the budget action targets only the deploy role at 100 %; no account ID, no email in
+  does not deny any delete action; the budget action targets only the deploy role at 100%; no account ID, no email in
   any template; a snapshot of the lab synth.
 - `semana-19/tests/test_infra_scripts` (inside test_infra_cdk.py): `desplegar.sh` and `destruir.sh` without `--si` do
   not call `aws` or `cdk` (fake binaries in PATH that fail and leave a marker); `--si` without `ALERTA_EMAIL` stops
@@ -182,13 +182,13 @@ bootstrap exists. It denies create and update, not delete, so the teardown still
 - `Estimated: true`: the 2026-11-13 figure is still not closed. It matches the two earlier calls, so it stays
   preliminary. Real cost of the activity is the Price List estimate above, not this value.
 
-### Decisiones de cierre de la actividad 3 (2026-11-14)
+### Closing decisions for activity 3 (2026-11-14)
 
-- **Cost Anomaly Detection: descartado.** Decisión de Manuel. Su precio quedó en N (no medible desde el Price List
-  API), así que no se implementa. Se registra como excepción de la viñeta de gasto; no es un faltante.
-- **Endpoints con 443 solo desde el SG de la Lambda: se cierra en la actividad 6.** El SG de la Lambda del agente se
-  crea en esa actividad; hasta entonces el origen de los endpoints es `SgHerramientas`, como está en la cuenta.
-- **Tiempo de borrado en vivo:** el script ya registra `destruir-base` y `destruir-base-retenido`. La medición real
-  queda pendiente de un teardown autorizado con su despliegue previo.
-- **Costo real de Cost Explorer del 13 de noviembre:** sigue `Estimated: true`; pendiente de cierre de datos y de una
-  consulta nueva autorizada.
+- **Cost Anomaly Detection: dropped.** Manuel's decision. Its price is marked N (not measurable from the Price List
+  API), so it is not implemented. It is recorded as an exception to the spending item, not as a gap.
+- **Endpoints with 443 only from the Lambda's security group: closed in activity 6.** The agent Lambda's security group
+  is created in that activity; until then, the endpoints' source is `SgHerramientas`, as deployed in the account.
+- **Live teardown time:** the script already records `destruir-base` and `destruir-base-retenido`. The real
+  measurement waits for an authorized teardown, after its deployment.
+- **Real Cost Explorer cost for November 13:** still `Estimated: true`; it waits for the data to close and for a new
+  authorized query.

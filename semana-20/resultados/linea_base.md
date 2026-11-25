@@ -110,7 +110,7 @@ Files:
 
 | | Week 19 (activity 8) | Corrected run |
 |---|---|---|
-| Success | 9/20 | **16/20** (Wilson 95 % [0.584, 0.919]) |
+| Success | 9/20 | **16/20** (Wilson 95% [0.584, 0.919]) |
 | Spanish / English | 7/10 / 2/10 | 8/10 / 8/10 |
 | Cut by the per-task budget | 5 | **0** |
 | Not run (the script's cap) | 3 | 0 |
@@ -142,7 +142,7 @@ All four fail on model quality.
 | Cache read and write | 0 and 0 (no `cachePoint`, as decided) |
 
 **The cap from here on:**
-- Week 20 keeps the ceiling (`techo_semana20`, 0.12 USD and 100,000 tokens) as its operating cap. It is 5 % above the most expensive successful task.
+- Week 20 keeps the ceiling (`techo_semana20`, 0.12 USD and 100,000 tokens) as its operating cap. It is 5% above the most expensive successful task.
 - No new calibrated value is written yet. Week 17 took the p99 of 252 runs, and 20 tasks give no p99: their maximum would be a made-up percentile.
 - Activity 9, the optimized run, calibrates it on its own repeated runs, with caching on.
 
@@ -177,7 +177,7 @@ One caveat: the warm-up task s02-es has incomplete spans (21 of 22 complete). It
 
 | Item | Value | Source |
 |---|---|---|
-| Discount | 50 %: Haiku 4.5 regional batch 0.55 and 2.75 (8GAKPXRDT9CSGWEC, E56Y3URFEMX4ZGDC); Nova Micro 0.0000175 and 0.00007 per 1K; Nova Pro 0.0004 and 0.0016 per 1K | M |
+| Discount | 50%: Haiku 4.5 regional batch 0.55 and 2.75 (8GAKPXRDT9CSGWEC, E56Y3URFEMX4ZGDC); Nova Micro 0.0000175 and 0.00007 per 1K; Nova Pro 0.0004 and 0.0016 per 1K | M |
 | Records per job | minimum 100, maximum 100,000 (Haiku 4.5, Nova Micro, Lite, 2 Lite and Pro) | M, Service Quotas (`cuotas.lote`) |
 | Size | 5 GB per job for Haiku 4.5 and Nova Micro (100 GB for Nova Lite and Pro); 1 GB per file | M |
 | Jobs in progress | 100 per model | M |
@@ -199,7 +199,7 @@ Neither job may use tools, which fits both.
   - Anthropic (Claude 3 Haiku and Claude 3.5 Sonnet);
   - Meta (Llama 3.1 8B and 70B).
 - **None includes Haiku 4.5**, the model LegacyBridge runs. A configured router takes two models of one family (D, [prompt-routing](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-routing.html)). The page lists only Nova and Llama models for configured routers.
-- The page says routing is "only optimized for English prompts", and half the golden set is Spanish. It states no price (N).
+- The page says routing is "only optimized for English prompts", and half the gold set is Spanish. It states no price (N).
 - **For activity 4:** R2 can only be the Nova router (Lite → Pro). That swaps the agent's model family, so it is measured as such, or documented and not built. Activity 4 decides with the R1 numbers.
 
 ### 4.4 Routing candidates
