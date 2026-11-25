@@ -6,7 +6,11 @@ cd "$(git rev-parse --show-toplevel)"
 PATRON='(AKIA|ASIA)[0-9A-Z]{16}|aws_secret_access_key *= *[A-Za-z0-9/+]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"private_key_id": *"[0-9a-f]{20,}|AIza[0-9A-Za-z_-]{35}|sk-ant-[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}'
 # Fake keys used on purpose by the tests of weeks 16 and 17 (canaries that the redaction and the hooks must catch).
 # They are exact values: a real key never matches them.
+# The AWS documentation's example keys and a placeholder key, as they appear in the vendored boto3/botocore docs and in
+# week 19's guardrail test. Exact values too: AWS never issues a key ending in EXAMPLE.
 PERMITIDOS='sk-ant-simulado-sin-red-0000000000000000|sk-ant-api03-CANARIOABCDEFGH|sk-ant-api03-valor-de-prueba-123|sk-ant-canario1234567890'
+PERMITIDOS+='|AKIAIOSFODNN7EXAMPLE|AKIAI44QH8DHBEXAMPLE|AKIA111111111EXAMPLE|AKIA222222222EXAMPLE'
+PERMITIDOS+='|-----BEGIN DSA PRIVATE KEY-----<a very long private key string>'
 HALLAZGOS=$( { git ls-files; git ls-files --others --exclude-standard; } | grep -v -E '\.(png|jpg|jpeg|pdf|gif)$' | \
   xargs -I{} grep -I -n -E "$PATRON" {} /dev/null 2>/dev/null | grep -v "revisar_secretos.sh" | \
   while IFS= read -r linea; do
