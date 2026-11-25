@@ -1,5 +1,7 @@
 # Week 18: LegacyBridge v1 and the close of Phase 4
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 **Status: in progress.** Activities 1, 2 and 6 are merged. The release gate, the demo, the video, the whiteboard rehearsals, the final whiteboard design and CCAR-P (activities 3 to 5 and 7 to 10) are pending, so exit criterion 18 is not verified yet ([exit criteria](../docs/exit-criteria.md#phase-4-exit-criteria)).
 
 Weeks 13 to 17 built the pieces of LegacyBridge and measured each one. A client buys the whole: one thing that installs, runs, is safe by construction, and can be shown in three minutes and drawn on a whiteboard in thirty. LegacyBridge v1 adds no new capabilities. It puts the measured pieces behind **one bring-up** and **one entry point**, freezes a version, and proves it with **one gate**.

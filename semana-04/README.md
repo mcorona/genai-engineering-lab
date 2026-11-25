@@ -1,5 +1,7 @@
 # Week 4: inference — quantization, latency and cost
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Practice: a benchmark of the same set of queries on a local quantized model and on an API, measuring latency, throughput and cost.
 
 ## Status

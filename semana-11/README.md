@@ -1,5 +1,7 @@
 # Week 11: RAG evaluation (recall@k, faithfulness, answer relevance with RAGAS; cost per query)
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Status: closed (2026-10-27). Phase 3 criterion 10 verified.
 
 Goal: evaluate retrieval and generation with separate suites, so a regression can be traced to the stage that caused it, and check that each metric detects known failures before relying on it.

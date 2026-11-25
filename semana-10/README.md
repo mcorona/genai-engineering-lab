@@ -1,5 +1,7 @@
 # Week 10: structured data and documents (text-to-SQL on a legacy schema, PDF tables, OCR, images, integrated assistant)
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 Goal: integrate NLQ-Inventory (week 7) and document RAG (weeks 8 and 9) into one assistant, and measure each new piece (legacy schema, PDFs, OCR, images, routing) against a baseline before adding it.
 Prices come from the official Anthropic pricing page (`semana-07/prices.json`, checked 2026-10-26): Haiku 5.5 $0.10 / $0.50 and Sonnet 5.5 $2 / $10 per million tokens. Every figure links to a results file in `resultados/`.
 

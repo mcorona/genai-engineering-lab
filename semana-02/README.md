@@ -1,5 +1,7 @@
 # Week 2: tokens and response variability
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 A Phase 1 practice: how many tokens the same text costs in Spanish and in English, and how much a model's response varies with `temperature` and `top_p`.
 
 ## Files

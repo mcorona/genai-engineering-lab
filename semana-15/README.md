@@ -1,5 +1,7 @@
 # Week 15: the same agent in four frameworks, multi-agent with A2A, and a decision matrix for clients
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 **Result:** the week 13 agent (same prompt, model, tools, output contract and limits) was rebuilt in **LangGraph** and **Strands Agents**, and as spikes in the **OpenAI Agents SDK** and **Google ADK**. All of them reach the same quality.
 - **LangGraph and Strands:** 0.900 and 0.900 on 40 tasks, with identical failures; **38/38** poisoning cases in each through an MCP gateway.
 - **Spikes and own loop:** 0.950–1.000 on 20 tasks for the spikes and the own loop.

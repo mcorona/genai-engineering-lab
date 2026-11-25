@@ -1,5 +1,7 @@
 # Week 4: distillation and DPO (extra practice)
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../../docs/glossary.md). The documentation is in English.
+
 Fine-tuning a small model on the answers of a large one (distillation) and on preferences between answers (DPO), using the same legacy schema and the same evaluation as week 3.
 
 ## Design

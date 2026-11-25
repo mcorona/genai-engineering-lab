@@ -1,5 +1,7 @@
 # Week 16: a reusable plugin for clients, with its own eval
 
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+
 **Outcome.** The work of weeks 10 to 15 (reading a legacy schema with cryptic names, inferring relationships and
 rules, finding risks, read-only) becomes a Claude Code plugin that a client can install:
 [`legacy-schema-audit`](legacy-schema-audit/README.md) 1.0.0, published in this repo's marketplace. Its quality,
