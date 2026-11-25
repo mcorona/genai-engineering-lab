@@ -201,7 +201,9 @@ def test_a_readme_describes_every_file_in_its_folder(doc):
     folder = base(doc)
     inside = [f for f in tracked() if f.startswith(folder + "/") and f != doc]
     covered = set(covered_files(doc))
-    assert not [f for f in inside if f not in covered], f"{doc}: files not described"
+    missing = [f for f in inside if f not in covered]
+    assert not missing, (f"{doc}: these files are not described; add a row (or a pattern) for them to its `## Files` "
+                         f"table: {missing}")
 
 
 @pytest.mark.parametrize("doc", DOCS)

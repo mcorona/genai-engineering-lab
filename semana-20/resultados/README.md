@@ -32,6 +32,7 @@ Script paths are relative to `semana-20/`.
 | `atribucion/emf.json` | Activity 2: the sums of the `LegacyBridge` EMF metrics over the run's window | `atribucion/corrida.py --metricas` |
 | `atribucion/cost_explorer.json` | Activity 2: the Cost Explorer query, grouped by the `componente` tag, and its result | `atribucion/corrida.py --cost-explorer` |
 | `cache_medicion.json` | Activity 3: the offline measurement ($0) of the cacheable prompt prefix, per task of the corrected run. Token counts are estimated from characters, with a characters-per-token ratio fitted to each task's real input tokens | `cache/medir.py` / `tests/test_cache_medicion.py` |
+| `cache_prediccion.json` | Activity 3: the caching prediction (quote v3), written and committed before the live run so the run can be scored against it | `cache/prediccion.py` / `cache/corrida.py`, `tests/test_cache_prediccion.py`, [cache.md](cache.md) |
 
 ## Keys
 
