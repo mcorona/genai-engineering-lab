@@ -482,3 +482,12 @@ README (last).
 - 2026-11-25: activity 2 closed. One Cost Explorer call (`GetCostAndUsage` for 2026-11-24, 0.01 USD, Manuel's OK):
   `componente=agente` is 0.0985182 USD, the same as the spans and EMF. The day's total for `proyecto=semana19` is
   0.1802167 USD, the rest being the stacks' hours (`resultados/atribucion.md` §4).
+- 2026-11-25: activity 3, offline part ($0).
+  - The fixed prefix is 2,664 tokens (2,898 at the upper bound), under Haiku 4.5's 4,096: a point on the system prompt
+    or the tools caches nothing.
+  - Design (ADR 0014): the point goes at the end of the history from the second call on, plus the previous call's
+    position, with a 5-minute TTL, off by default (`CACHE_PROMPT`). The budget, the span cost and EMF count the
+    cache tokens at their prices, and one chat span per call records them.
+  - Prediction, committed before the run: 45.0% saving if every call reads (0.511 USD for the 20 tasks), 3.9% at a
+    1/3 hit rate, −16.7% if none does; break-even at 0.27 (`resultados/cache.md`).
+  - The run waits for Manuel's OK.
