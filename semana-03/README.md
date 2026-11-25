@@ -36,7 +36,7 @@ The LoRA run with lr 1e-4 diverged to NaN from about iteration 40. It was discar
 
 - **Executes:** the query runs in PostgreSQL without an error.
 - **Result match:** the returned rows equal those of the reference. Order is ignored, and the comparison normalizes amounts with `$` and commas, decimal commas, and codes with leading zeros treated as text. This is the primary metric.
-- **SQL exact match:** reported, but very low (0 to 9 %) because many queries are equivalent. It is not used for the decision.
+- **SQL exact match:** reported, but very low (0 to 9%) because many queries are equivalent. It is not used for the decision.
 - **Confidence interval:** 95% Wilson interval (`estadistica.py`).
 - **Paired comparison:** exact McNemar test on the same 46 pairs.
 
@@ -46,12 +46,12 @@ Evaluation set: 46 pairs. Primary metric: result match.
 
 | Method | Executes | Result match [95% CI] |
 |---|---|---|
-| Qwen3.8-27B base | 73.9 % | 45.7 % [32.2, 59.8] |
-| Qwen3.8-27B + rules in the prompt | 69.6 % | **50.0 %** [36.1, 63.9] |
-| Qwen3.8-27B + RAG-lite | 58.7 % | 41.3 % [28.3, 55.7] |
-| Qwen2.5-Coder-7B base | 80.4 % | 37.0 % [24.5, 51.4] |
-| Qwen2.5-Coder-7B + LoRA v1 | 84.8 % | 37.0 % [24.5, 51.4] |
-| Qwen2.5-Coder-7B + rules in the prompt | 54.3 % | 28.3 % [17.3, 42.5] |
+| Qwen3.8-27B base | 73.9% | 45.7% [32.2, 59.8] |
+| Qwen3.8-27B + rules in the prompt | 69.6% | **50.0%** [36.1, 63.9] |
+| Qwen3.8-27B + RAG-lite | 58.7% | 41.3% [28.3, 55.7] |
+| Qwen2.5-Coder-7B base | 80.4% | 37.0% [24.5, 51.4] |
+| Qwen2.5-Coder-7B + LoRA v1 | 84.8% | 37.0% [24.5, 51.4] |
+| Qwen2.5-Coder-7B + rules in the prompt | 54.3% | 28.3% [17.3, 42.5] |
 
 Paired tests (McNemar, result match):
 
@@ -69,19 +69,19 @@ The same 46 evaluation pairs and the same metric. Each change is measured agains
 
 | Metric | Before: 7B base | After: 7B + LoRA v1 | Change |
 |---|---|---|---|
-| Executes | 80.4 % (37/46) | 84.8 % (39/46) | +2 cases |
-| Result match | 37.0 % (17/46) | 37.0 % (17/46) | 0 |
-| Exact match (SQL) | 0.0 % | 0.0 % | 0 |
+| Executes | 80.4% (37/46) | 84.8% (39/46) | +2 cases |
+| Result match | 37.0% (17/46) | 37.0% (17/46) | 0 |
+| Exact match (SQL) | 0.0% | 0.0% | 0 |
 
-The same 17 cases are right before and after (McNemar p = 1.000). Fine-tuning changes the syntax, not the result.
+The model gets the same 17 cases right before and after (McNemar p = 1.000). Fine-tuning changes the syntax, not the result.
 
 **Prompt with rules, on the 27B model**
 
 | Metric | Before: 27B base | After: 27B + rules | Change |
 |---|---|---|---|
-| Executes | 73.9 % (34/46) | 69.6 % (32/46) | −2 cases |
-| Result match | 45.7 % (21/46) | 50.0 % (23/46) | +2 cases |
-| Exact match (SQL) | 0.0 % | 0.0 % | 0 |
+| Executes | 73.9% (34/46) | 69.6% (32/46) | −2 cases |
+| Result match | 45.7% (21/46) | 50.0% (23/46) | +2 cases |
+| Exact match (SQL) | 0.0% | 0.0% | 0 |
 
 The change is not significant (McNemar p = 0.774). The rules improve the result without improving the syntax.
 
@@ -89,9 +89,9 @@ The change is not significant (McNemar p = 0.774). The rules improve the result 
 
 | Metric | Before: 27B base | After: 27B + RAG-lite | Change |
 |---|---|---|---|
-| Executes | 73.9 % (34/46) | 58.7 % (27/46) | −7 cases |
-| Result match | 45.7 % (21/46) | 41.3 % (19/46) | −2 cases |
-| Exact match (SQL) | 0.0 % | 6.5 % (3/46) | +3 cases |
+| Executes | 73.9% (34/46) | 58.7% (27/46) | −7 cases |
+| Result match | 45.7% (21/46) | 41.3% (19/46) | −2 cases |
+| Exact match (SQL) | 0.0% | 6.5% (3/46) | +3 cases |
 
 Exact match rises only with RAG, but the result match drops: a sign that the model writes different SQL without getting the content right. Not adopted.
 
@@ -99,25 +99,25 @@ Exact match rises only with RAG, but the result match drops: a sign that the mod
 
 | Metric | Before: 7B base | After: 7B + rules | Change |
 |---|---|---|---|
-| Executes | 80.4 % (37/46) | 54.3 % (25/46) | −12 cases |
-| Result match | 37.0 % (17/46) | 28.3 % (13/46) | −4 cases |
-| Exact match (SQL) | 0.0 % | 8.7 % (4/46) | +4 cases |
+| Executes | 80.4% (37/46) | 54.3% (25/46) | −12 cases |
+| Result match | 37.0% (17/46) | 28.3% (13/46) | −4 cases |
+| Exact match (SQL) | 0.0% | 8.7% (4/46) | +4 cases |
 
 A long prompt confuses the 7B model: it copies SQL fragments from the rules, which shows in both execution and result match.
 
 ## Reading the results
 
-- **LoRA v1 learns the format, not the rules.** It executes more often (80.4 % to 84.8 %) but gets exactly the same cases right as the base model.
-- **The rules in the prompt make the 7B model worse.** It executes 54 % of the time: it copies SQL fragments from the rules (for example `COUNT(DISTINCT ON ...)`) and invents columns. A long prompt with fragments confuses this model.
-- **The 27B model with the rules in the prompt is the best method measured** (50.0 %), but its difference from the 27B base (45.7 %) is not significant.
-- **RAG-lite does not improve on the base** (41.3 %). Selecting rules by keyword loses context that the model does use when it receives all of them.
+- **LoRA v1 learns the format, not the rules.** It executes more often (80.4% to 84.8%) but gets exactly the same cases right as the base model.
+- **The rules in the prompt make the 7B model worse.** Only 54% of its queries execute: it copies SQL fragments from the rules (for example `COUNT(DISTINCT ON ...)`) and invents columns. A long prompt with fragments confuses this model.
+- **The 27B model with the rules in the prompt is the best method measured** (50.0%), but its difference from the 27B base (45.7%) is not significant.
+- **RAG-lite does not improve on the base** (41.3%). Selecting rules by keyword loses context that the model does use when it receives all of them.
 - **The rules in the prompt help the 27B model and hurt the 7B model.** The large model uses them; the small one copies SQL fragments and makes mistakes.
 
 ## Decision
 
 **Do not fine-tune.** For this schema and this model, the prompt is enough.
 
-- The 27B model with all the rules in the prompt matches and slightly exceeds the base (50.0 % vs. 45.7 %). No difference is significant, but the prompt does not make the result worse.
+- The 27B model with all the rules in the prompt matches and slightly exceeds the base (50.0% vs. 45.7%). No difference is significant, but the prompt does not make the result worse.
 - LoRA v1 does not improve the result match on the 7B model: it gets the same cases right as the 7B base.
 - RAG-lite is not enough: it falls below the full rules (p = 0.344) and does not improve on the base.
 

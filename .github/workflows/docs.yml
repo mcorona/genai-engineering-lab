@@ -1,7 +1,8 @@
 name: docs
 
 # English documentation checks: offline, $0 (no model, no cloud). The glossary is linked from every README that uses
-# its terms, and the root README's index lists every week (docs/tests).
+# its terms, the root README's index lists every week (docs/tests), and every file the PR changes keeps its figures
+# (docs/check_figures.py: a translation never changes a number).
 on:
   pull_request:
     paths:
@@ -18,6 +19,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.13"
@@ -25,3 +28,5 @@ jobs:
         run: pip install pytest==9.2.0
       - name: Documentation tests
         run: python -m pytest -q -p no:cacheprovider docs/tests
+      - name: Figures check
+        run: python docs/check_figures.py --base origin/${{ github.base_ref }}

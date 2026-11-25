@@ -6,7 +6,7 @@ Fine-tuning a small model on the answers of a large one (distillation) and on pr
 
 ## Design
 
-- **Teacher:** Qwen3.8-27B with the business rules in the prompt. It is the best method measured in week 3 (a 50.0 % result match).
+- **Teacher:** Qwen3.8-27B with the business rules in the prompt. It is the best method measured in week 3 (a 50.0% result match).
 - **Student:** Qwen2.5-Coder-7B, without rules in the prompt.
 - **Training data:** only `semana-03/data/lora/train.jsonl` (157 questions). The evaluation set (`pares_eval.jsonl`, 46 pairs) enters no step.
 
@@ -20,8 +20,8 @@ This tests context distillation: whether the student learns to apply the rules w
    - `dpo/train.jsonl`: prompt -> `chosen` (the reference SQL) and `rejected` (the teacher's SQL), only where it was wrong.
 3. Training:
    - Distillation: LoRA with mlx-lm on `destilacion/`, as in week 3.
-   - DPO: pending confirmation of the format that the installed version of `mlx-lm` accepts.
-4. Evaluation: the distilled student and the DPO student are run with `evaluar_sql.py` on `pares_eval.jsonl`, and compared with the 7B base and the 27B model with rules using `estadistica.py`.
+   - DPO: not trained; see [Decision on DPO](#decision-on-dpo).
+4. Evaluation: the distilled student runs with `evaluar_sql.py` on `pares_eval.jsonl` and is compared with the 7B base and the 27B model with rules using `estadistica.py`.
 
 ## How to run it
 
@@ -42,12 +42,12 @@ The same 46 evaluation pairs as week 3 (no rules in the prompt).
 
 | Method | Executes | Result match [95% CI] |
 |---|---|---|
-| 7B base | 80.4 % | 37.0 % [24.5, 51.4] |
-| 7B + LoRA v1 (week 3) | 84.8 % | 37.0 % [24.5, 51.4] |
-| 7B + distillation (checkpoint 150) | 84.8 % | 37.0 % [24.5, 51.4] |
-| 27B + rules in the prompt (teacher) | 69.6 % | 50.0 % [36.1, 63.9] |
+| 7B base | 80.4% | 37.0% [24.5, 51.4] |
+| 7B + LoRA v1 (week 3) | 84.8% | 37.0% [24.5, 51.4] |
+| 7B + distillation (checkpoint 150) | 84.8% | 37.0% [24.5, 51.4] |
+| 27B + rules in the prompt (teacher) | 69.6% | 50.0% [36.1, 63.9] |
 
-- Distillation vs. the 7B base: the same 46 cases are right, McNemar p = 1.000. The adapter does change the SQL in 14 of 46 answers, but none of the changes alters a correct result.
+- Distillation vs. the 7B base: both get the same 46 cases right or wrong, McNemar p = 1.000. The adapter does change the SQL in 14 of 46 answers, but none of the changes alters a correct result.
 - The student did not learn the rules that the teacher does apply. With 95 training examples, the adapter learns the format, as LoRA v1 did.
 
 Issues in the run:
@@ -60,7 +60,7 @@ Decision: the distillation adapter is not used. The week 3 rule stands: if the p
 
 ## Decision on DPO
 
-**DPO is not trained in this week.** Reason: the installed `mlx_lm.lora` CLI has no DPO mode, and writing a custom training loop is out of scope for the week.
+**DPO was not trained this week.** Reason: the installed `mlx_lm.lora` CLI has no DPO mode, and writing a custom training loop is out of scope for the week.
 
 - What is done: the preference dataset `dpo/train.jsonl` (42 pairs; `chosen` = the reference SQL, `rejected` = the teacher's SQL where it was wrong).
 - What is missing to use it: a framework with DPO (for example, Hugging Face TRL) running on a GPU or in a supported environment. It remains future work.

@@ -10,7 +10,7 @@ Practice: a benchmark of the same set of queries on a local quantized model and 
 - [x] A set of 50 queries (`consultas.jsonl`): 10 coding, 10 writing, 10 reasoning, 10 business and 10 technical-explanation queries. **Generated for this practice; it is not the query set of Cascada** (the author's separate LLM-routing project), so the results are not comparable with that benchmark.
 - [x] Local run (Qwen3.8-27B in MLX format, quantized to 4 bits, in LM Studio), 8192 tokens: `resultados/semana4_local_8k_*`.
 - [x] API run (Claude Haiku 5.5), 8192 tokens: `resultados/semana4_api_*`.
-- [x] Distillation (extra practice): trained and evaluated. The distilled 7B model reaches a 37.0 % result match, the same as the 7B base. No gain. See `entrenamiento/README.md`.
+- [x] Distillation (extra practice): trained and evaluated. The distilled 7B model reaches a 37.0% result match, the same as the 7B base. No gain. See `entrenamiento/README.md`.
 - [x] DPO (extra practice): not run. The installed `mlx-lm` CLI has no DPO mode. The 42-pair dataset is kept for a framework that supports it. See `entrenamiento/README.md`.
 
 ## Targets
@@ -38,13 +38,13 @@ The same 50 queries, `--max-tokens 8192` on both targets, temperature 0 locally 
 Reading the results:
 
 - The API is about 13 times faster at p50, about 12 times faster at p95, and about 8 times faster in tokens per second.
-- The local model spends more tokens per answer because the 27B model reasons before it answers. Those reasoning tokens count in `tokens_salida`, so the time per visible answer differs from what the table shows.
+- The local model spends more tokens per answer because the 27B model reasons before it answers. Those reasoning tokens count in `tokens_salida`, so the table does not show the latency per visible answer.
 - The local cost is zero in the script, but electricity and hardware are not accounted for.
 
 Limitations:
 
 - **This benchmark measures speed and cost, not quality.** The correctness of the answers was not evaluated; that was already measured in week 3 with SQL.
-- The 50-query set is generated; it is not Cascada's set.
+- The 50-query set was generated for this practice; it is not Cascada's set.
 - One attempt per query; there are no repetitions or intervals.
 
 Discarded runs, kept for traceability:
