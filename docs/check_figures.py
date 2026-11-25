@@ -5,6 +5,8 @@ For each text file that the branch changes (and that exists on both sides), it e
 `1,815`, `$0.00033`, `2026-11-24`, `9/20`, `p50`…) as a multiset and compares the base version with the new one.
 Any number that disappears or appears fails the check, with the file and the numbers. New files and binary files
 are skipped, and so are the paths in EXEMPT. A translation keeps every figure, so an English rewrite of a sentence must keep its numbers too.
+In CI (`.github/workflows/docs.yml`) the check is skipped for a PR labeled `cifras-nuevas`: one whose new figures
+are the point, such as a results report filled from a new measurement. Translation PRs never carry the label.
 
     python3 docs/check_figures.py --base origin/main    # compares HEAD's tree with the merge base
 """
