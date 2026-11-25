@@ -1,6 +1,6 @@
 # Week 8: retrieval (chunking, embeddings, vector DBs, BM25 + reranking, cited answers, CI)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Goal: measure which retrieval choices work for a small, bilingual document base, using the same
 gold passages for every experiment. The gold set was written by the author, so it may favor the

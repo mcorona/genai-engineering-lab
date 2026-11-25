@@ -1,6 +1,6 @@
 # Week 6: evals and regression testing in GitHub Actions
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 Goal: every prompt or model change is measured before it is merged. The evaluator runs the gold-set cases, applies deterministic checks and an LLM judge for the faithfulness of the summaries, and compares the results against a baseline.
 

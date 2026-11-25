@@ -1,6 +1,6 @@
 # Week 17: reliability of an agent in production
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 **Outcome.** The LegacyBridge agent of weeks 13 and 14 now runs with the controls a production agent needs, and every one of them leaves a
 trace. One task is one OpenTelemetry trace (agent, model calls, MCP client, server, SQL) that reaches a self-hosted Langfuse through a

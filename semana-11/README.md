@@ -1,6 +1,6 @@
 # Week 11: RAG evaluation (recall@k, faithfulness, answer relevance with RAGAS; cost per query)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 Status: closed (2026-10-27). Phase 3 criterion 10 verified.
 

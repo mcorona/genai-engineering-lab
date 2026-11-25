@@ -1,6 +1,6 @@
 # Week 5: multi-model prompting and a versioned prompt library
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 Goal: treat every prompt as code. Each template lives in Git with a version, few-shot examples, a validatable output format and a reproducible command to run it.
 

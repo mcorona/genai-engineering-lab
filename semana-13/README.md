@@ -1,6 +1,6 @@
 # Week 13: agentic patterns (workflows vs agents) and the Claude Agent SDK
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Status: complete. Activities 1 to 10 are done, and exit criterion 13 is verified with the agent built with the Claude Agent SDK (section 10).
 

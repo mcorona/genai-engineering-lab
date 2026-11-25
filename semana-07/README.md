@@ -1,6 +1,6 @@
 # Week 7: bilingual NLQ-Inventory evaluation (Spanish and English)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Goal: measure how accurately different LLMs translate natural-language questions into SQL over a legacy-style inventory database, in Spanish and in English, and what each correct answer costs.
 

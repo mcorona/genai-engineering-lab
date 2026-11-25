@@ -1,6 +1,6 @@
 # Week 19: LegacyBridge on AWS, from IaC
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 LegacyBridge's agent (weeks 13 to 17) answers questions about a legacy inventory database in plain language, and it proposes purchase orders that a person approves. In week 19 it runs in an AWS account, built from code:
 - the API behind Cognito;
