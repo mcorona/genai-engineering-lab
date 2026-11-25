@@ -41,8 +41,8 @@ def mcnemar_exacta(solo_a, solo_b):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("corridas", nargs="*")
-    ap.add_argument("--metrica", default="coincide_resultado", choices=["ejecuta", "coincide_resultado"])
-    ap.add_argument("--comparar", nargs=2, metavar=("A", "B"))
+    ap.add_argument("--metrica", "--metric", default="coincide_resultado", choices=["ejecuta", "coincide_resultado"])
+    ap.add_argument("--comparar", "--compare", nargs=2, metavar=("A", "B"))
     args = ap.parse_args()
 
     nombres = list(dict.fromkeys(args.corridas + (args.comparar or [])))

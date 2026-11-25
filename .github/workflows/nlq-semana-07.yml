@@ -9,6 +9,7 @@ on:
       - "semana-05/run_prompts.py"
       - "**/prompts/**"
       - ".github/workflows/nlq-semana-07.yml"
+      - "!**/README.md"               # no eval reads a README (the English notes next to the data)
 
 permissions:
   contents: read

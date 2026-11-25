@@ -76,8 +76,8 @@ def juzgar(documento, resumen, clave):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--limite", type=int, help="Run only the first N cases.")
-    parser.add_argument("--actualizar-base", action="store_true",
+    parser.add_argument("--limite", "--limit", type=int, help="Run only the first N cases.", metavar="LIMIT")
+    parser.add_argument("--actualizar-base", "--update-baseline", action="store_true",
                         help="Save this run as the new baseline.")
     args = parser.parse_args()
 

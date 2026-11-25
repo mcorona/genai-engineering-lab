@@ -225,14 +225,14 @@ def validar(conn):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--validar", action="store_true")
-    parser.add_argument("--modelos", nargs="+", default=[])
-    parser.add_argument("--limite", type=int, default=None)
+    parser.add_argument("--validar", "--validate", action="store_true")
+    parser.add_argument("--modelos", "--models", nargs="+", default=[], metavar="MODELS")
+    parser.add_argument("--limite", "--limit", type=int, default=None, metavar="LIMIT")
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--set", choices=sorted(SETS), default="facil", help="facil (100 cases), dificil (50 x 2 languages), seguimiento (previous turn) or cadenas (3 turns)")
-    parser.add_argument("--esquema", choices=sorted(SCHEMAS), default="corto", help="corto (schema.sql) or completo (schema_completo.sql)")
-    parser.add_argument("--sin-historial", action="store_true", help="control: omit the previous turn of the follow-up questions")
-    parser.add_argument("--citas", action="store_true", help="ask the model to list its tables and measure precision and recall")
+    parser.add_argument("--esquema", "--schema", choices=sorted(SCHEMAS), default="corto", help="corto (schema.sql) or completo (schema_completo.sql)")
+    parser.add_argument("--sin-historial", "--no-history", action="store_true", help="control: omit the previous turn of the follow-up questions")
+    parser.add_argument("--citas", "--citations", action="store_true", help="ask the model to list its tables and measure precision and recall")
     args = parser.parse_args()
 
     global DATASET, VALIDADO
