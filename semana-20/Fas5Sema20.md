@@ -491,3 +491,15 @@ README (last).
   - Prediction, committed before the run: 45.0% saving if every call reads (0.511 USD for the 20 tasks), 3.9% at a
     1/3 hit rate, −16.7% if none does; break-even at 0.27 (`resultados/cache.md`).
   - The run waits for Manuel's OK.
+- 2026-11-26: activity 3, the live run (Manuel's OK to the estimate of 0.73 to 1.34 USD).
+  - Before paying: a review of #356 found no bug in the cache code; the risk was a stale agent package. #358 makes
+    the run check the deployed zip against the repository's 6 cache files, require `CACHE_TTL` absent, and null the
+    per-call columns of a task whose chat spans mixed with another's. The package was rebuilt before the deploy.
+  - Deploy from scratch (the control template staged in a temporary bucket, deleted after), then computo with
+    `CACHE_PROMPT=historial` (`cdk diff`: 64 resources to create).
+  - **20 tasks: 0.505822 USD against the corrected run's 0.927825 (−45.5%)**, p95 −52.5%; 55 of 55 possible reads hit;
+    17/20 (16/20 before); 0.547294 USD for the 22 tasks, cap 1.50. Caching works through the application inference
+    profile and with the Guardrail, which the docs did not say.
+  - Quotation v3's central scenario was off by −0.9% on the total: v3 stands. No latency gain at these prefix sizes.
+  - Week 10's rule: still a regression (en 0.8, total 0.85), within the noise of the corrected run.
+  - Teardown and the next day's Cost Explorer call close the activity (`resultados/cache.md` §6).

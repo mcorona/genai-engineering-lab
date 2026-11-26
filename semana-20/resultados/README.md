@@ -33,6 +33,9 @@ Script paths are relative to `semana-20/`.
 | `atribucion/cost_explorer.json` | Activity 2: the Cost Explorer query, grouped by the `componente` tag, and its result | `atribucion/corrida.py --cost-explorer` |
 | `cache_medicion.json` | Activity 3: the offline measurement ($0) of the cacheable prompt prefix, per task of the corrected run. Token counts are estimated from characters, with a characters-per-token ratio fitted to each task's real input tokens | `cache/medir.py` / `tests/test_cache_medicion.py` |
 | `cache_prediccion.json` | Activity 3: the caching prediction (quote v3), written and committed before the live run so the run can be scored against it | `cache/prediccion.py` / `cache/corrida.py`, `tests/test_cache_prediccion.py`, [cache.md](cache.md) |
+| `cache/crudo_eval.json` | Activity 3: the raw cache run (2026-11-26) of the 2 warm-up and 20 gold-set tasks against the deployed endpoint with `CACHE_PROMPT=historial`, redacted as it was written | `cache/corrida.py --si` / `cache/corrida.py --informe`, [cache.md](cache.md) |
+| `cache_detalle.jsonl` | Activity 3: one line per task of the cache run: the corrected run's columns plus each model call's tokens (input, output, cache read and written), cost and duration, and its cache hits | `cache/corrida.py` / `cache/corrida.py`, [cache.md](cache.md) |
+| `cache_comparacion.json` | Activity 3: the cache run task by task against the corrected run and against the prediction, with the hit rate, latency, success and week 10's rule | `cache/corrida.py` / [cache.md](cache.md) |
 
 ## Keys
 
