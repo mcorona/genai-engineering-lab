@@ -195,5 +195,22 @@ The model reproduces the corrected run exactly without the cache: 0.927825 USD f
   v3 the corrected run), so the saving is read against the corrected run's own 0.046391 mean, not against v2.
   ApplyGuardrail stays N in both.
 
-The real row and the error go here after the run (`semana-20/resultados/cache.md`). If the error passes ±20%, the
-model is corrected and both versions are kept.
+### The real row (run of 2026-11-26)
+
+The same 20 tasks with `CACHE_PROMPT=historial` and the 5-minute TTL (`semana-20/resultados/cache.md` §4,
+`cache_comparacion.json`):
+
+| | v3 predicted (optimistic, central) | Real | Error |
+|---|---|---|---|
+| 20 tasks, USD | 0.510544 | 0.505822 | −0.9% |
+| Median per task | 0.021740 | 0.022060 | +1.5% |
+| p95 per task | 0.046182 | 0.050441 | +9.2% |
+| Hit rate | 1 (scenario) | 1.0 (55 of 55 calls that could read) | — |
+
+- **Within ±20%: v3 stands, with no v4.** v1, v2 and v3 stay in `costos/modelo.py`.
+- The hit rate, the one unknown, came out at the optimistic end. The pessimistic and worst scenarios stay as the
+  bounds of the quote.
+- Per task the error runs from −54.9% to +149.4%. The model takes a different number of calls each run (r05-es: 3
+  against 11; c02-en: 10 against 6), and v3 prices the corrected run's calls. Over 20 tasks those differences cancel.
+- Latency, N in the prediction: no gain at these prefix sizes (task latency over its calls 4.08 s, against 4.11 s
+  without the cache).

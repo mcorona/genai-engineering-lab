@@ -74,7 +74,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 
 ## D4: Operational efficiency and optimization (12%)
 
-9 concepts.
+15 concepts (9 from week 19, 6 from week 20's activity 3).
 
 | Concept | Activity | Where the lab shows it | Evidence | Status |
 |---|---|---|---|---|
@@ -82,6 +82,12 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | Fixed cost versus variable cost (zero queries is only the fixed part) | 2 | `costos/modelo.py` and `tests/test_costos.py` (zero queries test) | `cotizacion.md`: 5.44 USD/month lab with 0 queries (partial) | measured |
 | Tokens and model cost per task from the agent spans | 8 | `eval_aws.py` (costo) | 0.035544 USD and 26,647.4 tokens per task (19 tasks) | measured 2026-11-19 |
 | Prompt caching on Converse needs a `cachePoint` | 8 | `agente/converse_adaptador.py` (cache tokens read, none sent) | 0 cache read and 0 cache write tokens on every task | fails (not used) |
+| Where a cache point can go: the model's minimum per point, counted on the whole prefix | week 20, 3 | `semana-20/cache/medir.py`, ADR 0014 | the fixed prefix (tools and system) is 2,664 tokens, under Haiku 4.5's 4,096, so the point goes at the end of the history (`resultados/cache_medicion.json`) | measured 2026-11-25 |
+| Cache TTL by the reuse pattern (5 minutes against 1 hour) | week 20, 3 | ADR 0014, `CACHE_TTL` | the calls of a query are seconds apart and no two queries share a prefix: 1 hour would cost 0.602 USD for the 20 tasks against 0.511 | decided 2026-11-25 |
+| Caching saving predicted before the run, with the cross-region hit rate as scenarios | week 20, 3 | `costos/modelo.py` v3, `semana-20/cache/prediccion.py` | 45.0% (every call reads), 3.9% (1/3), −16.7% (none); break-even 0.27; real total within −0.9% of the central (`cotizacion.md`) | measured 2026-11-26 |
+| Caching saving measured on the same tasks | week 20, 3 | `semana-20/cache/corrida.py` | 20 tasks: 0.927825 → 0.505822 USD (−45.5%), p95 −52.5%, 55 of 55 possible reads hit, success 17/20 against 16/20 (`semana-20/resultados/cache.md`) | measured 2026-11-26 |
+| Cache tokens in the task budget, the span cost and EMF, at their prices | week 20, 3 | `agente/presupuesto.py`, `agente/handler.py` | read 0.1× and write 1.25× input; the test's hand case is 0.007744 USD and 6,240 equivalent tokens (`tests/test_agente_cache.py`) | tested |
+| Latency effect of caching | week 20, 3 | the chat spans' durations (`cache_detalle.jsonl`) | no gain at 3,000 to 12,000-token prefixes: task latency over its calls 4.08 s against 4.11 s without the cache | measured 2026-11-26 |
 | Per-task token budget calibrated per model | 8 | `agente/construccion.py` (week 17's 46,000 tokens, Haiku 5.5) | 5 of 20 tasks stopped by it on Haiku 4.5 | fails |
 | Real cost per query from the bill, reconciled with the spans (other activities' runs on the same UTC day set apart) | 8 | `eval/costo_real.py` | `resultados/costo_real.md`: 0.030913 USD per task for the model alone, 0.038562 USD with every per-query line (upper bound), 57 tasks; the Haiku line minus activity 7's runs equals the spans to the cent | measured 2026-11-21 |
 | Quotation error and the model's correction, both versions kept | 8 | `costos/modelo.py --version v1/v2` | `cotizacion.md`: v1 −61.3% per query (model part), v2 −0.1%; per hour −10.3% (lab), prod n/a | measured 2026-11-21 |
@@ -126,7 +132,7 @@ and 24; the weeks that already plan an item are named.
 | 2.4.3, 2.5.6, 5.2.5 | X-Ray tracing: spans go to CloudWatch Logs only | week 20 |
 | 3.2.2, 3.2.3 | PII detection and masking (Comprehend, Macie, Guardrail sensitive information filters) | week 21 (red teaming) or weeks 23–24 |
 | 3.3.1, 3.4.2 | Model cards, lineage, fairness metrics | weeks 23–24 |
-| 4.1.4 | Prompt caching and semantic caching: 0 cache tokens on every task | week 20 |
+| 4.1.4 | Semantic caching. Prompt caching is shown since week 20, activity 3 (D4 above); partly closed | weeks 23–24 |
 | 4.3.1, 4.3.2 | Dashboards and GenAI KPIs, Bedrock model invocation logging | week 20 |
 | 5.1.2, 5.1.3 | A/B and canary tests of configurations; user feedback | weeks 23–24 |
 | 5.1.7 | Bedrock Agents evaluation: Bedrock Agents refused new agents in this account (activity 7) | not reachable in this account |

@@ -263,6 +263,9 @@ results folder also gets its own schema of keys in step 4 of the English pass.
 | `optimista`, `pesimista`, `peor`, `equilibrio` | the prediction's scenarios: optimistic, pessimistic, worst, and break-even |
 | `p_acierto` | the probability that a call is served where the call before wrote |
 | `cache_medicion.json`, `cache_prediccion.json`, `cache_comparacion.json` | the offline measurement, the prediction committed before the run, and the comparison after it |
+| `spans_modelo_validos` | the task's chat spans are its own and complete (one per step); when false, its per-call columns are null |
+| `codigo_al_dia`, `CODIGO_CACHE` | the agent files whose deployed code must equal the repository's before a run sends a task |
+| `exigir`, `exigir_entorno`, `exigir_codigo` | require: the Lambda environment and code a run checks before sending a task |
 
 ## Command-line flags
 

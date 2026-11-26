@@ -1,12 +1,13 @@
 # Week 20, activity 3: prompt caching
 
-**Status: offline part done ($0); the live run waits for Manuel's OK.** Design: [ADR 0014](../../semana-19/arquitectura/adr/0014-prompt-caching.md).
+**Status: run done on 2026-11-26 (0.547294 USD of model for the 22 tasks, cap 1.50); the Cost Explorer call is the
+next day's.** Design: [ADR 0014](../../semana-19/arquitectura/adr/0014-prompt-caching.md).
 
 | What | File |
 |---|---|
 | Measurement (step 1) | [`cache_medicion.json`](cache_medicion.json), from [`cache/medir.py`](../cache/medir.py) |
 | Prediction (step 3), committed before the run | [`cache_prediccion.json`](cache_prediccion.json), from [`cache/prediccion.py`](../cache/prediccion.py) and quote v3 ([`costos/modelo.py`](../../semana-19/costos/modelo.py)) |
-| Run (step 4) | `cache/` (raw), `cache_detalle.jsonl`, `cache_comparacion.json`: pending |
+| Run (step 4), 2026-11-26 | [`cache/crudo_eval.json`](cache/crudo_eval.json) (raw), [`cache_detalle.jsonl`](cache_detalle.jsonl) (per task and per model call), [`cache_comparacion.json`](cache_comparacion.json), from [`cache/corrida.py`](../cache/corrida.py) |
 
 ## 1. Measurement: the cacheable prefix per step
 
@@ -65,18 +66,122 @@ Each measured call is priced with `cache_por_paso` (ADR 0014's rule). Without th
 - **Latency:** N. The docs give no figure.
 - **With the warm-up (22 tasks):** 0.565418 (optimistic) to 1.174799 (worst). The run's cap is 1.50 USD.
 
-## 4. Live run
+## 4. Live run (2026-11-26)
 
-Pending Manuel's OK to the estimate.
+**How it ran.**
+- From scratch: `desplegar.sh --si` (control, bootstrap, base, datos, ia, the loader and the ingestion), then
+  `--solo-control --si` (`BootstrapCreado=true`).
+- Then computo with `CACHE_PROMPT=historial` and `PRESUPUESTO_TAREA=techo_semana20` (`cdk diff` first: 64 resources
+  to create, none changed). Deploy times are in `semana-19/resultados/tiempos_despliegue.jsonl`.
+- Before the first task, the script checked the agent's environment (`CACHE_TTL` absent, so 5 minutes) and that the
+  deployed zip carries the repository's 6 cache files (#358). The package had been rebuilt with `paquete_agente.py`.
+- 2 warm-up tasks and the 20 CI golden tasks, through the public API with real Cognito tokens, as in the corrected run.
+
+**Cost and tokens** (`cache/crudo_eval.json` `resumen.costo`, 22 tasks):
+
+| | Corrected run (2026-11-23) | Cache run (2026-11-26) |
+|---|---|---|
+| Model USD, 22 tasks | 1.008147 | **0.547294** (cap 1.50) |
+| Uncached input tokens | 708,087 | 103,487 |
+| Cache read tokens | 0 | 373,753 |
+| Cache write tokens | 0 | 125,006 |
+| Output tokens | 41,682 | 40,084 |
+
+`tokens_por_tarea` (6,526.0 here, 34,080.4 before) counts uncached input and output only, so it is not comparable
+across the two runs; the four token rows above are.
+
+**The 20 main tasks** (`cache_comparacion.json`):
+
+| | Corrected run | Cache run | Change |
+|---|---|---|---|
+| Total USD | 0.927825 | **0.505822** | −45.5% |
+| Median per task | 0.034076 | **0.022060** | −35.3% |
+| p95 per task | 0.106158 | **0.050441** | −52.5% |
+| Success | 16/20 | 17/20 | +1 |
+| Tasks cut by the budget | 1 | 1 (r05-en, 12 calls) | — |
+| Trajectory ok | 8/20, mean 0.912 | 11/20, mean 0.924 | — |
+
+**Hits per call.** A call can read when the call before it wrote. All 55 such calls read: a hit rate of **1.0**,
+against a predicted break-even of 0.27.
+
+| Call | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Could read / read | 11 / 11 | 13 / 13 | 14 / 14 | 7 / 7 | 2 / 2 | 2 / 2 | 2 / 2 | 2 / 2 | 1 / 1 | 1 / 1 |
+
+- Call 1 never carries a point, and call 2 only writes, so hits start at call 3. No first call has cache tokens (the
+  boundary of ADR 0014: the prefix two users could share is never cached).
+- Four tasks have no call that could read: a01-es, a01-en, n01-es (2 calls each) and v01-en (4 calls). Their prefix
+  stayed under the minimum or was written only on the last call. Step 1 measured the same short tasks.
+- **What the docs did not say, now measured:** caching works through the application inference profile
+  `semana19-agente` and with the Guardrail on. Converse returns no Region, so `region` stays null; with every possible
+  call a hit, no call was served away from the server that wrote.
+
+**Latency** (`cache_detalle.jsonl`, the chat spans' durations):
+
+| | Corrected run | Cache run |
+|---|---|---|
+| Per model call, median (104 calls) | not recorded per call | 2.93 s (max 10.69 s) |
+| First call, median of the tasks | not recorded per call | 2.49 s |
+| Later calls, median of the tasks' medians | not recorded per call | 2.91 s |
+| Task latency over calls, median (same method, `cache/medir.py`) | 4.11 s | 4.08 s |
+| Task latency, warm: p50 / p95 | 21.57 s / 45.02 s | 19.41 s / 48.70 s |
+| Task latency, cold | 2 tasks, p50 50.16 s | not classified: both warm-up tasks came out `desconocido` |
+
+- The corrected run recorded no per-call durations (the chat spans came with #356), so the like-for-like comparison is
+  the task latency over its calls: 4.11 s against 4.08 s. That includes tool time and the API's polling, so it does not
+  isolate the model call, and it shows no latency gain from the cache at this prefix size (3,000 to 12,000 tokens).
+- The first call (never cached) and the later calls (cached) have about the same median, 2.49 s against 2.91 s.
+- Cold against warm with the cache is not measured: the run's warm-up tasks were not classified. It stays N.
+
+**Week 10's rule** (`cache/crudo_eval.json` `resumen.comparacion`), against week 17's local baseline:
+
+| | Base | Cache run | Threshold | Regression |
+|---|---|---|---|---|
+| es | 1.0 | 0.9 | 0.9 | no |
+| en | 1.0 | 0.8 | 0.9 | yes |
+| Total | 1.0 | 0.85 | 0.95 | yes |
+
+- It is still a regression, as in the corrected run, which Manuel accepted as week 20's baseline without passing.
+- Failures: c02-es, r05-en (cut by the budget) and c06-en. c02-en and r05-es now pass; c06-en passed before.
+  With 10 tasks per language that is inside the noise (95% interval of the total: 0.64 to 0.948), so no change of
+  quality is attributed to the cache. The cache does not change the prompt or what the model sees (tested), only
+  where the prefix is read from.
+- The warm-up's s02-es has `spans_modelo_validos: false`: it ran next to s01-es, and the two tasks' chat spans mixed.
+  Its per-call columns are null (#358); the cost and the main tasks are not affected.
+
+**Teardown:** `destruir.sh --si --todo`, then the inventory with the read-only role (result in §6 with Cost Explorer).
 
 ## 5. Predicted vs real
 
-Pending.
+Quote v3's central scenario (optimistic, p = 1), committed before the run (#357):
 
-## 6. Cost Explorer
+| | Predicted | Real | Error |
+|---|---|---|---|
+| Total, 20 tasks | 0.510544 | 0.505822 | **−0.9%** |
+| Median per task | 0.021740 | 0.022060 | +1.5% |
+| p95 per task | 0.046182 | 0.050441 | +9.2% |
+| Hit rate | 1 (scenario) | 1.0 (55 / 55) | — |
+| Latency | N | see §4 | — |
 
-Pending: one call, the day after the run.
+- **Within ±20%: quote v3 is kept as it is**, with no v4.
+- Per task the error runs from −54.9% (r05-es: 3 calls, against 11 in the corrected run) to +149.4% (c02-en: 10
+  calls, against 6). The prediction prices the corrected run's calls; the model takes a different number of calls
+  each run, and that, not the cache, sets the per-task error. Over 20 tasks the differences cancel to −0.9%.
+- The hit rate was the one unknown; it came out at the optimistic end. The pessimistic (1/3) and worst (0) scenarios
+  stay in the quote as the bounds for a busier hour ("at times of high demand… increased cache writes", prompt-caching
+  docs, read 2026-11-25).
+
+## 6. Cost Explorer and the teardown
+
+Pending: the inventory after `destruir.sh`, and one `GetCostAndUsage` call for 2026-11-26 the next day (0.01 USD,
+Manuel's OK given on 2026-11-26).
 
 ## 7. Conclusion
 
-Pending.
+- **On Haiku 4.5, a cache point at the end of the history cuts the model cost of the 20 tasks by 45.5%** (0.927825 to
+  0.505822 USD) and the p95 per task by 52.5%. Every call that could read did.
+- The prediction made before the run was right to 0.9% on the total.
+- No latency gain is visible at these prefix sizes. Success (17/20) and week 10's verdict (regression, as before) are
+  the corrected run's within the noise.
+- The default stays off (`CACHE_PROMPT = "off"`, ADR 0014): activity 9 decides the combined default with the other
+  activities' measurements. The cap stays 0.12 USD / 100,000 tokens until then.
