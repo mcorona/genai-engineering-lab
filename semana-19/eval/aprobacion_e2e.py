@@ -381,9 +381,9 @@ def plan() -> dict:
     lim = C.limite_de_tarea()
     return {"simulacion": True, "tope": {"usd": TOPE_USD, "tokens": TOPE_TOKENS},
             "limite_por_tarea": {"usd": lim.usd, "tokens": lim.tokens}, "tareas_del_agente": 2,
-            "necesita": "computo desplegado con S19_ESPERA_APROBACION_S de 60 a 600 s para el paso 5",
-            "comprobaciones": ["espera con el token en DynamoDB y no en logs", "analista 403", "aprobador aprueba",
-                               "la fila la escribe order_writer", "an expired request does not write"]}
+            "necesita": "computo deployed with S19_ESPERA_APROBACION_S from 60 to 600 s for step 5",
+            "comprobaciones": ["the wait keeps the token in DynamoDB, not in logs", "analyst 403", "approver approves",
+                               "order_writer writes the row", "an expired request does not write"]}
 
 
 def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested functions

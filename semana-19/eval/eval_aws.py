@@ -71,7 +71,7 @@ def _constante(archivo: Path, nombre: str):
     for nodo in ast.parse(archivo.read_text(encoding="utf-8")).body:
         if isinstance(nodo, ast.Assign) and any(getattr(t, "id", None) == nombre for t in nodo.targets):
             return ast.literal_eval(nodo.value)
-    raise LookupError(f"{nombre} no está en {archivo}")
+    raise LookupError(f"{nombre} is not in {archivo}")
 
 
 def _funcion(archivo: Path, nombre: str, globales: dict) -> Callable:
@@ -483,10 +483,10 @@ def plan(tareas: list[dict], calentamiento: list[dict]) -> dict:
             "gastado_en_corridas_previas": {"usd": round(previo.gastado_usd, 6), "tokens": previo.gastado_tokens},
             "limite_por_tarea": {"usd": lim.usd, "tokens": lim.tokens},
             "peor_caso": {"usd": round(lim.usd * n, 4), "tokens": lim.tokens * n},
-            "llamadas": ["lambda:Invoke del cargador (esperados, solo lectura)", "cognito-idp:AdminInitiateAuth (analista)",
-                         "POST /consultas sin token y POST /aprobaciones con el analista (401 y 403)",
-                         f"POST/GET /consultas × {n}", "logs:FilterLogEvents (spans y líneas REPORT)",
-                         "lambda:Invoke de la función de herramientas (verificador, copilot_ro)"]}
+            "llamadas": ["lambda:Invoke of the loader (expected values, read only)", "cognito-idp:AdminInitiateAuth (analista)",
+                         "POST /consultas without a token and POST /aprobaciones as the analyst (401 and 403)",
+                         f"POST/GET /consultas × {n}", "logs:FilterLogEvents (spans and REPORT lines)",
+                         "lambda:Invoke of the tools function (verifier, copilot_ro)"]}
 
 
 # ---------------------------------------------------------------- real clients (only with --si)

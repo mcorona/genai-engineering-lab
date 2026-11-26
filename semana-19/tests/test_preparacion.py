@@ -46,10 +46,10 @@ def test_plan_tiene_diez_actividades_con_time_cost_y_aip():
     acts = actividades()
     assert len(acts) == 10, list(acts)
     for titulo, cuerpo in acts.items():
-        assert re.search(r"^- \*\*Time:\*\* ~\d+(\.\d+)? h", cuerpo, re.M), f"sin Time: {titulo}"
-        assert re.search(r"\*\*Cost:\*\* ", cuerpo), f"sin Cost: {titulo}"
+        assert re.search(r"^- \*\*Time:\*\* ~\d+(\.\d+)? h", cuerpo, re.M), f"no Time: {titulo}"
+        assert re.search(r"\*\*Cost:\*\* ", cuerpo), f"no Cost: {titulo}"
         m = re.search(r"^- \*\*AIP-C01:\*\* .*\bD[1-5]\b", cuerpo, re.M)
-        assert m, f"sin dominio AIP-C01: {titulo}"
+        assert m, f"no AIP-C01 domain: {titulo}"
 
 
 def test_plan_actividad_1_es_solo_lectura_y_costo_cero():
@@ -64,26 +64,26 @@ def test_grupo_semana19_pins_exactos():
     pyproject = (RAIZ / "pyproject.toml").read_text(encoding="utf-8")
     bloque = pyproject.split("semana19 = [", 1)[1].split("]", 1)[0]
     entradas = re.findall(r'"([^"]+)"', bloque)
-    assert entradas, "el grupo semana19 está vacío"
+    assert entradas, "the semana19 group is empty"
     for e in entradas:
-        assert re.fullmatch(r"[a-z0-9\-]+==\d+\.\d+\.\d+", e), f"pin no exacto: {e}"
+        assert re.fullmatch(r"[a-z0-9\-]+==\d+\.\d+\.\d+", e), f"not an exact pin: {e}"
 
 
 def test_versiones_python_son_pines_exactos():
     for paquete, version in VERSIONES["python"].items():
-        assert PIN.match(version), f"{paquete} no es un pin exacto: {version}"
+        assert PIN.match(version), f"{paquete} is not an exact pin: {version}"
 
 
 def test_versiones_no_usan_etiquetas_flotantes():
     texto = json.dumps(VERSIONES)
     for palabra in ('"latest"', '"stable"', '">=', '"^', '"~', '"*"'):
-        assert palabra not in texto, f"etiqueta flotante en versiones.json: {palabra}"
+        assert palabra not in texto, f"floating tag in versiones.json: {palabra}"
 
 
 def test_grupo_semana19_coincide_con_versiones_json():
     pyproject = (RAIZ / "pyproject.toml").read_text(encoding="utf-8")
     for paquete, version in VERSIONES["python"].items():
-        assert f'"{paquete}=={version}"' in pyproject, f"{paquete} distinto entre pyproject y versiones.json"
+        assert f'"{paquete}=={version}"' in pyproject, f"{paquete} differs between pyproject and versiones.json"
 
 
 def test_uv_lock_tiene_el_grupo_semana19():
@@ -96,7 +96,7 @@ def test_uv_lock_tiene_el_grupo_semana19():
 def test_workflow_eval_19_pins_exactos_y_sin_flotantes():
     flujo = (RAIZ / ".github" / "workflows" / "eval-semana-19.yml").read_text(encoding="utf-8")
     for paquete, version in VERSIONES["python"].items():
-        assert f'"{paquete}=={version}"' in flujo, f"el workflow no fija {paquete}=={version}"
+        assert f'"{paquete}=={version}"' in flujo, f"the workflow does not pin {paquete}=={version}"
 
 
 # ---------- CI ----------
@@ -119,7 +119,7 @@ def test_eval_semana_19_sin_aws_ni_skips():
 def test_gitignore_tiene_las_entradas_de_la_semana19():
     gi = (RAIZ / ".gitignore").read_text(encoding="utf-8").splitlines()
     for entrada in ("cdk.out/", ".terraform/", "*.tfstate*", "semana-19/**/.secretos.env"):
-        assert entrada in gi, f"falta en .gitignore: {entrada}"
+        assert entrada in gi, f"missing from .gitignore: {entrada}"
 
 
 def test_readme_raiz_tiene_fase_5_con_criterios_19_a_22():
@@ -130,7 +130,7 @@ def test_readme_raiz_tiene_fase_5_con_criterios_19_a_22():
     assert "±20%" in readme
 
 
-# ---------- presupuesto (simulación) ----------
+# ---------- budget (dry run) ----------
 
 @pytest.fixture(scope="module")
 def presupuesto():
@@ -150,7 +150,7 @@ def test_presupuesto_nombre_limite_y_alertas(presupuesto):
 
 def test_presupuesto_correo_sale_del_entorno_no_del_repo(presupuesto):
     simulado = json.dumps(presupuesto.construir_presupuesto(None))
-    assert "<correo de ALERTA_EMAIL>" in simulado
+    assert "<email from ALERTA_EMAIL>" in simulado
     real = presupuesto.construir_presupuesto("alertas@ejemplo.test")
     assert real["NotificationsWithSubscribers"][0]["Subscribers"][0]["Address"] == "alertas@ejemplo.test"
 
@@ -181,12 +181,12 @@ def test_verificar_entorno_ci_sin_aws():
     assert "herramientas" not in informe and "sesiones" not in informe
 
 
-# ---------- higiene: sin datos personales ni rutas del Mac ----------
+# ---------- hygiene: no personal data or Mac paths ----------
 
 def test_semana19_sin_correos_ni_rutas_personales():
     correo = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
     rutas = re.compile(r"/Users/|/home/")
-    # Lo que se publicaría: archivos versionados o no ignorados. Las cachés ignoradas (p. ej. .terraform/) no se publican.
+    # What would be published: tracked or not-ignored files. Ignored caches (e.g. .terraform/) are not published.
     r = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "--", "semana-19"],
                        cwd=RAIZ, capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr
@@ -202,5 +202,5 @@ def test_semana19_sin_correos_ni_rutas_personales():
             texto = gzip.decompress(ruta.read_bytes()).decode("utf-8", errors="ignore")
         else:
             texto = ruta.read_text(encoding="utf-8", errors="ignore")
-        assert not correo.search(texto), f"correo en {ruta.relative_to(RAIZ)}"
-        assert not rutas.search(texto), f"ruta personal en {ruta.relative_to(RAIZ)}"
+        assert not correo.search(texto), f"email in {ruta.relative_to(RAIZ)}"
+        assert not rutas.search(texto), f"personal path in {ruta.relative_to(RAIZ)}"

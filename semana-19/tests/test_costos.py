@@ -49,7 +49,7 @@ def test_cambiar_un_precio_cambia_el_resultado_de_forma_predecible(monkeypatch):
 
     monkeypatch.setattr(modelo, "cargar_precios", con_rds_doble)
     doble = correr(perfil="lab", consultas_dia=0, horas_dia=24)
-    # Solo la instancia de RDS cambia: 0.016 USD por hora, 24 h por día, 30 días.
+    # Only the RDS instance changes: 0.016 USD per hour, 24 h per day, 30 days.
     assert doble["total_mes_usd"] - base["total_mes_usd"] == pytest.approx(0.016 * 24 * 30)
 
 
@@ -75,7 +75,7 @@ def test_creditos_no_dejan_numeros_negativos():
 def test_partidas_n_no_suman_y_marcan_parcial():
     lab = correr(perfil="lab", consultas_dia=10, horas_dia=8, version="v1")
     prod = correr(perfil="prod", consultas_dia=10, horas_dia=8, version="v1")
-    # v1, lab: todo medido. Prod: solo RDS Multi-AZ queda N, y no suma al total.
+    # v1, lab: everything measured. Prod: only RDS Multi-AZ stays N, and it is not added to the total.
     assert lab["parcial"] is False and lab["partidas_no_medidas"] == []
     assert prod["parcial"] is True
     assert prod["partidas_no_medidas"] == ["RDS Multi-AZ, additional instance"]
@@ -87,17 +87,17 @@ def test_partidas_n_no_suman_y_marcan_parcial():
 
 def test_todo_precio_tiene_fuente_y_marca_valida():
     for clave, p in PRECIOS.items():
-        assert p.get("fuente"), f"{clave} sin fuente"
-        assert p["marca"] in {"M", "D", "N"}, f"{clave} con marca invalida"
-        assert p.get("fecha"), f"{clave} sin fecha"
+        assert p.get("fuente"), f"{clave} has no source"
+        assert p["marca"] in {"M", "D", "N"}, f"{clave} has an invalid mark"
+        assert p.get("fecha"), f"{clave} has no date"
         if p["valor"] is None:
-            assert p["marca"] == "N", f"{clave} sin valor debe ser N"
+            assert p["marca"] == "N", f"{clave} has no value, so it must be N"
 
 
 def test_el_modelo_solo_usa_precios_con_fuente():
     usados = {l["precio_clave"] for g in ("fijas_por_hora", "fijas_por_mes", "por_consulta")
               for l in correr(perfil="prod", consultas_dia=5, horas_dia=8)[g]}
-    assert usados <= set(PRECIOS), "el modelo usa una clave de precio que no existe"
+    assert usados <= set(PRECIOS), "the model uses a price key that does not exist"
 
 
 def test_percentiles_en_orden():

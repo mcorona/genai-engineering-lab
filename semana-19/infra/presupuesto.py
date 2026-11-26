@@ -24,7 +24,7 @@ import sys
 NOMBRE = "semana19"
 LIMITE_USD = "5"
 ETIQUETA = "user:proyecto$semana19"
-MARCADOR_CORREO = "<correo de ALERTA_EMAIL>"
+MARCADOR_CORREO = "<email from ALERTA_EMAIL>"
 
 
 def construir_presupuesto(correo: str | None = None) -> dict:
@@ -68,7 +68,7 @@ def crear(perfil: str, correo: str) -> dict:
     solicitud = construir_presupuesto(correo)
     try:
         cliente.describe_budget(AccountId=cuenta, BudgetName=NOMBRE)
-        return {"accion": "sin cambios", "motivo": "el presupuesto ya existe", "cuenta": "<account>"}
+        return {"accion": "sin cambios", "motivo": "the budget already exists", "cuenta": "<account>"}
     except cliente.exceptions.NotFoundException:
         pass
     cliente.create_budget(AccountId=cuenta, **solicitud)

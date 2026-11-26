@@ -44,7 +44,7 @@ jobs:
         run: |
           set -o pipefail
           python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --cov=semana-19 --cov-report=term:skip-covered --ignore=semana-19/tests/test_infra_cdk.py --ignore=semana-19/tests/test_infra_computo.py --ignore=semana-19/tests/test_computo_rds_permisos.py --ignore=semana-19/tests/test_infra_gateway.py --ignore=semana-19/tests/test_infra_agentes.py --ignore=semana-19/tests/test_validar_politicas_cobertura.py --ignore=semana-19/tests/test_diagrama_vs_stack.py --ignore=semana-19/tests/test_infra_etiquetas.py --ignore=semana-19/tests/test_infra_presupuesto.py --ignore=semana-19/tests/test_infra_cache.py | tee "$RUNNER_TEMP/pytest.txt"
-          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
+          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::skipped tests found"; exit 1; fi
 
   spike-iac:
     runs-on: ubuntu-24.04
@@ -56,7 +56,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - name: Dependencias CDK (pines de semana-19/spike/cdk/requirements.txt) y checkov 3.4.4
+      - name: CDK dependencies (the pins of semana-19/spike/cdk/requirements.txt) and checkov 3.4.4
         run: |
           pip install -r semana-19/spike/cdk/requirements.txt "checkov==3.4.4" "pytest==8.4.2"  # 8.4.2: pytest 9 needs packaging>=24, checkov needs <24
       - name: Synthesize CDK, lab and prod profiles (no AWS)
@@ -80,7 +80,7 @@ jobs:
         run: |
           set -o pipefail
           python -m pytest -q semana-19/tests/test_infra_cdk.py semana-19/tests/test_infra_computo.py semana-19/tests/test_computo_rds_permisos.py semana-19/tests/test_infra_gateway.py semana-19/tests/test_infra_agentes.py semana-19/tests/test_validar_politicas_cobertura.py semana-19/tests/test_diagrama_vs_stack.py semana-19/tests/test_infra_etiquetas.py semana-19/tests/test_infra_presupuesto.py semana-19/tests/test_infra_cache.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
-          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest_infra.txt"; then echo "::error::hay pruebas omitidas"; exit 1; fi
+          if grep -q "SKIPPED" "$RUNNER_TEMP/pytest_infra.txt"; then echo "::error::skipped tests found"; exit 1; fi
 
       - name: Synthesize activity 3's foundation and scan it with checkov
         run: |
@@ -107,11 +107,11 @@ jobs:
             --synth lab="$RUNNER_TEMP/todo-lab" --synth prod="$RUNNER_TEMP/todo-prod" --salida "$RUNNER_TEMP/supresiones.json"
       - name: IAM policies without AWS, with parliament 1.6.4 (activity 10); fails if a finding has no rule with a reason
         run: |
-          python -m venv "$RUNNER_TEMP/parliament"   # aparte: parliament necesita pkg_resources (setuptools < 81)
+          python -m venv "$RUNNER_TEMP/parliament"   # separate: parliament needs pkg_resources (setuptools < 81)
           "$RUNNER_TEMP/parliament/bin/pip" install --quiet "parliament==1.6.4" "setuptools==80.10.2"
           "$RUNNER_TEMP/parliament/bin/python" -W ignore::SyntaxWarning semana-19/seguridad/parliament_offline.py \
             --synth lab="$RUNNER_TEMP/todo-lab" --synth prod="$RUNNER_TEMP/todo-prod" --salida "$RUNNER_TEMP/parliament.json"
-      - name: Instalar Terraform 1.17.2 (sha256 verificado)
+      - name: Install Terraform 1.17.2 (sha256 verified)
         run: |
           cd "$RUNNER_TEMP"
           curl -sSfLO https://releases.hashicorp.com/terraform/1.17.2/terraform_1.17.2_linux_amd64.zip

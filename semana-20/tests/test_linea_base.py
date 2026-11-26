@@ -154,6 +154,6 @@ def test_el_lector_de_precios_simula_por_omision(capsys):
 def test_los_resultados_versionados_no_tienen_la_cuenta(archivo):
     ruta = S20 / "resultados" / archivo
     if not ruta.exists():
-        pytest.skip("se genera en la Mac")
+        pytest.skip("generated on the Mac")
     import re
     assert not re.search(r"\b\d{12}\b", ruta.read_text(encoding="utf-8"))

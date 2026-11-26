@@ -162,7 +162,7 @@ def cache_por_paso(entrada_por_paso: list[float], *, minimo: int = MINIMO_CACHE_
       only what was added; otherwise it reads nothing and writes the whole prefix (another server or Region).
     """
     if modo not in ("off", "sistema", "historial", "historial+sistema"):
-        raise ValueError(f"modo de caché desconocido: {modo}")
+        raise ValueError(f"unknown cache mode: {modo}")
     if modo in ("sistema", "historial+sistema") and prefijo_fijo >= minimo:
         raise ValueError("the fixed prefix reaches the minimum: a system point is not modeled (not Haiku 4.5's case)")
     pasos = []

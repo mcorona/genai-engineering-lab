@@ -27,7 +27,7 @@ def pool():
 
 
 def test_simulacion_no_llama_a_aws_y_muestra_el_plan(capsys):
-    assert U.crear("pool-x", None, False)[0].startswith("crear analista-prueba")
+    assert U.crear("pool-x", None, False)[0].startswith("create analista-prueba")
     assert "pool-x" in U.plan("pool-x")[1]
 
 
@@ -45,7 +45,7 @@ def test_crea_cada_usuario_en_su_grupo_y_guarda_contrasenas_en_0600(pool, tmp_pa
     cliente, pid = pool
     ruta = tmp_path / ".secretos.env"
     estados = U.crear(pid, cliente, True, ruta)
-    assert all("creado" in e for e in estados)
+    assert all("created" in e for e in estados)
     for usuario, grupo, _ in U.USUARIOS:
         grupos = [g["GroupName"] for g in cliente.admin_list_groups_for_user(UserPoolId=pid, Username=usuario)["Groups"]]
         assert grupos == [grupo]
@@ -61,7 +61,7 @@ def test_usuario_existente_conserva_su_contrasena_y_pasa_a_su_grupo(pool, tmp_pa
     cliente.admin_add_user_to_group(UserPoolId=pid, Username="aprobador-prueba", GroupName="aprobadores")
     ruta = tmp_path / ".secretos.env"
     estados = U.crear(pid, cliente, True, ruta)
-    assert "aprobador-prueba: ya existe, contraseña sin cambios; grupo ahora aprobadores-gerente" in estados
+    assert "aprobador-prueba: already exists, password unchanged; group now aprobadores-gerente" in estados
     grupos = [g["GroupName"] for g in cliente.admin_list_groups_for_user(UserPoolId=pid, Username="aprobador-prueba")["Groups"]]
     assert grupos == ["aprobadores-gerente"]
     assert "APROBADOR_PRUEBA_PASSWORD" not in ruta.read_text(encoding="utf-8")   # no new password for it
@@ -81,7 +81,7 @@ def test_segunda_ejecucion_no_cambia_ni_repite_contrasenas(pool, tmp_path):
     U.crear(pid, cliente, True, ruta)
     antes = ruta.read_text(encoding="utf-8")
     estados = U.crear(pid, cliente, True, ruta)
-    assert all(e.endswith("ya existe, contraseña sin cambios") for e in estados)
+    assert all(e.endswith("already exists, password unchanged") for e in estados)
     assert ruta.read_text(encoding="utf-8") == antes
 
 

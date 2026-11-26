@@ -114,7 +114,7 @@ LIVE = os.environ.get("S19_DSN_LOCAL")
 
 
 @pytest.mark.vivo  # deselected in CI (-m "not vivo"); run locally with -m vivo and S19_DSN_LOCAL
-@pytest.mark.skipif(not LIVE, reason="prueba viva: define S19_DSN_LOCAL con una base de pruebas local")
+@pytest.mark.skipif(not LIVE, reason="live test: set S19_DSN_LOCAL to a local test database")
 def test_vivo_cargador_idempotente_y_copilot_ro_no_escribe():
     import pg8000.native as pg
 
@@ -284,7 +284,7 @@ def test_esperados_revierte_aunque_la_consulta_falle():
 def test_un_modo_desconocido_se_rechaza_antes_de_leer_el_secreto(monkeypatch):
     """Activity 8: a loader older than the caller took an unknown mode for the full load (TRUNCATE and seed)."""
     def no_debe(*a, **k):
-        raise AssertionError("tocó el secreto o la base")
+        raise AssertionError("it touched the secret or the database")
     monkeypatch.setattr(H, "_secreto", no_debe)
     monkeypatch.setattr(H, "_conectar", no_debe)
     with pytest.raises(ValueError, match="modo desconocido"):

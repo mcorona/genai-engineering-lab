@@ -170,4 +170,4 @@ def test_cada_tipo_del_synth_esta_dibujado_revisado_o_ignorado_con_motivo():
     tipos = {r["Type"] for p in plantillas().values() for r in p.get("Resources", {}).values()}
     sin_revisar = tipos - COMPONENTES - mapeados - set(TIPOS_IGNORADOS)
     assert not sin_revisar, sin_revisar
-    assert not (set(TIPOS_IGNORADOS) & (COMPONENTES | mapeados)), "un tipo no puede estar dibujado e ignorado a la vez"
+    assert not (set(TIPOS_IGNORADOS) & (COMPONENTES | mapeados)), "a type cannot be both drawn and ignored"

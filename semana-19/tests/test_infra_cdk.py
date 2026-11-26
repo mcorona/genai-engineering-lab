@@ -99,7 +99,7 @@ def test_los_tres_stacks_sintetizan_en_cada_perfil(perfil):
 def test_cdk_nag_sin_hallazgos_sin_suprimir(perfil):
     for stack, informe in sintetizar(perfil)["nag"].items():
         no_cumplen = [r for r in informe if r["Compliance"] == "Non-Compliant"]
-        assert no_cumplen == [], f"{stack}: {len(no_cumplen)} sin suprimir"
+        assert no_cumplen == [], f"{stack}: {len(no_cumplen)} unsuppressed"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -108,7 +108,7 @@ def test_cada_supresion_de_cdk_nag_tiene_razon(perfil):
         for lid, r in pl["Resources"].items():
             reglas = (r.get("Metadata", {}).get("cdk_nag", {}) or {}).get("rules_to_suppress", [])
             for regla in reglas:
-                assert regla.get("reason", "").strip(), f"{n}/{lid} {regla.get('id')} sin razón"
+                assert regla.get("reason", "").strip(), f"{n}/{lid} {regla.get('id')} has no reason"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -116,7 +116,7 @@ def test_checkov_sin_fallos_con_omisiones_con_razon(perfil):
     for n, pl in sintetizar(perfil)["plantillas"].items():
         for lid, r in pl["Resources"].items():
             for omision in (r.get("Metadata", {}).get("checkov", {}) or {}).get("skip", []):
-                assert omision.get("comment", "").strip(), f"{n}/{lid} {omision.get('id')} sin comentario"
+                assert omision.get("comment", "").strip(), f"{n}/{lid} {omision.get('id')} has no comment"
 
 
 # ---------------------------------------------------------------- identity and boundary
@@ -128,7 +128,7 @@ def test_todo_rol_creado_por_los_stacks_tiene_el_limite(perfil):
         for lid, r in recursos(pl, "AWS::IAM::Role").items():
             limite = texto(r["Properties"].get("PermissionsBoundary", ""))
             esperado = ARN_LIMITE
-            assert esperado in limite, f"{n}/{lid} sin el permission boundary que le toca"
+            assert esperado in limite, f"{n}/{lid} lacks the permissions boundary it needs"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -144,7 +144,7 @@ def test_no_hay_rol_sin_limite_aunque_lo_genere_cdk(perfil):
 def test_despliegue_crea_roles_solo_con_limite(perfil):
     pl = de_control(perfil)
     crear = [st for lid, _, st in declaraciones(pl) if "iam:CreateRole" in json.dumps(st.get("Action", []))]
-    assert crear, "no hay statement que permita crear roles"
+    assert crear, "no statement allows creating roles"
     for st in crear:
         assert st.get("Effect") == "Allow"
         assert "iam:PermissionsBoundary" in json.dumps(st.get("Condition", {}))
@@ -164,8 +164,8 @@ def test_despliegue_no_quita_ni_cambia_el_limite(perfil):
 def test_todos_los_grupos_de_logs_usan_la_llave_y_tienen_retencion(perfil):
     for n, pl in sintetizar(perfil)["plantillas"].items():
         for lid, r in recursos(pl, "AWS::Logs::LogGroup").items():
-            assert "KmsKeyId" in r["Properties"], f"{n}/{lid} sin llave"
-            assert r["Properties"].get("RetentionInDays"), f"{n}/{lid} sin retención"
+            assert "KmsKeyId" in r["Properties"], f"{n}/{lid} has no key"
+            assert r["Properties"].get("RetentionInDays"), f"{n}/{lid} has no retention"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -181,7 +181,7 @@ def test_llave_tiene_rotacion_y_alias(perfil):
 def test_politica_de_llave_sin_principal_comodin(perfil):
     for lid, tipo, st in declaraciones(de_base(perfil)):
         if tipo == "AWS::KMS::Key" and st.get("Principal") in ("*", {"AWS": "*"}):
-            assert st.get("Condition"), f"{lid} Principal * sin condición"
+            assert st.get("Condition"), f"{lid} Principal * without a condition"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -241,7 +241,7 @@ def test_endpoints_son_exactamente_los_del_adr_0005(perfil):
     assert set(gateway) == {"s3"}
     for servicio, p in interfaz.items():
         assert p["PrivateDnsEnabled"] is True
-        assert len(p["SubnetIds"]) == {"lab": 1, "prod": 3}[perfil], f"{servicio} en AZ de más o de menos"
+        assert len(p["SubnetIds"]) == {"lab": 1, "prod": 3}[perfil], f"{servicio} in too many or too few AZs"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -260,7 +260,7 @@ def test_grupo_de_endpoints_solo_acepta_443_desde_la_lambda(perfil):
     # Cross-group rules are separate AWS::EC2::SecurityGroupIngress resources in CDK's output.
     reglas = [r["Properties"] for r in recursos(pl, "AWS::EC2::SecurityGroupIngress").values()]
     reglas += [r for r in sgs[endpoints[0]]["Properties"].get("SecurityGroupIngress", [])]
-    assert reglas, "el grupo de endpoints no tiene entrada"
+    assert reglas, "the endpoints group has no ingress rule"
     assert all(r["FromPort"] == 443 and r["ToPort"] == 443 for r in reglas)
     assert all(r.get("IpProtocol") == "tcp" for r in reglas)
     assert any(herramientas[0] in texto(r.get("SourceSecurityGroupId", "")) for r in reglas)
@@ -323,9 +323,9 @@ def test_la_congelacion_no_bloquea_borrar(perfil):
                    if st.get("Sid") == "NoCrearNiActualizarMientrasEsteActiva"]
     assert len(congelacion) == 1 and congelacion[0]["Effect"] == "Deny"
     acciones = [a for st in congelacion for a in (st["Action"] if isinstance(st["Action"], list) else [st["Action"]])]
-    assert acciones, "la congelación no tiene acciones"
+    assert acciones, "the freeze has no actions"
     prohibidas = re.compile(r"(Delete|Remove|Detach|Terminate|Revoke|Schedule|Cancel|Disable)", re.IGNORECASE)
-    assert not [a for a in acciones if prohibidas.search(a)], "la congelación bloquea borrado"
+    assert not [a for a in acciones if prohibidas.search(a)], "the freeze blocks deletion"
     verbos = re.compile(r"^[a-z0-9-]+:(Create|Update|Put|Attach|Modify|Associate|Authorize|Enable|TagResource|Execute)")
     assert all(verbos.search(a) for a in acciones), [a for a in acciones if not verbos.search(a)]
 
@@ -360,16 +360,16 @@ def test_comodines_coinciden_con_el_registro(perfil):
             if "*" in texto(st.get("Action", "")) or "*" in texto(st.get("Resource", "")):
                 usados.add(st.get("Sid", "-"))
     assert usados == set(EXCEPCIONES), (
-        f"sin registro: {sorted(usados - set(EXCEPCIONES))}; obsoletos: {sorted(set(EXCEPCIONES) - usados)}")
+        f"unregistered: {sorted(usados - set(EXCEPCIONES))}; stale: {sorted(set(EXCEPCIONES) - usados)}")
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_no_hay_cuenta_ni_correo_en_las_plantillas(perfil):
     for n, pl in sintetizar(perfil)["plantillas"].items():
         texto_pl = json.dumps(pl)
-        assert not re.search(r"\b\d{12}\b", texto_pl), f"{n} contiene un número de 12 dígitos"
+        assert not re.search(r"\b\d{12}\b", texto_pl), f"{n} contains a 12-digit number"
         assert "000000000000" not in texto_pl
-        assert not re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", texto_pl), f"{n} contiene un correo"
+        assert not re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", texto_pl), f"{n} contains an email"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -638,9 +638,9 @@ def test_destruir_evalua_delete_failed_antes_que_cdk_destroy():
     assert "elif [[ \"$ESTADO_BASE\" != \"NO_EXISTE\" ]]" in texto
 
 
-# ---------------------------------------------------------------- cifrado y un rol por función (plan, actividad 3)
+# ---------------------------------------------------------------- encryption and one role per function (plan, activity 3)
 
-# Recursos cifrables y la propiedad que los ata a la llave. Lambda cuenta solo si tiene variables de entorno.
+# Encryptable resources and the property that ties them to the key. A Lambda counts only if it has environment variables.
 CIFRABLES = {
     "AWS::Logs::LogGroup": "KmsKeyId",
     "AWS::SQS::Queue": "KmsMasterKeyId",
@@ -672,25 +672,25 @@ def test_cada_recurso_cifrable_apunta_a_la_llave_del_proyecto(perfil):
             for lid, r in recursos(pl, tipo).items():
                 vistos.add(tipo)
                 assert prop in r["Properties"], f"{n}/{lid} ({tipo}) sin {prop}"
-                assert _usa_la_llave_del_proyecto(r["Properties"][prop]), f"{n}/{lid} ({tipo}) no usa la llave del proyecto"
+                assert _usa_la_llave_del_proyecto(r["Properties"][prop]), f"{n}/{lid} ({tipo}) does not use the project key"
         for lid, r in recursos(pl, "AWS::Lambda::Function").items():
             if r["Properties"].get("Environment"):
                 vistos.add("AWS::Lambda::Function")
-                assert _usa_la_llave_del_proyecto(r["Properties"].get("KmsKeyArn")), f"{n}/{lid} con variables sin la llave"
+                assert _usa_la_llave_del_proyecto(r["Properties"].get("KmsKeyArn")), f"{n}/{lid} has variables without the key"
     # Not vacuous: the stacks must contain the encryptable types this test is about.
     assert {"AWS::Logs::LogGroup", "AWS::S3::Bucket", "AWS::RDS::DBInstance"} <= vistos
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_cada_funcion_y_flujo_de_logs_tiene_su_propio_rol(perfil):
-    # Un rol por función: cada Lambda y cada flow log consume un rol distinto, y ningún rol se comparte.
+    # One role per function: each Lambda and each flow log uses a different role, and no role is shared.
     for n, pl in sintetizar(perfil)["plantillas"].items():
         consumidores = []
         for lid, r in recursos(pl, "AWS::Lambda::Function").items():
             consumidores.append(r["Properties"]["Role"]["Fn::GetAtt"][0])
         for lid, r in recursos(pl, "AWS::EC2::FlowLog").items():
             consumidores.append(r["Properties"]["DeliverLogsPermissionArn"]["Fn::GetAtt"][0])
-        assert len(consumidores) == len(set(consumidores)), f"{n}: un rol consumido por más de una función"
+        assert len(consumidores) == len(set(consumidores)), f"{n}: a role used by more than one function"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -710,13 +710,13 @@ def test_solo_el_despliegue_o_un_rol_documentado_crea_roles_y_siempre_con_limite
             dueno = "Despliegue" if lid.startswith("DespliegueDefaultPolicy") else (
                 "EjecucionCfn" if lid.startswith("EjecucionCfn") else lid)
             duenos_con_creacion.add(dueno)
-            assert "PermissionsBoundary" in json.dumps(st.get("Condition", {})), f"{lid} crea roles sin boundary"
-            assert ARN_LIMITE in texto(st.get("Condition", {})), f"{lid} crea roles con otro boundary"
-    assert duenos_con_creacion <= {"Despliegue"} | set(DOCUMENTADOS), f"crean roles sin documentar: {duenos_con_creacion}"
-    assert set(DOCUMENTADOS) <= duenos_con_creacion, "excepción documentada que ya no crea roles"
+            assert "PermissionsBoundary" in json.dumps(st.get("Condition", {})), f"{lid} creates roles without a permissions boundary"
+            assert ARN_LIMITE in texto(st.get("Condition", {})), f"{lid} creates roles with another permissions boundary"
+    assert duenos_con_creacion <= {"Despliegue"} | set(DOCUMENTADOS), f"undocumented role creators: {duenos_con_creacion}"
+    assert set(DOCUMENTADOS) <= duenos_con_creacion, "a documented exception that no longer creates roles"
 
 
-# ---------------------------------------------------------------- base de datos (actividad 4, primera rebanada)
+# ---------------------------------------------------------------- database (activity 4, first slice)
 
 @pytest.mark.parametrize("perfil", PERFILES)
 def test_base_de_datos_cifrada_privada_sin_acceso_publico_con_iam(perfil):
@@ -737,7 +737,7 @@ def test_postgres_solo_desde_el_cargador(perfil):
     # Ingress is only from the loader security group: 5432 to the database, 443 to the Secrets Manager endpoint.
     pl = sintetizar(perfil)["plantillas"][DATOS]
     ingresos = [r["Properties"] for r in recursos(pl, "AWS::EC2::SecurityGroupIngress").values()]
-    assert ingresos, "sin reglas de entrada"
+    assert ingresos, "no ingress rules"
     for r in ingresos:
         assert "CidrIp" not in r and "SourceSecurityGroupId" in r
     bd = [r for r in ingresos if r["FromPort"] == 5432]
@@ -1059,7 +1059,7 @@ class _SesionInventario:
             return AgentCore()
         if servicio == "bedrock-agent":
             return Agentes()
-        raise AssertionError(f"--solo-actividad7 no consulta {servicio}")
+        raise AssertionError(f"--solo-actividad7 does not query {servicio}")
 
 
 def test_inventario_de_la_actividad7_solo_mira_sus_categorias():

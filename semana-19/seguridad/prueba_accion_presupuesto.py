@@ -72,12 +72,12 @@ def documentos(cuenta: str) -> dict[str, dict]:
 
 
 def plan() -> list[str]:
-    return [f"crear la política {POLITICA} (Deny * sobre *)",
-            f"crear el rol {OBJETIVO} (sin permisos; confianza: Lambda de esta cuenta)",
-            f"crear el rol {EJECUCION} (confianza: budgets.amazonaws.com de esta cuenta; solo adjunta y quita "
-            f"{POLITICA} en {OBJETIVO})",
-            f"crear el presupuesto {PRESUPUESTO}: COST mensual de USD {LIMITE_USD} sobre toda la cuenta",
-            f"crear su acción APPLY_IAM_POLICY al 100 % de ACTUAL, AUTOMATIC: adjunta {POLITICA} a {OBJETIVO}"]
+    return [f"create policy {POLITICA} (Deny * on *)",
+            f"create role {OBJETIVO} (no permissions; trust: this account's Lambda)",
+            f"create role {EJECUCION} (trust: this account's budgets.amazonaws.com; it only attaches and detaches "
+            f"{POLITICA} on {OBJETIVO})",
+            f"create budget {PRESUPUESTO}: monthly COST of USD {LIMITE_USD} on the whole account",
+            f"create its APPLY_IAM_POLICY action at 100% of ACTUAL, AUTOMATIC: attaches {POLITICA} to {OBJETIVO}"]
 
 
 def crear(iam, budgets, cuenta: str, correo: str) -> list[str]:
@@ -135,15 +135,15 @@ def limpiar(iam, budgets, cuenta: str) -> list[str]:
     a = _accion(budgets, cuenta)
     if a:
         budgets.delete_budget_action(AccountId=cuenta, BudgetName=PRESUPUESTO, ActionId=a["ActionId"])
-        hecho.append("acción borrada")
+        hecho.append("action deleted")
     try:
         budgets.delete_budget(AccountId=cuenta, BudgetName=PRESUPUESTO)
-        hecho.append("presupuesto borrado")
+        hecho.append("budget deleted")
     except budgets.exceptions.NotFoundException:
         pass
     try:
         iam.detach_role_policy(RoleName=OBJETIVO, PolicyArn=arn_politica)
-        hecho.append(f"{POLITICA} quitada de {OBJETIVO}")
+        hecho.append(f"{POLITICA} detached from {OBJETIVO}")
     except iam.exceptions.NoSuchEntityException:
         pass
     for rol, inline in ((EJECUCION, ["adjuntar-solo-la-prueba"]), (OBJETIVO, [])):
@@ -151,12 +151,12 @@ def limpiar(iam, budgets, cuenta: str) -> list[str]:
             for nombre in inline:
                 iam.delete_role_policy(RoleName=rol, PolicyName=nombre)
             iam.delete_role(RoleName=rol)
-            hecho.append(f"rol {rol} borrado")
+            hecho.append(f"role {rol} deleted")
         except iam.exceptions.NoSuchEntityException:
             pass
     try:
         iam.delete_policy(PolicyArn=arn_politica)
-        hecho.append(f"política {POLITICA} borrada")
+        hecho.append(f"policy {POLITICA} deleted")
     except iam.exceptions.NoSuchEntityException:
         pass
     return hecho
@@ -202,7 +202,7 @@ def main(argv=None, sesion=None) -> int:
         hecho = limpiar(iam, budgets, cuenta)
         registrar({"fecha": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "evento": "limpiado",
                    "hecho": hecho})
-        print("\n".join(hecho) or "nada que borrar")
+        print("\n".join(hecho) or "nothing to delete")
     return 0
 
 

@@ -19,17 +19,17 @@ def test_hay_catorce_adrs_numerados_del_0001_al_0014():
 @pytest.mark.parametrize("ruta", ADR, ids=lambda p: p.name)
 def test_cada_adr_tiene_el_formato_comun(ruta):
     t = ruta.read_text(encoding="utf-8")
-    assert t.startswith("# ADR "), "titulo"
+    assert t.startswith("# ADR "), "title"
     secciones = re.findall(r"^## (.+)$", t, re.M)
     assert [s.split(" (")[0] for s in secciones[:4]] == SECCIONES, secciones
-    assert secciones[4].startswith("Costs"), "la quinta seccion es el costo"
-    assert len(secciones) == 5, "solo cinco secciones de nivel 2"
+    assert secciones[4].startswith("Costs"), "the fifth section is the cost"
+    assert len(secciones) == 5, "only five level-2 sections"
 
 
 @pytest.mark.parametrize("ruta", ADR, ids=lambda p: p.name)
 def test_cada_adr_cifra_su_costo_con_marca(ruta):
     t = ruta.read_text(encoding="utf-8")
-    assert re.search(r"\b(M|D|N)\b", t), "el costo debe llevar marca M, D o N"
+    assert re.search(r"\b(M|D|N)\b", t), "the cost must carry a mark: M, D or N"
 
 
 def test_el_adr_0001_registra_la_decision():

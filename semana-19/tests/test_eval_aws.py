@@ -290,7 +290,7 @@ def test_ningun_token_ni_contrasena_en_lo_que_se_escribe(tmp_path, monkeypatch):
 
 def test_la_simulacion_no_crea_clientes_de_aws(monkeypatch, capsys):
     import boto3
-    monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
+    monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("the dry run does not touch AWS"))
     assert E.main([]) == 0
     assert "Simulation" in capsys.readouterr().out
 
