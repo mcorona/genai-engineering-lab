@@ -69,7 +69,7 @@ Manual review of 20 references (10 per language, seed 11): **20/20 correct**; tw
   - Reranking minus base, AP@5: **+0.070 [+0.008, +0.137] ES** and **+0.095 [+0.018, +0.171] EN**, with 95% bootstrap intervals.
   - recall@3: +0.038 ES and +0.092 EN. Context precision: +0.078 ES and +0.090 EN.
   - recall@5 and context recall do not separate the configurations: both reach 1.000 (ceiling effect).
-- **Custom metrics vs RAGAS:**
+- **Custom metrics vs. RAGAS:**
   - Context recall agrees with exact recall@5 on 259 of 259 queries.
   - RAGAS context precision is the AP@5 formula with a judge (Pearson 0.84 against AP@5 on the base configuration). It is a ranking metric, not the share of relevant chunks.
   - RAGAS scores higher when another chunk also holds the answer. That reveals evidence the gold set does not list (`rec-25`).
@@ -144,7 +144,7 @@ Workflow `eval-semana-11`, script [`ci/eval_ci.py`](ci/eval_ci.py), calibration 
   - Thresholds per language: recall@3 and recall@5 at 0.95; MRR, nDCG@10 and AP@5 at 0.90.
   - Cost: $0.064.
 - **`semana11-generacion`:**
-  - Uses the fixed contexts, the `solo_documentos` prompt and the Haiku `low` judge, on all 150 questions. The cost does not call for a subset.
+  - Uses the fixed contexts, the `solo_documentos` prompt and the Haiku `low` judge, on all 150 questions. The cost is low enough that no subset is needed.
   - Thresholds per language: faithfulness 0.80 / 0.75 (ES / EN), answer relevancy 0.80 / 0.75, correctness 0.95, citation precision 0.65 / 0.70, no false abstention 0.95, correct abstention 0.90.
   - Cost: $0.16.
 

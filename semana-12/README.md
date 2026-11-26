@@ -55,7 +55,7 @@ The Claude model is used only in Bedrock's fully managed `RetrieveAndGenerate` m
 
 - **Budgets:**
   - AWS: `semana12`, $10 per month, with alerts at 50, 90 and 100% actual and 100% forecasted.
-  - Google Cloud: `semana12`, 200 MXN (about $10 USD), scoped to the project, with the same thresholds.
+  - Google Cloud: `semana12`, 200 MXN (about USD 10), scoped to the project, with the same thresholds.
 - **Naming and tags:** every resource uses the `semana12` prefix and the tag `proyecto=semana12`.
 - **Deletion:**
   - [`infra/aws_borrar.sh`](infra/aws_borrar.sh) and [`infra/gcp_borrar.sh`](infra/gcp_borrar.sh) delete in dependency order. On AWS: knowledge bases and data sources, vector indexes and buckets, S3 buckets, then roles. On Google Cloud: apps, data stores, buckets, then the service account.
@@ -190,7 +190,7 @@ Two data stores in project `ejemplo1-9xub`, created by [`infra/vertex_crear.py`]
 | `vx-ctl` semantic ranker | **1.000 / 1.000** | **0.977 / 0.962** | 1.000 / 1.000 | 0.985 / 0.985 |
 
 - **Ranking:**
-  - With the same chunks, Google's semantic ranker ranks better than the in-house Haiku reranking: MRR 0.97 vs 0.95, 0.7 s instead of 2.3 s.
+  - With the same chunks, Google's semantic ranker ranks better than the in-house Haiku reranking: MRR 0.97 vs. 0.95, 0.7 s instead of 2.3 s.
   - Hybrid search loses in English because of its keyword component.
 - **Managed ingestion:** it reads PDFs and scans, but OCR alone cannot tie chart values to their labels, so the 5 image questions fail.
 - **Leakage:** 0 in every run. Correct abstention: 10/10 everywhere.
