@@ -173,8 +173,13 @@ Quotation v3's central scenario (optimistic, p = 1), committed before the run (#
 
 ## 6. Cost Explorer and the teardown
 
-Pending: the inventory after `destruir.sh`, and one `GetCostAndUsage` call for 2026-11-26 the next day (0.01 USD,
-Manuel's OK given on 2026-11-26).
+**Teardown (2026-11-26):** `destruir.sh --si --todo`, then `destruir.sh --inventario` with the read-only role, which
+ended in `"quedan": "nada"`, with no unexpected resources (`"inesperados": {}`) and nothing left unmeasured
+(`"no_medido": []`). The teardown took 4,003 s (67 min): computo 2,457 s (the VPC Lambdas' network interfaces), datos
+1,414 s, and base, bootstrap and control 132 s together. That is close to 2026-11-24's 3,810 s
+(`semana-19/resultados/tiempos_despliegue.jsonl`).
+
+Pending: one `GetCostAndUsage` call for 2026-11-26 the next day (0.01 USD, Manuel's OK given on 2026-11-26).
 
 ## 7. Conclusion
 
