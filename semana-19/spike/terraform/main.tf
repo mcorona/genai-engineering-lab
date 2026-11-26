@@ -12,7 +12,7 @@ resource "aws_kms_key" "llave" {
 
 resource "aws_s3_bucket" "registros" {
   #checkov:skip=CKV_AWS_144:Lab: the logs bucket is not replicated across regions; for prod, ADR 0006 decides.
-  #checkov:skip=CKV2_AWS_62:Bucket de logs de acceso: no emite notificaciones de eventos.
+  #checkov:skip=CKV2_AWS_62:Access-log bucket: it emits no event notifications.
   bucket        = "semana19-spike-registros-${var.cuenta}"
   force_destroy = true
 }

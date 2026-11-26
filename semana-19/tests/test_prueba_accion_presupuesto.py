@@ -102,7 +102,7 @@ def test_ciclo_crear_estado_limpiar(aws, tmp_path):
     iam.attach_role_policy(RoleName=P.OBJETIVO, PolicyArn=f"arn:aws:iam::{CUENTA}:policy/{P.POLITICA}")
     assert P.estado(iam, budgets, CUENTA)["adjunta"] is True
     hecho = P.limpiar(iam, budgets, CUENTA)
-    assert "acción borrada" in hecho and f"{P.POLITICA} quitada de {P.OBJETIVO}" in hecho
+    assert "action deleted" in hecho and f"{P.POLITICA} detached from {P.OBJETIVO}" in hecho
     assert not [r for r in iam.list_roles()["Roles"] if r["RoleName"].startswith(P.PREFIJO)]
     assert not [p for p in iam.list_policies(Scope="Local")["Policies"] if p["PolicyName"].startswith(P.PREFIJO)]
     assert P.limpiar(iam, budgets, CUENTA) == []           # a second cleanup finds nothing

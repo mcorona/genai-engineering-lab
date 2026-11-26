@@ -688,10 +688,10 @@ class Control(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, synthesizer=cdk.LegacyStackSynthesizer(), **kwargs)
         correo = CfnParameter(self, "CorreoAlerta", type="String", default="",
-                              description="Correo de alertas (se pasa al desplegar con ALERTA_EMAIL; no va en el repo).")
+                              description="Alert email (passed at deploy time with ALERTA_EMAIL; it is not in the repo).")
         bootstrap = CfnParameter(self, "BootstrapCreado", type="String", default="false",
                                  allowed_values=["true", "false"],
-                                 description="true cuando el bootstrap s19 ya existe: la acción congela también los roles cdk-s19-*.")
+                                 description="true when the s19 bootstrap already exists: the action also freezes the cdk-s19-* roles.")
         hay_bootstrap = cdk.CfnCondition(self, "HayBootstrap", expression=cdk.Fn.condition_equals(
             bootstrap.value_as_string, "true"))
         roles_congelados = cdk.Token.as_list(cdk.Fn.condition_if(
@@ -799,19 +799,19 @@ class Control(Stack):
                                "DocsDatosLeerYListar", "DocsDatosEscribir",
                                "IndiceKbDatos", "SecretoBdLeer", "KmsViaServiciosDelLimite", "BucketDelJuezDelLimite",
                                "LogsDeLaLambdaDatos"])
-        saltar_checkov(limite, {"CKV_AWS_111": "Lectura y revocación de SG por defecto sin ARN, y nombres por prefijo semana19-*/cdk-s19-*; ver EXCEPCIONES."})
+        saltar_checkov(limite, {"CKV_AWS_111": "Default SG reads and revocations with no ARN, and names by prefix semana19-*/cdk-s19-*; see EXCEPCIONES."})
         suprimir_iam5(ejecucion, ["VpcYRedes", "LlavesKms", "GruposDeLogs", "DescribirGruposDeLogs",
                                   "FuncionesDeCustomResourceDelProyecto", "RolesConLimite"])
         saltar_checkov(ejecucion_datos, {
-            "CKV_AWS_111": "Creación de recursos del stack datos sin ARN previo (secreto, base, buckets, Knowledge Base); ver EXCEPCIONES.",
-            "CKV_AWS_109": "Roles semana19-kb y semana19-datos-* sin condición de límite en las acciones de gestión: los roles se crean con semana19-limite (aplicado por el Aspect), y iam:PassRole solo hacia bedrock y lambda."})
+            "CKV_AWS_111": "Creation of the data stack's resources with no prior ARN (secret, database, buckets, Knowledge Base); see EXCEPCIONES.",
+            "CKV_AWS_109": "Roles semana19-kb and semana19-datos-* with no boundary condition on the management actions: the roles are created with semana19-limite (applied by the Aspect), and iam:PassRole only to bedrock and lambda."})
         suprimir_iam5(ejecucion_datos, ["SecretoDeLaBdPorCfn", "ContrasenaGeneradaPorCfn", "LeerSecretoDeLaBdPorCfn", "EscribirSecretoDeLaBdPorCfn", "DescribirRdsPorCfn",
                                         "LlaveParaRdsYSecretos", "BaseDeDatosPostgresPorCfn", "BucketDocsKbPorCfn",
                                         "VectoresKbPorCfn", "KnowledgeBasePorCfn", "CrearKnowledgeBasePorCfn",
                                         "RolesDelDatosPorCfn", "PasarRolesDelDatosAKbYLambda", "ConcurrenciaDelCargador"])
         saltar_checkov(ejecucion, {
-            "CKV_AWS_111": "Creación de recursos del proyecto sin ARN previo (VPC, llaves, grupos); ver EXCEPCIONES.",
-            "CKV_AWS_109": "Gestión de roles limitada a nombres semana19-* y obligatoriamente con el límite (condición iam:PermissionsBoundary); ver EXCEPCIONES."})
+            "CKV_AWS_111": "Creation of the project's resources with no prior ARN (VPC, keys, groups); see EXCEPCIONES.",
+            "CKV_AWS_109": "Role management limited to semana19-* names and always with the boundary (iam:PermissionsBoundary condition); see EXCEPCIONES."})
         suprimir_iam5(ejecucion_ia, ["PromptsDelAgentePorCfn", "LlaveDeLosPromptsPorCfn", "PasarRolDelCreadorDeGuardrail",
                                      "PoliticasYAdjuntosDelRolDeIa", "BorrarRolDeIa"])
         suprimir_iam5(ejecucion_computo, ["ApiHttpPorCfn", "CognitoPorCfn", "TablaDeTokensPorCfn", "LlaveDeLaTablaPorCfn",
@@ -819,14 +819,14 @@ class Control(Stack):
                                           "EntregaDeLogsDeApiPorCfn",
                                           "MaquinaDeAprobacionPorCfn", "PasarRolesDeComputoAFuncionesYMaquina"])
         saltar_checkov(ejecucion_computo, {
-            "CKV_AWS_111": "Escritura sobre '*' solo donde AWS no admite ARN previo: creación del pool de Cognito (CognitoPorCfn), "
-                           "entrega de logs de la HTTP API (EntregaDeLogsDeApiPorCfn) y grants de la llave vía DynamoDB "
-                           "(LlaveDeLaTablaPorCfn, con kms:ViaService); ver EXCEPCIONES."})
+            "CKV_AWS_111": "Writes on '*' only where AWS accepts no prior ARN: creating the Cognito pool (CognitoPorCfn), "
+                           "HTTP API log delivery (EntregaDeLogsDeApiPorCfn) and key grants through DynamoDB "
+                           "(LlaveDeLaTablaPorCfn, with kms:ViaService); see EXCEPCIONES."})
         suprimir_iam5(ejecucion_agentes, ["GatewayPorCfn", "IdentidadDelGatewayPorCfn", "MotorDePoliticasPorCfn", "CrearAgentePorCfn", "AgentePorCfn",
                                           "ModeloYGuardrailDelAgentePorCfn", "PasarRolesAAgentCoreYBedrock",
                                           "RolesDeActividad7PorCfn"])
         saltar_checkov(ejecucion_agentes, {
-            "CKV_AWS_111": "CreateAgent sin tipo de recurso (Service Authorization Reference) y recursos de AgentCore sin ID previo; ver EXCEPCIONES."})
+            "CKV_AWS_111": "CreateAgent with no resource type (Service Authorization Reference) and AgentCore resources with no prior ID; see EXCEPCIONES."})
         suprimir_iam5(despliegue, ["AsumirRolesCdk", "LeerCloudFormation", "CrearRolesSoloConLimite",
                                    "NoQuitarNiCambiarElLimite"])
         cdk.CfnOutput(self, "ArnLimite", value=limite.managed_policy_arn)
@@ -989,13 +989,13 @@ class Datos(Stack):
         self.sg_cargador = sg_cargador
         self.sg_bd = sg_bd
         NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
-            id="AwsSolutions-RDS11", reason="Puerto 5432 de PostgreSQL: el acceso lo limita el SG a la Lambda del cargador.")])
+            id="AwsSolutions-RDS11", reason="PostgreSQL port 5432: the SG limits access to the loader Lambda.")])
         NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
-            id="AwsSolutions-RDS10", reason="Protección contra borrado apagada solo en el laboratorio; el teardown debe borrarla. Documentado en el plan.")])
+            id="AwsSolutions-RDS10", reason="Deletion protection is off in the lab only, so the teardown can delete the instance. Documented in the plan.")])
         NagSuppressions.add_resource_suppressions(bd, [NagPackSuppression(
-            id="AwsSolutions-RDS3", reason="Single-AZ por diseño de laboratorio (plan, actividad 4).")])
+            id="AwsSolutions-RDS3", reason="Single-AZ by lab design (plan, activity 4).")])
         NagSuppressions.add_resource_suppressions_by_path(self, "/semana19-datos/PostgreSQL/Secret/Resource", [NagPackSuppression(
-            id="AwsSolutions-SMG4", reason="Sin rotación automática en el laboratorio: la Lambda de rotación queda fuera de la actividad 4; la contraseña nunca sale del secreto cifrado con la llave del stack.")])
+            id="AwsSolutions-SMG4", reason="No automatic rotation in the lab: the rotation Lambda is outside activity 4; the password never leaves the secret encrypted with the stack's key.")])
         # Secrets Manager endpoint: the loader reads the master password from inside the VPC (no internet).
         sg_endpoint_secretos = ec2.SecurityGroup(
             self, "SgEndpointSecretos", vpc=red, allow_all_outbound=False,
@@ -1020,7 +1020,7 @@ class Datos(Stack):
             security_groups=[sg_cargador], reserved_concurrent_executions=1,
             description="One-shot loader of the lab database (activity 4). Idempotent. Input: secret ARN and host.")
         saltar_checkov(cargador, {
-            "CKV_AWS_116": "Cargador de un solo uso invocado a mano: el resultado vuelve en la respuesta de la invocación; no hay cola de reintentos que vigilar."})
+            "CKV_AWS_116": "One-shot loader invoked by hand: the result comes back in the invocation response; there is no retry queue to watch."})
         # Identity policy: grant_read would also grant decrypt on the key, which lives in the base stack.
         cargador.add_to_role_policy(_declaracion(sid="LeerElSecretoDeLaBd", actions=["secretsmanager:GetSecretValue"],
                                                  resources=[bd.secret.secret_arn]))
@@ -1082,9 +1082,9 @@ class Datos(Stack):
         cargador.add_to_role_policy(_declaracion(sid="CifrarDocsKb", actions=["kms:GenerateDataKey", "kms:Encrypt"],
                                                  resources=[llave.key_arn]))
         NagSuppressions.add_resource_suppressions(bucket_docs, [NagPackSuppression(
-            id="AwsSolutions-S1", reason="Registros de acceso al bucket de documentos apagados en el laboratorio: el contenido es sintético y los eventos quedan en CloudTrail.")])
+            id="AwsSolutions-S1", reason="Access logs for the documents bucket off in the lab: the content is synthetic and the events are in CloudTrail.")])
         saltar_checkov(bucket_docs, {
-            "CKV_AWS_18": "Registros de acceso apagados en el laboratorio (contenido sintético; eventos en CloudTrail), igual que AwsSolutions-S1."})
+            "CKV_AWS_18": "Access logs off in the lab (synthetic content; events in CloudTrail), same as AwsSolutions-S1."})
         suprimir_iam5(cargador, ["EscribirDocsKb"])
         suprimir_iam5(rol_kb, ["LeerLosDocs"])
         cdk.CfnOutput(self, "BucketDocsKb", value=bucket_docs.bucket_name)
@@ -1095,14 +1095,14 @@ class Datos(Stack):
         cdk.CfnOutput(self, "HostBd", value=bd.db_instance_endpoint_address)
         cdk.CfnOutput(self, "NombreCargador", value=cargador.function_name)
         NagSuppressions.add_resource_suppressions(cargador.role, [NagPackSuppression(
-            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: el cargador necesita crear interfaces de red en la VPC; la política administrada de AWS es la mínima para eso.")],
+            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: the loader needs to create network interfaces in the VPC; the AWS managed policy is the minimum for that.")],
             apply_to_children=True)
         NagSuppressions.add_resource_suppressions(cargador, [NagPackSuppression(
-            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; el cargador es de un solo uso.")])
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab; the loader is one-shot.")])
 
         saltar_checkov(bd, {
-            "CKV_AWS_157": "Single-AZ por diseño de laboratorio (plan, actividad 4); la alta disponibilidad es de producción.",
-            "CKV_AWS_118": "Monitoreo mejorado apagado: agrega costo que el plan de costo no incluye; el laboratorio usa las métricas base."})
+            "CKV_AWS_157": "Single-AZ by lab design (plan, activity 4); high availability is a production concern.",
+            "CKV_AWS_118": "Enhanced monitoring off: it adds cost that the cost plan does not include; the lab uses the base metrics."})
 
 
 @jsii.implements(IAspect)
@@ -1113,9 +1113,9 @@ class OmitirCheckovEnProveedorCdk:
     def visit(self, node):
         if getattr(node, "cfn_resource_type", None) == "AWS::Lambda::Function" and "VpcRestrictDefaultSGCustomResourceProvider" in node.node.path:
             saltar_checkov(node, {
-                "CKV_AWS_117": "Custom resource que CDK genera para vaciar el grupo de seguridad por defecto: corre una vez al crear la VPC; fuera de la VPC por diseño de CDK.",
-                "CKV_AWS_116": "Custom resource de CDK: invocación única al crear la VPC; sin cola de mensajes muertos.",
-                "CKV_AWS_115": "Custom resource de CDK: invocación única; sin límite de concurrencia.",
+                "CKV_AWS_117": "Custom resource that CDK generates to empty the default security group: it runs once when the VPC is created; outside the VPC by CDK's design.",
+                "CKV_AWS_116": "CDK custom resource: a single invocation when the VPC is created; no dead-letter queue.",
+                "CKV_AWS_115": "CDK custom resource: a single invocation; no concurrency limit.",
             })
 
 
@@ -1160,8 +1160,8 @@ class Ia(Stack):
             timeout=Duration.minutes(2), memory_size=256, reserved_concurrent_executions=1, log_group=grupo,
             description="Creates the semana19-legacybridge guardrail with its tier (custom resource, activity 5).")
         saltar_checkov(creador, {
-            "CKV_AWS_117": "Custom resource del proyecto: la API de control de Bedrock es pública; fuera de la VPC por diseño.",
-            "CKV_AWS_116": "Custom resource: CloudFormation reintenta y reporta el fallo en la respuesta; no hay cola que vigilar.",
+            "CKV_AWS_117": "Project custom resource: the Bedrock control plane API is public; outside the VPC by design.",
+            "CKV_AWS_116": "Custom resource: CloudFormation retries and reports the failure in the response; there is no queue to watch.",
         })
         creador.add_to_role_policy(_declaracion(
             sid="GuardrailEnBedrock", actions=[
@@ -1174,11 +1174,11 @@ class Ia(Stack):
             sid="PerfilEntreRegionesDelGuardrail", actions=["bedrock:CreateGuardrail", "bedrock:UpdateGuardrail"],
             resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail-profile/{perfil}"]))
         NagSuppressions.add_resource_suppressions(creador, [NagPackSuppression(
-            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio; el custom resource corre una vez por despliegue.")])
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab; the custom resource runs once per deployment.")])
         NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
-            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; es la política administrada mínima para una función fuera de la VPC.")], apply_to_children=True)
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: write its logs to its own group; it is the minimum managed policy for a function outside the VPC.")], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(creador.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="GuardrailEnBedrock: CreateGuardrail recibe el nombre del guardrail, no su ARN; el ARN no existe antes de crearlo. Acotado a guardrail/* de esta cuenta y Región.")], apply_to_children=True)
+            id="AwsSolutions-IAM5", reason="GuardrailEnBedrock: CreateGuardrail receives the guardrail's name, not its ARN; the ARN does not exist before it is created. Scoped to guardrail/* of this account and Region.")], apply_to_children=True)
         creador.add_to_role_policy(_declaracion(
             sid="LlaveDelGuardrail", actions=["kms:Decrypt", "kms:DescribeKey", "kms:GenerateDataKey", "kms:CreateGrant"],
             resources=[llave.key_arn]))
@@ -1333,9 +1333,9 @@ class Computo(Stack):
             sid="ConectarComoOrderWriter", actions=["rds-db:connect"],
             resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:{bd.instance_resource_id}/order_writer"]))
         NagSuppressions.add_resource_suppressions(escritor.role, [NagPackSuppression(
-            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de una VPC.")])
+            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: create and delete the Lambda's network interface in its subnet and write its logs; the minimum managed policy for a function inside a VPC.")])
         NagSuppressions.add_resource_suppressions(escritor, [NagPackSuppression(
-            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab (same as the rest of the stack's functions).")])
 
         # Tools Lambda (activity 6b): read-only SQL as copilot_ro and the approval starter. Same VPC rules as the writer:
         # PostgreSQL to the database and HTTPS to the endpoints only. It is not invoked by any route in this change.
@@ -1367,9 +1367,9 @@ class Computo(Stack):
             sid="ConectarComoCopilotRo", actions=["rds-db:connect"],
             resources=[f"arn:{Aws.PARTITION}:rds-db:{REGION}:{Aws.ACCOUNT_ID}:dbuser:{bd.instance_resource_id}/copilot_ro"]))
         NagSuppressions.add_resource_suppressions(herramientas.role, [NagPackSuppression(
-            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: crear y borrar la interfaz de red de la Lambda en su subred y escribir sus logs; la política administrada mínima para una función dentro de la VPC.")])
+            id="AwsSolutions-IAM4", reason="AWSLambdaVPCAccessExecutionRole: create and delete the Lambda's network interface in its subnet and write its logs; the minimum managed policy for a function inside the VPC.")])
         NagSuppressions.add_resource_suppressions(herramientas, [NagPackSuppression(
-            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab (same as the rest of the stack's functions).")])
 
         # Agent (activity 6b): the week 13 loop with the guardrail, the budget and the spans of week 17. Outside the VPC:
         # it calls Bedrock and the tools function through their public endpoints. Not behind any route yet.
@@ -1380,7 +1380,7 @@ class Computo(Stack):
             billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST, encryption=dynamodb.TableEncryption.CUSTOMER_MANAGED,
             encryption_key=llave, time_to_live_attribute="expira", removal_policy=RemovalPolicy.DESTROY)
         NagSuppressions.add_resource_suppressions(tabla_consultas, [NagPackSuppression(
-            id="AwsSolutions-DDB3", reason="Consultas: respuestas efímeras con TTL de 7 días; la recuperación a un punto en el tiempo no aporta aquí y su costo no está verificado.")])
+            id="AwsSolutions-DDB3", reason="Queries: ephemeral answers with a 7-day TTL; point-in-time recovery adds nothing here and its cost is not verified.")])
         import sys as _sys
         _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from ia.config import MODELO_ID as modelo_con_perfil  # the one place the model id lives (ia/config.py)
@@ -1421,9 +1421,9 @@ class Computo(Stack):
             sid="ActualizarConsultas", actions=["dynamodb:UpdateItem"], resources=[tabla_consultas.table_arn]))
         llave.grant(agente.role, "kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey")
         NagSuppressions.add_resource_suppressions(agente.role, [NagPackSuppression(
-            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.")])
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: write its logs to its own group; the function is outside the VPC.")])
         NagSuppressions.add_resource_suppressions(agente, [NagPackSuppression(
-            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab (same as the rest of the stack's functions).")])
         suprimir_iam5(agente.role, ["ModeloDeHaikuPorConverse", "EscribirSpansDelAgente"])
 
         # The workflow (spec: "writes the PENDING_APPROVAL request; waits for the task token"): the writer inserts the
@@ -1482,19 +1482,19 @@ class Computo(Stack):
                 hijo.authorization_scopes = ["legacybridge/aprobaciones"]
 
         NagSuppressions.add_resource_suppressions(tabla, [NagPackSuppression(
-            id="AwsSolutions-DDB3", reason="Tokens de tarea: caducan por TTL a las 24 h y se borran al decidir; la recuperación a un punto en el tiempo no aporta nada aquí y su costo no está verificado.")])
+            id="AwsSolutions-DDB3", reason="Task tokens: they expire by TTL after 24 h and are deleted when the decision is made; point-in-time recovery adds nothing here and its cost is not verified.")])
         NagSuppressions.add_resource_suppressions(pool, [
-            NagPackSuppression(id="AwsSolutions-COG2", reason="MFA desactivada en el laboratorio: usuarios de prueba creados por un administrador (ADR 0013); la decisión de MFA es de la actividad 8."),
-            NagPackSuppression(id="AwsSolutions-COG8", reason="Feature plan Essentials por ADR 0009 (costo autorizado por Manuel); Plus no está autorizado y su costo no está verificado.")])
+            NagPackSuppression(id="AwsSolutions-COG2", reason="MFA off in the lab: test users created by an administrator (ADR 0013); the MFA decision belongs to activity 8."),
+            NagPackSuppression(id="AwsSolutions-COG8", reason="Essentials feature plan per ADR 0009 (cost authorized by Manuel); Plus is not authorized and its cost is not verified.")])
         for funcion in (token_fn, registrar, aprobar):
             NagSuppressions.add_resource_suppressions(funcion, [NagPackSuppression(
-                id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el creador del guardrail).")])
+                id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab (same as the guardrail creator).")])
             NagSuppressions.add_resource_suppressions(funcion.role, [NagPackSuppression(
-                id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo, la política administrada mínima para una función fuera de la VPC.")])
+                id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: write its logs to its own group, the minimum managed policy for a function outside the VPC.")])
         NagSuppressions.add_resource_suppressions(aprobar.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="Lectura y borrado en la tabla de tokens (y sus índices). | DecisionAlFlujo: " + EXCEPCIONES["DecisionAlFlujo"])], apply_to_children=True)
+            id="AwsSolutions-IAM5", reason="Read and delete on the tokens table (and its indexes). | DecisionAlFlujo: " + EXCEPCIONES["DecisionAlFlujo"])], apply_to_children=True)
         NagSuppressions.add_resource_suppressions(maquina.role, [NagPackSuppression(
-            id="AwsSolutions-IAM5", reason="Step Functions exige logs:*Log* sobre '*' para entregar sus logs (no admite un recurso más estrecho); la invocación a la Lambda de registro va acotada a su ARN.")], apply_to_children=True)
+            id="AwsSolutions-IAM5", reason="Step Functions requires logs:*Log* on '*' to deliver its logs (it does not accept a narrower resource); the invocation of the logging Lambda is scoped to its ARN.")], apply_to_children=True)
         # The approval state machine writes to its log group, which is encrypted with the stack key. The key policy does
         # not name this role, so the role gets the key actions in its own policy (the key policy's account root allows it).
         llave.grant(maquina.role, "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey*", "kms:DescribeKey")
@@ -1523,9 +1523,9 @@ class Computo(Stack):
             if isinstance(hijo, apigwv2.CfnRoute) and hijo.route_key in ("POST /consultas", "GET /consultas/{id}"):
                 hijo.authorization_scopes = ["legacybridge/consultas"]
         NagSuppressions.add_resource_suppressions(consultas_api.role, [NagPackSuppression(
-            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: escribir sus logs en su propio grupo; la función está fuera de la VPC.")])
+            id="AwsSolutions-IAM4", reason="AWSLambdaBasicExecutionRole: write its logs to its own group; the function is outside the VPC.")])
         NagSuppressions.add_resource_suppressions(consultas_api, [NagPackSuppression(
-            id="AwsSolutions-L1", reason="Runtime Python 3.13, el más reciente aprobado para el laboratorio (igual que el resto de funciones del stack).")])
+            id="AwsSolutions-L1", reason="Runtime Python 3.13, the latest approved for the lab (same as the rest of the stack's functions).")])
 
         # Activity 9: the checkov findings of this stack that stay, each with its reason (the fixes are above:
         # reserved concurrency on every function and no async retries for the agent).
@@ -1842,10 +1842,10 @@ class Eval(Stack):
             lifecycle_rules=[s3.LifecycleRule(id="caducan", expiration=Duration.days(7),
                                               abort_incomplete_multipart_upload_after=Duration.days(1))])
         NagSuppressions.add_resource_suppressions(bucket, [NagPackSuppression(
-            id="AwsSolutions-S1", reason="Registros de acceso apagados en el laboratorio: el bucket solo guarda el dataset y la salida del juez, redactados, por una corrida; los eventos quedan en CloudTrail.")])
+            id="AwsSolutions-S1", reason="Access logs off in the lab: the bucket only holds the judge's dataset and output, redacted, for one run; the events are in CloudTrail.")])
         saltar_checkov(bucket, {
-            "CKV_AWS_18": "Registros de acceso apagados en el laboratorio, igual que AwsSolutions-S1.",
-            "CKV_AWS_21": "Sin versiones: el bucket se vacía al terminar la corrida y se destruye con el stack."})
+            "CKV_AWS_18": "Access logs off in the lab, same as AwsSolutions-S1.",
+            "CKV_AWS_21": "No versioning: the bucket is emptied when the run ends and destroyed with the stack."})
         rol = iam.Role(
             self, "RolJuez", description="Service role of the Bedrock judge (activity 8): judge model and this bucket only.",
             assumed_by=iam.ServicePrincipal("bedrock.amazonaws.com", conditions={

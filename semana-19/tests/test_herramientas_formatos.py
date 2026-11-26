@@ -114,7 +114,7 @@ def test_evento_de_bedrock_agents_es_la_misma_llamada_que_lambda_invoke(nombre, 
 
 def test_bedrock_agents_recibe_la_respuesta_en_su_formato():
     ev = evento_agentes("ejecutar_sql", {"sql": "DELETE FROM legado.prvmst"})
-    res = H.handler(ev, None, conectar=lambda: pytest.fail("no debe conectar"))
+    res = H.handler(ev, None, conectar=lambda: pytest.fail("must not connect"))
     assert res["messageVersion"] == "1.0"
     r = res["response"]
     assert r["actionGroup"] == "herramientas" and r["function"] == "ejecutar_sql"
@@ -144,7 +144,7 @@ def test_bedrock_agents_arreglo_como_texto_llega_como_lista(valor):
 def test_bedrock_agents_arreglo_mal_formado_se_rechaza_sin_conectar(valor):
     ev = evento_agentes("describir_esquema", {})
     ev["parameters"] = [{"name": "tablas", "type": "array", "value": valor}]
-    res = H.handler(ev, None, conectar=lambda: pytest.fail("no debe conectar"))
+    res = H.handler(ev, None, conectar=lambda: pytest.fail("must not connect"))
     cuerpo = json.loads(res["response"]["functionResponse"]["responseBody"]["TEXT"]["body"])
     assert cuerpo == {"error": "entrada_invalida", "mensaje": "llamada mal formada"}
 

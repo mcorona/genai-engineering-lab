@@ -212,5 +212,5 @@ def test_elegir_skus_salta_los_pendientes_y_falla_si_no_hay():
 def test_topes_en_el_codigo_y_simulacion_sin_aws(monkeypatch, capsys):
     assert (A.TOPE_USD, A.TOPE_TOKENS) == (0.20, 100_000)
     import boto3
-    monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
+    monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("the dry run does not touch AWS"))
     assert A.main([]) == 0 and "Simulation" in capsys.readouterr().out

@@ -111,8 +111,8 @@ def main(argv=None) -> int:
     a.salida.write_text(json.dumps(r, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     sin = sum(len(p["sin_clasificar"]) for p in r["perfiles"].values())
     for p, x in r["perfiles"].items():
-        print(f"{p}: {x['politicas']} políticas, {x['hallazgos']} hallazgos, "
-              f"{len(x['sin_clasificar'])} sin clasificar")
+        print(f"{p}: {x['politicas']} policies, {x['hallazgos']} findings, "
+              f"{len(x['sin_clasificar'])} unclassified")
     return 1 if sin else 0
 
 

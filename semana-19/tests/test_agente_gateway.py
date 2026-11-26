@@ -150,18 +150,18 @@ def test_un_401_del_gateway_es_token_vencido():
 
 def test_un_rechazo_jsonrpc_del_gateway_llega_cerrado_con_su_codigo():
     from mcp.shared.exceptions import MCPError
-    res = llamador(SesionSimulada(error=MCPError(-32002, "denegado por la política: detalle interno")))(
+    res = llamador(SesionSimulada(error=MCPError(-32002, "denied by policy: internal detail")))(
         "proponer_orden_compra", {"sku": "SKU-0009"}, solicitante="x")
     assert res["ok"] is False and res["error"]["tipo"] == G.RECHAZO_DEL_GATEWAY and res["error"]["codigo"] == -32002
-    assert "detalle interno" not in json.dumps(res)
+    assert "internal detail" not in json.dumps(res)
 
 
 def test_un_rechazo_anidado_en_dos_grupos_llega_cerrado_con_su_codigo():
     from mcp.shared.exceptions import MCPError
-    anidado = ExceptionGroup("cliente", [ExceptionGroup("sesion", [MCPError(-32002, "detalle interno")])])
+    anidado = ExceptionGroup("cliente", [ExceptionGroup("sesion", [MCPError(-32002, "internal detail")])])
     res = llamador(SesionSimulada(error=anidado))("proponer_orden_compra", {"sku": "SKU-0009"}, solicitante="x")
     assert res["ok"] is False and res["error"]["tipo"] == G.RECHAZO_DEL_GATEWAY and res["error"]["codigo"] == -32002
-    assert "detalle interno" not in json.dumps(res)
+    assert "internal detail" not in json.dumps(res)
 
 
 def test_otra_falla_del_transporte_es_un_error_cerrado():

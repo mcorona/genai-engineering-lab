@@ -77,7 +77,7 @@ def test_correr_camino_se_detiene_en_el_tope_y_lo_registra():
 
 @pytest.mark.parametrize("args", [[], ["--camino", "directo"], ["--camino", "agentes"], ["--politica"]])
 def test_por_omision_simula_y_no_llama_a_aws(monkeypatch, capsys, args):
-    monkeypatch.setattr(C, "Aws", lambda *a, **k: pytest.fail("la simulación no crea clientes"))
+    monkeypatch.setattr(C, "Aws", lambda *a, **k: pytest.fail("the dry run creates no clients"))
     assert C.main(args) == 0
     salida = capsys.readouterr().out
     assert '"simulacion": true' in salida and "--si" in salida
@@ -101,7 +101,7 @@ def test_filas_distintas_o_sin_clave_no_son_exito():
     distinto = C.verificar(tarea(), "respondida", [{"clave": "filas", "sql": SQL_OK, "valor": "x"}],
                            lambda sql: {"filas": [["SKU-0001"]], "truncado": False})
     assert distinto["exito"] is False and distinto["claves"]["filas"]["exacta"] is False
-    sin_clave = C.verificar(tarea(), "respondida", [], lambda sql: pytest.fail("no hay SQL que correr"))
+    sin_clave = C.verificar(tarea(), "respondida", [], lambda sql: pytest.fail("there is no SQL to run"))
     assert sin_clave["exito"] is False and sin_clave["claves"]["filas"]["reportada"] is False
     otro_estado = C.verificar(tarea(), "limite_alcanzado", [], lambda sql: {})
     assert otro_estado["estado_ok"] is False
@@ -115,7 +115,7 @@ def test_un_error_o_un_resultado_truncado_cuenta_como_no_exacto(respuesta):
 
 def test_la_guardia_de_la_semana_13_rechaza_una_escritura_sin_llamar_a_la_funcion():
     v = C.verificar(tarea(), "respondida", [{"clave": "filas", "sql": "DELETE FROM legado.artmst", "valor": 1}],
-                    lambda sql: pytest.fail("la guardia corre antes"))
+                    lambda sql: pytest.fail("the guard runs first"))
     assert v["exito"] is False and v["claves"]["filas"]["error"]
 
 

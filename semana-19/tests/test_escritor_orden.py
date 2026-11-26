@@ -31,7 +31,7 @@ class Conexion:
     def run(self, sql, **kw):
         self.sql.append((sql, kw))
         if sql.startswith(("INSERT", "UPDATE")) and self.fallo:
-            raise RuntimeError("violación de restricción")
+            raise RuntimeError("constraint violation")
         if sql.startswith("INSERT"):
             return self.filas if self.filas is not None else [[7, "PENDING_APPROVAL", Decimal("1234.50"), "comprador"]]
         if sql.startswith("UPDATE"):

@@ -63,7 +63,7 @@ def test_tope_de_usd_corta_y_nombra_el_motivo():
 def test_parada_por_presupuesto_no_llama_y_deja_el_motivo_para_la_lambda():
     """The wrapper answers the stop; running the loop itself with it is covered when the agent Lambda is tested."""
     p = Presupuesto(_pol(usd=0.0001), MODELO, PRECIOS)
-    envuelta = p.envolver(lambda c: pytest.fail("no debe llamar al modelo"))
+    envuelta = p.envolver(lambda c: pytest.fail("must not call the model"))
     res = envuelta({"messages": ["x" * 3000]})
     assert res["stop_reason"] == "max_tokens" and res["content"] == []
     assert p.motivo in {"presupuesto_usd", "presupuesto_tokens"}

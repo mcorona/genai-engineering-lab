@@ -123,7 +123,7 @@ def test_orden_de_compra_solo_inicia_la_maquina_con_el_solicitante_del_token():
 ])
 def test_lo_que_la_base_rechazaria_se_dice_antes_de_iniciar(lecturas, tipo):
     with pytest.raises(ToolError) as e:
-        H.proponer_orden_compra(PROPUESTA, lambda x: pytest.fail("no debe iniciar"), solicitante="s", conectar=lambda: lecturas)
+        H.proponer_orden_compra(PROPUESTA, lambda x: pytest.fail("must not start"), solicitante="s", conectar=lambda: lecturas)
     assert e.value.kind == tipo and lecturas.cerrada
 
 
@@ -134,21 +134,21 @@ def test_lo_que_la_base_rechazaria_se_dice_antes_de_iniciar(lecturas, tipo):
 ])
 def test_orden_invalida_se_rechaza_sin_conectar_ni_iniciar(cambio):
     with pytest.raises(ToolError):
-        H.proponer_orden_compra({**PROPUESTA, **cambio}, lambda e: pytest.fail("no debe iniciar"), solicitante="s",
-                                conectar=lambda: pytest.fail("no debe conectar"))
+        H.proponer_orden_compra({**PROPUESTA, **cambio}, lambda e: pytest.fail("must not start"), solicitante="s",
+                                conectar=lambda: pytest.fail("must not connect"))
 
 
 @pytest.mark.parametrize("campo", ["cedis", "fecha_requerida", "motivo"])
 def test_cada_dato_obligatorio_de_la_politica_falta_y_se_rechaza(campo):
     entrada = {k: v for k, v in PROPUESTA.items() if k != campo}
     with pytest.raises(ToolError):
-        H.proponer_orden_compra(entrada, lambda e: pytest.fail("no debe iniciar"), solicitante="s")
+        H.proponer_orden_compra(entrada, lambda e: pytest.fail("must not start"), solicitante="s")
 
 
 @pytest.mark.parametrize("solicitante", [None, "", "x" * 129])
 def test_sin_solicitante_no_inicia(solicitante):
     with pytest.raises(ToolError) as e:
-        H.proponer_orden_compra(PROPUESTA, lambda e: pytest.fail("no debe iniciar"), solicitante=solicitante)
+        H.proponer_orden_compra(PROPUESTA, lambda e: pytest.fail("must not start"), solicitante=solicitante)
     assert e.value.kind == "sin_solicitante"
 
 

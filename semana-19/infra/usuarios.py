@@ -34,7 +34,7 @@ def generar_contrasena() -> str:
 
 
 def plan(pool: str) -> list[str]:
-    return [f"crear {usuario} en el grupo {grupo} (pool {pool})" for usuario, grupo, _ in USUARIOS]
+    return [f"create {usuario} in group {grupo} (pool {pool})" for usuario, grupo, _ in USUARIOS]
 
 
 def _guardar(lineas: list[tuple[str, str]], ruta: Path) -> None:
@@ -63,8 +63,8 @@ def crear(pool: str, cliente, si: bool, ruta: Path = SECRETOS) -> list[str]:
                 cliente.admin_remove_user_from_group(UserPoolId=pool, Username=usuario, GroupName=sobrante)
             if grupo not in actuales:
                 cliente.admin_add_user_to_group(UserPoolId=pool, Username=usuario, GroupName=grupo)
-            cambio = "" if actuales == {grupo} else f"; grupo ahora {grupo}"
-            estados.append(f"{usuario}: ya existe, contraseña sin cambios{cambio}")
+            cambio = "" if actuales == {grupo} else f"; group now {grupo}"
+            estados.append(f"{usuario}: already exists, password unchanged{cambio}")
             continue
         contrasena = generar_contrasena()
         cliente.admin_create_user(UserPoolId=pool, Username=usuario, MessageAction="SUPPRESS",
@@ -72,7 +72,7 @@ def crear(pool: str, cliente, si: bool, ruta: Path = SECRETOS) -> list[str]:
         cliente.admin_set_user_password(UserPoolId=pool, Username=usuario, Password=contrasena, Permanent=True)
         cliente.admin_add_user_to_group(UserPoolId=pool, Username=usuario, GroupName=grupo)
         _guardar([(clave, contrasena)], ruta)
-        estados.append(f"{usuario}: creado en {grupo}; contraseña guardada en {ruta.name}")
+        estados.append(f"{usuario}: created in {grupo}; password saved in {ruta.name}")
     return estados
 
 

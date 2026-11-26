@@ -68,7 +68,7 @@ def seleccionar_tareas(n: int = N_TAREAS, archivo: Path = TAREAS) -> list[dict]:
     tareas = [json.loads(l) for l in archivo.read_text(encoding="utf-8").splitlines() if l.strip()]
     elegidas = [t for t in tareas if t["estado_esperado"] == "respondida" and len(t.get("salida", {})) == 1]
     if len(elegidas) < n:
-        raise RuntimeError(f"solo hay {len(elegidas)} tareas elegibles")
+        raise RuntimeError(f"only {len(elegidas)} eligible tasks")
     return elegidas[:n]
 
 
@@ -477,7 +477,7 @@ def plan(camino: str | None, tareas: list[dict]) -> dict:
             "limite_por_tarea": {"usd": lim.usd, "tokens": lim.tokens},
             "peor_caso_de_este_camino": {"usd": round(lim.usd * len(tareas), 4), "tokens": lim.tokens * len(tareas)},
             "llamadas": {"directo": "POST/GET /consultas (analista) + logs:FilterLogEvents + lambda:Invoke (verificador)",
-                         "gateway": "igual que directo, con el agente desplegado con CAMINO_HERRAMIENTAS=gateway",
+                         "gateway": "same as direct, with the agent deployed with CAMINO_HERRAMIENTAS=gateway",
                          "agentes": "bedrock-agent-runtime:InvokeAgent (enableTrace) + lambda:Invoke (verificador)"}}
 
 
