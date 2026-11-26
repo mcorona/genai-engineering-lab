@@ -606,3 +606,5 @@ on what a result does not cover is titled "Limitations", not "Limits".
 | human approval | manual approval, HITL (in prose) | a person approves a purchase order |
 | spending cap | budget cap, limit (for the spending cap) | `--tope-usd` |
 | permissions boundary | permission boundary | IAM |
+| hand-written loop | own loop, own agentic loop | the week 13 agent loop on the Messages API, with no framework |
+| in-house pipeline, in-house router | own pipeline, own router | built in this lab, not a managed service |

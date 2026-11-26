@@ -3,7 +3,7 @@
 **For:** technical and business leaders choosing how to build an AI agent over their own systems. **Date:** November 2026. **Author:** Manuel Corona, independent AI architect.
 
 **Bottom line**
-1. **The framework does not decide quality; the model, the prompt and the tools do.** The same agent (same prompt, model, tools and limits) scored the same in every framework we measured: LangGraph 0.900 and Strands 0.900 on 40 tasks with identical failures; on 20 tasks, 0.950–1.000 across all four frameworks and our own loop.
+1. **The framework does not decide quality; the model, the prompt and the tools do.** The same agent (same prompt, model, tools and limits) scored the same in every framework we measured: LangGraph 0.900 and Strands 0.900 on 40 tasks with identical failures; on 20 tasks, 0.950–1.000 across all four frameworks and our hand-written loop.
 2. **What differs is everything around the agent:** provider support, protocols, security hooks, state, observability, where it can be hosted, how much it costs per task, and how hard it is for a team to learn. That is what this matrix scores.
 3. **Default recommendation:**
     - **LangGraph** for most clients (Google Cloud, OpenAI shops, prototypes).
@@ -23,7 +23,7 @@ One agent answers business questions over a legacy inventory database. It uses 6
 | Strands Agents | 1.63.0 | Same full eval ([A5](frameworks.md)); also deployed on Amazon Bedrock AgentCore ([A8](agentcore.md)) |
 | OpenAI Agents SDK | 0.24.0 | Spike: 20 tasks × 1 run, Claude through LiteLLM ([A6](spikes.md)) |
 | Google ADK | 2.13.0 | Spike: 20 tasks × 1 run, Claude through LiteLLM ([A6](spikes.md)) |
-| No framework | own loop, 209 lines | The reference agent from week 13, same full eval ([A5](frameworks.md)) |
+| No framework | hand-written loop, 209 lines | The reference agent from week 13, same full eval ([A5](frameworks.md)) |
 
 Evidence labels (activity numbers of this lab's week 15):
 - [A1](linea_base.md): capability baseline.
