@@ -206,17 +206,28 @@ figure against its evidence. In return it would only change a folder label that 
 explain. If a rename is still wanted later, the right time is a new major version of the lab whose evidence is
 recorded under the new paths from the start.
 
-## Exceptions (Spanish that stays in class A files)
+## What stays in Spanish on purpose
 
-Step 5's language test reads this list. Each entry has its reason:
+Everything an English-speaking reader reads is in English, with the exceptions below. `docs/tests/test_language.py`
+reads this table: a Spanish line in a prose file, a comment, a docstring or a console message fails the test unless a
+row covers it, and a row that no longer matches any Spanish line fails it too, so the table cannot go stale. Classes B
+(Spanish evaluation data), C (recorded evidence) and E (names) are out of scope by definition; their English
+descriptions are the folder READMEs and the [data guides](data/README.md).
 
-| File | Reason |
-|---|---|
-| `semana-13/golden/construir_tareas.py` | Frozen: SHA-256 in `semana-13/golden/manifiesto.json`, checked by `semana-17/tests/test_trayectorias.py` |
-| `semana-16/verdad/construir.py` | Frozen: SHA-256 in `semana-16/verdad/manifiesto.json`, checked by `semana-16/tests/test_verdad.py` |
-| `semana-17/comparacion/agente_langgraph.py` (tool docstrings only) | Behavior: LangChain sends the docstrings to the model as tool descriptions |
-| `semana-11/resultados/revision_referencias.md` (quoted cells only) | Verbatim quotes of the Spanish gold set, with an English gloss |
-| Quoted Spanish questions and answers inside English sentences (any results file) | Verbatim quotes of B data or C evidence, marked with quotation marks |
+Columns: the files (`fnmatch` patterns), the kind of line (`prose`, `comments`, `messages` or `any`), the text the
+line contains (`*` = every line of that kind), what stays, and why.
+
+| Path or pattern | Kind | Text | What stays | Why |
+|---|---|---|---|---|
+| `semana-13/golden/construir_tareas.py` `semana-16/verdad/construir.py` | any | * | The comments, docstrings and messages of the two gold-set builders | Frozen: their SHA-256 is pinned in `semana-13/golden/manifiesto.json` and `semana-16/verdad/manifiesto.json` and checked by `semana-17/tests/test_trayectorias.py` and `semana-16/tests/test_verdad.py`. An edit breaks the hash |
+| `semana-13/herramientas/herramientas.py` | messages | * | The tool results and errors the agent reads (`El usuario no puede leer la tabla…`) | Measured behavior: the agent reads these messages and the evals of weeks 13 to 19 recorded how it reacts to them. Translating them would change the experiment |
+| `semana-14/servidor/oauth.py` | messages | * | The authorization errors the agent reads (`El token no da acceso…`) | Measured behavior, as above: week 14's evals recorded the agent's reactions |
+| `semana-14/tests/test_auth.py` `semana-14/tests/test_keycloak.py` | messages | `Keycloak no está corriendo` | The skip reason when Keycloak is down | `.github/workflows/eval-semana-14.yml` greps this exact text to tell a skipped run from a failure |
+| `semana-15/agentcore/main.py` | messages | `sin workload access token` | The runtime's error when the call has no workload token | Recorded: the week 15 results quote it from the deployed AgentCore runtime |
+| `semana-16/linea_base/plugin_minimo/hooks/hooks.json` | prose | `modo solo lectura` | The hook message of the week 16 baseline plugin | The model reads it, and the baseline run recorded its effect |
+| `semana-19/agente/*` `semana-19/computo/*` `semana-19/consultas/*` `semana-19/herramientas/*` `semana-19/infra/loader/*` `semana-19/guardrail/handler.py` | any | * | The messages and comments of the Lambda code deployed in weeks 19 and 20 | Kept as deployed and measured: the agent reads some of these messages, the evals recorded them, and week 20's cache run checks that the deployed agent code is the repository's |
+| `semana-11/resultados/revision_referencias.md` | prose | * | The review table's verbatim quotes of the Spanish gold set | Quotes of class B data. `revision_referencias_en.md` glosses every row in English |
+| `semana-09/resultados/reescritura.md` | prose | `¿Y cada cuánto` | A gold-set question quoted in an English sentence | A verbatim quote of class B data |
 
 ## Inventory
 
