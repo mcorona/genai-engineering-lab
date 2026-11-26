@@ -248,7 +248,7 @@ README (last).
   - cache hit tokens per step;
   - first-step and later-step latency;
   - success by the week 10 rule.
-- **Deliverable:** `resultados/cache.md`, quotation v3 for caching (predicted vs real).
+- **Deliverable:** `resultados/cache.md`, quotation v3 for caching (predicted vs. real).
 - **AIP-C01:** D4.
 - **Time:** ~2 h. **Cost:** under a dollar (20 tasks, cheaper than the baseline if caching works), estimated and
   capped.
