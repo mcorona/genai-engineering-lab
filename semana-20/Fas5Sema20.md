@@ -8,7 +8,7 @@ before moving on to the next. Documentation goes in separate PRs.
 - **Topic:** cost and performance engineering for a deployed GenAI agent:
   - **prompt caching** on Bedrock (cache points, TTL, what can be cached in an agent loop);
   - **batch inference** (where a tool-using agent can and cannot use it);
-  - **model routing**: an own router behind `modelo.invocar` that follows Cascada's escalation idea, Bedrock
+  - **model routing**: an in-house router behind `modelo.invocar` that follows Cascada's escalation idea, Bedrock
     Intelligent Prompt Routing, and Cascada itself as an offline reference;
   - **provisioned throughput** and capacity (priced and compared, not bought);
   - **observability for cost and latency**: CloudWatch metrics and dashboards, X-Ray traces from the week 17 span
@@ -102,7 +102,7 @@ decided about the regression. If the regression is still open, fixing it is the 
   - CloudWatch generative AI observability is evaluated on the same traces; it is used if it adds something the
     dashboard does not.
 - **Routing, three variants, one interface:**
-  - **(R1) own router** behind `modelo.invocar`, following Cascada's escalation idea. The cheapest model that has
+  - **(R1) in-house router** behind `modelo.invocar`, following Cascada's escalation idea. The cheapest model that has
     quota tries first, and the call escalates to a stronger one on signals the loop already has: a tool error, an
     empty or unparsable answer, a deterministic-layer block, step budget pressure, or the language. The candidate
     models and the escalation rules are fixed **before** the run, from activity 1's quotas and prices.
@@ -254,7 +254,7 @@ README (last).
   capped.
 
 ### 4. Model routing
-- **(R1) own router:**
+- **(R1) in-house router:**
   - the candidates and the escalation rules are fixed in `ia/config.py` and in an ADR before the run;
   - the router lives behind `modelo.invocar`, and the loop, the budgets and the guardrails stay the same;
   - each escalation is a span attribute (`gen_ai.request.model` and a `ruta` attribute) and an EMF dimension;

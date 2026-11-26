@@ -160,7 +160,7 @@ uv run python empaquetado/instalar_desde_cero.py --github mcorona/genai-engineer
 | Required | Evidence | |
 |---|---|---|
 | Reusable for clients | `legacy-schema-audit` 1.0.0 in the `genai-engineering-lab` marketplace. Installation from scratch from GitHub passed 20/20. It ships a client README (configuration A or B, cost by schema size, limits), a synthetic sample report and an offer (`oferta.md`) | ✅ |
-| Its own eval | A frozen ground truth (activity 2), `claude plugin eval` with 10 cases (Δ +0.57), an own quality evaluator (meaning, PK, FK, PII, risks, SQL run again), 7 security cases × 2 models (14/14), and a mini eval in CI with calibrated thresholds on every PR | ✅ |
+| Its own eval | A frozen ground truth (activity 2), `claude plugin eval` with 10 cases (Δ +0.57), a custom quality evaluator (meaning, PK, FK, PII, risks, SQL run again), 7 security cases × 2 models (14/14), and a mini eval in CI with calibrated thresholds on every PR | ✅ |
 | Verified in CI | `eval-semana-16` green on PR #124 with the thresholds enforced (run 3: all metrics above their threshold, 20/20 security checks, $0.1156) | ✅ |
 
 ## 8. What carries over

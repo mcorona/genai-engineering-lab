@@ -89,7 +89,7 @@ The goal is to let people ask questions in natural language and get answers back
 
 ```mermaid
 flowchart LR
-  U[User<br/>ES / EN] --> A[Agent<br/>own loop or Claude Agent SDK]
+  U[User<br/>ES / EN] --> A[Agent<br/>hand-written loop or Claude Agent SDK]
   A -->|MCP 2026-07-28<br/>OAuth 2.1 bearer| M[MCP server<br/>tools · resources · prompts]
   K[Authorization server<br/>Keycloak] -. JWT: iss, aud, scope .-> M
   M -->|read-only role per scope<br/>guard: SELECT only| DB[(Legacy PostgreSQL<br/>schema legado)]
