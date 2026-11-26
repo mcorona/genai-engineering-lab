@@ -266,34 +266,59 @@ results folder also gets its own schema of keys in step 4 of the English pass.
 
 ## Command-line flags
 
-The scripts take Spanish flags. Step 4 of the English pass adds the English alias on each flag. Until then:
+The scripts take Spanish flags. Each Spanish flag also takes an English alias on the same option, so `--si` and
+`--yes` are the same flag: use either one. `--help` shows both. The commands in the plans and recorded logs keep their
+Spanish form. The two frozen gold-set builders keep only their Spanish flags (see the
+[language audit](language-audit.md#what-stays-in-spanish-on-purpose)). The flags that appear most often in the
+documentation:
 
-| Flag | Meaning | Flag | Meaning |
-|---|---|---|---|
-| `--si` | yes: act for real (without it, a script only simulates) | `--simular` | simulate, call nothing |
-| `--confirmo-gasto` | I confirm the spend (a paid run) | `--tope`, `--tope-usd` | spending cap, in USD |
-| `--salida` | output path | `--informe` | report path |
-| `--modelo`, `--modelos` | model(s) | `--esfuerzo` | reasoning effort |
-| `--perfil` | AWS profile, or deployment profile (`lab`, `prod`) | `--todo` | everything |
-| `--borrar` | delete | `--detener` | stop |
-| `--reiniciar` | restart | `--reanudar` | resume |
-| `--limite` | limit (items per language) | `--paralelo`, `--hilos` | parallel workers, threads |
-| `--tareas`, `--casos` | tasks, cases | `--idiomas` | languages |
-| `--corrida` | run name | `--repeticiones` | repetitions |
-| `--desde`, `--hasta` | from, until (UTC) | `--antes`, `--despues` | before, after |
-| `--revisar` | review | `--verificar`, `--validar` | verify, validate |
-| `--reevaluar` | recompute the metrics of a saved detail file, without a model | `--actualizar-base` | update the baseline |
-| `--con-modelo`, `--sin-claude` | with a model, without Claude | `--sin-historial` | without conversation history |
-| `--sin-subagentes` | without subagents | `--solo`, `--solo-reporte` | only, report only |
-| `--emisor` | token issuer (OAuth) | `--transporte` | MCP transport |
-| `--usuario`, `--operador` | user, operator | `--nombre` | name |
-| `--muestreo` | sampling | `--trazas` | traces |
-| `--presupuesto` | budget | `--reglas` | business rules |
-| `--esquema` | schema | `--estado` | status |
-| `--puerto` | port | `--archivo` | file |
+| Spanish flag | English alias | Meaning |
+|---|---|---|
+| `--si` | `--yes` | yes: act for real (without it, a script only simulates) |
+| `--simular` | `--simulate` | simulate, call nothing |
+| `--confirmo-gasto` | `--confirm-spend` | I confirm the spend (a paid run) |
+| `--tope`, `--tope-usd` | `--cap`, `--max-usd` | spending cap, in USD |
+| `--salida` | `--output` | output path |
+| `--informe` | `--report` | report path |
+| `--modelo`, `--modelos` | `--model`, `--models` | model(s) |
+| `--esfuerzo` | `--effort` | reasoning effort |
+| `--perfil` | `--profile` | AWS profile, or deployment profile (`lab`, `prod`) |
+| `--todo` | `--all` | everything |
+| `--borrar` | `--delete` | delete |
+| `--detener` | `--stop` | stop |
+| `--reiniciar` | `--restart` | restart |
+| `--reanudar` | `--resume` | resume |
+| `--limite` | `--limit` | limit (items per language) |
+| `--paralelo`, `--hilos` | `--parallel`, `--threads` | parallel workers, threads |
+| `--tareas`, `--casos` | `--tasks`, `--cases` | tasks, cases |
+| `--idiomas` | `--languages` | languages |
+| `--corrida` | `--run` | run name |
+| `--repeticiones` | `--repetitions` | repetitions |
+| `--desde`, `--hasta` | `--since`, `--until` | from, until (UTC) |
+| `--antes`, `--despues` | `--before`, `--after` | before, after |
+| `--revisar` | `--review` | review |
+| `--verificar`, `--validar` | `--verify`, `--validate` | verify, validate |
+| `--reevaluar` | `--rescore` | recompute the metrics of a saved detail file, without a model |
+| `--actualizar-base` | `--update-baseline` | update the baseline |
+| `--con-modelo`, `--sin-claude` | `--with-model`, `--no-claude` | with a model, without Claude |
+| `--sin-historial` | `--no-history` | without conversation history |
+| `--sin-subagentes` | `--no-subagents` | without subagents |
+| `--solo`, `--solo-reporte` | `--only`, `--report-only` | only, report only |
+| `--emisor` | `--issuer` | token issuer (OAuth) |
+| `--transporte` | `--transport` | MCP transport |
+| `--usuario`, `--operador` | `--user`, `--operator` | user, operator |
+| `--nombre` | `--name` | name |
+| `--muestreo` | `--sampling` | sampling |
+| `--trazas` | `--traces` | traces |
+| `--presupuesto` | `--budget` | budget |
+| `--reglas` | `--rules` | business rules |
+| `--esquema` | `--schema` | schema |
+| `--estado` | `--status` | status |
+| `--puerto` | `--port` | port |
+| `--archivo` | `--file` | file |
 
-The audit lists all 136 Spanish flags, script by script ([language-audit-files.tsv](language-audit-files.tsv), column
-`es_flags`).
+The full list of the 136 Spanish flags and their aliases is in [flag-aliases.tsv](flag-aliases.tsv). The Spanish shell
+scripts have English wrappers as well (`deploy.sh` runs `desplegar.sh`), listed in [script-aliases.tsv](script-aliases.tsv).
 
 ## AWS stacks and resources
 

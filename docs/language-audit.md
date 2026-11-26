@@ -6,6 +6,9 @@ recruiters and engineers, **without changing any figure, result, gold set or rec
 
 Snapshot: `main` at `6c58a65` (2026-11-24). Scope: all 1,815 files in `git ls-files`, except the 2,921 vendored files under `vendor/` (`semana-19/guardrail/vendor/`
 and `semana-19/infra/loader/vendor/`). There is no `node_modules/` in the repository.
+The figures and the inventory below describe that snapshot, taken before steps 3 and 4 translated most of the Spanish.
+The current state is checked by the tests in [`docs/tests/`](tests/), which CI runs on every pull request that changes
+the documentation.
 
 Method: [`language_audit.py`](language_audit.py) classifies each file by its role (path and type), then measures its
 Spanish. It is offline and deterministic: no models, no cloud, $0. Code spans, URLs, paths and identifiers are removed
@@ -91,15 +94,15 @@ Rules the classifier applies, in order:
 4. Any other JSON, JSONL, CSV or text file is configuration. It is **E** when its keys are Spanish, and **A** otherwise.
 5. Everything else (Markdown, YAML, Terraform, SQL outside data folders, Mermaid, SVG, HTML, notebooks) is **A**.
 
-## Class D: proposed English aliases
+## Class D: English aliases
 
-These are proposals. Step 4 settles each name after reading the script's help text, and it changes no
-behavior.
+Step 4 applied these aliases and changed no behavior. The final names are in
+[flag-aliases.tsv](flag-aliases.tsv) and [script-aliases.tsv](script-aliases.tsv), and `docs/tests/test_flag_aliases.py`
+and `docs/tests/test_script_aliases.py` check them on every pull request that touches the docs.
 
 **Flags.** Each Spanish flag gets an English option string on the same `add_argument` call:
 `add_argument("--si", "--yes", dest="si", ...)`. The destination keeps its name, so the code, the tests and every
-command recorded in the logs keep working. `--help` shows both. The 73 Spanish flags that appear in the documentation
-come first:
+command recorded in the logs keep working. `--help` shows both. The 73 Spanish flags that appear in the documentation:
 
 | Spanish | English | Spanish | English | Spanish | English |
 |---|---|---|---|---|---|
@@ -128,8 +131,8 @@ come first:
 | `--como` | `--as` | `--revelar` | `--reveal` | `--solo-actividad7` | `--activity7-only` |
 | `--informe` | `--report` | `--limpiar` | `--clean` | `--via`, `--temp-api` | unchanged |
 
-The other 63 Spanish flags are not documented. They get aliases with the same pattern when step 4 touches their
-script. The full list per script is in the TSV (`es_flags` column).
+The other 63 Spanish flags are not in the documentation, and they got aliases with the same pattern. The full list per
+script is in [language-audit-files.tsv](language-audit-files.tsv) (`es_flags` column).
 
 **Shell scripts.** An English wrapper next to each Spanish script runs the original with the same arguments
 (`exec "$(dirname "$0")/desplegar.sh" "$@"`). The original keeps its name, because recorded logs and the plans cite it:
@@ -138,12 +141,15 @@ script. The full list per script is in the TSV (`es_flags` column).
 |---|---|
 | `semana-19/infra/desplegar.sh` | `deploy.sh` |
 | `semana-19/infra/destruir.sh` | `destroy.sh` |
-| `semana-14/auth/arrancar.sh`, `semana-16/computer_use/arrancar.sh`, `semana-17/observabilidad/arrancar.sh`, `semana-18/legacybridge/arrancar.sh` | `start.sh` |
+| `semana-14/auth/arrancar.sh`, `semana-17/observabilidad/arrancar.sh`, `semana-18/legacybridge/arrancar.sh` | `start.sh` |
 | `semana-15/linea_base/preparar.sh` | `setup.sh` |
 | `semana-17/preparar/jalar_imagenes.sh` | `pull_images.sh` |
 | `semana-12/infra/aws_crear.sh`, `aws_borrar.sh`, `aws_kb_crear.sh` | `aws_create.sh`, `aws_delete.sh`, `aws_kb_create.sh` |
 | `semana-12/infra/gcp_crear.sh`, `gcp_borrar.sh`, `gcp_bucket_crear.sh` | `gcp_create.sh`, `gcp_delete.sh`, `gcp_bucket_create.sh` |
 | `semana-12/infra/costo_real.sh`, `inventario.sh`, `revisar_secretos.sh`, `github_entorno.sh` | `actual_cost.sh`, `inventory.sh`, `check_secrets.sh`, `github_environment.sh` |
+
+`semana-16/computer_use/arrancar.sh` has no wrapper. A new file under `semana-16/` (other than Markdown) runs the
+paid week 16 eval in CI, and week 16 is complete.
 
 **Console messages.** Messages for people become English. A message stays as it is when recorded evidence contains
 it or a test asserts it. Machine-readable outputs keep their Spanish keys and values, because the recorded
@@ -153,9 +159,8 @@ evidence and the tests depend on them:
   `semana-19/eval/costo_real.py`). Four recorded files contain it (`semana-19/resultados/inventario_final.json`,
   `inventario_mac.json`, `agentes/inventario_actividad7.json`, `eval_aws/cost_explorer.json`).
   `semana-19/tests/test_infra_cdk.py` (line 1069) and `semana-19/tests/test_costo_real.py` (line 38) assert it, and
-  the exit code of `inventario.py` depends on it. Proposal: the key stays, an English line on stderr says
-  `remaining: none` (or `remaining: review`), and the glossary maps `quedan` = remaining, `nada` = none,
-  `revisar` = review.
+  the exit code of `inventario.py` depends on it. The key and its values stay, and the
+  [glossary](glossary.md#status-values-and-verdicts) maps `quedan` = remaining, `nada` = none, `revisar` = review.
 - Stack and resource names (`semana19-*`, `semana20-*`) are names of deployed resources. They appear in recorded
   inventories, cost records and IAM policies. They stay (class E).
 
