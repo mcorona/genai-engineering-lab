@@ -1,6 +1,6 @@
 # Week 18: LegacyBridge v1 and the close of Phase 4
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 **Status: in progress.** Activities 1, 2 and 6 are merged. The release gate, the demo, the video, the whiteboard rehearsals, the final whiteboard design and CCAR-P (activities 3 to 5 and 7 to 10) are pending, so exit criterion 18 is not verified yet ([exit criteria](../docs/exit-criteria.md#phase-4-exit-criteria)).
 

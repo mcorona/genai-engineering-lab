@@ -1,6 +1,6 @@
 # Week 12: managed RAG (Bedrock Knowledge Bases and Vertex AI Search)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Status: complete. Every resource was deleted on 2026-10-29. Real cost from the bills: AWS $1.50 (covered by credits), Google Cloud MXN 16.64, Anthropic at most $4.94, OpenAI $0 ([`resultados/costo_real.md`](resultados/costo_real.md)).
 

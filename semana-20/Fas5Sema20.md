@@ -1,6 +1,6 @@
 # Phase 5 · Week 20: Costs and performance for LegacyBridge on AWS
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 Repo: `mcorona/genai-engineering-lab`. Folder: `semana-20/`. Each activity closes with a PR, green checks and a merge
 before moving on to the next. Documentation goes in separate PRs.
