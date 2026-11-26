@@ -36,7 +36,7 @@ def test_inventario_cuenta_vacia_da_cero():
     assert all(v == 0 for v in informe["por_categoria"].values())
     if informe["quedan"] == "revisar":
         # Only categories that moto does not implement may stay unmeasured; they are listed, never counted as 0.
-        assert informe["no_medido"], "quedan=revisar sin categorías no medidas"
+        assert informe["no_medido"], "quedan=revisar without unmeasured categories"
     else:
         assert informe["quedan"] == "nada"
 
@@ -87,7 +87,7 @@ def test_sanear_oculta_cuenta_arn_rutas_y_correos():
 
 
 def test_sanear_no_toca_cifras_de_precio():
-    assert lb.sanear("0.0000002 USD por token") == "0.0000002 USD por token"
+    assert lb.sanear("0.0000002 USD per token") == "0.0000002 USD per token"
 
 
 # ---------- prices (one mark per item) ----------
@@ -134,7 +134,7 @@ def test_articulo_fuera_del_catalogo_es_d_con_enlace(monkeypatch):
 def test_error_de_servicio_no_se_marca_medido(monkeypatch):
     _fake_sesion(monkeypatch)
     def falla(codigo, cli):
-        raise RuntimeError("sin acceso")
+        raise RuntimeError("no access")
     monkeypatch.setattr(lb, "filas_servicio", falla)
     res = lb.sonda_precios("semana19-operador")
     assert res["articulos"]["lambda_arm_gb_s"]["marca"] == "N"
@@ -146,9 +146,9 @@ def test_todos_los_articulos_tienen_marca_valida():
     nombres = [a[0] for a in lb.ARTICULOS]
     assert len(nombres) == len(set(nombres))
     for nombre, servicio, patron, enlace, nota in lb.ARTICULOS:
-        assert patron is not None or enlace is not None, f"{nombre} sin coincidencia ni enlace"
+        assert patron is not None or enlace is not None, f"{nombre} has neither a match nor a link"
         if patron is None:
-            assert enlace.startswith("https://"), f"{nombre} sin enlace oficial"
+            assert enlace.startswith("https://"), f"{nombre} has no official link"
 
 
 # ---------- the matrix covers each bullet of activity 1 ----------

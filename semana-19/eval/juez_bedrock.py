@@ -118,23 +118,23 @@ def validar(lineas: list[dict]) -> list[str]:
     """The documented schema. Returns the problems (empty: valid)."""
     errores = []
     if not 1 <= len(lineas) <= MAX_PROMPTS:
-        errores.append(f"{len(lineas)} prompts: deben ser de 1 a {MAX_PROMPTS}")
+        errores.append(f"{len(lineas)} prompts: must be 1 to {MAX_PROMPTS}")
     ids = set()
     for i, l in enumerate(lineas):
         if not set(l) <= CLAVES or "prompt" not in l or "modelResponses" not in l:
-            errores.append(f"línea {i}: claves {sorted(l)}")
+            errores.append(f"line {i}: keys {sorted(l)}")
             continue
         if not isinstance(l["prompt"], str) or not l["prompt"]:
-            errores.append(f"línea {i}: prompt vacío")
+            errores.append(f"line {i}: empty prompt")
         r = l["modelResponses"]
         if not (isinstance(r, list) and len(r) == 1 and set(r[0]) == {"response", "modelIdentifier"}):
-            errores.append(f"línea {i}: modelResponses debe traer una sola respuesta")
+            errores.append(f"line {i}: modelResponses must carry exactly one response")
         else:
             ids.add(r[0]["modelIdentifier"])
         if l.get("category") in {x.get("category") for x in lineas[:i]}:
-            errores.append(f"línea {i}: category repetida")
+            errores.append(f"line {i}: duplicate category")
     if len(ids) > 1:
-        errores.append(f"un solo modelIdentifier por trabajo; hay {sorted(ids)}")
+        errores.append(f"one modelIdentifier per job; found {sorted(ids)}")
     return errores
 
 
@@ -198,12 +198,12 @@ def leer_resultados(registros: list[dict]) -> dict:
             nombre = p["metricName"] if p["metricName"].startswith("Builtin.") else f"Builtin.{p['metricName']}"
             valor = p.get("result")
             if valor is not None and not 0 <= float(valor) <= 1:
-                raise ValueError(f"{id_} {nombre}: puntaje {valor} fuera de [0, 1]")
+                raise ValueError(f"{id_} {nombre}: score {valor} outside [0, 1]")
             puntajes[nombre] = None if valor is None else float(valor)
             if _explicacion(p):
                 explicaciones.append(f"{nombre}: {_explicacion(p)}")
         if id_ in por_tarea:
-            raise ValueError(f"{id_}: dos registros")
+            raise ValueError(f"{id_}: two records")
         por_tarea[id_] = {"puntajes": puntajes, "respuesta": ((entrada.get("modelResponses") or [{}])[0]).get("response"),
                           "explicacion": "\n".join(explicaciones) or None}
     return por_tarea
@@ -309,7 +309,7 @@ def main(argv=None) -> int:  # pragma: no cover - the CLI around the tested func
     SALIDA.mkdir(parents=True, exist_ok=True)
     (SALIDA / ARCHIVO).write_text(json.dumps(redactar(resultado, [aws.cuenta]), ensure_ascii=False, indent=2,
                                              sort_keys=True, default=str) + "\n", encoding="utf-8")
-    print(SALIDA / ARCHIVO, final["status"], len(resultado["por_tarea"]), "tareas juzgadas")
+    print(SALIDA / ARCHIVO, final["status"], len(resultado["por_tarea"]), "tasks judged")
     print("objects deleted from the judge's bucket:", aws.borrar(nombre))
     return 0 if final["status"] == "Completed" and len(resultado["por_tarea"]) == len(lineas) else 1
 

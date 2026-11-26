@@ -28,7 +28,7 @@ from agente import escritor_orden as W  # noqa: E402
 LIVE = os.environ.get("S19_DSN_LOCAL")
 HOST, PUERTO = "127.0.0.1", 55432
 pytestmark = [pytest.mark.vivo,
-              pytest.mark.skipif(not LIVE, reason="prueba viva: define S19_DSN_LOCAL con una base de pruebas local")]
+              pytest.mark.skipif(not LIVE, reason="live test: set S19_DSN_LOCAL to a local test database")]
 
 
 def _loader():

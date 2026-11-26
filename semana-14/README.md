@@ -1,6 +1,6 @@
 # Week 14: remote MCP server with OAuth, least privilege and tool-poisoning tests
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Status: complete. Activities 1 to 9 are done, and exit criterion 14 is verified (section 7).
 

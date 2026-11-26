@@ -60,15 +60,15 @@ monitoring and controlled costs. The phase closes with the **AWS Certified Gener
 
   The phase deliverable uses a short, authorized `prod` window (for the demo and its evidence), scheduled in week 20
   or 21 once the cost dashboard and alarms exist.
-- **The ±20% quote starts here.**
+- **The ±20% quotation starts here.**
   - Activity 2's cost model predicts the cost per hour and per query.
   - Activity 8 measures the real cost.
   - `resultados/cotizacion.md` records predicted vs real and the error.
   - Every later week of the phase adds a row, so by week 24 the error is measured, not claimed.
   - The model also takes client parameters (queries per day, tokens per query, hours up, AZs), so it can produce a
-    monthly quote for the `prod` profile.
+    monthly quotation for the `prod` profile.
 - **Phase-level criteria (root README):** one verifiable criterion per week (19 to 22), plus two cross-cutting ones:
-  - **cost:** the quote error, measured;
+  - **cost:** the quotation error, measured;
   - **security:** no unsuppressed scanner finding and no public resource except the API, checked every week.
 
   The same pattern as the Phase 4 criteria.
@@ -81,7 +81,7 @@ monitoring and controlled costs. The phase closes with the **AWS Certified Gener
   - per-week prefixes and a `proyecto` tag on every resource;
   - a budget with email alerts;
   - dry run by default;
-  - inventory before and after, with `"quedan": "nada"` as the teardown proof;
+  - inventory before and after, with `"quedan": "nada"` as the teardown evidence;
   - prices from the Price List API (`semana-12/infra/precios.py`);
   - real cost from Cost Explorer (`semana-12/infra/costo_real.py`);
   - the GitHub OIDC pattern for CI without keys (`semana-12/infra/aws_ci_oidc.sh`).
@@ -535,7 +535,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
   - the security review;
   - what is lab-only (one AZ, no deletion protection, HTTP API).
 - **Root README:** criterion 19 checked with links to evidence; the Phase 5 status.
-- **Teardown proof:** the final inventory (`"quedan": "nada"` except the listed budget and the key pending deletion)
+- **Teardown evidence:** the final inventory (`"quedan": "nada"` except the listed budget and the key pending deletion)
   and the Cost Explorer total for the week.
 - **AIP-C01:** D5 (tests in CI without AWS) and D2 (documentation and a deployable architecture)
 - **Time:** ~1.5 h. **Cost:** $0.
@@ -546,7 +546,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 |---|---|
 | Estimated total time | ~21.5 h |
 | Estimated cost | Activity 1 replaces this with measured prices. Expected: a few dollars in total, mostly model tokens in activities 7 and 8 and endpoint and DB hours while the stack is up, covered by AWS credits if the account still has them. Each paid run is estimated first, authorized by Manuel, capped in code, and checked afterwards in Cost Explorer |
-| Cloud | AWS `us-east-1` only. Every resource is tagged `proyecto=semana19`, ephemeral, and removed by `destruir.sh` with an inventory as proof |
+| Cloud | AWS `us-east-1` only. Every resource is tagged `proyecto=semana19`, ephemeral, and removed by `destruir.sh` with an inventory as evidence |
 | Risks | Claude quota on Bedrock (request it in preparation; fall back to the model that has quota); interface endpoints and RDS billed by the hour (one AZ, ephemeral stack, budget action); CDK bootstrap leftovers (custom qualifier, removed in teardown); AgentCore and Bedrock L2 constructs still alpha (spike in activity 2, L1 or Terraform fallback); Guardrail false positives on SQL answers (measured against the golden tasks before it is enforced); the LLM judge disagreeing with execution-based checks (reported, not hidden); Cost Explorer lag (read the next day); the free plan not allowing a service (checked in activity 1) |
 
 ## Log
@@ -557,7 +557,7 @@ What must wait: anything deployed (3 first), the eval against the endpoint (4 to
 - 2026-11-12: activity 1 measured (`resultados/linea_base.md`). Account PAID and ACTIVE; spend this month -0.0000000012 USD (one authorized Cost Explorer call). Haiku 5.5 with a token quota of 0; Haiku 4.5 with 5,000,000 tokens/min and 50 requests/min cross-region (proposed model, pending Manuel). Prices: 14 measured, 7 documented, 1 not verified. Inventory at 0 (`quedan: nada`). Pending: credits (Billing), an operator role separate from the admin, the keys in the `default` profile.
 - 2026-11-12: Manuel's decisions. (1) The model of activities 5 to 8: Haiku 4.5 with the `us.` profile (quota in place); Haiku 5.5 waits for quota. (2) Operator and admin are the same identity (`manuel-admin`): a recorded exception until a read-only role is created. (3) A paid `sin-api` run authorized for the activity 1 PR.
 - 2026-11-13: activity 1 with a read-only operator (`semana19-lectura`, ReadOnlyAccess). Inventory: 1 resource, the read-only role, recorded as an exception. Haiku 5.5 quota with increase requests in CASE_OPENED (cross-region and global, 10,500,000 tokens/min).
-- 2026-11-13: activity 2 (part 2). IaC decision: **CDK in Python** (ADR 0001, by default: the Bedrock and AgentCore constructs exist in the stable L1). Model confirmed by Manuel: **Haiku 4.5 with the `us.` profile** (Haiku 5.5 has a quota of 0; its increase is in CASE_OPENED). ADRs 0002 to 0006, the diagram, the cost model, the quote and the CI without AWS written. Lambda per-request prices, VPC endpoints per hour and Multi-AZ stay N; Step Functions transitions stay D, from the official example.
+- 2026-11-13: activity 2 (part 2). IaC decision: **CDK in Python** (ADR 0001, by default: the Bedrock and AgentCore constructs exist in the stable L1). Model confirmed by Manuel: **Haiku 4.5 with the `us.` profile** (Haiku 5.5 has a quota of 0; its increase is in CASE_OPENED). ADRs 0002 to 0006, the diagram, the cost model, the quotation and the CI without AWS written. Lambda per-request prices, VPC endpoints per hour and Multi-AZ stay N; Step Functions transitions stay D, from the official example.
 - Estimate for activity 3 (base: KMS key, VPC, endpoints, IAM and budget), **no final figure yet**: KMS, 2 keys = 0.0027397 USD per hour (M). Interface endpoints: N per AZ-hour. Budget: N. With 1 AZ and 2 endpoints, a session of N hours = 0.0027397 × N USD + the endpoints line (N). It closes when the Price List confirms the endpoint price (needs `aws login`).
 - 2026-11-13: activity 2 closed (final part). IaC decision: CDK in Python (ADR 0001), with cdk-nag **2.38.2** (a deviation from the candidate 3.0.2: that version fails to synthesize with `aws-cdk-lib` 2.276.0; documented in the ADR). Prod profile in `spike/perfiles.json`, synthesized and scanned. Model confirmed: Haiku 4.5 `us.`. Budget measured: 0.00 USD within 62 budget-days a month.
 - Estimate to authorize activity 3 (base stack, lab, 1 AZ): **0.02273973 USD per hour** (KMS 2 keys + 2 interface endpoints + budget). A session of N hours = 0.02273973 × N USD. Pending Manuel's authorization.

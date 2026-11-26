@@ -1,6 +1,6 @@
 # Week 4: inference — quantization, latency and cost
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Practice: a benchmark of the same set of queries on a local quantized model and on an API, measuring latency, throughput and cost.
 
@@ -69,4 +69,4 @@ uv run python semana-04/benchmark_modelos.py --solo api \
 ```
 
 Outputs: `resultados/<nombre>_detalle.csv` (one row per query) and `resultados/<nombre>_resumen.json`.
-To run both targets in a single execution, omit `--solo` and also pass the local parameters.
+To run both targets in a single run, omit `--solo` and also pass the local parameters.

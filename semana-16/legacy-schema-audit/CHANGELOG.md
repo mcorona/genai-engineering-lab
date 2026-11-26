@@ -14,7 +14,7 @@ First release for clients, published in the `genai-engineering-lab` marketplace.
   `claude plugin install legacy-schema-audit@genai-engineering-lab`.
 - Client README: what it does and never does, requirements, configuration (a read-only DSN or a remote MCP server),
   cost by schema size, and known limits.
-- `ejemplo/`: a complete sample audit (dictionary, ER diagram, risks with SQL, executive summary) of the synthetic
+- `ejemplo/`: a complete sample audit (data dictionary, ER diagram, risks with SQL, executive summary) of the synthetic
   `legado` schema.
 - This changelog.
 

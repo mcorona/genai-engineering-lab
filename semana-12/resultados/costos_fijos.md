@@ -77,4 +77,4 @@ This is below both budgets.
 | Google Cloud (`ejemplo1-9xub`) | `semana12`: 200 MXN, about $10 USD; scoped to the project only. The billing account bills in MXN | Email to billing admins at 50, 90 and 100% actual, and 100% forecasted |
 
 - The AWS budget is account-wide because a tag-based filter needs the cost allocation tag to be activated, and that takes 24 hours. Every week 12 resource is still tagged `proyecto=semana12` and named with the `semana12` prefix.
-- **Deletion is ready before anything billable exists.** `infra/aws_borrar.sh` and `infra/gcp_borrar.sh` simulate by default and delete with `--confirmar`. Both were run in simulation and found exactly the resources created in this activity. Activity 10 runs them for real and then checks the bill.
+- **Deletion is ready before anything billable exists.** `infra/aws_borrar.sh` and `infra/gcp_borrar.sh` simulate by default and delete with `--confirmar`. A dry run of each found exactly the resources created in this activity. Activity 10 runs them for real and then checks the bill.

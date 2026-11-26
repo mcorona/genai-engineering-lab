@@ -1,6 +1,6 @@
 # Week 16: a reusable plugin for clients, with its own eval
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 **Outcome.** The work of weeks 10 to 15 (reading a legacy schema with cryptic names, inferring relationships and
 rules, finding risks, read-only) becomes a Claude Code plugin that a client can install:
@@ -43,7 +43,7 @@ The plan and the log of decisions are in [`PLAN.md`](PLAN.md).
 | # | Activity | Result | PR |
 |---|---|---|---|
 | 1 | Baseline of Claude Code as a plugin platform | 18 checks without the model on 2.1.316: plugin, marketplace, `plugin eval`, hooks, subagents, `userConfig`, browser and computer use | #111, #112 |
-| 2 | Ground truth | The correct dictionary (46 columns, 9 objects), 13 seeded risks with SQL evidence, 4 injected notes; recomputed in CI and frozen with a hash manifest | #113 |
+| 2 | Ground truth | The correct data dictionary (46 columns, 9 objects), 13 seeded risks with SQL evidence, 4 injected notes; recomputed in CI and frozen with a hash manifest | #113 |
 | 3 | The plugin: skill, commands, read-only server | Sonnet run: 11/11 checks, PK/FK/PII 1.00, 12 of 13 risks, $1.04. Through the week 14 server with OAuth, least privilege hid 5 of 9 objects without the audit knowing, which became a decision for clients | #114, #115 |
 | 4 | Subagents and hooks | 15/15 checks; same quality as one agent at 1.9× the cost and 1.6× the time | #116 |
 | 5 | Plugin eval | `claude plugin eval`: 10 cases, Δ **+0.57** over no plugin. The own evaluator compared Sonnet and Haiku, with and without the plugin. The eval forced two plugin fixes | #117 |
@@ -160,7 +160,7 @@ uv run python empaquetado/instalar_desde_cero.py --github mcorona/genai-engineer
 | Required | Evidence | |
 |---|---|---|
 | Reusable for clients | `legacy-schema-audit` 1.0.0 in the `genai-engineering-lab` marketplace. Installation from scratch from GitHub passed 20/20. It ships a client README (configuration A or B, cost by schema size, limits), a synthetic sample report and an offer (`oferta.md`) | ✅ |
-| Its own eval | A frozen ground truth (activity 2), `claude plugin eval` with 10 cases (Δ +0.57), an own quality evaluator (meaning, PK, FK, PII, risks, SQL run again), 7 security cases × 2 models (14/14), and a mini eval in CI with calibrated thresholds on every PR | ✅ |
+| Its own eval | A frozen ground truth (activity 2), `claude plugin eval` with 10 cases (Δ +0.57), a custom quality evaluator (meaning, PK, FK, PII, risks, SQL run again), 7 security cases × 2 models (14/14), and a mini eval in CI with calibrated thresholds on every PR | ✅ |
 | Verified in CI | `eval-semana-16` green on PR #124 with the thresholds enforced (run 3: all metrics above their threshold, 20/20 security checks, $0.1156) | ✅ |
 
 ## 8. What carries over

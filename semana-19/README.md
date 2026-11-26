@@ -1,6 +1,6 @@
 # Week 19: LegacyBridge on AWS, from IaC
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 LegacyBridge's agent (weeks 13 to 17) answers questions about a legacy inventory database in plain language, and it proposes purchase orders that a person approves. In week 19 it runs in an AWS account, built from code:
 - the API behind Cognito;
@@ -10,7 +10,7 @@ LegacyBridge's agent (weeks 13 to 17) answers questions about a legacy inventory
 
 Everything is measured: what it costs, how well it answers, how it was secured, and that the teardown leaves nothing behind.
 
-The week is for whoever deploys it, reviews it, or picks it up in week 20. The plan and the Log are in [Fas5Sema19.md](Fas5Sema19.md).
+The week is for whoever deploys it, reviews it, or picks it up in week 20. The plan and the work log are in [Fas5Sema19.md](Fas5Sema19.md).
 
 Every figure below links to the results file it comes from.
 
@@ -18,8 +18,8 @@ Every figure below links to the results file it comes from.
 
 - **It runs in your AWS account, built from code.** Four layers deployed with CDK, with 0 unsuppressed cdk-nag findings and 0 failed checkov checks ([seguridad.md](resultados/seguridad.md)).
 - **Your data stays on a private network.** The tools and the database sit in a VPC with no internet path; RDS has no public IP, and the API is the only public resource, with a JWT authorizer on every route ([verificacion.json](resultados/seguridad/verificacion.json)).
-- **The cost is measured, and so is the quote.** 0.030913 USD per query for the model and 0.037562 USD per hour of stack, from the bill ([costo_real.md](resultados/costo_real.md)). The quote model missed by −0.1% per query and −10.3% per hour ([cotizacion.md](resultados/cotizacion.md)).
-- **Nothing is left running after a session.** The teardown is checked by a read-only inventory that must end in `"quedan": "nada"` ("left: nothing") ([inventario_final.json](resultados/inventario_final.json)).
+- **The cost is measured, and so is the quotation.** 0.030913 USD per query for the model and 0.037562 USD per hour for the running stack, from the AWS bill ([costo_real.md](resultados/costo_real.md)). The quotation model missed by −0.1% per query and −10.3% per hour ([cotizacion.md](resultados/cotizacion.md)).
+- **Nothing is left running after a session.** The teardown is checked by a read-only inventory that must end in `"quedan": "nada"` ("nothing remains") ([inventario_final.json](resultados/inventario_final.json)).
 - **The security findings are open and planned, not hidden.** Each one has its risk and its fix: throttling (H1) and the async timeout (H4) are in week 20, red teaming in week 21 ([threat_model.md](seguridad/threat_model.md)).
 
 ![LegacyBridge on AWS](arquitectura/diagrama_simple.svg)
@@ -90,7 +90,7 @@ semana-19/infra/destruir.sh --inventario
 - **`desplegar.sh`** deploys control, then the bootstrap, base, datos, ia, and the loader with the KB ingestion. `--diff` is read-only. Computo is deployed after it, on its own: `COMPUTO=1 CAMINO_HERRAMIENTAS=directo cdk deploy semana19-computo --exclusively` with the `semana19-despliegue` profile and the `semana19-cdktoolkit` toolkit stack.
 - **`usuarios.py`** creates one test user per Cognito group. It takes the profile from `--perfil` (or `S19_PERFIL_DESPLIEGUE`), not from `S19_PERFIL`. Their passwords go only to `<secrets-dir>/usuarios-prueba.env`, outside the repository (ADR 0013).
 - **`destruir.sh --si --todo`** deletes everything in reverse order, then runs the inventory. Without `--todo`, the control stack stays; it costs $0/h.
-- **`destruir.sh --inventario`** lists what is left, using the read-only role. The proof of an empty account is `"quedan": "nada"`, apart from an explicit list:
+- **`destruir.sh --inventario`** lists what is left, using the read-only role. The evidence of an empty account is `"quedan": "nada"`, apart from an explicit list:
   - the read-only role;
   - the KMS keys pending deletion;
   - the control stack, without `--todo`.
@@ -117,12 +117,12 @@ Two known failures, each with its fix:
 |---|---|---|
 | Per hour of the lab stack, from the bill | **0.037562 USD**, over 26.004 h | [resultados/costo_real.md](resultados/costo_real.md) |
 | Per query, the model alone, from the bill (the figure that counts) | **0.030913 USD**, 57 tasks; it reconciles with the spans | [costo_real.md](resultados/costo_real.md) |
-| Per query, every per-query line (an upper bound: it also holds the judge's job, ApplyGuardrail and Titan) | 0.038562 USD | [costo_real.md](resultados/costo_real.md) |
-| Quote error, model v2 | −0.1% per query (model), +24.6% (upper bound), −10.3% per hour | [resultados/cotizacion.md](resultados/cotizacion.md) |
-| Quote per month, model v2, 100 queries a day and 8 h a day | lab 103.0676 USD, prod 115.5164 USD (prod not measured: never deployed) | [cotizacion.md](resultados/cotizacion.md) |
+| Per query, every per-query line (an upper bound: it also includes the judge's job, ApplyGuardrail and Titan) | 0.038562 USD | [costo_real.md](resultados/costo_real.md) |
+| Quotation error, model v2 | −0.1% per query (model), +24.6% (upper bound), −10.3% per hour | [resultados/cotizacion.md](resultados/cotizacion.md) |
+| Quotation per month, model v2, 100 queries a day and 8 h a day | lab 103.0676 USD, prod 115.5164 USD (prod not measured: never deployed) | [cotizacion.md](resultados/cotizacion.md) |
 | The security review (activity 9) | about 0.73 USD of usage, net 0.00 USD with credits | [resultados/seguridad.md](resultados/seguridad.md), step 4.7 |
 
-The quote comes from [costos/modelo.py](costos/modelo.py). v1 is kept with `--version v1`.
+The quotation comes from [costos/modelo.py](costos/modelo.py). v1 is kept with `--version v1`.
 
 ## Eval against the deployed endpoint: regression, 9/20
 
@@ -142,7 +142,7 @@ The 20 golden tasks of week 13 ran through the public API with real Cognito toke
 - **c02 abstains in both languages**, where an answer was expected.
 - **c06-en answers in Spanish.**
 
-Two more things to read with the result:
+Two notes on the result:
 - The 20/20 baseline ran Haiku 5.5 locally, so the comparison also crosses models.
 - The fixes need a new paid run. They go to week 20, which measures caching and routing against this baseline.
 
@@ -169,7 +169,7 @@ Summary of [resultados/seguridad.md](resultados/seguridad.md) (activity 9):
 | The deployed stack, read-only | 5 of 6 checks ok. The failure is encryption: H14 is new, H10 was already open ([seguridad/verificacion.json](resultados/seguridad/verificacion.json)) |
 | Public resources | none except the API ([verificacion.json](resultados/seguridad/verificacion.json)) |
 | External access (IAM Access Analyzer) | 0 findings, 61 resources analyzed ([seguridad/access_analyzer.json](resultados/seguridad/access_analyzer.json)) |
-| Indirect prompt injection | 0 of 8 obeyed, in two runs. Tool results are sanitized since #310, with a residual case (iny-d3) |
+| Indirect prompt injection | 0 of 8 obeyed, in two runs. Tool results have been sanitized since #310, with one residual case (iny-d3) |
 | Budget action | fired and attached the deny policy (EXECUTION_SUCCESS) |
 
 Open findings, from [seguridad/threat_model.md](seguridad/threat_model.md):
@@ -212,7 +212,7 @@ Prod is synthesized and costed, never deployed.
    - Since #322 the agent calls the model through `modelo.invocar` ([agente/modelo.py](agente/modelo.py)), a thin seam over the Converse adapter with no change in the request. Caching and routing go in there.
    - `agente/construccion.py` still repeats `MODELO_ID`, because `ia/` is not in the Lambda package. `tests/test_agente_modelo.py` checks that the two are equal.
 4. **Spans.** They follow week 17's locked schema (`semana-17/instrumentacion/esquema.py`). `agente/exportador.py` writes them as JSON lines to the agent Lambda's CloudWatch Logs group. Week 20 adds X-Ray.
-5. **Prod window.** Prod has never been deployed, so there is no measured per-hour figure for it ([cotizacion.md](resultados/cotizacion.md)). The window is still to schedule.
+5. **Prod window.** Prod has never been deployed, so there is no measured per-hour figure for it ([cotizacion.md](resultados/cotizacion.md)). The window is not scheduled yet.
 6. **Inherited:**
    - the eval regression (9/20) and its three fixes: the token budget for the deployed model, a `cachePoint`, and c02's use of R-OC-APRUEBA;
    - a local Haiku 4.5 baseline, to split the model's effect from the port's;

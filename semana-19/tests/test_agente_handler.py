@@ -161,7 +161,7 @@ def test_presupuesto_agotado_termina_como_limite_con_motivo_de_la_lista_fija():
     lineas = []
     res = H.tratar_pregunta(PREGUNTA, ALCANCE, agente_factory=lambda api, h: AgenteQueLlama(api, h, None),
                             llamar_herramienta=lambda n, a: {}, definiciones=DEFS,
-                            api_modelo=lambda c: pytest.fail("no debe llamar al modelo"), politica=politica_chica,
+                            api_modelo=lambda c: pytest.fail("must not call the model"), politica=politica_chica,
                             precios=PRECIOS, exportar=lineas.append)
     assert res.estado == "limite_alcanzado"
     assert json.loads(lineas[0])["attrs"]["lab.outcome.reason"] == "presupuesto_tarea"
@@ -217,6 +217,6 @@ def test_el_resultado_de_una_herramienta_pasa_el_sanitizador_de_la_semana_17(not
 
 def test_un_bloqueo_de_la_capa_no_pasa_por_el_sanitizador():
     decisiones = []
-    capa = H.HerramientasCapadas(lambda n, a, **k: pytest.fail("no debe correr"), DEFS, ALCANCE, PREGUNTA, decisiones)
+    capa = H.HerramientasCapadas(lambda n, a, **k: pytest.fail("must not run"), DEFS, ALCANCE, PREGUNTA, decisiones)
     capa.llamar("ejecutar_sql", {"sql": "DELETE FROM legado.exidet"})
     assert all(d.guardrail != "input_resultado_inyeccion" for d in decisiones)

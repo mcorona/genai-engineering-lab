@@ -1,6 +1,6 @@
 # Week 6: evals and regression testing in GitHub Actions
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 Goal: every prompt or model change is measured before it is merged. The evaluator runs the gold-set cases, applies deterministic checks and an LLM judge for the faithfulness of the summaries, and compares the results against a baseline.
 
@@ -13,7 +13,7 @@ Goal: every prompt or model change is measured before it is merged. The evaluato
 | `rubricas/fidelidad_resumen.txt` | The judge's rubric: a 1-to-5 scale and JSON output |
 | `baseline/resultados_base.json` | The baseline to compare against (generated with `--actualizar-base`) |
 | `resultados/` | The report of each run (`eval_<date>.json`) |
-| `../.github/workflows/evals-semana-06.yml` | The workflow that runs the evals on every pull request that touches the prompts, the runner or the units that depend on them |
+| `../.github/workflows/evals-semana-06.yml` | The workflow that runs the evals on every pull request. Its `regresion` job is a required check |
 
 ## Checks
 
@@ -25,7 +25,7 @@ Goal: every prompt or model change is measured before it is merged. The evaluato
 
 ## Regression
 
-The evaluator fails (exit code 1) if either of these happens with respect to the baseline:
+The evaluator fails (exit code 1) if either of these happens against the baseline:
 
 - A case that used to pass now fails.
 - The pass rate drops by more than 0.05.

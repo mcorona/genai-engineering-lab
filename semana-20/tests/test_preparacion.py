@@ -45,9 +45,9 @@ def test_plan_tiene_diez_actividades_con_time_cost_y_aip():
     acts = actividades()
     assert [t.split(".", 1)[0] for t in acts] == [str(n) for n in range(1, 11)], list(acts)
     for titulo, cuerpo in acts.items():
-        assert re.search(r"^- \*\*Time:\*\* ~\d+(\.\d+)? h", cuerpo, re.M), f"sin Time: {titulo}"
-        assert "**Cost:** " in cuerpo, f"sin Cost: {titulo}"
-        assert re.search(r"^- \*\*AIP-C01:\*\* .*\bD[1-5]\b", cuerpo, re.M), f"sin dominio AIP-C01: {titulo}"
+        assert re.search(r"^- \*\*Time:\*\* ~\d+(\.\d+)? h", cuerpo, re.M), f"no Time: {titulo}"
+        assert "**Cost:** " in cuerpo, f"no Cost: {titulo}"
+        assert re.search(r"^- \*\*AIP-C01:\*\* .*\bD[1-5]\b", cuerpo, re.M), f"no AIP-C01 domain: {titulo}"
 
 
 def test_plan_criterio_20_y_regla_de_la_semana_10():
@@ -73,13 +73,13 @@ def test_grupo_semana20_pins_exactos_y_igual_a_versiones_json():
     entradas = _grupo("semana20")
     assert entradas == [f"{p}=={v}" for p, v in VERSIONES["python"].items()]
     for p, v in VERSIONES["python"].items():
-        assert PIN.match(v), f"{p} no es un pin exacto: {v}"
+        assert PIN.match(v), f"{p} is not an exact pin: {v}"
 
 
 def test_pines_vienen_de_grupos_ya_verificados():
     for paquete, version in VERSIONES["python"].items():
         origen = VERSIONES["origen"][paquete]
-        assert f"{paquete}=={version}" in _grupo(origen), f"{paquete}=={version} no está en el grupo {origen}"
+        assert f"{paquete}=={version}" in _grupo(origen), f"{paquete}=={version} is not in the {origen} group"
 
 
 def test_uv_lock_tiene_el_grupo_semana20():
@@ -146,5 +146,5 @@ def test_semana20_sin_correos_ni_rutas_personales():
         if not ruta.is_file() or "__pycache__" in ruta.parts or ruta.resolve() == Path(__file__).resolve():
             continue
         texto = ruta.read_text(encoding="utf-8", errors="ignore")
-        assert not correo.search(texto), f"correo en {f}"
-        assert not rutas.search(texto), f"ruta personal en {f}"
+        assert not correo.search(texto), f"email in {f}"
+        assert not rutas.search(texto), f"personal path in {f}"

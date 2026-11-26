@@ -1,23 +1,23 @@
 # Week 15: the same agent in four frameworks, multi-agent with A2A, and a decision matrix for clients
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 **Result:** the week 13 agent (same prompt, model, tools, output contract and limits) was rebuilt in **LangGraph** and **Strands Agents**, and as spikes in the **OpenAI Agents SDK** and **Google ADK**. All of them reach the same quality.
 - **LangGraph and Strands:** 0.900 and 0.900 on 40 tasks, with identical failures; **38/38** poisoning cases in each through an MCP gateway.
-- **Spikes and hand-written loop:** 0.950–1.000 on 20 tasks for the spikes and the hand-written loop.
+- **Spikes and hand-written loop:** 0.950–1.000 on 20 tasks.
 
 The framework changes cost, protocols, observability, hosting and team effort, not quality. That evidence feeds a **client decision matrix**. Two further results:
 - **Multi-agent** (a LangGraph supervisor plus a Strands specialist over A2A with its own OAuth audience) ties the single agent at 1.7× the cost and 3× the latency.
 - **On Bedrock AgentCore** the same Strands agent keeps its quality, with a 5.7 s cold start.
 
-Week cost: **$1.78 in API** (plan: $1.50 to $1.90) plus $0.024 on AWS (actual, covered by credits), with every AWS resource deleted and verified.
+Week cost: **$1.78 in API** (plan: $1.50 to $1.90) plus $0.024 on AWS (measured, covered by credits), with every AWS resource deleted and verified.
 
 | Deliverable | Where |
 |---|---|
 | Capability baseline of the four frameworks and A2A v1.0 | [resultados/linea_base.md](resultados/linea_base.md) |
 | Common harness: contract, cost, traces, simulated model, process bridge | [resultados/arnes.md](resultados/arnes.md) |
 | The agent in LangGraph and in Strands | [resultados/langgraph.md](resultados/langgraph.md), [resultados/strands.md](resultados/strands.md) |
-| LangGraph vs Strands eval (and against the week 13 loop and the Claude Agent SDK) | [resultados/frameworks.md](resultados/frameworks.md) |
+| LangGraph vs. Strands eval (and against the week 13 loop and the Claude Agent SDK) | [resultados/frameworks.md](resultados/frameworks.md) |
 | Spikes: OpenAI Agents SDK and Google ADK | [resultados/spikes.md](resultados/spikes.md) |
 | Multi-agent and A2A | [resultados/multiagente.md](resultados/multiagente.md) |
 | Strands on Bedrock AgentCore | [resultados/agentcore.md](resultados/agentcore.md) |
@@ -82,7 +82,7 @@ Multi-agent and A2A (activity 7) and AgentCore (activity 8) each have their own 
 - **The cost difference comes from tool results, not from the framework.** ADK forwards the whole MCP result to the model, so it costs +53% for the same answers.
 - **LiteLLM needs a request-level test.** Two of the three ways of passing a provider parameter silently did something else.
 
-**Multi-agent vs single agent** (composite and rule tasks, 18 runs):
+**Multi-agent vs. single agent** (composite and rule tasks, 18 runs):
 
 | | Multi-agent | Single agent |
 |---|---|---|
@@ -98,7 +98,7 @@ A2A security, without API:
 - The remote specialist has no tools; proposals stay in `PENDING_APPROVAL`.
 
 **Strands on Bedrock AgentCore** (20 tasks, one session per task):
-- Success **1.000**, the same as local; model cost $0.0031 per task vs $0.0029.
+- Success **1.000**, the same as local; model cost $0.0031 per task vs. $0.0029.
 - Cold start **5.7–5.9 s**, of which 3.7 s is Python imports; warm **263–288 ms**.
 - Runtime cannot validate tokens from a private Keycloak (`Discovery endpoint is not valid`).
 - AgentCore Identity vaults the agent's own key. It is not a replacement for the client's identity provider.
@@ -146,7 +146,7 @@ Evals with a model need `ANTHROPIC_API_KEY` and print their cost and cap. The Ke
 | Item | Model | Runs | Cost |
 |---|---|---|---|
 | Activities 1–4, 9: baseline, harness, adapters, matrix | simulated model | — | $0 |
-| Activity 5: LangGraph vs Strands | Haiku 5.5 `low` | 240 tasks + 76 security cases | $0.8572 |
+| Activity 5: LangGraph vs. Strands | Haiku 5.5 `low` | 240 tasks + 76 security cases | $0.8572 |
 | Activity 6: spikes | Haiku 5.5 `low` | 40 | $0.1562 |
 | Activity 7: multi-agent eval (including the discarded purchasing cases) | Haiku 5.5 `low` | 26 | $0.1744 |
 | Activity 7: `eval-semana-14` CI triggered by the realm change | Haiku 5.5 `low` | 1 run | $0.1919 |

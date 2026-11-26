@@ -33,7 +33,7 @@ and the evidence), and `resultados/seguridad_obs_*.json`.
 3. **Langfuse OSS lacks the two controls the plan assumed**: projects by API and retention per project are Enterprise. Both have a
    working substitute here (the UI's API, once, and a deletion job), and both should move to the supported feature if the license changes.
 4. **A delete with the wrong project's keys answers 200.** It removes nothing (measured), and it does not reveal whether the trace exists,
-   but an audit of deletions cannot trust the status code: it has to check the effect, as the retention job's proof does.
+   but an audit of deletions cannot trust the status code: it has to check the effect, as the retention job's verification does.
 5. **Deletion in Langfuse is asynchronous** (101 s here). A check made right after the call sees the trace; the first version of the
    tenant check judged too early and was corrected to wait 3 minutes.
 6. **The Collector's raw file still holds older content.** The message events of the optional Strands run (activity 3) were written before

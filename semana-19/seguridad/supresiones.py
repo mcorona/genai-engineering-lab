@@ -198,8 +198,8 @@ def main(argv=None) -> int:
     a.salida.parent.mkdir(parents=True, exist_ok=True)
     a.salida.write_text(json.dumps(informe, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for perfil, p in informe["perfiles"].items():
-        print(perfil, p["conteos"] | {"por_regla": None}, "sobran:", len(p["sobran"]), "sin razón:", len(p["sin_razon"]))
-    print("veredicto:", informe["veredicto"])
+        print(perfil, p["conteos"] | {"por_regla": None}, "unneeded:", len(p["sobran"]), "no reason:", len(p["sin_razon"]))
+    print("verdict:", informe["veredicto"])
     return 0 if informe["veredicto"] == "ok" else 1
 
 

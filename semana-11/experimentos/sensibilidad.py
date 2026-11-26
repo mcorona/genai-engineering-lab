@@ -274,10 +274,10 @@ def main():
     print("| Change | Retrieval suite | Generation suite |")
     print("|---|---|---|")
     for c, (r, g_) in veredicto.items():
-        print(f"| {c} | {'se mueve' if r else 'no se mueve'} | {'se mueve' if g_ else 'no se mueve'} |")
+        print(f"| {c} | {'moves' if r else 'does not move'} | {'moves' if g_ else 'does not move'} |")
     print(f"\nChunks of the rec300 index: {cache['n_chunks_rec300']} (fixed 400/80: 68)")
     costo_rk = sum(v.get("costo", 0) for k, v in cache.items() if k.startswith(("rerank_repeticion::", "rec300::")))
-    print(f"Cost: reranking ${costo_rk:.4f}; " + "; ".join(f"{n}: generación ${cg:.4f} + evaluación ${ce:.4f}" for n, (cg, ce) in costos.items()))
+    print(f"Cost: reranking ${costo_rk:.4f}; " + "; ".join(f"{n}: generation ${cg:.4f} + evaluation ${ce:.4f}" for n, (cg, ce) in costos.items()))
 
 
 if __name__ == "__main__":

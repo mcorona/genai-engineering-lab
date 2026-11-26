@@ -1,6 +1,6 @@
-# Week 17: reliability of an agent in production
+# Week 17: agent reliability in production
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
 **Outcome.** The LegacyBridge agent of weeks 13 and 14 now runs with the controls a production agent needs, and every one of them leaves a
 trace. One task is one OpenTelemetry trace (agent, model calls, MCP client, server, SQL) that reaches a self-hosted Langfuse through a
@@ -27,8 +27,8 @@ The plan and the log of decisions are in [`Fas4Sema17.md`](Fas4Sema17.md).
                    └─► Langfuse v4 self-hosted (web, worker, PostgreSQL, ClickHouse, Redis, MinIO; one project per tenant)
 ```
 
-The span model follows the OpenTelemetry GenAI conventions (`invoke_agent`, `chat`, `execute_tool`, `gen_ai.*`), which are still
-Development: the instrumentation and the schema are pinned, and a test locks the shape the lab emits (67 span keys and 33 event keys, all
+The span model follows the OpenTelemetry GenAI conventions (`invoke_agent`, `chat`, `execute_tool`, `gen_ai.*`), which still have
+Development status: the instrumentation and the schema are pinned, and a test locks the shape the lab emits (67 span keys and 33 event keys, all
 numbers, words of fixed lists, identifiers or keyed hashes; no prompt, SQL, row or name ever enters a span).
 
 ## 2. Results

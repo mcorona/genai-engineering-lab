@@ -204,7 +204,7 @@ def _limite_desplegado() -> list[dict]:
         for res in pl["Resources"].values():
             if res["Type"] == "AWS::IAM::ManagedPolicy" and res["Properties"].get("ManagedPolicyName") == "semana19-limite":
                 return [s for s in res["Properties"]["PolicyDocument"]["Statement"] if s["Effect"] == "Allow"]
-    raise AssertionError("no se encontró la política semana19-limite")
+    raise AssertionError("the semana19-limite policy was not found")
 
 
 def _lista(valor) -> list:
@@ -262,7 +262,7 @@ def test_el_handler_de_cada_funcion_existe_en_su_propio_activo():
             continue
         modulo = f["Properties"]["Handler"].rsplit(".", 1)[0].replace(".", "/")
         base = salida / ruta
-        assert any((base / f"{modulo}{ext}").is_file() for ext in (".py", ".js", ".mjs")), f"{n}: {modulo} no está en {ruta}"
+        assert any((base / f"{modulo}{ext}").is_file() for ext in (".py", ".js", ".mjs")), f"{n}: {modulo} is not in {ruta}"
     assert not sin_activo, sin_activo
 
 

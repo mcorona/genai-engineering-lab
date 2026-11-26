@@ -1,6 +1,6 @@
 # Week 9: advanced RAG (query rewriting, HyDE, contextual retrieval, GraphRAG, metadata filters, ACLs, multi-tenant)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Goal: measure advanced RAG techniques against the week 8 baseline with the same frozen gold set, and make permissions and tenant isolation a hard, tested requirement.
 Every generative step uses claude-haiku-5-5. Prices come from the official Anthropic pricing page (`semana-07/prices.json`, checked 2026-10-26). All figures link to a results file in `resultados/`.
@@ -12,7 +12,7 @@ Every generative step uses claude-haiku-5-5. Prices come from the official Anthr
 | Set | Per language | Purpose | File |
 |---|---|---|---|
 | Base | 50 | Standalone questions from week 8 | `datasets/avanzado_{es,en}.jsonl` |
-| Follow-up | 15 | Need the previous question to make sense | same |
+| Follow-up | 15 | Questions that need the previous question to make sense | same |
 | Permission | 10 (5 allowed, 5 forbidden) | Role-based access | same + `datasets/permisos.json` |
 | Multi-tenant | 10 | Near-identical documents in two tenants, different figures | `datasets/multitenant_{es,en}.jsonl`, `corpus_beta/` |
 | Multi-hop, compound | 10 | Two documents, both topics named (control) | `datasets/multisalto_{es,en}.jsonl` |
@@ -50,13 +50,13 @@ These are recorded in each results file, because they changed how a result shoul
 
 ## Failed cases
 
-Questions where a technique lost a gold passage from the top 5 that the vector baseline had found. Taken from the per-query detail files; partial losses on two-passage questions are not listed one by one, which is why some averages do not move in whole questions.
+Questions where a technique lost a gold passage from the top 5 that the vector baseline had found, taken from the per-query detail files. Partial losses on two-passage questions are not listed one by one. That is why some averages do not move in whole questions.
 
 | Technique | Lost (ES) | Lost (EN) | What happened | Detail |
 |---|---|---|---|---|
 | Query rewriting (follow-up) | `seg-02`, `seg-14` | `seg-14` | Rewrites were faithful (e.g. "what do I do if the copilot gives a wrong answer?"); the rephrasing moved the vector ranking. EN also gained `seg-02` and `seg-10`. | `resultados/reescritura_detalle.csv` |
 | HyDE (base) | `rec-23`, `rec-44` | `rec-26`, `rec-38`, `rec-44`, `rec-46`, `rec-50` | Searching with the generated passage instead of the question lost these gold passages; the cause was not analyzed question by question. The generated passages are in the detail file. | `resultados/hyde_detalle.csv` |
-| Contextual retrieval | `rec-34`, `seg-14` | `rec-34`, `seg-13`, `seg-14` | Same questions fail in both languages, so the index caused it: long contexts (267 chars vs 348 per chunk) that repeat the company name dilute each chunk. `seg-10` gained in both. | `resultados/contextual_detalle.csv` |
+| Contextual retrieval | `rec-34`, `seg-14` | `rec-34`, `seg-13`, `seg-14` | Same questions fail in both languages, so the index caused it: long contexts (267 chars vs. 348 per chunk) that repeat the company name dilute each chunk. `seg-10` gained in both. | `resultados/contextual_detalle.csv` |
 | GraphRAG, expansion (G) | bridge `pt-08`, `pt-10` | compound `ms-07` | Graph neighbors pushed correct vector results out of the top 5. | `resultados/graphrag_detalle.csv` |
 | GraphRAG, query entities (G+Q) | none below baseline | bridge `pt-01`, `pt-03`, `pt-05` (one passage of two) | Best GraphRAG variant still misses one hop on three bridge questions; vector + reranking finds both. | `resultados/graphrag_detalle.csv` |
 | Role filters, multi-tenant, CI | none | none | Leakage 0 in every run. | `resultados/permisos.md`, `resultados/multitenant.md`, `resultados/ci_semana09.md` |

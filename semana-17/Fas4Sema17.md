@@ -262,7 +262,7 @@ observability (needs the stack and the instrumentation), and CI with API (last).
   - the maximum reasonable steps;
   - the forbidden tools.
 
-  They are frozen with a hash manifest, like the other golden sets.
+  They are frozen with a hash manifest, like the other gold sets.
 - **Deterministic graders on the trace:**
   - tool precision and recall;
   - in-order match where required;

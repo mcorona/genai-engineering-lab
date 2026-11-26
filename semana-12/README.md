@@ -1,6 +1,6 @@
 # Week 12: managed RAG (Bedrock Knowledge Bases and Vertex AI Search)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Status: complete. Every resource was deleted on 2026-10-29. Real cost from the bills: AWS $1.50 (covered by credits), Google Cloud MXN 16.64, Anthropic at most $4.94, OpenAI $0 ([`resultados/costo_real.md`](resultados/costo_real.md)).
 
@@ -55,7 +55,7 @@ The Claude model is used only in Bedrock's fully managed `RetrieveAndGenerate` m
 
 - **Budgets:**
   - AWS: `semana12`, $10 per month, with alerts at 50, 90 and 100% actual and 100% forecasted.
-  - Google Cloud: `semana12`, 200 MXN (about $10 USD), scoped to the project, with the same thresholds.
+  - Google Cloud: `semana12`, 200 MXN (about USD 10), scoped to the project, with the same thresholds.
 - **Naming and tags:** every resource uses the `semana12` prefix and the tag `proyecto=semana12`.
 - **Deletion:**
   - [`infra/aws_borrar.sh`](infra/aws_borrar.sh) and [`infra/gcp_borrar.sh`](infra/gcp_borrar.sh) delete in dependency order. On AWS: knowledge bases and data sources, vector indexes and buckets, S3 buckets, then roles. On Google Cloud: apps, data stores, buckets, then the service account.
@@ -75,7 +75,7 @@ Verified prices and the estimate for the week are in [`resultados/costos_fijos.m
 | Impersonation | `gcloud auth print-access-token --impersonate-service-account=semana12-operador@...` returns a token |
 | Required checks from week 11 | Skipped on this PR (it does not touch `semana-11/**`), and the PR is not blocked |
 | `inventario.sh` | Only roles, a service account and budgets, none of which bills. No knowledge base, vector bucket, S3 or GCS bucket, data store or app |
-| `aws_borrar.sh` / `gcp_borrar.sh` (simulation) | Each lists exactly the resources created |
+| `aws_borrar.sh` / `gcp_borrar.sh` (dry run) | Each lists exactly the resources created |
 | `revisar_secretos.sh` | No credentials in the repo |
 
 Cost of activity 1: $0. Budgets, IAM roles, service accounts and price catalog queries are free.
@@ -190,7 +190,7 @@ Two data stores in project `ejemplo1-9xub`, created by [`infra/vertex_crear.py`]
 | `vx-ctl` semantic ranker | **1.000 / 1.000** | **0.977 / 0.962** | 1.000 / 1.000 | 0.985 / 0.985 |
 
 - **Ranking:**
-  - With the same chunks, Google's semantic ranker ranks better than the in-house Haiku reranking: MRR 0.97 vs 0.95, 0.7 s instead of 2.3 s.
+  - With the same chunks, Google's semantic ranker ranks better than the in-house Haiku reranking: MRR 0.97 vs. 0.95, 0.7 s instead of 2.3 s.
   - Hybrid search loses in English because of its keyword component.
 - **Managed ingestion:** it reads PDFs and scans, but OCR alone cannot tie chart values to their labels, so the 5 image questions fail.
 - **Leakage:** 0 in every run. Correct abstention: 10/10 everywhere.
@@ -277,7 +277,7 @@ The semantic ranker works with the read-only CI identity (Discovery Engine viewe
 
 ## 10. Deletion and the bill
 
-**Deletion (2026-10-29).** [`infra/aws_borrar.sh`](infra/aws_borrar.sh), [`infra/gcp_borrar.sh`](infra/gcp_borrar.sh) and `infra/github_entorno.sh --borrar` ran first as a simulation (the default) and then with `--confirmar`. They only touch resources with the `semana12` prefix.
+**Deletion (2026-10-29).** [`infra/aws_borrar.sh`](infra/aws_borrar.sh), [`infra/gcp_borrar.sh`](infra/gcp_borrar.sh) and `infra/github_entorno.sh --borrar` ran first as a dry run (the default) and then with `--confirmar`. They only touch resources with the `semana12` prefix.
 
 | Cloud | Deleted |
 |---|---|

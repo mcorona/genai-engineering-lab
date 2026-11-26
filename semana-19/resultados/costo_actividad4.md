@@ -31,7 +31,7 @@ The difference is zero at this price, so the estimate does not change, but the S
 |---|---|---|
 | Titan Text Embeddings V2 | **N** | Not found in `AmazonBedrockFoundationModels` or `AmazonBedrockService` (checked 2026-11-14) |
 | S3 Vectors store | **N** | No Price List service code for S3 Vectors in us-east-1 |
-| Encrypted S3 bucket for the dictionary | not counted | Under 1 MB of text; storage cost is below the cent |
+| Encrypted S3 bucket for the data dictionary | not counted | Under 1 MB of text; storage cost is below the cent |
 | KMS requests | not counted | Under 1,000 calls per session |
 | Data transfer | not counted | In-VPC traffic only |
 

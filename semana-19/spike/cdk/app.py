@@ -32,7 +32,7 @@ class SpikeStack(cdk.Stack):
             removal_policy=BORRADO, auto_delete_objects=False, versioned=True)
         registros.node.default_child.cfn_options.metadata = {"checkov": {"skip": [{
             "id": "CKV_AWS_18",
-            "comment": "Bucket de destino de los logs de acceso: AWS no permite que un bucket se registre a sí mismo."}]}}
+            "comment": "Destination bucket for the access logs: AWS does not let a bucket log to itself."}]}}
         bucket = s3.Bucket(
             self, "Datos", encryption=s3.BucketEncryption.KMS, encryption_key=llave,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL, enforce_ssl=True,
@@ -44,14 +44,14 @@ class SpikeStack(cdk.Stack):
                 actions=["s3:GetObject", "s3:PutObject"], resources=[bucket.arn_for_objects("*")])])
         frontera.node.default_child.cfn_options.metadata = {"cdk_nag": {"rules_to_suppress": [{
             "id": "AwsSolutions-IAM5",
-            "reason": "La frontera limita al rol a los objetos de este bucket (arn_for_objects); el comodín es sobre objetos, no sobre el servicio."}]}}
+            "reason": "The boundary limits the role to this bucket's objects (arn_for_objects); the wildcard is over objects, not over the service."}]}}
         rol = iam.Role(
             self, "Rol", assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
             permissions_boundary=frontera)
         rol.add_to_principal_policy(iam.PolicyStatement(actions=["s3:GetObject"], resources=[bucket.arn_for_objects("*")]))
         rol.node.find_child("DefaultPolicy").node.default_child.cfn_options.metadata = {"cdk_nag": {"rules_to_suppress": [{
             "id": "AwsSolutions-IAM5",
-            "reason": "Solo s3:GetObject sobre los objetos de este bucket; el comodín es de recurso (objetos), no de acción."}]}}
+            "reason": "Only s3:GetObject on this bucket's objects; the wildcard is on the resource (objects), not on the action."}]}}
         guardrail = bedrock.CfnGuardrail(
             self, "Guardrail", name="semana19-spike-guardrail",
             blocked_input_messaging="Bloqueado", blocked_outputs_messaging="Bloqueado",

@@ -1,10 +1,10 @@
-# Week 13: agentic patterns (workflows vs agents) and the Claude Agent SDK
+# Week 13: agentic patterns (workflows vs. agents) and the Claude Agent SDK
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Status: complete. Activities 1 to 10 are done, and exit criterion 13 is verified with the agent built with the Claude Agent SDK (section 10).
 
-Phase 4 (weeks 13 to 18) covers agents, MCP and orchestration. This week takes one LegacyBridge flow (question → explore schema and business rules → SQL → validate → run read-only → answer with evidence). It builds shared tools with a contract, an **own agentic loop** on the Anthropic API, the same agent on the **Claude Agent SDK**, and an **MCP server** that exposes the same tools. The agent is evaluated on a frozen task gold set (success, trajectory, behavior, cost, latency, consistency) and compared with the week 10 **workflow** (fixed routing) on the same tasks. It also gets a security baseline and a CI gate.
+Phase 4 (weeks 13 to 18) covers agents, MCP and orchestration. This week takes one LegacyBridge flow (question → explore schema and business rules → SQL → validate → run read-only → answer with evidence). It builds shared tools with a contract, a **hand-written agentic loop** on the Anthropic API, the same agent on the **Claude Agent SDK**, and an **MCP server** that exposes the same tools. The agent is evaluated on a frozen task gold set (success, trajectory, behavior, cost, latency, consistency) and compared with the week 10 **workflow** (fixed routing) on the same tasks. It also gets a security baseline and a CI gate.
 
 Everything runs locally: the legacy schema from week 10 (`legado`, views with cryptic names over the inventory-copilot data) and the read-only role `copilot_ro`. The only cost is the Anthropic API.
 
@@ -246,7 +246,7 @@ Traces carry the task and repetition (`r02-es#1`) and are written under a lock.
 - Judge: about $0.02.
 - **Total: about $4.10.**
 
-## 6. Agent vs workflow
+## 6. Agent vs. workflow
 
 The week 10 assistant was run as a **workflow with fixed routing** on the same gold set, with k = 3 and Haiku 5.5 `low`, using the same execution-based verification. It was compared with the agent's activity 5 run (`eval_haiku_low`).
 - Code: [`workflow/semana10.py`](workflow/semana10.py).
@@ -281,7 +281,7 @@ Total cost for 252 runs each: agent $0.72, workflow $0.14.
 
 | Task type | Use | Why |
 |---|---|---|
-| Direct data questions (single query, the dictionary is enough) | **Workflow** | Same success (0.950 vs 0.967, CI includes 0), about 4 times cheaper per task and twice as fast (p50 3.1 s vs 6.4 s) |
+| Direct data questions (single query, the dictionary is enough) | **Workflow** | Same success (0.950 vs. 0.967, CI includes 0), about 4 times cheaper per task and twice as fast (p50 3.1 s vs. 6.4 s) |
 | Value formats and spelling | **Workflow** | 1.000 for both, at one seventh of the cost; the dictionary solves it |
 | Data that does not exist | **Workflow** | 1.000 for both; the abstention prompt is enough |
 | Business rules or company definitions | **Agent** | +0.833: it looks up the rule and applies it. The workflow abstains or guesses |
@@ -357,7 +357,7 @@ The Anthropic key is only a repository secret, and only the agent step sees it.
 
 The second run, with no code change, scored 0.900 in Spanish and 1.000 in English ($0.1905), so the 0.95 gate failed on noise. Across the four CI runs there were 4 failures in 120 task runs (p ≈ 0.033). With n = 20, a 0.95 threshold gives a false alarm on about 26% of runs; 0.90 gives about 5%. **Final thresholds: 0.90 / 0.90** (two failures tolerated out of 20 per language). Lesson: when the first run is 1.000, the week 10 rule leaves a single failure of margin; the false-alarm rate has to be checked with the observed failure rate.
 
-## 9. Results, decisions, limits and failed cases
+## 9. Results, decisions, limitations and failed cases
 
 ### Results
 
@@ -368,7 +368,7 @@ The second run, with no code change, scored 0.900 in Spanish and 1.000 in Englis
 | 3. Hand-written agentic loop | Tool use with parallel calls, bounded retry, stop states, Pydantic final answer, JSONL traces. Pilot 10/12, then 12/12 after two fixes | $0.07 |
 | 4. MCP server | stdio server with the same catalog. Identical to the native tools: 107/107 calls, 12/12 gold keys, 39/39 permission cases. Agent through MCP 12/12. Tested with MCP Inspector and registered in Claude Code | $0.03 |
 | 5. Agent evaluation | Haiku 5.5 `low`: pass@1 **0.921** [0.861, 0.972], pass^3 0.905. `medium` adds nothing (−0.008). Clarification 0.500 with Haiku and 1.000 with Sonnet 5.5 `low` on the subset | $4.09 |
-| 6. Agent vs workflow | Agent 0.921, workflow 0.504 (+0.417 [0.310, 0.528]). Tie on direct questions; the agent wins on rules (+0.833), compound tasks (+0.667) and ambiguity (+0.500) | $0.14 |
+| 6. Agent vs. workflow | Agent 0.921, workflow 0.504 (+0.417 [0.310, 0.528]). Tie on direct questions; the agent wins on rules (+0.833), compound tasks (+0.667) and ambiguity (+0.500) | $0.14 |
 | 7. Security baseline | 140/140: database fingerprint unchanged, 0 leaks, 0 obeyed injections (exposed 16/16 in data and 6/8 in rules), loops within limits | $0.21 |
 | 8. CI | `eval-semana-13` on every PR: tests, 10 tasks per language (threshold 0.90), 36 security cases with no threshold, cost in the job summary | $0.24 |
 | **Week** | | **≈ $4.78** |

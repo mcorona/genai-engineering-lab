@@ -32,8 +32,8 @@ Remote engagement in English or Spanish. Typical duration: 2 weeks from access t
    again.
 4. **Executive summary** (`resumen.md`): one page for the buyer or the steering committee.
 5. **AI opportunity map:** use cases such as natural-language queries over the database, document search (RAG) or
-   agents for recurring tasks. For each one: expected value, the data it needs, the risks above that block it, a
-   cost estimate, and how its success would be measured.
+   agents for recurring tasks. For each one: expected value, the data it needs, the risks above that block it, the
+   expected cost, and how its success would be measured.
 6. **Remediation backlog:** ordered by risk and by which opportunities each fix unlocks. Changes are written as
    scripts for the client's DBA to review and run.
 7. **Evidence pack:** the query log (`bitacora.jsonl`) and the guardrail log (`bloqueos.jsonl`), showing that the

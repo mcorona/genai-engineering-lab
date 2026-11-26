@@ -137,7 +137,7 @@ def test_el_trabajador_ante_un_fallo_guarda_solo_el_estado_sin_detalle():
     guardados = {}
 
     def fallar(ev):
-        raise RuntimeError("secreto: traza interna con la pregunta")
+        raise RuntimeError("secret: internal trace with the question")
 
     worker.procesar({"id": "c-2", "claims": {"sub": "u"}, "pregunta": "hola"}, correr=fallar,
                     actualizar=lambda i, c: guardados.update({i: c}))
@@ -152,7 +152,7 @@ def test_el_log_de_operador_no_lleva_la_pregunta_ni_el_mensaje_de_la_excepcion(c
     secreto = "PREGUNTA-SECRETA-7731"
 
     def correr_que_falla(_):
-        raise ValueError("mensaje con " + secreto)
+        raise ValueError("message with " + secreto)
 
     guardado = {}
     with caplog.at_level(logging.ERROR):

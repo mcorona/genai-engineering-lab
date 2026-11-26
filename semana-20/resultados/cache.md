@@ -6,7 +6,7 @@ next day's.** Design: [ADR 0014](../../semana-19/arquitectura/adr/0014-prompt-ca
 | What | File |
 |---|---|
 | Measurement (step 1) | [`cache_medicion.json`](cache_medicion.json), from [`cache/medir.py`](../cache/medir.py) |
-| Prediction (step 3), committed before the run | [`cache_prediccion.json`](cache_prediccion.json), from [`cache/prediccion.py`](../cache/prediccion.py) and quote v3 ([`costos/modelo.py`](../../semana-19/costos/modelo.py)) |
+| Prediction (step 3), committed before the run | [`cache_prediccion.json`](cache_prediccion.json), from [`cache/prediccion.py`](../cache/prediccion.py) and quotation v3 ([`costos/modelo.py`](../../semana-19/costos/modelo.py)) |
 | Run (step 4), 2026-11-26 | [`cache/crudo_eval.json`](cache/crudo_eval.json) (raw), [`cache_detalle.jsonl`](cache_detalle.jsonl) (per task and per model call), [`cache_comparacion.json`](cache_comparacion.json), from [`cache/corrida.py`](../cache/corrida.py) |
 
 ## 1. Measurement: the cacheable prefix per step
@@ -49,14 +49,14 @@ The source is the corrected run's saved spans (`corrida_corregida/crudo_eval.jso
   - whether caching works through an application inference profile;
   - whether the Guardrail re-evaluates cached content.
 
-## 3. Prediction (quote v3), before the run
+## 3. Prediction (quotation v3), before the run
 
 Each measured call is priced with `cache_por_paso` (ADR 0014's rule). Without the cache, the model reproduces the corrected run exactly: 0.927825 USD, median 0.034076.
 
 | Scenario | Hit probability | Median per task (USD) | p95 | 20 tasks | Saving |
 |---|---|---|---|---|---|
 | Corrected run (real, no cache) | — | 0.034076 | 0.106158 | 0.927825 | — |
-| Optimistic (quote v3's central) | 1 | 0.021740 | 0.046182 | 0.510544 | 45.0% |
+| Optimistic (quotation v3's central) | 1 | 0.021740 | 0.046182 | 0.510544 | 45.0% |
 | Pessimistic (uniform over the 3 Regions of the `us.` profile) | 1/3 | 0.033436 | 0.098515 | 0.892078 | 3.9% |
 | Worst (no call reads) | 0 | 0.039846 | 0.128702 | 1.082845 | −16.7% |
 
@@ -153,7 +153,7 @@ against a predicted break-even of 0.27.
 
 ## 5. Predicted vs real
 
-Quote v3's central scenario (optimistic, p = 1), committed before the run (#357):
+Quotation v3's central scenario (optimistic, p = 1), committed before the run (#357):
 
 | | Predicted | Real | Error |
 |---|---|---|---|
@@ -163,12 +163,12 @@ Quote v3's central scenario (optimistic, p = 1), committed before the run (#357)
 | Hit rate | 1 (scenario) | 1.0 (55 / 55) | — |
 | Latency | N | see §4 | — |
 
-- **Within ±20%: quote v3 is kept as it is**, with no v4.
+- **Within ±20%: quotation v3 is kept as it is**, with no v4.
 - Per task the error runs from −54.9% (r05-es: 3 calls, against 11 in the corrected run) to +149.4% (c02-en: 10
   calls, against 6). The prediction prices the corrected run's calls; the model takes a different number of calls
   each run, and that, not the cache, sets the per-task error. Over 20 tasks the differences cancel to −0.9%.
 - The hit rate was the one unknown; it came out at the optimistic end. The pessimistic (1/3) and worst (0) scenarios
-  stay in the quote as the bounds for a busier hour ("at times of high demand… increased cache writes", prompt-caching
+  stay in the quotation as the bounds for a busier hour ("at times of high demand… increased cache writes", prompt-caching
   docs, read 2026-11-25).
 
 ## 6. Cost Explorer and the teardown

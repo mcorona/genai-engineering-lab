@@ -132,7 +132,7 @@ def prefijo_cacheable() -> dict:
     try:
         from agente import loop  # noqa: PLC0415  (semana-13 on sys.path)
     except Exception as e:  # noqa: BLE001
-        return {"alcanza": None, "motivo": f"no se pudo importar el loop de la semana 13: {type(e).__name__}"}
+        return {"alcanza": None, "motivo": f"could not import the week 13 loop: {type(e).__name__}"}
     finally:
         sys.path.remove(str(RAIZ / "semana-13"))
     herramientas = loop.definiciones() + [loop.herramienta_responder()]

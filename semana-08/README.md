@@ -1,6 +1,6 @@
 # Week 8: retrieval (chunking, embeddings, vector DBs, BM25 + reranking, cited answers, CI)
 
-> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English.
+> Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the [data guide](../docs/data/README.md) and the README in each data or results folder describe them in English.
 
 Goal: measure which retrieval choices work for a small, bilingual document base, using the same
 gold passages for every experiment. The gold set was written by the author, so it may favor the
@@ -44,7 +44,7 @@ Fixed window 400/80, 57 chunks, 50 queries per language. Source: `resultados/emb
 | bge-m3 (local, LM Studio) | 1024 | 1.000 | 1.000 | 1.000 | 1.000 | 0 |
 | text-embedding-3-small | 1536 | 0.990 | 1.000 | 0.950 | 0.980 | 0.000129 (ES) / 0.000124 (EN) |
 | text-embedding-3-large | 3072 | 1.000 | 1.000 | 1.000 | 1.000 | 0.000841 (ES) / 0.000809 (EN) |
-| gemini-embedding-2 | 3072 | 0.980 | 1.000 | 0.980 | 1.000 | pending (see limits) |
+| gemini-embedding-2 | 3072 | 0.980 | 1.000 | 0.980 | 1.000 | pending (see limitations) |
 
 OpenAI prices: https://developers.openai.com/api/docs/models (checked 2026-10-22).
 Gemini: $0.20 per million input tokens, the figure the author provided. The source URL and the token count are pending.
@@ -65,7 +65,7 @@ Same vectors (bge-m3, fixed 400/80) in pgvector, Qdrant and OpenSearch. Script: 
 
 Metadata filter (`source = politica_reorden.md`): 5 of 5 correct in all three.
 
-Limits:
+Limitations:
 - Latency is not like-for-like. pgvector runs inside Postgres; Qdrant and OpenSearch are HTTP calls, so part of their latency is network and JSON.
 - Index parameters are the engine defaults. Nothing was tuned.
 - The first OpenSearch filter run returned 1 of 5 because the filter was applied after the k-NN search. Moving it inside the knn clause fixed it.
@@ -142,7 +142,7 @@ The OpenAI key is the repository secret `OPENAI_API_KEY`. The check passed on th
 - Gemini embedding price comes from the author; the source URL and the token count are pending.
 - CI uses OpenAI embeddings, not the local bge-m3 model used in the measurements.
 - Docker services are for local development: single node, security plugin disabled.
-- Week 8 is checked against the Phase 3 exit criteria in the root README.
+- Week 8 is checked against the Phase 3 exit criteria in [docs/exit-criteria.md](../docs/exit-criteria.md).
 
 ## Status
 

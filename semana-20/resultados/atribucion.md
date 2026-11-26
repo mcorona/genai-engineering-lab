@@ -60,7 +60,7 @@ Explorer by `componente` agree to the last digit: 0.0985182 USD for the 4 tasks 
 
 ## 4. The small run (2026-11-24)
 
-`semana-20/atribucion/corrida.py`, simulation by default. Four tasks that passed in activity 1's corrected run
+`semana-20/atribucion/corrida.py`, a dry run by default. Four tasks that passed in activity 1's corrected run
 (`s03-es`, `s06-es`, `s03-en`, `v01-en`, 0.117 USD there), through the public API. Before sending anything it checks
 that the agent runs the ceiling budget, the direct path, and an application profile in `MODELO`.
 

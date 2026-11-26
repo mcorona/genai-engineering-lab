@@ -71,8 +71,8 @@ def test_validar_rechaza_lo_que_el_trabajo_no_acepta():
             {**EJEMPLO_DOCUMENTADO, "category": "c", "modelResponses": [{"response": "a", "modelIdentifier": "otro"}]},
             {**EJEMPLO_DOCUMENTADO, "category": "c"}]
     errores = " | ".join(J.validar(malo))
-    assert "claves" in errores and "una sola respuesta" in errores and "un solo modelIdentifier" in errores
-    assert "category repetida" in errores
+    assert "keys" in errores and "exactly one response" in errores and "one modelIdentifier" in errores
+    assert "duplicate category" in errores
     assert J.validar([]) and J.validar([EJEMPLO_DOCUMENTADO] * 1001)
 
 
@@ -130,15 +130,15 @@ def test_los_resultados_se_emparejan_por_category():
 def test_un_formato_inesperado_falla_en_voz_alta():
     with pytest.raises(ValueError, match="category"):
         J.leer_resultados([{"automatedEvaluationResult": {}}])
-    with pytest.raises(ValueError, match="fuera de"):
+    with pytest.raises(ValueError, match="outside"):
         J.leer_resultados([registro("x", correcto=3)])
-    with pytest.raises(ValueError, match="dos registros"):
+    with pytest.raises(ValueError, match="two records"):
         J.leer_resultados([registro("x"), registro("x")])
 
 
 def test_sin_corrida_la_simulacion_no_toca_aws(monkeypatch, capsys, tmp_path):
     import boto3
-    monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("la simulación no toca AWS"))
+    monkeypatch.setattr(boto3, "Session", lambda *a, **k: pytest.fail("the dry run does not touch AWS"))
     monkeypatch.setattr(J, "SALIDA", tmp_path)
     assert J.main([]) == 0 and "Simulation" in capsys.readouterr().out
 

@@ -264,7 +264,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--perfil", "--profile", help="read-only profile (operator)", metavar="PROFILE")
     ap.add_argument("--donde", "--where", choices=["mac", "ci"], default="mac")
-    ap.add_argument("--gasto-mes", "--monthly-spend", action="store_true", help="incluye Cost Explorer (1 llamada de $0.01)")
+    ap.add_argument("--gasto-mes", "--monthly-spend", action="store_true", help="includes Cost Explorer (1 call, $0.01)")
     ap.add_argument("--sonda", "--probe", choices=list(SONDAS), help=argparse.SUPPRESS)
     a = ap.parse_args()
     if a.sonda:
