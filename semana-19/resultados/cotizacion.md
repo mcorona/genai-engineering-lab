@@ -209,7 +209,7 @@ The same 20 tasks with `CACHE_PROMPT=historial` and the 5-minute TTL (`semana-20
 
 - **Within ±20%: v3 stands, with no v4.** v1, v2 and v3 stay in `costos/modelo.py`.
 - The hit rate, the one unknown, came out at the optimistic end. The pessimistic and worst scenarios stay as the
-  bounds of the quote.
+  bounds of the quotation.
 - Per task the error runs from −54.9% to +149.4%. The model takes a different number of calls each run (r05-es: 3
   against 11; c02-en: 10 against 6), and v3 prices the corrected run's calls. Over 20 tasks those differences cancel.
 - Latency, N in the prediction: no gain at these prefix sizes (task latency over its calls 4.08 s, against 4.11 s
