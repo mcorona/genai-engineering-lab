@@ -2,9 +2,9 @@
 
 **GenAI on legacy business systems, deployed in the client's own cloud, with every claim measured.**
 
-For companies whose inventory, sales or billing still live in an old database with cryptic names: natural-language questions, agents and audits on top of it, read-only, with costs and failure rates known before going live.
+For companies whose inventory, sales or billing still live in an old database with cryptic names. The lab puts natural-language questions, agents and audits on top of that database: read-only, with costs and failure rates known before go-live.
 
-What you can hire: an AI Opportunity & Risk Assessment, agent and MCP architecture, and deployment on AWS ([Work with me](#work-with-me)).
+Services: an AI Opportunity & Risk Assessment, agent and MCP architecture, and deployment on AWS ([Work with me](#work-with-me)).
 
 [![Regression evals](https://github.com/mcorona/genai-engineering-lab/actions/workflows/evals-semana-06.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/evals-semana-06.yml) [![Agent eval (week 13)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-13.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-13.yml) [![MCP server (week 14)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-14.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-14.yml) [![Agent frameworks (week 15)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-15.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-15.yml) [![Client plugin (week 16)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-16.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-16.yml) [![Agent reliability (week 17)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-17.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-17.yml) [![AWS deployment (week 19)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-19.yml/badge.svg?event=pull_request)](https://github.com/mcorona/genai-engineering-lab/actions/workflows/eval-semana-19.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -15,8 +15,8 @@ What you can hire: an AI Opportunity & Risk Assessment, agent and MCP architectu
 | An agent instead of a fixed workflow | pass@1 **0.889** vs. 0.504 for the workflow, on 84 tasks | [patrones.md](semana-13/resultados/patrones.md) |
 | Agent security | **140/140** runs passed over 70 attack and permission cases: database unchanged, 0 leaks, 0 injected instructions obeyed | [seguridad.md](semana-13/resultados/seguridad.md) |
 | Text-to-SQL on a legacy schema | **0.977** ES / **1.000** EN execution accuracy at **$0.00033** per question | [sql_legado.md](semana-10/resultados/sql_legado.md) |
-| Deployment on AWS with its cost per query | **$0.030913** per query for the model, $0.037562 per hour of stack, from the bill | [costo_real.md](semana-19/resultados/costo_real.md) |
-| A schema-audit plugin as a product | **12 of 13** seeded risks found, Δ **+0.57** over no plugin | [plugin.md](semana-16/resultados/plugin.md), [eval_plugin.md](semana-16/resultados/eval_plugin.md) |
+| Deployment on AWS with its cost per query | **$0.030913** per query for the model and $0.037562 per hour for the running stack, from the AWS bill | [costo_real.md](semana-19/resultados/costo_real.md) |
+| A schema-audit plugin as a product | **12 of 13** seeded risks found, Δ **+0.57** over the same model without the plugin | [plugin.md](semana-16/resultados/plugin.md), [eval_plugin.md](semana-16/resultados/eval_plugin.md) |
 
 The full table, with every capability, is under [Detailed results](#detailed-results).
 
@@ -75,7 +75,7 @@ Most GenAI demos show that something *can* work. This lab measures *how well* it
 | **Same agent in four frameworks** | LangGraph and Strands score **0.900 / 0.900** on 40 tasks with identical failures and pass **38/38** poisoning cases each through an MCP gateway; OpenAI Agents SDK and Google ADK score 0.950 on 20. The framework does not change quality; it changes cost (ADK +53% from forwarding full MCP results), protocols, observability and hosting. Multi-agent over A2A (a Keycloak audience per agent) ties the single agent at 1.7× the cost and 3× the latency. On Bedrock AgentCore: the same 1.000, with a 5.7 s cold start. A [client decision matrix](semana-15/resultados/matriz_decision.md) links every score to its evidence | [`semana-15`](semana-15/README.md) |
 | **Client plugin with its own eval** | [`legacy-schema-audit`](semana-16/legacy-schema-audit/README.md) 1.0.0, installable from this repository's plugin marketplace: a read-only audit of a legacy schema (data dictionary, ER diagram, risks with SQL evidence, executive summary). With Sonnet: PK/FK/PII 1.00 and **12 of 13** seeded risks for about $1; behavior suite **Δ +0.57** over no plugin; security **14/14** (prompt injection, data changes, credentials, hook bypass, tool poisoning). Browser-agent and computer-use spikes on a legacy screen: 10/10 fields. CI runs a mini eval with calibrated thresholds on every PR (about $0.11) | [`semana-16`](semana-16/README.md) |
 | **Agent reliability in production** | One task is one OpenTelemetry GenAI trace (agent, model, MCP client and server, SQL) in a self-hosted Langfuse, through a Collector that redacts by **allowlist** (0 of 9 canaries leaked, with content capture both off and on). Budgets per task, session and tenant-day (**0 caps crossed** in 84 paid tasks); input, tool and output guardrails (**0 obeyed** in 38 attacks, with false positives measured on 84 tasks); human approval of purchase orders with the approver level taken from Keycloak (**0 orders without approval**); a trajectory eval read from the spans (91.7%) with scores in Langfuse; a dashboard as code and a runbook. CI runs a mini eval with calibrated thresholds on every PR (about $0.08) | [`semana-17`](semana-17/README.md) |
-| **Deployed on AWS from IaC** | LegacyBridge on Bedrock (Haiku 4.5, a Guardrail, versioned prompts), Lambda, Step Functions, API Gateway with Cognito JWT, and the tools and RDS in a VPC with no internet path, from CDK. **0** unsuppressed cdk-nag and checkov findings, and every IAM-policy finding classified with its reason. Measured **$0.030913 per query** for the model and $0.037562 per hour of stack, and a verified teardown. The eval against the deployed endpoint did its job: it caught a regression when the model changed from Haiku 5.5 (local) to Haiku 4.5 (on AWS), **9/20**. The diagnosis found a per-task token budget calibrated for the other model; with that fixed, the corrected run reached **16/20**. It is still a regression under week 10's rule, and week 20 works on the remaining failures | [`semana-19`](semana-19/README.md), [`costo_real.md`](semana-19/resultados/costo_real.md), [`eval_aws.md`](semana-19/resultados/eval_aws.md), [`linea_base.md`](semana-20/resultados/linea_base.md) |
+| **Deployed on AWS from IaC** | LegacyBridge on Bedrock (Haiku 4.5, a Guardrail, versioned prompts), Lambda, Step Functions, API Gateway with Cognito JWT, and the tools and RDS in a VPC with no internet path, from CDK. **0** unsuppressed cdk-nag and checkov findings, and every IAM-policy finding classified with its reason. Measured cost: **$0.030913 per query** for the model and $0.037562 per hour for the running stack. The teardown is verified. The eval against the deployed endpoint did its job: it caught a regression when the model changed from Haiku 5.5 (local) to Haiku 4.5 (on AWS), **9/20**. The diagnosis found a per-task token budget calibrated for the other model; with that fixed, the corrected run reached **16/20**. It is still a regression under week 10's rule, and week 20 works on the remaining failures | [`semana-19`](semana-19/README.md), [`costo_real.md`](semana-19/resultados/costo_real.md), [`eval_aws.md`](semana-19/resultados/eval_aws.md), [`linea_base.md`](semana-20/resultados/linea_base.md) |
 
 ## LegacyBridge: the reference system
 
@@ -143,7 +143,7 @@ Each folder `semana-NN` is week NN of the lab's study program (*semana* is Spani
 | 14 | [`semana-14/`](semana-14/README.md) | A remote MCP server with OAuth, least privilege and tool-poisoning tests |
 | 15 | [`semana-15/`](semana-15/README.md) | The same agent in four frameworks, multi-agent with A2A, and a decision matrix |
 | 16 | [`semana-16/`](semana-16/README.md) | A reusable Claude Code plugin for clients, with its own eval |
-| 17 | [`semana-17/`](semana-17/README.md) | Reliability of an agent in production |
+| 17 | [`semana-17/`](semana-17/README.md) | Agent reliability in production |
 | 18 | [`semana-18/`](semana-18/README.md) | LegacyBridge v1 and the close of Phase 4 |
 | 19 | [`semana-19/`](semana-19/README.md) | LegacyBridge on AWS, from infrastructure as code |
 | 20 | [`semana-20/`](semana-20/Fas5Sema20.md) | Costs and performance for LegacyBridge on AWS (in progress) |
@@ -187,7 +187,7 @@ uv run python -m pytest -q semana-14/tests                        # MCP server (
 uv run python semana-14/linea_base/verificar_sdk.py               # MCP SDK baseline against the spec
 ```
 
-Each week's test suite runs on its own, because the suites use separate `conftest.py` files. Evals that call a model need `ANTHROPIC_API_KEY`; each one prints its estimated cost, and most CI runs cost between $0.10 and $0.30.
+Run each week's test suite separately: each suite has its own `conftest.py`. Evals that call a model need `ANTHROPIC_API_KEY`. Each one prints its estimated cost, and most CI runs cost between $0.10 and $0.30.
 
 ## Status
 
@@ -196,8 +196,8 @@ Each week's test suite runs on its own, because the suites use separate `conftes
 | 1. LLM fundamentals | 1–4 | Complete |
 | 2. Prompts, evals and NLQ | 5–7 | Complete |
 | 3. RAG and data | 8–12 | Complete, with all 11 exit criteria verified |
-| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 17 complete (exit criteria 13 to 17 verified); week 18 has the LegacyBridge v1 scope, bring-up and command merged |
-| 5. LLMOps and multicloud production | 19–24 | In progress: week 19 complete. Criterion 19 is met except the mini eval (regression: 9/20, 16/20 after week 20's correction) and KMS at rest (partial: 17 of 29 resources on the project key). Week 20 in progress; weeks 21 to 24 pending |
+| 4. Agents, MCP and orchestration | 13–18 | In progress: weeks 13 to 17 complete (exit criteria 13 to 17 verified). Week 18: the LegacyBridge v1 scope, bring-up script and command are merged |
+| 5. LLMOps and multicloud production | 19–24 | In progress: week 19 complete. Criterion 19 is met except for the mini eval (regression: 9/20, 16/20 after week 20's correction) and KMS at rest (partial: 17 of 29 resources on the project key). Week 20 in progress; weeks 21 to 24 pending |
 
 The exit criteria of every phase, each with the PR that verified it, are listed in [docs/exit-criteria.md](docs/exit-criteria.md).
 
@@ -208,7 +208,7 @@ LegacyBridge goes from demo to production in the client's cloud, with IaC, secur
 | Criterion | Week | Status |
 |---|---|---|
 | 19. LegacyBridge deployed on AWS from IaC: a reference architecture diagram, least-privilege IAM, KMS encryption at rest, private networking through VPC endpoints, a Bedrock Guardrail and versioned prompts, the golden mini eval passing against the deployed endpoint, measured cost per query, and a verified teardown | 19 | **Met except two parts:** the mini eval (regression, 9/20) and KMS at rest (partial). See the parts below and [semana-19/README.md](semana-19/README.md) |
-| 20. A cost-per-query dashboard and a budget alarm, with prompt caching, batch inference and model routing measured against the week 19 baseline | 20 | **In progress.** Merged: the corrected baseline, 16/20, accepted as the baseline without passing ([linea_base.md](semana-20/resultados/linea_base.md)), and the cost attribution by component: application inference profiles, cost tags and per-query metrics ([atribucion.md](semana-20/resultados/atribucion.md), its live run pending). Caching, routing, batch, the dashboard and the alarm are next |
+| 20. A cost-per-query dashboard and a budget alarm, with prompt caching, batch inference and model routing measured against the week 19 baseline | 20 | **In progress.** Merged: the corrected baseline, 16/20, accepted as the baseline although it does not pass ([linea_base.md](semana-20/resultados/linea_base.md)), and the cost attribution by component: application inference profiles, cost tags and per-query metrics ([atribucion.md](semana-20/resultados/atribucion.md), its live run pending). Caching, routing, batch, the dashboard and the alarm are next |
 | 21. A red-teaming report for the deployed API, with findings and mitigations (OWASP Top 10 for LLM Applications) | 21 | Pending |
 | 22. An AWS ↔ Azure ↔ GCP service matrix and a minimal deployment in a second cloud | 22 | Pending |
 
@@ -217,30 +217,30 @@ Criterion 19, part by part:
 - [x] **Reference architecture diagram:** [diagrama.svg](semana-19/arquitectura/diagrama.svg), checked against the synth both ways in CI ([test_diagrama_vs_stack.py](semana-19/tests/test_diagrama_vs_stack.py), #318).
 - [x] **Least-privilege IAM:**
   - a permissions boundary on every role the stacks create ([base.md](semana-19/resultados/base.md));
-  - ValidatePolicy on 100 documents (50 per profile): its 4 errors were disproved by a deployment, and no security error or warning is left ([validate_policy.json](semana-19/resultados/seguridad/validate_policy.json));
-  - parliament in CI, 0 unclassified findings ([parliament.json](semana-19/resultados/seguridad/parliament.json)).
+  - IAM Access Analyzer ValidatePolicy on 100 policy documents (50 per profile): a deployment disproved its 4 errors, and no security error or warning remains ([validate_policy.json](semana-19/resultados/seguridad/validate_policy.json));
+  - Parliament in CI, with 0 unclassified findings ([parliament.json](semana-19/resultados/seguridad/parliament.json)).
 - [ ] **KMS encryption at rest, partial:** 17 of 29 resources are on the project key. The other 12 are encrypted, but with AWS-owned or AWS-managed keys, SSE-S3 or CloudWatch Logs' default encryption. They are findings H10 (11 resources) and H14 (the bootstrap's assets bucket), both open ([verificacion.json](semana-19/resultados/seguridad/verificacion.json), check `cifrado`).
 - [x] **Private networking through VPC endpoints:** the network and endpoints checks pass; RDS has no public IP ([verificacion.json](semana-19/resultados/seguridad/verificacion.json); [ADR 0005](semana-19/arquitectura/adr/0005-interface-endpoints.md)).
 - [x] **Bedrock Guardrail and versioned prompts:** the Guardrail ran live at its pinned version 3 on 24 inputs ([apply_guardrail.json](semana-19/resultados/apply_guardrail.json), compared with the deterministic guardrails in [comparacion_determinista.json](semana-19/resultados/comparacion_determinista.json)). The ES and EN prompts were deployed with their prompt versions (`AWS::Bedrock::PromptVersion` in [verificacion.json](semana-19/resultados/seguridad/verificacion.json)).
 - [ ] **Golden mini eval passing against the deployed endpoint: regression, 9/20.**
   - Wilson 95% [0.258, 0.658], against week 17's local 20/20.
-  - The diagnosis: the per-task token budget, no prompt cache, c02 and c06-en. The 20/20 baseline ran Haiku 5.5, and the endpoint runs Haiku 4.5.
+  - Diagnosis: the per-task token budget, the missing prompt cache, and cases c02 and c06-en. The 20/20 baseline ran on Haiku 5.5; the endpoint runs Haiku 4.5.
   - The fixes go to week 20 ([eval_aws.md](semana-19/resultados/eval_aws.md)). Week 20's corrected run, with the per-task budget fixed, reached 16/20 (Wilson 95% [0.584, 0.919]), still a regression ([linea_base.md](semana-20/resultados/linea_base.md)).
 - [x] **Measured cost per query:** 0.030913 USD for the model alone, and 0.037562 USD per hour of stack, from the bill ([costo_real.md](semana-19/resultados/costo_real.md)).
-- [x] **Verified teardown:** `"quedan": "nada"`. Left: the read-only role and 3 KMS keys pending deletion, with their dates ([inventario_final.json](semana-19/resultados/inventario_final.json)).
+- [x] **Verified teardown:** `"quedan": "nada"` (nothing remains). Still present: the read-only role and 3 KMS keys scheduled for deletion, with their dates ([inventario_final.json](semana-19/resultados/inventario_final.json)).
 
 Two cross-cutting criteria apply to every week:
 
 - **Cost:** the error of the monthly quotation against the real cost is measured and must stay within ±20%.
-  - Week 19: within ±20% on the model figure (−0.1%) and per hour (−10.3%).
-  - Outside on the upper bound (+24.6%). That bound also holds the Bedrock judge's job, which Cost Explorer cannot split by query ([cotizacion.md](semana-19/resultados/cotizacion.md), [costo_real.md](semana-19/resultados/costo_real.md)).
+  - Week 19: within ±20% on the model cost (−0.1%) and the hourly cost (−10.3%).
+  - Outside the range on the upper bound (+24.6%). That bound also includes the Bedrock judge's job, which Cost Explorer cannot split by query ([cotizacion.md](semana-19/resultados/cotizacion.md), [costo_real.md](semana-19/resultados/costo_real.md)).
   - The week cost 8.928936 USD gross, 0.00 USD net with credits ([costo_semana.json](semana-19/resultados/costo_semana.json)).
 - **Security:** no unsuppressed scanner finding, and no public resource except the API.
   - Week 19: **met, with open findings.**
-  - gitleaks 0 unclassified findings; checkov 0 failed (38 skipped with a reason); cdk-nag 0 unsuppressed (55 suppressed with a reason); only the API is public, and every route has the JWT authorizer ([seguridad.md](semana-19/resultados/seguridad.md), [verificacion.json](semana-19/resultados/seguridad/verificacion.json)).
+  - gitleaks: 0 unclassified findings. checkov: 0 failed (38 skipped with a reason). cdk-nag: 0 unsuppressed (55 suppressed with a reason). Only the API is public, and every route has the JWT authorizer ([seguridad.md](semana-19/resultados/seguridad.md), [verificacion.json](semana-19/resultados/seguridad/verificacion.json)).
   - Open: H1, H2, H4 and H10 for week 20; H3, H5, H8, the H13 residual case, and H7, H12 and H14 for week 21. H6 and H11 are accepted for the lab ([threat_model.md](semana-19/seguridad/threat_model.md)).
 
-**AIP-C01:** the target is the week of 3 May 2027, scheduled only after 3 practice exams of at least 85%. The concepts the lab shows, by exam domain, and the gaps are in [semana-19/resultados/aip_c01.md](semana-19/resultados/aip_c01.md).
+**AIP-C01:** the target is the week of May 3, 2027. The exam is booked only after 3 practice exams score at least 85%. The concepts the lab shows, by exam domain, and the gaps are in [semana-19/resultados/aip_c01.md](semana-19/resultados/aip_c01.md).
 
 ## Security and credentials
 
