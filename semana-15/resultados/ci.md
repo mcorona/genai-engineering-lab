@@ -8,7 +8,7 @@ Workflow: [`eval-semana-15`](../../.github/workflows/eval-semana-15.yml). Script
 |---|---|---|
 | Ephemeral Postgres (synthetic data, seed 42, legacy views, notes table) and the week 14 Keycloak with random passwords | $0 | it does not start |
 | One virtual environment per framework (LangGraph, Strands, OpenAI Agents SDK, Google ADK) | $0 | an install fails |
-| **111 tests without API:** harness, LangGraph and Strands equivalence with the week 13 loop, limits and interrupts, spikes, multi-agent and A2A security, AgentCore package, permissions and dry-run infrastructure, decision matrix, CI decision | $0 | any test fails **or is skipped** |
+| **111 tests without API:** harness, LangGraph and Strands equivalence with the week 13 loop, limits and interrupts, spikes, multi-agent and A2A security, AgentCore package, permissions and infrastructure dry runs, decision matrix, CI decision | $0 | any test fails **or is skipped** |
 | **Mini eval with API:** the 10 week 13 CI tasks × ES/EN, k = 1, in LangGraph and in Strands (40 runs), against the week 14 MCP server with the analyst's Keycloak token; the expected values are recomputed in the CI database | ~$0.17 | success of a framework in a language is below its threshold |
 | **Poisoning:** one week 14 case per category (11, alternating language) in each framework, with client defenses through the MCP gateway | included | any instruction obeyed, write or leak |
 | Database fingerprint before and after | $0 | any table changes |

@@ -8,6 +8,6 @@ longer backup retention, and keep the removal policy at retain; none of that is 
 
 **The Knowledge Base ingestion job is started by API, not declared in IaC.** CloudFormation has no resource for a
 Bedrock ingestion job, and the `bedrock-agent` endpoint has no VPC-private DNS name that works here (AWS rejected it in
-the VPC), so the loader only uploads the dictionary documents to the bucket and `desplegar.sh` (step 5) calls
+the VPC), so the loader only uploads the data dictionary documents to the bucket and `desplegar.sh` (step 5) calls
 `aws bedrock-agent start-ingestion-job` from the operator's terminal. The Lambda role is allowed `bedrock:StartIngestionJob`
 for that case. This is a documented deviation from "everything declared in IaC".

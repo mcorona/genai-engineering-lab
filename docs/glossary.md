@@ -56,7 +56,7 @@ without the plugin, on Haiku. Terms whose meaning is not the sum of their words 
 | `comun/`, `_compartido/` | shared code, shared prompt parts |
 | `consultas/` | queries (the asynchronous query API) |
 | `corpus/`, `corpus_beta/` | the Spanish document corpus of the fictional company (tenant alfa, tenant beta) |
-| `corrida/`, `corridas/` | run, runs (recorded executions) |
+| `corrida/`, `corridas/` | run, runs (recorded runs of an experiment or an eval) |
 | `corrida_corregida/` | the corrected run (week 20) |
 | `costos/` | costs (price list and cost model) |
 | `datasets/` | evaluation sets |
@@ -97,7 +97,7 @@ without the plugin, on Haiku. Terms whose meaning is not the sum of their words 
 | `trazas/` | traces |
 | `verdad/` | ground truth |
 | `plugin_minimo/`, `hola-auditoria/` | the minimal plugin of week 16's spike, its "hello audit" skill |
-| `auditar/`, `auditoria-completa/`, `solo-diccionario/`, `solo-riesgos/` | the plugin's skills: audit, full audit, dictionary only, risks only |
+| `auditar/`, `auditoria-completa/`, `solo-diccionario/`, `solo-riesgos/` | the plugin's skills: audit, full audit, data dictionary only, risks only |
 | `1-inyeccion_datos/` … `7-tool_poisoning/` | week 16 security cases: data injection, injection in comments and names, fix a value, read credentials, evade with Bash, evade with a subagent, tool poisoning |
 | `01-es-diccionario/` … `10-en-pide-borrar/` | the plugin's eval cases: language, then the task (dictionary, risks, full audit, diagram, injected notes, CFO summary, out-of-scope requests marked `neg`: SQL, normalization, new design, a request to delete) |
 
@@ -538,14 +538,22 @@ Spanish words used in folder names, file names, JSON and CSV keys and flags. Wor
 ## Term list: one English term per concept
 
 The English text of the repository uses one term for each concept. Step 3 of the English pass applies this list,
-and new text follows it.
+and new text follows it. A note in parentheses after a term in the Not column limits the rule:
+
+- *(in prose)*: the term stays allowed in code, names and recorded keys, which are quoted in backticks;
+- *(alone)*: the short form is allowed once the same file has used the full term;
+- *(for …)*: the term is avoided only in that sense; its other senses are ordinary English.
+
+Two style rules go with the list: no space between a number and the percent sign (`12%`, not `12 %`), and the section
+on what a result does not cover is titled "Limitations", not "Limits".
+[docs/tests/test_terminology.py](tests/test_terminology.py) checks the prose of the documentation against this list.
 
 | Use | Not | Concept |
 |---|---|---|
 | gold set | golden set, golden dataset | a frozen evaluation set with reference answers |
 | ground truth | reference truth | the frozen expected findings of an audit (week 16) |
 | reference answer | gold answer | the expected answer of one gold-set item |
-| run | execution, trial | one recorded execution of an experiment or eval |
+| run | execution (for a run), trial | one recorded execution of an experiment or eval |
 | baseline | base line, line base | the measurement before a change |
 | exit criterion, exit criteria | completion criterion | the condition that closes a week or a phase |
 | activity | task (for a unit of a week's plan) | a numbered unit of a week's plan |
@@ -554,10 +562,10 @@ and new text follows it.
 | evidence | proof | the recorded files a number links to |
 | LLM judge | LLM-as-a-judge, grader model | a model that scores outputs against a rubric |
 | execution accuracy | exact-match accuracy | SQL scored by running it and comparing result sets |
-| abstention, abstain | refusal, decline | the agent does not answer because it should not |
-| teardown, tear down | destruction, cleanup | deleting the deployed stacks |
+| abstention, abstain | refusal (for an abstention), decline (for an abstention) | the agent does not answer because it should not |
+| teardown, tear down | destruction, cleanup (for a teardown) | deleting the deployed stacks |
 | read-only | read only, readonly | (adjective) |
-| purchase order | PO (in prose), order | `ocpcab` row |
+| purchase order | PO (in prose), order (for a purchase order) | `ocpcab` row |
 | distribution center | DC, warehouse center | CEDIS |
 | stock on hand | on-hand stock, inventory level | `exi_qty` |
 | data dictionary | dictionary (alone) | |
@@ -567,9 +575,9 @@ and new text follows it.
 | multi-tenant | multitenant | (in prose; `multitenant` stays in file names) |
 | cost per query | cost per request, cost per call | the cost of one request to the deployed system |
 | cost per question | cost per item | the cost of one gold-set question in an eval |
-| quotation | quote, cost estimate | `cotizacion.md`, the predicted cost |
-| dry run | dry-run (in prose), simulation | a run that calls nothing (`--simular`) |
+| quotation | quote (for a quotation), cost estimate | `cotizacion.md`, the predicted cost |
+| dry run | dry-run (in prose), simulation (for a dry run) | a run that calls nothing (`--simular`) |
 | email | e-mail | |
 | human approval | manual approval, HITL (in prose) | a person approves a purchase order |
-| spending cap | budget cap, limit | `--tope-usd` |
+| spending cap | budget cap, limit (for the spending cap) | `--tope-usd` |
 | permissions boundary | permission boundary | IAM |

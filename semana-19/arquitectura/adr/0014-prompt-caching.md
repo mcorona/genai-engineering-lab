@@ -86,7 +86,7 @@ A write costs 1.25× input with 5 minutes and 2× with 1 hour; a read costs 0.1�
 
   | Scenario | Hit probability | Total for the 20 tasks | Saving |
   |---|---|---|---|
-  | Optimistic (central for quote v3) | every call on one server | 0.511 USD | 45.0% |
+  | Optimistic (central for quotation v3) | every call on one server | 0.511 USD | 45.0% |
   | Pessimistic | a uniform draw among the 3 Regions, p = 1/3 | 0.892 USD | 3.9% |
   | Worst | p = 0: every write at 1.25× | 1.083 USD | −16.7% (costs more) |
 
@@ -104,7 +104,7 @@ A write costs 1.25× input with 5 minutes and 2× with 1 hour; a read costs 0.1�
   - With `guardrailConfig` and no `guardContent` blocks, the guardrail evaluates all messages in the request ([Converse API reference](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html), read 2026-11-25).
   - It does not evaluate tool results, tool definitions or tool inputs ([guardrails-use-converse-api](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-use-converse-api.html), read 2026-11-25).
   - No page says whether the guardrail re-evaluates content read from the cache. A cache point adds no content, so the text the guardrail sees, and its text units, are the same with or without the cache. This is an inference, not a documented rule.
-  - ApplyGuardrail's cost does not change with the cache. Its price stays N in the quote.
+  - ApplyGuardrail's cost does not change with the cache. Its price stays N in the quotation.
   - The pinned guardrail id and version, and the prompt, are unchanged by every value of the flag (tests).
 
 ### The security boundary (for week 21)
@@ -121,11 +121,11 @@ The cache is per account and needs an exact prefix match.
 
 - `agente/converse_adaptador.py` places the points (`peticion_a_converse(..., cache=, ttl=)`). With `off`, the request is week 19's byte for byte (`tests/snapshots/converse_semana19.json`). The week 13 loop does not change.
 - A prefix under the minimum gets no history point on the first call. The `sistema` point is sent and caches nothing, and the test says so. Sending it costs nothing.
-- The quote gains v3 (`costos/modelo.py`), priced from `cache_prediccion.json`.
+- The quotation gains v3 (`costos/modelo.py`), priced from `cache_prediccion.json`.
 
 ## Costs
 
 - **Offline:** $0.
 - **Cache prices:** M (Price List SKUs above). The writes are paid only when a point is cached; a point under the minimum costs nothing.
-- **Live run:** quote v3's range for the 22 tasks is 0.565 USD (optimistic) to 1.175 USD (worst), plus the stacks' hours. The script's cap is 1.50 USD.
+- **Live run:** quotation v3's range for the 22 tasks is 0.565 USD (optimistic) to 1.175 USD (worst), plus the stacks' hours. The script's cap is 1.50 USD.
 - **ApplyGuardrail:** N, unchanged by the cache.

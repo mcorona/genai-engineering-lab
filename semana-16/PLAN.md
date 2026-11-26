@@ -9,7 +9,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 
 ## What is reused from weeks 10 to 15
 
-- **Free ground truth:** the week 10 legacy views (`semana-10/legado/legado.sql`) map every cryptic name (`artmst.art_ptr`, `exidet.exi_qty`...) to its original table and column. That gives the correct answer to grade the dictionary the plugin generates, with no hand labeling.
+- **Free ground truth:** the week 10 legacy views (`semana-10/legado/legado.sql`) map every cryptic name (`artmst.art_ptr`, `exidet.exi_qty`...) to its original table and column. That gives the correct answer to grade the data dictionary the plugin generates, with no hand labeling.
 - **Read-only access:** the week 14 MCP server (Streamable HTTP + OAuth with Keycloak, scopes, a database role per profile) or, for clients without MCP, a DSN with a read-only role and the week 13 SQL guard.
 - **Security:** the 38 week 14 poisoning cases, the `legado.artnot` table with injected instructions, and the non-negotiable criterion (0 writes, 0 leaks, 0 instructions obeyed).
 - **Harness and CI:** the `eval-semana-15` pattern (ephemeral Postgres and Keycloak, tests without API, a mini eval with a threshold calibrated by the week 10 rule and false-alarm control, a cap per run, documentation in separate PRs).
@@ -21,7 +21,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
 - **Read-only, guaranteed in three layers:**
     1. The tools: a read-only MCP server or a database role with no write grants.
     2. A `PreToolUse` hook that blocks non-`SELECT` SQL, shell commands that touch the database, and writes outside the report folder.
-    3. The proof: a database fingerprint before and after every eval.
+    3. The evidence: a database fingerprint before and after every eval.
 - **Credentials outside the plugin:** `userConfig` with `sensitive: true` for the token or DSN (stored in the OS credential store, not `settings.json`). No keys in the repo or in the report.
 - **Two eval levels:**
     1. `claude plugin eval`, which measures **behavior**: fires the right skill, uses only read tools, produces the files, compares against the no-plugin baseline (Δ).
@@ -59,7 +59,7 @@ Repo: `mcorona/genai-engineering-lab`. Folder: `semana-16/`. Each activity close
   - Inconsistent units.
   - Business rules that live outside the database.
   - The notes with injected instructions in `legado.artnot`.
-- Freeze with a hash (manifest), like the earlier golden sets.
+- Freeze with a hash (manifest), like the earlier gold sets.
 - **Tests:** the truth is recomputed in the CI database and matches the frozen one.
 - **Time:** ~1.5 h. **Cost:** $0.
 

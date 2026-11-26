@@ -34,7 +34,7 @@ The six week 13 tools keep the same `name`, `description` and `inputSchema` (`te
 | URI | Content | `cacheScope` / `ttlMs` |
 |---|---|---|
 | `legado://manifiesto` | SHA-256 of each tool as `tools/list` serves it (canonical JSON without `_meta`) and of the whole catalog | public / 300000 |
-| `legado://esquema/{vista}` (template) | `describir_esquema` for that view: only the columns visible to the user, plus the dictionary and the original name | private / 60000 |
+| `legado://esquema/{vista}` (template) | `describir_esquema` for that view: only the columns visible to the user, plus the data dictionary and the original name | private / 60000 |
 | `legado://reglas/{id}` (template) | One of the 15 rules: name and definition in Spanish and English, plus its source | public / 300000 |
 
 **Listing:**

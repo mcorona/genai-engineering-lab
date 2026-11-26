@@ -357,7 +357,7 @@ The Anthropic key is only a repository secret, and only the agent step sees it.
 
 The second run, with no code change, scored 0.900 in Spanish and 1.000 in English ($0.1905), so the 0.95 gate failed on noise. Across the four CI runs there were 4 failures in 120 task runs (p ≈ 0.033). With n = 20, a 0.95 threshold gives a false alarm on about 26% of runs; 0.90 gives about 5%. **Final thresholds: 0.90 / 0.90** (two failures tolerated out of 20 per language). Lesson: when the first run is 1.000, the week 10 rule leaves a single failure of margin; the false-alarm rate has to be checked with the observed failure rate.
 
-## 9. Results, decisions, limits and failed cases
+## 9. Results, decisions, limitations and failed cases
 
 ### Results
 

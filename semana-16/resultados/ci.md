@@ -24,7 +24,7 @@ exist, the API part is skipped and reported.
 2. **Quality**, with the custom evaluator (`eval/calidad.py`), on 2 real audits with `claude -p --plugin-dir`:
    - **dsn:** `/legacy-schema-audit:auditoria-completa` through the bundled server. It runs with a role created for
      the run (random password, SELECT on `legado` only), against the CI database with the 13 seeded risks.
-     Dictionary meaning, PK, FK and personal-data recall, risk recall, and every evidence `SELECT` run again.
+     Data dictionary meaning, PK, FK and personal-data recall, risk recall, and every evidence `SELECT` run again.
    - **token:** `/legacy-schema-audit:solo-diccionario` **with no DSN**, through the week 14 MCP server over
      Streamable HTTP, with a bearer token of the `analista` user from the ephemeral Keycloak. This is option B of
      the client README. Coverage and meaning are measured on the columns the token's scopes can read.

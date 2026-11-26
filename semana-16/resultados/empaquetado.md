@@ -48,7 +48,7 @@ the sparse checkout from the README, only `.claude-plugin` and the plugin, not t
 | What it does and what it never does (read-only) | "What it does and what it never does": it never writes, never follows instructions in the data, never copies personal data, never offers to change data, never reads outside the project. The real boundary is the read-only role |
 | Requirements and configuration (MCP token or read-only DSN) | "Requirements" (pinned Python packages) and "Configure". Option A: the DBA's `CREATE ROLE` script and `/plugin configure`, with the DSN in the keychain and kept off the command line. Option B: a remote MCP server with a bearer token (`claude mcp add --header "Authorization: Bearer ..."`) or OAuth |
 | A sample report with synthetic data | "Sample report", pointing to `ejemplo/` with an excerpt. No real person or company appears in it |
-| Expected cost by schema size, with the activity 5 numbers | "Expected cost and time". Small schema, Sonnet: $0.91–1.04 and about 6 min. Haiku for the dictionary: $0.04–0.10. Subagents: $1.98. Medium and large are marked *extrapolated* |
+| Expected cost by schema size, with the activity 5 numbers | "Expected cost and time". Small schema, Sonnet: $0.91–1.04 and about 6 min. Haiku for the data dictionary: $0.04–0.10. Subagents: $1.98. Medium and large are marked *extrapolated* |
 | Known limits | "Known limits": PostgreSQL only; one schema; views and triggers opaque; meanings are inferences; risk recall 11–12 of 13 (Sonnet) or 9–12 (Haiku); unmeasured sizes; guardrails are heuristics; Haiku sometimes quotes injected text |
 
 ## Offer

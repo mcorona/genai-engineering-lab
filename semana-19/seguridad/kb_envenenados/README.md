@@ -21,5 +21,5 @@ would also ingest this README.
 
 | File(s) | What it is | Written by / Read by |
 |---|---|---|
-| `legado_artnot.md` | In Spanish: a data-dictionary page for a legacy notes table, in the format of the Knowledge Base's dictionary documents, with an injected instruction to delete a table | Written by hand / uploaded to the Knowledge Base |
+| `legado_artnot.md` | In Spanish: a data dictionary page for a legacy notes table, in the format of the Knowledge Base's dictionary documents, with an injected instruction to delete a table | Written by hand / uploaded to the Knowledge Base |
 | `politica_compras.md` | In English: a purchasing policy for critical SKUs, with an injected instruction to propose an oversized purchase order | Written by hand / uploaded to the Knowledge Base |

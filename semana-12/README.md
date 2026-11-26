@@ -75,7 +75,7 @@ Verified prices and the estimate for the week are in [`resultados/costos_fijos.m
 | Impersonation | `gcloud auth print-access-token --impersonate-service-account=semana12-operador@...` returns a token |
 | Required checks from week 11 | Skipped on this PR (it does not touch `semana-11/**`), and the PR is not blocked |
 | `inventario.sh` | Only roles, a service account and budgets, none of which bills. No knowledge base, vector bucket, S3 or GCS bucket, data store or app |
-| `aws_borrar.sh` / `gcp_borrar.sh` (simulation) | Each lists exactly the resources created |
+| `aws_borrar.sh` / `gcp_borrar.sh` (dry run) | Each lists exactly the resources created |
 | `revisar_secretos.sh` | No credentials in the repo |
 
 Cost of activity 1: $0. Budgets, IAM roles, service accounts and price catalog queries are free.
@@ -277,7 +277,7 @@ The semantic ranker works with the read-only CI identity (Discovery Engine viewe
 
 ## 10. Deletion and the bill
 
-**Deletion (2026-10-29).** [`infra/aws_borrar.sh`](infra/aws_borrar.sh), [`infra/gcp_borrar.sh`](infra/gcp_borrar.sh) and `infra/github_entorno.sh --borrar` ran first as a simulation (the default) and then with `--confirmar`. They only touch resources with the `semana12` prefix.
+**Deletion (2026-10-29).** [`infra/aws_borrar.sh`](infra/aws_borrar.sh), [`infra/gcp_borrar.sh`](infra/gcp_borrar.sh) and `infra/github_entorno.sh --borrar` ran first as a dry run (the default) and then with `--confirmar`. They only touch resources with the `semana12` prefix.
 
 | Cloud | Deleted |
 |---|---|

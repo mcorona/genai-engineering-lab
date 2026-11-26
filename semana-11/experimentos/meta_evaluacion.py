@@ -76,7 +76,7 @@ def cambiar_cifra(texto, contexto, pregunta):
              and not re.fullmatch(r"(19|20)\d\d", m.group(0).rstrip("."))]  # no years
     cands = [m for m in cands if m.group(0).replace(",", "").rstrip(".") in en_ctx] or cands
     if not cands:
-        raise ValueError(f"sin cifra propia de la respuesta: {texto}")
+        raise ValueError(f"the answer has no figure of its own: {texto}")
     m = cands[0]
     crudo = m.group(0).rstrip(".")
     dec = len(crudo.split(".")[1]) if "." in crudo else 0
@@ -89,7 +89,7 @@ def cambiar_cifra(texto, contexto, pregunta):
         s = f"{nuevo:,.{dec}f}" if "," in crudo else f"{nuevo:.{dec}f}"
         if s != crudo and s.replace(",", "") not in en_ctx | en_preg:
             return texto[:m.start()] + s + texto[m.start() + len(crudo):]
-    raise ValueError(f"no se pudo cambiar la cifra de: {texto}")
+    raise ValueError(f"could not change the figure in: {texto}")
 
 
 def muestra():
