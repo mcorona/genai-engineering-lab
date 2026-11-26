@@ -142,7 +142,7 @@ The OpenAI key is the repository secret `OPENAI_API_KEY`. The check passed on th
 - Gemini embedding price comes from the author; the source URL and the token count are pending.
 - CI uses OpenAI embeddings, not the local bge-m3 model used in the measurements.
 - Docker services are for local development: single node, security plugin disabled.
-- Week 8 is checked against the Phase 3 exit criteria in the root README.
+- Week 8 is checked against the Phase 3 exit criteria in [docs/exit-criteria.md](../docs/exit-criteria.md).
 
 ## Status
 

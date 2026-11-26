@@ -22,12 +22,12 @@ Validation of the integrated set: [`golden_validacion.md`](resultados/golden_val
 
 | # | Piece | Main result | Decision | Details |
 |---|---|---|---|---|
-| 2 | Text-to-SQL on a legacy schema (cryptic views + data dictionary) | Haiku 5.5: no dictionary ES 0.884 / EN 0.953; full dictionary **0.977 / 1.000** at $0.00033 per question; retrieved dictionary 0.767 / 0.721. Sonnet 5.5 is no better and costs about 13x more | Haiku + legacy DDL + full dictionary | [`sql_legado.md`](resultados/sql_legado.md) |
+| 2 | Text-to-SQL on a legacy schema (cryptic views + data dictionary) | Haiku 5.5: no dictionary ES 0.884 / EN 0.953; full dictionary **0.977 / 1.000** at $0.00033 per question; retrieved dictionary 0.767 / 0.721. Sonnet 5.5 is no better and costs about 13× more | Haiku + legacy DDL + full dictionary | [`sql_legado.md`](resultados/sql_legado.md) |
 | 3 | PDF tables | Rows intact: pypdf 0/13, pdfplumber 13/13, Haiku 13/13; recall@5 does not separate them | pdfplumber (free, local) | [`pdf_tablas.md`](resultados/pdf_tablas.md) |
 | 4 | OCR of scans | Mean CER: Tesseract 0.009, Haiku 0.001, Sonnet 0.000; same recall for all | Tesseract by default; Haiku when figures matter ($0.0007/page) | [`ocr.md`](resultados/ocr.md) |
 | 5 | Images (chart, floor plan) | Associated facts: Tesseract 0/7, Haiku description 7/7; recall@5 5/5 with the description | Haiku describes and extracts at indexing time | [`imagenes.md`](resultados/imagenes.md) |
 | 6 | Question routing | Haiku 5.5 low: ES 0.882, EN 0.863 (majority floor 0.588); SQL 30/30, mixed 12/12; 9 harmful document → SQL errors | Router with fallback to documents | [`ruteo.md`](resultados/ruteo.md) |
-| 7 | Integrated assistant | Judge accuracy **ES 0.961, EN 0.980** vs SQL only 0.294 and documents only 0.608; mixed 5/6 vs at most 1/6 for either tool alone; $0.00083 per question, p50 5.3 s | Integrated, with SQL abstention on the SQL route | [`asistente.md`](resultados/asistente.md) |
+| 7 | Integrated assistant | Judge accuracy **ES 0.961, EN 0.980** vs. SQL only 0.294 and documents only 0.608; mixed 5/6 vs. at most 1/6 for either tool alone; $0.00083 per question, p50 5.3 s | Integrated, with SQL abstention on the SQL route | [`asistente.md`](resultados/asistente.md) |
 | 8 | Assistant security | Hardened NLQ: **0 writes**; leakage **0** by role (56), across tenants (40) and through SQL (32); injected instructions followed **0/48** | Hardened NLQ (`copilot_nlq` + rolled-back `READ ONLY` transaction) | [`seguridad.md`](resultados/seguridad.md) |
 | 9 | CI | Workflow `eval-semana-10` on every PR touching `semana-10/**`; thresholds calibrated on the first run | Thresholds 0.85 / 0.90 / 0.90 | [`ci_calibracion.md`](resultados/ci_calibracion.md) |
 
@@ -99,7 +99,7 @@ These are recorded in each results file, because they changed how a result shoul
 | OCR | `rec-06` | ABC classes passage out of the top 5 for every extractor, including the original text | `resultados/ocr.md` |
 | Images, Tesseract | 0/7 associated facts | Reads labels but not which value goes with which bar or zone; did not read "98.6%" | `resultados/imagenes.md` |
 | Routing | `int-doc-27`, `int-pdf-04`, `int-imagen-11/12/13`, `int-ocr-07` | Document questions whose wording sounds like a database figure were routed to SQL | `resultados/ruteo.md` |
-| Assistant | `int-mix-06` ES/EN | The definition of "at risk" (coverage vs supplier lead time) is in a document, but the tools run in parallel, so the SQL never sees it; it used "below reorder point" instead. Needs two steps (document → SQL) | `resultados/asistente.md` |
+| Assistant | `int-mix-06` ES/EN | The definition of "at risk" (coverage vs. supplier lead time) is in a document, but the tools run in parallel, so the SQL never sees it; it used "below reorder point" instead. Needs two steps (document → SQL) | `resultados/asistente.md` |
 | Assistant | `int-doc-27` ES | Routed to SQL, NLQ abstained, fallback found the right document, answer incomplete | same |
 | Assistant, SQL citation metric | `int-mix-03`, `int-sql-014` ES | Judge correct, but the query returned extra columns, so the strict result comparison fails | same |
 | Security, base NLQ | `lo_create(0)`, read of `semana10.chunks` | Allowed by the activity 7 connection (see Security); closed by the hardened NLQ | `resultados/seguridad.md` |

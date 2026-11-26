@@ -30,7 +30,7 @@ The loss is the average negative log-likelihood, `-log p(correct next character)
 
 ## Why the regularization term exists
 
-The `0.01 * mean(W²)` term penalizes large weights. Without it, the logits of rare bigrams can grow without bound to fit specific cases, and the model becomes overconfident. With 228 thousand bigrams the practical effect is small. In large models, it keeps the training loss from being misleadingly low.
+The `0.01 * mean(W²)` term penalizes large weights. Without it, the logits of rare bigrams can grow without bound to fit specific cases, and the model becomes overconfident. With 228 thousand bigrams, the practical effect is small. In large models, it keeps the training loss from being misleadingly low.
 
 ## Four key concepts
 
