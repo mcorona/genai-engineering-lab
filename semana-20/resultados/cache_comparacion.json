@@ -1,0 +1,463 @@
+{
+  "aciertos": {
+    "equilibrio_predicho": 0.2709,
+    "leyeron": 55,
+    "posibles": 55,
+    "tasa": 1.0
+  },
+  "cortes_por_presupuesto": {
+    "cache": 1,
+    "corregida": 1
+  },
+  "costo": {
+    "cache": {
+      "mediana": 0.02206,
+      "p95": 0.050441,
+      "total": 0.505822
+    },
+    "corregida": {
+      "mediana": 0.034076,
+      "p95": 0.106158,
+      "total": 0.927825
+    },
+    "error_total_pct": -0.9,
+    "predicho_optimista": {
+      "mediana": 0.02174,
+      "p95": 0.046182,
+      "total": 0.510544
+    },
+    "rango_predicho": {
+      "optimista": 0.510544,
+      "peor": 1.082845,
+      "pesimista": 0.892078
+    }
+  },
+  "exito": {
+    "cache": 17,
+    "corregida": 16,
+    "tareas": 20
+  },
+  "latencia": {
+    "caliente": {
+      "pasos_siguientes_ms_mediana": 2914.1,
+      "primer_paso_ms_mediana": 2491.6000000000004,
+      "tareas": 20
+    },
+    "frio": {
+      "pasos_siguientes_ms_mediana": null,
+      "primer_paso_ms_mediana": null,
+      "tareas": 0
+    }
+  },
+  "regla_semana_10": {
+    "actividad7": {
+      "actividad7": 2,
+      "aws": 2,
+      "tareas_comunes": [
+        "s03-es",
+        "s06-es"
+      ]
+    },
+    "linea_base": "semana 17 local (eval_ci_local.json)",
+    "regla": {
+      "en": {
+        "base": 1.0,
+        "n": 10,
+        "regresion": true,
+        "umbral": 0.9,
+        "valor": 0.8
+      },
+      "es": {
+        "base": 1.0,
+        "n": 10,
+        "regresion": false,
+        "umbral": 0.9,
+        "valor": 0.9
+      },
+      "total": {
+        "base": 1.0,
+        "n": 20,
+        "regresion": true,
+        "umbral": 0.95,
+        "valor": 0.85
+      }
+    },
+    "regresion": true,
+    "semana13": {
+      "en": {
+        "n": 10,
+        "tasa": 0.933
+      },
+      "es": {
+        "n": 10,
+        "tasa": 1.0
+      },
+      "total": {
+        "n": 20,
+        "tasa": 0.967
+      }
+    }
+  },
+  "tareas": [
+    {
+      "aciertos": {
+        "leyeron": 1,
+        "posibles": 1,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0175769,
+      "costo_usd": 0.020076925000000002,
+      "error_prediccion_pct": 37.5,
+      "escritura": 4941,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "s03-es",
+      "lectura": 4655,
+      "pasos": 5,
+      "pasos_corregida": 3,
+      "predicho_usd": 0.014603
+    },
+    {
+      "aciertos": {
+        "leyeron": 3,
+        "posibles": 3,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0392337,
+      "costo_usd": 0.01842742,
+      "error_prediccion_pct": -15.2,
+      "escritura": 5128,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "s06-es",
+      "lectura": 13532,
+      "pasos": 5,
+      "pasos_corregida": 6,
+      "predicho_usd": 0.021732
+    },
+    {
+      "aciertos": {
+        "leyeron": 3,
+        "posibles": 3,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0723019,
+      "costo_usd": 0.033713515,
+      "error_prediccion_pct": -16.4,
+      "escritura": 7533,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "r02-es",
+      "lectura": 18214,
+      "pasos": 5,
+      "pasos_corregida": 8,
+      "predicho_usd": 0.040324
+    },
+    {
+      "aciertos": {
+        "leyeron": 1,
+        "posibles": 1,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.09216900000000001,
+      "costo_usd": 0.016117695,
+      "error_prediccion_pct": -54.9,
+      "escritura": 5179,
+      "exito": true,
+      "exito_corregida": false,
+      "id": "r05-es",
+      "lectura": 4847,
+      "pasos": 3,
+      "pasos_corregida": 11,
+      "predicho_usd": 0.03571
+    },
+    {
+      "aciertos": {
+        "leyeron": 3,
+        "posibles": 3,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0363704,
+      "costo_usd": 0.024547600000000003,
+      "error_prediccion_pct": 12.9,
+      "escritura": 7034,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "r12-es",
+      "lectura": 19275,
+      "pasos": 5,
+      "pasos_corregida": 5,
+      "predicho_usd": 0.021749
+    },
+    {
+      "aciertos": {
+        "leyeron": 2,
+        "posibles": 2,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.028862900000000004,
+      "costo_usd": 0.022518375,
+      "error_prediccion_pct": 16.2,
+      "escritura": 5589,
+      "exito": false,
+      "exito_corregida": false,
+      "id": "c02-es",
+      "lectura": 10660,
+      "pasos": 5,
+      "pasos_corregida": 4,
+      "predicho_usd": 0.019374
+    },
+    {
+      "aciertos": {
+        "leyeron": 4,
+        "posibles": 4,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0632489,
+      "costo_usd": 0.0420486,
+      "error_prediccion_pct": 20.2,
+      "escritura": 8592,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "c06-es",
+      "lectura": 27230,
+      "pasos": 6,
+      "pasos_corregida": 7,
+      "predicho_usd": 0.034996
+    },
+    {
+      "aciertos": {
+        "leyeron": 1,
+        "posibles": 1,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.021081500000000003,
+      "costo_usd": 0.01797785,
+      "error_prediccion_pct": -1.3,
+      "escritura": 4442,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "v01-es",
+      "lectura": 4160,
+      "pasos": 4,
+      "pasos_corregida": 4,
+      "predicho_usd": 0.018208
+    },
+    {
+      "aciertos": {
+        "leyeron": 0,
+        "posibles": 0,
+        "tasa": null
+      },
+      "corregida_usd": 0.0096404,
+      "costo_usd": 0.0092499,
+      "error_prediccion_pct": -4.0,
+      "escritura": 0,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "a01-es",
+      "lectura": 0,
+      "pasos": 2,
+      "pasos_corregida": 2,
+      "predicho_usd": 0.00964
+    },
+    {
+      "aciertos": {
+        "leyeron": 0,
+        "posibles": 0,
+        "tasa": null
+      },
+      "corregida_usd": 0.0169884,
+      "costo_usd": 0.0099297,
+      "error_prediccion_pct": -41.5,
+      "escritura": 0,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "n01-es",
+      "lectura": 0,
+      "pasos": 2,
+      "pasos_corregida": 3,
+      "predicho_usd": 0.016988
+    },
+    {
+      "aciertos": {
+        "leyeron": 2,
+        "posibles": 2,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0315029,
+      "costo_usd": 0.01989339,
+      "error_prediccion_pct": 5.1,
+      "escritura": 5014,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "s03-en",
+      "lectura": 8974,
+      "pasos": 5,
+      "pasos_corregida": 5,
+      "predicho_usd": 0.018923
+    },
+    {
+      "aciertos": {
+        "leyeron": 3,
+        "posibles": 3,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0317823,
+      "costo_usd": 0.0186252,
+      "error_prediccion_pct": -4.4,
+      "escritura": 4956,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "s06-en",
+      "lectura": 13240,
+      "pasos": 5,
+      "pasos_corregida": 5,
+      "predicho_usd": 0.019483
+    },
+    {
+      "aciertos": {
+        "leyeron": 4,
+        "posibles": 4,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.11411180000000001,
+      "costo_usd": 0.02904033,
+      "error_prediccion_pct": -50.4,
+      "escritura": 6304,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "r02-en",
+      "lectura": 19873,
+      "pasos": 6,
+      "pasos_corregida": 10,
+      "predicho_usd": 0.058549
+    },
+    {
+      "aciertos": {
+        "leyeron": 10,
+        "posibles": 10,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.1057397,
+      "costo_usd": 0.049876199999999996,
+      "error_prediccion_pct": 34.6,
+      "escritura": 13720,
+      "exito": false,
+      "exito_corregida": false,
+      "id": "r05-en",
+      "lectura": 97790,
+      "pasos": 12,
+      "pasos_corregida": 12,
+      "predicho_usd": 0.037066
+    },
+    {
+      "aciertos": {
+        "leyeron": 4,
+        "posibles": 4,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0558228,
+      "costo_usd": 0.02356299,
+      "error_prediccion_pct": 0.8,
+      "escritura": 6712,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "r12-en",
+      "lectura": 23569,
+      "pasos": 6,
+      "pasos_corregida": 8,
+      "predicho_usd": 0.023372
+    },
+    {
+      "aciertos": {
+        "leyeron": 8,
+        "posibles": 8,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.0378598,
+      "costo_usd": 0.061179635,
+      "error_prediccion_pct": 149.4,
+      "escritura": 10927,
+      "exito": true,
+      "exito_corregida": false,
+      "id": "c02-en",
+      "lectura": 59251,
+      "pasos": 10,
+      "pasos_corregida": 6,
+      "predicho_usd": 0.02453
+    },
+    {
+      "aciertos": {
+        "leyeron": 4,
+        "posibles": 4,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.10080510000000001,
+      "costo_usd": 0.033185295000000004,
+      "error_prediccion_pct": -27.1,
+      "escritura": 7509,
+      "exito": false,
+      "exito_corregida": true,
+      "id": "c06-en",
+      "lectura": 23982,
+      "pasos": 6,
+      "pasos_corregida": 10,
+      "predicho_usd": 0.045531
+    },
+    {
+      "aciertos": {
+        "leyeron": 0,
+        "posibles": 0,
+        "tasa": null
+      },
+      "corregida_usd": 0.0282931,
+      "costo_usd": 0.02160235,
+      "error_prediccion_pct": -14.7,
+      "escritura": 4318,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "v01-en",
+      "lectura": 0,
+      "pasos": 4,
+      "pasos_corregida": 5,
+      "predicho_usd": 0.025334
+    },
+    {
+      "aciertos": {
+        "leyeron": 0,
+        "posibles": 0,
+        "tasa": null
+      },
+      "corregida_usd": 0.008899,
+      "costo_usd": 0.0088572,
+      "error_prediccion_pct": -0.5,
+      "escritura": 0,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "a01-en",
+      "lectura": 0,
+      "pasos": 2,
+      "pasos_corregida": 2,
+      "predicho_usd": 0.008899
+    },
+    {
+      "aciertos": {
+        "leyeron": 2,
+        "posibles": 2,
+        "tasa": 1.0
+      },
+      "corregida_usd": 0.015534200000000001,
+      "costo_usd": 0.025392125,
+      "error_prediccion_pct": 63.5,
+      "escritura": 5531,
+      "exito": true,
+      "exito_corregida": true,
+      "id": "n01-en",
+      "lectura": 8640,
+      "pasos": 6,
+      "pasos_corregida": 3,
+      "predicho_usd": 0.015534
+    }
+  ]
+}

@@ -81,3 +81,13 @@
 {"fecha": "2026-11-24", "paso": "destruir-base-retenido", "segundos": 34, "modo": "destruir-si"}
 {"fecha": "2026-11-24", "paso": "destruir-bootstrap", "segundos": 33, "modo": "destruir-si"}
 {"fecha": "2026-11-24", "paso": "destruir-control", "segundos": 66, "modo": "destruir-si"}
+{"fecha": "2026-11-26", "paso": "control", "segundos": 69, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "bootstrap", "segundos": 56, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "base", "segundos": 91, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "datos", "segundos": 755, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "ia", "segundos": 81, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "cargar-e-ingerir", "segundos": 8, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "control", "segundos": 45, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "bootstrap", "segundos": 3, "modo": "si"}
+{"fecha": "2026-11-26", "paso": "computo", "segundos": 577, "modo": "cdk-deploy"}
+{"fecha": "2026-11-26", "paso": "destruir-computo", "segundos": 2457, "modo": "destruir-si"}
