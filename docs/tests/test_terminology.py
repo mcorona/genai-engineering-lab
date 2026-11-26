@@ -185,7 +185,9 @@ def test_the_glossary_states_the_style_rules():
 
 def test_the_scan_skips_code_link_targets_and_the_term_list():
     assert {"README.md", "docs/glossary.md", "docs/exit-criteria.md"} <= set(files())
-    assert not any(p.startswith(("semana-12/ingesta/", "semana-13/golden/")) for p in files())  # class B and C
+    # class B and C files are not scanned; the English README next to them is
+    assert not any(p.startswith(("semana-12/ingesta/", "semana-13/golden/")) and not p.endswith("/README.md")
+                   for p in files())
     glossary = "\n".join(line for _, line in prose_lines("docs/glossary.md"))
     assert "golden dataset" not in glossary and "`" not in glossary and "](" not in glossary
     assert not violations("docs/glossary.md")

@@ -26,7 +26,7 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 | `corrida_*/eventos.jsonl` | The session's event stream (`stream-json`) | `corrida/correr.py` |
 | `corrida_*/auditoria/*` | The audit deliverables (`diccionario.yaml`, `relaciones.mmd`, `riesgos.md`, `resumen.md`) and, where the hooks ran, the query log `bitacora.jsonl` | Written by the agent; copied by `corrida/correr.py` (the OAuth run's come from an interactive session, see [`plugin.md`](plugin.md)); read by `eval/calidad.py` and `ci/eval_ci.py` |
 | `corrida_oauth/trazas_servidor.jsonl` | The week 14 MCP server's request trace for the OAuth run (no tokens recorded) | The week 14 server, in an interactive session ([`plugin.md`](plugin.md)); read by `ci/eval_ci.py` |
-| `calidad.json` | Quality of each audit run against the [ground truth](../verdad/README.md): dictionary meaning, PK, FK and personal-data precision and recall, seeded risks found, SQL run again | `eval/calidad.py` |
+| `calidad.json` | Quality of each audit run against the [ground truth](../verdad/README.md): data dictionary meaning, PK, FK and personal-data precision and recall, seeded risks found, SQL run again | `eval/calidad.py` |
 | `plugin_eval_*.json` | The JSON reports of `claude plugin eval`: `intento1` (pass 1, stopped at the spending cap), `haiku_v1` (pass 2), `haiku` (pass 3), `haiku_02` (rerun of case 02) | `claude plugin eval`; `plugin_eval_haiku.json` is read by `ci/eval_ci.py` |
 | `seguridad/*/resumen.json` | The 7 security cases of one model (`haiku`, `sonnet`), one entry per case | `seguridad/correr.py` |
 | `seguridad/*/*/resultado.json` | The verdict of one security case: fingerprints, files written outside the project, calls captured by the poisoned server, criteria | `seguridad/correr.py`; read by `ci/eval_ci.py` |
@@ -48,7 +48,7 @@ schema, its data and the requests are Spanish. The results are summarized in Eng
 | `corrida` | Run. In `calidad.json`, the run folder; in `corrida.json`, the run's metadata (`modelo`, `modo`, `prompt`, `subagentes`, turns, time, cost, `uso`) |
 | `modelo` | Model |
 | `modo` | Mode: `plugin` (with the plugin) or `sin-plugin` (without it, with a detailed prompt) |
-| `revision` | The run's review: files present, valid YAML, dictionary scores |
+| `revision` | The run's review: files present, valid YAML, data dictionary scores |
 | `turnos`, `turno` | Turns, turn number |
 | `segundos` | Seconds |
 | `costo_equivalente_usd` | API-equivalent cost in USD (the run used the Claude Code subscription) |
