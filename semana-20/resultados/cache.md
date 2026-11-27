@@ -1,13 +1,14 @@
 # Week 20, activity 3: prompt caching
 
-**Status: run done on 2026-11-26 (0.547294 USD of model for the 22 tasks, cap 1.50); the Cost Explorer call is the
-next day's.** Design: [ADR 0014](../../semana-19/arquitectura/adr/0014-prompt-caching.md).
+**Status: closed on 2026-11-27.** The run of 2026-11-26 cost 0.547294 USD of model for the 22 tasks (cap 1.50), and
+Cost Explorer shows the same figure for `componente=agente`. Design: [ADR 0014](../../semana-19/arquitectura/adr/0014-prompt-caching.md).
 
 | What | File |
 |---|---|
 | Measurement (step 1) | [`cache_medicion.json`](cache_medicion.json), from [`cache/medir.py`](../cache/medir.py) |
 | Prediction (step 3), committed before the run | [`cache_prediccion.json`](cache_prediccion.json), from [`cache/prediccion.py`](../cache/prediccion.py) and quotation v3 ([`costos/modelo.py`](../../semana-19/costos/modelo.py)) |
 | Run (step 4), 2026-11-26 | [`cache/crudo_eval.json`](cache/crudo_eval.json) (raw), [`cache_detalle.jsonl`](cache_detalle.jsonl) (per task and per model call), [`cache_comparacion.json`](cache_comparacion.json), from [`cache/corrida.py`](../cache/corrida.py) |
+| Cost Explorer (step 6), 2026-11-27 | [`cache/cost_explorer.json`](cache/cost_explorer.json), from `cache/corrida.py --cost-explorer` |
 
 ## 1. Measurement: the cacheable prefix per step
 
@@ -173,14 +174,49 @@ Quotation v3's central scenario (optimistic, p = 1), committed before the run (#
 
 ## 6. Cost Explorer and the teardown
 
-Pending: the inventory after `destruir.sh`, and one `GetCostAndUsage` call for 2026-11-26 the next day (0.01 USD,
-Manuel's OK given on 2026-11-26).
+**Teardown (2026-11-26):** `destruir.sh --si --todo`, then `destruir.sh --inventario` with the read-only role, which
+ended in `"quedan": "nada"`, with no unexpected resources (`"inesperados": {}`) and nothing left unmeasured
+(`"no_medido": []`). The teardown took 4,003 s (67 min): computo 2,457 s (the VPC Lambdas' network interfaces), datos
+1,414 s, and base, bootstrap and control 132 s together. That is close to 2026-11-24's 3,810 s
+(`semana-19/resultados/tiempos_despliegue.jsonl`).
+
+**Cost Explorer (queried 2026-11-27):** one `GetCostAndUsage` call for 2026-11-26, `proyecto=semana19`, grouped by
+`componente` and usage type (0.01 USD, Manuel's OK given on 2026-11-26).
+
+- **The model: Cost Explorer = spans.** The four `componente=agente` rows add up to 0.54729378 USD, the run's
+  0.547294 for the 22 tasks:
+
+  | Usage type | USD |
+  |---|---|
+  | `USE1-MP:USE1_InputTokenCount-Units` | 0.1138357 |
+  | `USE1-MP:USE1_CacheReadInputTokenCount-Units` | 0.04111283 |
+  | `USE1-MP:USE1_CacheWriteInputTokenCount-Units` | 0.17188325 |
+  | `USE1-MP:USE1_OutputTokenCount-Units` | 0.220462 |
+  | Total `agente` | 0.54729378 |
+
+  Cache reads and writes are billed as their own usage types under the application inference profile's tag, so the
+  cost tags of activity 2 attribute cached tokens too. No other call went through the agent's profile that day.
+- **The day's total.** 0.6805408 USD for `proyecto=semana19`:
+
+  | `componente` | USD (2026-11-26) | Main usage types |
+  |---|---|---|
+  | `agente` | 0.5472938 | model tokens, cached and uncached |
+  | `datos` | 0.0686662 | RDS `db.t4g.micro` and its storage (0.0464), VPC endpoint (0.02), Secrets Manager, S3 Vectors |
+  | `base` | 0.0641667 | VPC interface endpoints (0.06), KMS keys |
+  | `computo` | 0.0004141 | API Gateway requests, read and write request units |
+  | `ia` | 0 | |
+  | no `componente` | 0 | KMS requests |
+
+- **Real against authorized.** Manuel authorized 0.73 to 1.34 USD. The activity cost 0.69 USD: the day's 0.6805408
+  plus this call's 0.01. That is under the estimate's low end, because the model came in under the optimistic
+  scenario's 0.565418 for 22 tasks (§3) and the stacks were up for 0.133247 USD of hours.
 
 ## 7. Conclusion
 
 - **On Haiku 4.5, a cache point at the end of the history cuts the model cost of the 20 tasks by 45.5%** (0.927825 to
   0.505822 USD) and the p95 per task by 52.5%. Every call that could read did.
-- The prediction made before the run was right to 0.9% on the total.
+- The prediction made before the run was right to 0.9% on the total, and Cost Explorer matches the spans exactly
+  (0.54729378 USD).
 - No latency gain is visible at these prefix sizes. Success (17/20) and week 10's verdict (regression, as before) are
   the corrected run's within the noise.
 - The default stays off (`CACHE_PROMPT = "off"`, ADR 0014): activity 9 decides the combined default with the other

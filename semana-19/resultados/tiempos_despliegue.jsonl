@@ -91,3 +91,7 @@
 {"fecha": "2026-11-26", "paso": "bootstrap", "segundos": 3, "modo": "si"}
 {"fecha": "2026-11-26", "paso": "computo", "segundos": 577, "modo": "cdk-deploy"}
 {"fecha": "2026-11-26", "paso": "destruir-computo", "segundos": 2457, "modo": "destruir-si"}
+{"fecha": "2026-11-26", "paso": "destruir-datos", "segundos": 1414, "modo": "destruir-si"}
+{"fecha": "2026-11-26", "paso": "destruir-base-retenido", "segundos": 33, "modo": "destruir-si"}
+{"fecha": "2026-11-26", "paso": "destruir-bootstrap", "segundos": 33, "modo": "destruir-si"}
+{"fecha": "2026-11-26", "paso": "destruir-control", "segundos": 66, "modo": "destruir-si"}

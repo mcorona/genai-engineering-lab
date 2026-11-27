@@ -36,6 +36,7 @@ Script paths are relative to `semana-20/`.
 | `cache/crudo_eval.json` | Activity 3: the raw cache run (2026-11-26) of the 2 warm-up and 20 gold-set tasks against the deployed endpoint with `CACHE_PROMPT=historial`, redacted as it was written | `cache/corrida.py --si` / `cache/corrida.py --informe`, [cache.md](cache.md) |
 | `cache_detalle.jsonl` | Activity 3: one line per task of the cache run: the corrected run's columns plus each model call's tokens (input, output, cache read and written), cost and duration, and its cache hits | `cache/corrida.py` / `cache/corrida.py`, [cache.md](cache.md) |
 | `cache_comparacion.json` | Activity 3: the cache run task by task against the corrected run and against the prediction, with the hit rate, latency, success and week 10's rule | `cache/corrida.py` / [cache.md](cache.md) |
+| `cache/cost_explorer.json` | Activity 3: the Cost Explorer query for the cache run's day (2026-11-26), grouped by the `componente` tag and usage type, and its result | `cache/corrida.py --cost-explorer` / [cache.md](cache.md) |
 
 ## Keys
 
