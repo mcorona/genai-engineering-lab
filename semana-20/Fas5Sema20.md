@@ -2,13 +2,13 @@
 
 > Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
-## Status (2026-11-26)
+## Status (2026-11-27)
 
 | Activity | Status | Result | Evidence |
 |---|---|---|---|
 | 1. Baseline and regression gate | Closed | Corrected run: 16/20, 0 tasks cut by the budget, 1.008147 USD of model. Accepted as the baseline although it does not pass week 10's rule | [linea_base.md](resultados/linea_base.md) |
 | 2. Cost attribution | Closed | Cost Explorer shows 0.0985182 USD for `componente=agente`, the same as the spans and EMF | [atribucion.md](resultados/atribucion.md) |
-| 3. Prompt caching | Run done; closing pending | 20 tasks: 0.505822 USD against 0.927825 (−45.5%), 17/20, 55 of 55 possible cache reads hit. Quotation v3 was off by −0.9%. The teardown inventory and the next day's Cost Explorer call close it | [cache.md](resultados/cache.md) |
+| 3. Prompt caching | Closed | 20 tasks: 0.505822 USD against 0.927825 (−45.5%), 17/20, 55 of 55 possible cache reads hit. Quotation v3 was off by −0.9%. Cost Explorer shows 0.54729378 USD for `componente=agente`, the same as the spans; the activity cost 0.69 USD against the authorized 0.73 to 1.34 | [cache.md](resultados/cache.md) |
 | 4–10 | Not started | Routing, batch, capacity, traces, the dashboard and the alarm, the optimized run, CI and the README | [Activities](#activities) |
 
 Repo: `mcorona/genai-engineering-lab`. Folder: `semana-20/`. Each activity closes with a PR, green checks and a merge
@@ -512,3 +512,8 @@ README (last).
   - Quotation v3's central scenario was off by −0.9% on the total: v3 stands. No latency gain at these prefix sizes.
   - Week 10's rule: still a regression (en 0.8, total 0.85), within the noise of the corrected run.
   - Teardown and the next day's Cost Explorer call close the activity (`resultados/cache.md` §6).
+- 2026-11-27: activity 3 closed.
+  - Teardown of 2026-11-26: the read-only inventory ends in `"quedan": "nada"`; 4,003 s.
+  - Cost Explorer for 2026-11-26: `componente=agente` is 0.54729378 USD, the spans' 0.547294; cache reads and writes
+    are their own usage types under the profile's tag. The day's total is 0.6805408 USD.
+  - Real against authorized: 0.69 USD (with this call's 0.01) against 0.73 to 1.34.
