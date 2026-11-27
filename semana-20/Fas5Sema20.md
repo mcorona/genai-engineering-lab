@@ -2,6 +2,15 @@
 
 > Spanish names (folders, files, JSON keys, flags, stack names, status values) are explained in the [glossary](../docs/glossary.md). The documentation is in English. Spanish data and recorded results stay as they are: the README in each data or results folder describes them in English.
 
+## Status (2026-11-26)
+
+| Activity | Status | Result | Evidence |
+|---|---|---|---|
+| 1. Baseline and regression gate | Closed | Corrected run: 16/20, 0 tasks cut by the budget, 1.008147 USD of model. Accepted as the baseline although it does not pass week 10's rule | [linea_base.md](resultados/linea_base.md) |
+| 2. Cost attribution | Closed | Cost Explorer shows 0.0985182 USD for `componente=agente`, the same as the spans and EMF | [atribucion.md](resultados/atribucion.md) |
+| 3. Prompt caching | Run done; closing pending | 20 tasks: 0.505822 USD against 0.927825 (−45.5%), 17/20, 55 of 55 possible cache reads hit. Quotation v3 was off by −0.9%. The teardown inventory and the next day's Cost Explorer call close it | [cache.md](resultados/cache.md) |
+| 4–10 | Not started | Routing, batch, capacity, traces, the dashboard and the alarm, the optimized run, CI and the README | [Activities](#activities) |
+
 Repo: `mcorona/genai-engineering-lab`. Folder: `semana-20/`. Each activity closes with a PR, green checks and a merge
 before moving on to the next. Documentation goes in separate PRs.
 
