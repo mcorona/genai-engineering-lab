@@ -45,3 +45,29 @@ CACHE_PROMPT = "off"
 # a cached prefix, so 5 minutes is enough (ADR 0014).
 TTLS_CACHE = ("5m", "1h")
 CACHE_TTL = "5m"
+
+# Week 20, activity 4, R1: the in-house router (ADR 0015). Off by default, so each optimization is measured alone.
+# "r1": the task starts on the first candidate and escalates one step at a time, for the rest of the task, never back
+# down, at most max_escalamientos times. With "off" the agent calls MODELO_ID (or its application profile) as today.
+# agente/construccion.py repeats these values (ia/ is not in the Lambda package; test_agente_ruteo_config.py).
+MODOS_RUTEO = ("off", "r1")
+RUTEO = "off"
+# Cheapest first, each through its us. cross-Region profile (us-east-1, us-east-2, us-west-2), all AUTHORIZED and
+# AVAILABLE (get-foundation-model-availability, 2026-11-27). Sonnet 4.6, not 4.5: 4.5 is LEGACY, at the same price.
+RUTEO_CANDIDATOS = ("us.amazon.nova-lite-v1:0", MODELO_ID, "us.anthropic.claude-sonnet-4-6")
+# The signals (ADR 0015 section 2). Request signals send the next call to the next model; response signals send the
+# same request again to the next model. The thresholds come from the cache run: 18 of 20 tasks take 6 steps or fewer,
+# and 2 of 20 pass 50,000 tokens (half of the deployed task ceiling).
+RUTEO_REGLAS = {
+    "senales": ("error_herramienta", "resultado_vacio", "bloqueo_capa", "respuesta_invalida", "presion_pasos",
+                "presion_tokens", "respuesta_vacia", "abstencion", "idioma"),
+    "alcance": "resto_de_la_tarea",
+    "max_escalamientos": 2,
+    "pasos_presion": 7,
+    "tokens_presion": 50_000,
+}
+# The cache mode of each candidate when CACHE_PROMPT is not "off" and RUTEO is "r1" (ADR 0015 section 3): Nova's
+# minimum is 1K and its writes cost 0, Sonnet 4.6's minimum is 1,024, so both also cache the fixed prefix; Haiku 4.5
+# keeps ADR 0014's mode (its minimum, 4,096, is above the fixed prefix). Nova takes only the 5-minute TTL.
+CACHE_POR_MODELO = {"us.amazon.nova-lite-v1:0": "historial+sistema", MODELO_ID: "historial",
+                    "us.anthropic.claude-sonnet-4-6": "historial+sistema"}

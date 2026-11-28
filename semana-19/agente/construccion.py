@@ -66,6 +66,39 @@ def precios(ttl: str = "5m") -> Precios:
                    cache_escritura_1m=_CACHE_ESCRITURA_1M[ttl])
 
 
+# Week 20, activity 4, R1: the router's values, equal to ia/config.py (test_agente_ruteo_config.py; ADR 0015).
+RUTEO = "RUTEO"                  # environment variable, set by the stack: one of MODOS_RUTEO (absent: the default)
+MODOS_RUTEO = ("off", "r1")
+RUTEO_POR_OMISION = "off"
+NOVA_LITE = "us.amazon.nova-lite-v1:0"
+SONNET_46 = "us.anthropic.claude-sonnet-4-6"
+RUTEO_CANDIDATOS = (NOVA_LITE, MODELO_ID, SONNET_46)
+RUTEO_REGLAS = {
+    "senales": ("error_herramienta", "resultado_vacio", "bloqueo_capa", "respuesta_invalida", "presion_pasos",
+                "presion_tokens", "respuesta_vacia", "abstencion", "idioma"),
+    "alcance": "resto_de_la_tarea",
+    "max_escalamientos": 2,
+    "pasos_presion": 7,
+    "tokens_presion": 50_000,
+}
+CACHE_POR_MODELO = {NOVA_LITE: "historial+sistema", MODELO_ID: "historial", SONNET_46: "historial+sistema"}
+# Nova takes only the 5-minute TTL, and the ttl field must be omitted for it (prompt-caching docs, read 2026-11-27).
+TTLS_POR_MODELO = {NOVA_LITE: ("5m",), MODELO_ID: TTLS_CACHE, SONNET_46: TTLS_CACHE}
+# Each candidate's prices with the 5-minute TTL, USD per million tokens, regional (the us. profile), from the Price
+# List (semana-20/resultados/precios.json, 2026-11-23): input, output, cache read, cache write. The router's budget
+# prices each call at the model that served it.
+SKUS_POR_MODELO = {
+    NOVA_LITE: ("QRGWJ3P8FT28EYX2", "CBZ6A6U7XK8WJ3KA", "FYTFBAWEJFBAVTWK", "NF8UDYEDB4HXGNAZ"),
+    MODELO_ID: ("JQDUC8Q4K8C6GSGH", "X629GDA2GXAP6R54", "VJXPZKPF7EDCFXN3", "CDG7WESKYQ9N9KDN"),
+    SONNET_46: ("KPFGPZJ8VWMREGAV", "GMB9AQ5DYNAGYZEC", "2459RQS6BSFATF92", "UZUVWF3P26ENQTZ8"),
+}
+PRECIOS_POR_MODELO = {
+    NOVA_LITE: Precios(entrada_1m=0.06, salida_1m=0.24, cache_lectura_1m=0.015, cache_escritura_1m=0.0),
+    MODELO_ID: precios("5m"),
+    SONNET_46: Precios(entrada_1m=3.3, salida_1m=16.5, cache_lectura_1m=0.33, cache_escritura_1m=4.125),
+}
+
+
 def _es_del_nombre(nombre: str, prefijos: tuple[str, ...]) -> bool:
     return any(nombre == p or nombre.startswith(p + ".") for p in prefijos)
 
