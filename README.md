@@ -87,6 +87,8 @@ LegacyBridge is the case study that runs through the lab. A company keeps its in
 
 The goal is to let people ask questions in natural language and get answers backed by evidence, without ever writing to the system or leaking data across roles.
 
+LegacyBridge also has its own repository, [mcorona/AI-projects-legacybridge](https://github.com/mcorona/AI-projects-legacybridge): the product on its own, with its demo, evals and AWS CDK deployment. This lab is where each piece is built and measured week by week.
+
 ```mermaid
 flowchart LR
   U[User<br/>ES / EN] --> A[Agent<br/>hand-written loop or Claude Agent SDK]
