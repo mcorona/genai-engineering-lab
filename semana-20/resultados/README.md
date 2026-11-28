@@ -39,6 +39,7 @@ Script paths are relative to `semana-20/`.
 | `cache/cost_explorer.json` | Activity 3: the Cost Explorer query for the cache run's day (2026-11-26), grouped by the `componente` tag and usage type, and its result | `cache/corrida.py --cost-explorer` / [cache.md](cache.md) |
 | `ruteo/r0_local.json` | Activity 4, R0: the raw local run (2026-11-27) of the 20 CI gold tasks on Haiku 4.5 through Bedrock, with week 17's harness. Ids and numbers only: no prompt, SQL, answer or row | `ruteo/r0_local.py --si` / `ruteo/r0_local.py --informe` |
 | `ruteo/r0_comparacion.json` | Activity 4, R0: the local run against week 17, the corrected run and the cache run, task by task, with week 10's rule, the silently-wrong answers, the model's and the port's effect, and what R1 is measured against | `ruteo/r0_local.py --informe` / [ruteo.md](ruteo.md) |
+| `ruteo/r1_prediccion.json` | Activity 4, step 4: the R1 prediction, versioned before the live run ($0): routes the router can take, priced on activity 3's per-step tokens at each candidate's Price List prices with ADR 0015's cache per model; the break-even mix and the run's bound and cap. No success figure (N) | `ruteo/prediccion.py` / [ruteo.md](ruteo.md) §2 |
 
 ## Keys
 

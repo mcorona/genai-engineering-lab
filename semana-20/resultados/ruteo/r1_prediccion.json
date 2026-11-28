@@ -1,0 +1,110 @@
+{
+ "fecha": "2026-11-27",
+ "fuente": "resultados/cache_detalle.jsonl (activity 3, per-step tokens); resultados/cache_medicion.json (fixed prefix); agente/construccion.py PRECIOS_POR_MODELO (Price List, by SKU)",
+ "diseno": {
+  "RUTEO": "r1",
+  "CACHE_PROMPT": "historial",
+  "CACHE_TTL": "5m",
+  "cache_por_modelo": {
+   "us.amazon.nova-lite-v1:0": "historial+sistema",
+   "us.anthropic.claude-haiku-4-5-20251001-v1:0": "historial",
+   "us.anthropic.claude-sonnet-4-6": "historial+sistema"
+  },
+  "adr": "semana-19/arquitectura/adr/0015-ruteo-de-modelos.md"
+ },
+ "supuestos": [
+  "the same tokens per step on every model (ADR 0015's hand-worked case)",
+  "p = 1 for the scenarios (activity 3: 55 of 55 possible reads hit); sin_acierto_total is p = 0",
+  "Nova Lite's cache write at 0 USD, its SKU's price: with no hit Nova writes for free, so solo_nova's sin_acierto_total is below its total"
+ ],
+ "referencia_haiku": {
+  "modelo_usd": 0.505524,
+  "real_actividad_3_usd": 0.505822,
+  "error_del_modelo_pct": -0.1
+ },
+ "escenarios": {
+  "solo_nova": {
+   "total": 0.016395,
+   "mediana": 0.000585,
+   "p95": 0.00231,
+   "maximo_tarea": 0.002575,
+   "llamadas": 104,
+   "llamadas_por_modelo": {
+    "us.amazon.nova-lite-v1:0": 104,
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0": 0,
+    "us.anthropic.claude-sonnet-4-6": 0
+   },
+   "sin_acierto_total": 0.008974
+  },
+  "abstencion_al_final": {
+   "total": 0.260513,
+   "mediana": 0.010588,
+   "p95": 0.022797,
+   "maximo_tarea": 0.031747,
+   "llamadas": 124,
+   "llamadas_por_modelo": {
+    "us.amazon.nova-lite-v1:0": 104,
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0": 20,
+    "us.anthropic.claude-sonnet-4-6": 0
+   },
+   "sin_acierto_total": 0.253092
+  },
+  "nova_y_haiku_desde_el_paso_2": {
+   "total": 0.429098,
+   "mediana": 0.018739,
+   "p95": 0.046179,
+   "maximo_tarea": 0.057101,
+   "llamadas": 104,
+   "llamadas_por_modelo": {
+    "us.amazon.nova-lite-v1:0": 20,
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0": 84,
+    "us.anthropic.claude-sonnet-4-6": 0
+   },
+   "sin_acierto_total": 0.881484
+  },
+  "nova_haiku_y_sonnet_desde_el_paso_3": {
+   "total": 1.025042,
+   "mediana": 0.036396,
+   "p95": 0.130148,
+   "maximo_tarea": 0.165802,
+   "llamadas": 104,
+   "llamadas_por_modelo": {
+    "us.amazon.nova-lite-v1:0": 20,
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0": 20,
+    "us.anthropic.claude-sonnet-4-6": 64
+   },
+   "sin_acierto_total": 2.375846
+  },
+  "peor": {
+   "total": 1.1568,
+   "mediana": 0.041492,
+   "p95": 0.136033,
+   "maximo_tarea": 0.170193,
+   "llamadas": 144,
+   "llamadas_por_modelo": {
+    "us.amazon.nova-lite-v1:0": 20,
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0": 20,
+    "us.anthropic.claude-sonnet-4-6": 104
+   },
+   "sin_acierto_total": 3.033599
+  }
+ },
+ "ahorro_vs_haiku_pct": {
+  "solo_nova": 96.8,
+  "abstencion_al_final": 48.5,
+  "nova_y_haiku_desde_el_paso_2": 15.1,
+  "nova_haiku_y_sonnet_desde_el_paso_3": -102.8,
+  "peor": -128.8
+ },
+ "equilibrio_fraccion_peor": 0.429,
+ "exito": "N: nothing has measured Nova Lite on these 20 tasks; the run measures it, under week 10's rule (R0: Haiku 4.5 locally 16/20; activity 3 deployed 17/20)",
+ "latencia": "N: the run measures it",
+ "corrida": {
+  "tareas": 20,
+  "maximo_por_las_reglas_usd": 3.033599,
+  "techo_por_tarea_usd": 0.12,
+  "tareas_que_tocarian_el_techo": 9,
+  "maximo_con_el_techo_usd": 1.951023,
+  "tope_usd": 2.0
+ }
+}
