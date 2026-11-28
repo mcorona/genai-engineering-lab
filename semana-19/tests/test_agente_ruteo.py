@@ -275,7 +275,7 @@ def test_asking_which_model_comes_next_twice_does_not_escalate_twice():
 def test_a_resend_the_budget_refuses_keeps_the_cheap_answer_and_says_so():
     preguntas = []
     m = Modelos(nova=[_responder("abstenida")])
-    e = _enrutador(m, permitir=lambda modelo, cuerpo: preguntas.append(modelo) or None)
+    e = _enrutador(m, permitir=lambda modelo, cuerpo, ya: preguntas.append(modelo) or None)
     resp = _paso(e)
     assert m.modelos() == [NOVA] and preguntas == [HAIKU]
     assert resp["content"][0]["input"]["estado"] == "abstenida"
@@ -284,7 +284,7 @@ def test_a_resend_the_budget_refuses_keeps_the_cheap_answer_and_says_so():
 
 def test_a_resend_goes_with_the_max_tokens_the_budget_gives_at_the_next_models_price():
     m = Modelos(nova=[_responder("abstenida")], haiku=[_responder()])
-    _paso(_enrutador(m, permitir=lambda modelo, cuerpo: 321))
+    _paso(_enrutador(m, permitir=lambda modelo, cuerpo, ya: 321))
     assert m.peticiones[1]["inferenceConfig"]["maxTokens"] == 321
 
 

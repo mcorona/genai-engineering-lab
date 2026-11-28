@@ -130,7 +130,7 @@ class Enrutador:
         self._llamar, self.candidatos, self.reglas = llamar, candidatos, reglas
         self.guardrail, self.ttl = guardrail, ttl
         self.senales = set(reglas["senales"])
-        self.permitir: Callable[[str, dict], int | None] | None = None
+        self.permitir: Callable[[str, dict, list], int | None] | None = None
         self._nueva_tarea("")
 
     def _nueva_tarea(self, tarea: str) -> None:
@@ -202,7 +202,7 @@ class Enrutador:
                 self.ignoradas += senales
                 break
             proximo = self.candidatos[self.indice + 1].id
-            max_tokens = cuerpo["max_tokens"] if self.permitir is None else self.permitir(proximo, cuerpo)
+            max_tokens = cuerpo["max_tokens"] if self.permitir is None else self.permitir(proximo, cuerpo, llamadas)
             if max_tokens is None:
                 llamadas[-1]["ruta"]["motivo"] = "sin_presupuesto"
                 break
