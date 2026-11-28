@@ -564,6 +564,9 @@ Spanish words used in folder names, file names, JSON and CSV keys and flags. Wor
 | vistos | seen | vivo | live | | |
 | causa | cause | contra | against | efecto | effect |
 | equivocadas | wrong | silenciosamente | silently | tambien | also |
+| abstencion | abstention | bloqueo | block | candidatos | candidates |
+| escalamientos | escalations | invalida | invalid | presion | pressure |
+| resto | rest | senales | signals | vacia, vacio | empty |
 
 ## Term list: one English term per concept
 
@@ -615,3 +618,5 @@ on what a result does not cover is titled "Limitations", not "Limits".
 | in-house pipeline, in-house router | own pipeline, own router | built in this lab, not a managed service |
 | silently-wrong rate | wrong-answer rate, false-answer rate | the share of tasks answered (`respondida`) that the verifier rejects |
 | model effect, port effect | model impact, migration effect | the part of a regression the model explains (R0 against week 17) and the part the move to AWS explains (the deployed runs against R0) |
+| escalation | model upgrade, model fallback | the in-house router sends the rest of the task to the next, stronger candidate model; it never goes back down |
+| request signal, response signal | escalation trigger | what makes the router escalate: read in the next call's request (the call goes to the next model), or in a model's response (the same request goes to the next model) |
