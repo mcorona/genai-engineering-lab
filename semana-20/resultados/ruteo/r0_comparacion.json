@@ -1,0 +1,199 @@
+{
+ "exito": {
+  "es": "8/10",
+  "en": "8/10",
+  "total": "16/20"
+ },
+ "regla_semana10": {
+  "es": {
+   "base": 1.0,
+   "valor": 0.8,
+   "n": 10,
+   "umbral": 0.9,
+   "regresion": true
+  },
+  "en": {
+   "base": 1.0,
+   "valor": 0.8,
+   "n": 10,
+   "umbral": 0.9,
+   "regresion": true
+  },
+  "total": {
+   "base": 1.0,
+   "valor": 0.8,
+   "n": 20,
+   "umbral": 0.95,
+   "regresion": true
+  }
+ },
+ "regresion": true,
+ "fallan": {
+  "r0": [
+   "c02-en",
+   "c02-es",
+   "c06-en",
+   "c06-es"
+  ],
+  "desplegada": [
+   "c02-en",
+   "c02-es",
+   "r05-en",
+   "r05-es"
+  ],
+  "cache": [
+   "c02-es",
+   "c06-en",
+   "r05-en"
+  ]
+ },
+ "silenciosamente_equivocadas": {
+  "r0": [
+   "c06-en"
+  ],
+  "desplegada": [],
+  "cache": [
+   "c06-en"
+  ]
+ },
+ "conclusion": {
+  "efecto_modelo": [
+   "c02-en",
+   "c02-es",
+   "c06-en",
+   "c06-es"
+  ],
+  "efecto_port": [
+   "r05-en",
+   "r05-es"
+  ],
+  "causa": "ambos",
+  "linea_base_r1": {
+   "veredicto_contra": "cache",
+   "tambien_contra_semana17": true
+  }
+ },
+ "no_corridas": [],
+ "por_tarea": {
+  "a01-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "a01-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "c02-en": {
+   "r0": false,
+   "semana17": true,
+   "desplegada": false,
+   "cache": true
+  },
+  "c02-es": {
+   "r0": false,
+   "semana17": true,
+   "desplegada": false,
+   "cache": false
+  },
+  "c06-en": {
+   "r0": false,
+   "semana17": true,
+   "desplegada": true,
+   "cache": false
+  },
+  "c06-es": {
+   "r0": false,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "n01-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "n01-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "r02-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "r02-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "r05-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": false,
+   "cache": false
+  },
+  "r05-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": false,
+   "cache": true
+  },
+  "r12-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "r12-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "s03-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "s03-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "s06-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "s06-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "v01-en": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  },
+  "v01-es": {
+   "r0": true,
+   "semana17": true,
+   "desplegada": true,
+   "cache": true
+  }
+ }
+}

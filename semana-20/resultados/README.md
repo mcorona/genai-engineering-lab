@@ -22,7 +22,7 @@ Script paths are relative to `semana-20/`.
 
 | File(s) | What it is | Written by / Read by |
 |---|---|---|
-| `*.md` | The English reports: [linea_base.md](linea_base.md) (activity 1: baseline, regression gate, prices and limits) and [atribucion.md](atribucion.md) (activity 2: cost attribution) | Written by hand from the raw files |
+| `*.md` | The English reports: [linea_base.md](linea_base.md) (activity 1: baseline, regression gate, prices and limits), [atribucion.md](atribucion.md) (activity 2: cost attribution), [cache.md](cache.md) (activity 3) and [ruteo.md](ruteo.md) (activity 4: model routing) | Written by hand from the raw files |
 | `corrida_corregida/crudo_eval.json` | Activity 1: the raw corrected run of week 19's 20 gold-set tasks against the deployed endpoint, with the per-task budget raised to its ceiling | `linea_base/corrida.py --si` / `linea_base/verificar.py`, `cache/medir.py` |
 | `corrida_corregida_detalle.jsonl` | Activity 1: one row per task of the corrected run (20 tasks and 2 warm-up rows), in the same schema as week 19's `eval_aws_detalle.jsonl` | `linea_base/corrida.py` (`--informe` rewrites it from the raw file) / `tests/test_atribucion_corrida.py` |
 | `linea_base_verificacion.json` | Activity 1: the checks of the baseline, the regression gate and its decision, and the handoff items from week 19 | `linea_base/verificar.py` / `tests/test_linea_base.py` |
@@ -37,6 +37,8 @@ Script paths are relative to `semana-20/`.
 | `cache_detalle.jsonl` | Activity 3: one line per task of the cache run: the corrected run's columns plus each model call's tokens (input, output, cache read and written), cost and duration, and its cache hits | `cache/corrida.py` / `cache/corrida.py`, [cache.md](cache.md) |
 | `cache_comparacion.json` | Activity 3: the cache run task by task against the corrected run and against the prediction, with the hit rate, latency, success and week 10's rule | `cache/corrida.py` / [cache.md](cache.md) |
 | `cache/cost_explorer.json` | Activity 3: the Cost Explorer query for the cache run's day (2026-11-26), grouped by the `componente` tag and usage type, and its result | `cache/corrida.py --cost-explorer` / [cache.md](cache.md) |
+| `ruteo/r0_local.json` | Activity 4, R0: the raw local run (2026-11-27) of the 20 CI gold tasks on Haiku 4.5 through Bedrock, with week 17's harness. Ids and numbers only: no prompt, SQL, answer or row | `ruteo/r0_local.py --si` / `ruteo/r0_local.py --informe` |
+| `ruteo/r0_comparacion.json` | Activity 4, R0: the local run against week 17, the corrected run and the cache run, task by task, with week 10's rule, the silently-wrong answers, the model's and the port's effect, and what R1 is measured against | `ruteo/r0_local.py --informe` / [ruteo.md](ruteo.md) |
 
 ## Keys
 

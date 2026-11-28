@@ -1,0 +1,277 @@
+{
+ "fecha": "2026-11-27",
+ "modelo": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+ "modo": "modelo real",
+ "tope_usd": 1.5,
+ "tope_tokens": 1100000,
+ "gastado_usd": 0.8296453,
+ "tokens": 609643,
+ "llamadas": 101,
+ "segundos": 208.6,
+ "filas": [
+  {
+   "id": "s03-es",
+   "corrida": "1917fc15eefc",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0176704,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "s06-es",
+   "corrida": "a78bc48e2482",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0211178,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "r02-es",
+   "corrida": "69341b806d16",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0926178,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "r05-es",
+   "corrida": "2e8ee7eaeaa0",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.033099,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "r12-es",
+   "corrida": "f3a46683cf94",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0294767,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "c02-es",
+   "corrida": "9984040d32e1",
+   "estado": "abstenida",
+   "motivo": "responder",
+   "exito": false,
+   "usd": 0.0391545,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "c06-es",
+   "corrida": "90ecd31fc866",
+   "estado": "limite_alcanzado",
+   "motivo": "presupuesto_tarea",
+   "exito": false,
+   "usd": 0.0981288,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "v01-es",
+   "corrida": "b4e02e1d251e",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0284383,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "a01-es",
+   "corrida": "65692fd0936c",
+   "estado": "requiere_aclaracion",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0091872,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "n01-es",
+   "corrida": "72c30b3fed9b",
+   "estado": "abstenida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0164494,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "s03-en",
+   "corrida": "36ede868a1c2",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0287694,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "s06-en",
+   "corrida": "c9e574d3b174",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0325094,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "r02-en",
+   "corrida": "1cd26fa3b6da",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0761299,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "r05-en",
+   "corrida": "e592633db7d9",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0682616,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "r12-en",
+   "corrida": "8d79596878c3",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.035552,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "c02-en",
+   "corrida": "38376d8d935d",
+   "estado": "abstenida",
+   "motivo": "responder",
+   "exito": false,
+   "usd": 0.0413743,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "c06-en",
+   "corrida": "430689226d5f",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": false,
+   "usd": 0.1094764,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "v01-en",
+   "corrida": "e0ee77f9be44",
+   "estado": "respondida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0290686,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": false,
+   "fallan": [
+    "pasos"
+   ]
+  },
+  {
+   "id": "a01-en",
+   "corrida": "d59a02932dff",
+   "estado": "requiere_aclaracion",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0132924,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  },
+  {
+   "id": "n01-en",
+   "corrida": "95e1b6767996",
+   "estado": "abstenida",
+   "motivo": "responder",
+   "exito": true,
+   "usd": 0.0098714,
+   "tope_usd": 0.12,
+   "sobre_el_tope": false,
+   "trayectoria_ok": true,
+   "fallan": []
+  }
+ ],
+ "presupuesto": {
+  "tarea": "s03-es",
+  "estado": "limite_alcanzado",
+  "motivo": "presupuesto_tarea",
+  "tope_usd": 0.0008,
+  "gastado_usd": 0.0,
+  "llamadas": 0,
+  "sobre_el_tope": false
+ },
+ "omisiones_del_esquema": {}
+}
