@@ -50,21 +50,20 @@ def _correr(pregunta="¿Cuántos SKU hay en el catálogo?"):
 # ---------------------------------------------------------------- the metric count
 
 def test_las_metricas_posibles_caben_en_la_capa_gratuita():
-    # 8 names x 1 model x 1 route; CloudWatch's free tier is 10 custom metrics (linea_base.md, section 4.7).
-    assert M.metricas_posibles() == 8
+    # Activity 4 (ADR 0015): 6 names without dimensions + 2 names x 2 routes; CloudWatch's free tier is 10 custom
+    # metrics (linea_base.md, section 4.7).
+    assert M.metricas_posibles() == 10
     assert M.metricas_posibles() <= 10
 
 
 def test_la_lista_de_dimensiones_es_la_escrita():
-    assert list(M.DIMENSIONES) == ["Modelo", "Ruta"]
+    assert list(M.DIMENSIONES) == ["Ruta"]   # activity 4: a routed query has up to three models, so no Modelo
     assert "Idioma" not in M.DIMENSIONES     # the agent never receives the language (metricas.py docstring)
 
 
 def test_una_dimension_no_declarada_no_se_emite():
     with pytest.raises(ValueError, match="no declarado"):
-        M.miembros_emf({}, latencia_ms=1, modelo="otro-modelo", ruta="fija", ahora_ms=0)
-    with pytest.raises(ValueError, match="no declarado"):
-        M.miembros_emf({}, latencia_ms=1, modelo=H.MODELO, ruta="barata", ahora_ms=0)
+        M.miembros_emf({}, latencia_ms=1, ruta="barata", ahora_ms=0)
 
 
 # ---------------------------------------------------------------- the EMF line
@@ -73,12 +72,12 @@ def test_la_linea_del_span_lleva_las_metricas_en_formato_emf():
     (linea,) = _correr()
     assert linea["tipo"] == "invoke_agent" and linea["omitidos"] == []
     bloque = linea["_aws"]["CloudWatchMetrics"]
-    assert len(bloque) == 1 and bloque[0]["Namespace"] == "LegacyBridge"
-    assert bloque[0]["Dimensions"] == [["Modelo", "Ruta"]]
-    nombres = [m["Name"] for m in bloque[0]["Metrics"]]
-    assert nombres == list(M.METRICAS)
+    assert len(bloque) == 2 and {d["Namespace"] for d in bloque} == {"LegacyBridge"}
+    assert [d["Dimensions"] for d in bloque] == [[[]], [["Ruta"]]]
+    nombres = [m["Name"] for d in bloque for m in d["Metrics"]]
+    assert sorted(nombres) == sorted(M.METRICAS)
     assert isinstance(linea["_aws"]["Timestamp"], int)
-    assert (linea["Modelo"], linea["Ruta"]) == ("claude-haiku-4-5-20251001", "fija")
+    assert linea["Ruta"] == "fija" and "Modelo" not in linea
     # every declared metric is a number at the line's top level (EMF does not read nested members)
     assert all(isinstance(linea[n], (int, float)) and not isinstance(linea[n], bool) for n in nombres)
 

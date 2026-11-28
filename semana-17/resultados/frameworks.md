@@ -47,7 +47,7 @@ Langfuse stores the Strands trace as 18 observations (1 AGENT, 3 GENERATION, 4 T
 | OpenTelemetry spans by itself | 15 (written by the lab) | 13 (11 in the agent's trace) | **0** |
 | Trace continues into the server | yes (after the activity 3 fix) | **yes, out of the box**: the SDK's client span is a child of `execute_tool`, and `authorize`, `tools/call`, `handle_tool` and `SELECT` hang from it | **no**: 2 tool calls, 2 traces, `authorize` has no parent; the server saw 25 spans in 22 traces (one MCP session per call) |
 | Attributes inside the locked shape | all (67 keys, tested) | agent 3 of 16, chat 6 of 16, tool 3 of 9; **16 of its 27 distinct keys are in no list of the shape** | none to check |
-| Lab keys it never emits | none | agent 23 of 26 (user, tenant, task, budget, outcome, run totals, cost), chat 13 of 19, tool 8 of 11 | all |
+| Lab keys it never emits | none | agent 23 of 26 (user, tenant, task, budget, outcome, run totals, cost), chat 13 of 19, tool 8 of 11 (week 20, activity 4 added the router's 6 `lab.route.*` keys, which no framework emits: agent 25 of 28, chat 17 of 23) | all |
 | Input tokens | total, cache included | **the same numbers**: 1980, 1220, 1180 (total) | n/a |
 | Usage keys on a `chat` span | 4 (`input_tokens`, `output_tokens`, `cache_read`, `cache_creation`) | the same 4 names **plus** duplicates and a sum: `prompt_tokens`, `completion_tokens`, `cache_read_input_tokens`, `cache_write_input_tokens`, `total_tokens` (7 keys for the 3 numbers of the first turn, plus the total) | n/a |
 | Content recorded by default | none | **prompt, system prompt, tool arguments and returned rows, as span events** | all of it, in the run tree |

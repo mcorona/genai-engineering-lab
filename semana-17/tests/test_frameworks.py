@@ -86,9 +86,9 @@ def test_la_cobertura_es_la_del_esquema_de_hoy():
             assert set(c["del_esquema_que_no_emite"]) == propias - nativas
     ag, ch, he = (R["strands"]["cobertura"][o] for o in ("invoke_agent", "chat", "execute_tool"))
     assert (len(ag["aceptadas_por_el_esquema"]), ag["emite"], len(ag["del_esquema_que_no_emite"]), len(E.ATRIBUTOS["invoke_agent"])) \
-        == (3, 16, 23, 26)
+        == (3, 16, 25, 28)      # week 20, activity 4: + lab.route.escalations, final_model
     assert (len(ch["aceptadas_por_el_esquema"]), ch["emite"], len(ch["del_esquema_que_no_emite"]), len(E.ATRIBUTOS["chat"])) \
-        == (6, 16, 13, 19)
+        == (6, 16, 17, 23)      # + the 4 lab.route.* keys of a routed call
     assert (len(he["aceptadas_por_el_esquema"]), he["emite"], len(he["del_esquema_que_no_emite"]), len(E.ATRIBUTOS["execute_tool"])) \
         == (3, 9, 8, 11)
     for faltante in ("user.id", "lab.tenant.id", "lab.outcome.status", "lab.budget.max_steps", "lab.run.cost_usd"):

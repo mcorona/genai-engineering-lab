@@ -113,6 +113,12 @@ processors:
       - lab.model.scripted
       - lab.outcome.reason
       - lab.outcome.status
+      - lab.route.discarded
+      - lab.route.escalated
+      - lab.route.escalations
+      - lab.route.final_model
+      - lab.route.initial
+      - lab.route.reason
       - lab.run.cost_usd
       - lab.run.id
       - lab.run.steps
