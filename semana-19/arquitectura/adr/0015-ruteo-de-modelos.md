@@ -22,7 +22,7 @@ added at the end of the activity. Glossary: [in-house router](../../../docs/glos
   - **Each request body.** That is the loop's whole history: the task, the model's turns, and every tool result with
     its `is_error` and the deterministic layer's error type.
   - **Each raw Converse response**, before translation.
-  - It does not see the gold answer, the verifier, the week 13 loop's counters, or the output guardrail, which runs
+  - It does not see the reference answer, the verifier, the week 13 loop's counters, or the output guardrail, which runs
     after the loop.
 - **The cache run's shape (R, `cache_detalle.jsonl`, 20 tasks).**
   - Steps: 18 of the 20 tasks take 2 to 6. One takes 10 and r05-en takes 12.
