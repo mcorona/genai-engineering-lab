@@ -43,7 +43,7 @@ jobs:
       - name: Tests without AWS
         run: |
           set -o pipefail
-          python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --cov=semana-19 --cov-report=term:skip-covered --ignore=semana-19/tests/test_infra_cdk.py --ignore=semana-19/tests/test_infra_computo.py --ignore=semana-19/tests/test_computo_rds_permisos.py --ignore=semana-19/tests/test_infra_gateway.py --ignore=semana-19/tests/test_infra_agentes.py --ignore=semana-19/tests/test_validar_politicas_cobertura.py --ignore=semana-19/tests/test_diagrama_vs_stack.py --ignore=semana-19/tests/test_infra_etiquetas.py --ignore=semana-19/tests/test_infra_presupuesto.py --ignore=semana-19/tests/test_infra_cache.py | tee "$RUNNER_TEMP/pytest.txt"
+          python -m pytest -q semana-19/tests -p no:cacheprovider -rs -m "not vivo" --cov=semana-19 --cov-report=term:skip-covered --ignore=semana-19/tests/test_infra_cdk.py --ignore=semana-19/tests/test_infra_computo.py --ignore=semana-19/tests/test_computo_rds_permisos.py --ignore=semana-19/tests/test_infra_gateway.py --ignore=semana-19/tests/test_infra_agentes.py --ignore=semana-19/tests/test_validar_politicas_cobertura.py --ignore=semana-19/tests/test_diagrama_vs_stack.py --ignore=semana-19/tests/test_infra_etiquetas.py --ignore=semana-19/tests/test_infra_presupuesto.py --ignore=semana-19/tests/test_infra_cache.py --ignore=semana-19/tests/test_infra_ruteo.py | tee "$RUNNER_TEMP/pytest.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest.txt"; then echo "::error::skipped tests found"; exit 1; fi
 
   spike-iac:
@@ -79,7 +79,7 @@ jobs:
       - name: Foundation tests (CDK, lab and prod, no AWS)
         run: |
           set -o pipefail
-          python -m pytest -q semana-19/tests/test_infra_cdk.py semana-19/tests/test_infra_computo.py semana-19/tests/test_computo_rds_permisos.py semana-19/tests/test_infra_gateway.py semana-19/tests/test_infra_agentes.py semana-19/tests/test_validar_politicas_cobertura.py semana-19/tests/test_diagrama_vs_stack.py semana-19/tests/test_infra_etiquetas.py semana-19/tests/test_infra_presupuesto.py semana-19/tests/test_infra_cache.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
+          python -m pytest -q semana-19/tests/test_infra_cdk.py semana-19/tests/test_infra_computo.py semana-19/tests/test_computo_rds_permisos.py semana-19/tests/test_infra_gateway.py semana-19/tests/test_infra_agentes.py semana-19/tests/test_validar_politicas_cobertura.py semana-19/tests/test_diagrama_vs_stack.py semana-19/tests/test_infra_etiquetas.py semana-19/tests/test_infra_presupuesto.py semana-19/tests/test_infra_cache.py semana-19/tests/test_infra_ruteo.py -p no:cacheprovider -rs | tee "$RUNNER_TEMP/pytest_infra.txt"
           if grep -q "SKIPPED" "$RUNNER_TEMP/pytest_infra.txt"; then echo "::error::skipped tests found"; exit 1; fi
 
       - name: Synthesize activity 3's foundation and scan it with checkov
