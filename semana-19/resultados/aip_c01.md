@@ -74,7 +74,7 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 
 ## D4: Operational efficiency and optimization (12%)
 
-15 concepts (9 from week 19, 6 from week 20's activity 3).
+20 concepts (9 from week 19, 5 from week 20's activity 2, 6 from its activity 3).
 
 | Concept | Activity | Where the lab shows it | Evidence | Status |
 |---|---|---|---|---|
@@ -82,6 +82,11 @@ Each row: concept → the activity → where the lab shows it → its evidence. 
 | Fixed cost versus variable cost (zero queries is only the fixed part) | 2 | `costos/modelo.py` and `tests/test_costos.py` (zero queries test) | `cotizacion.md`: 5.44 USD/month lab with 0 queries (partial) | measured |
 | Tokens and model cost per task from the agent spans | 8 | `eval_aws.py` (costo) | 0.035544 USD and 26,647.4 tokens per task (19 tasks) | measured 2026-11-19 |
 | Prompt caching on Converse needs a `cachePoint` | 8 | `agente/converse_adaptador.py` (cache tokens read, none sent) | 0 cache read and 0 cache write tokens on every task | fails (not used) |
+| Application inference profiles, one per component, to split the model cost | week 20, 2 | `semana19-ia` stack (`AWS::Bedrock::ApplicationInferenceProfile`), `ia/config.py` `PERFILES_DE_APLICACION` | 3 profiles (`agente`, `juez`, `enriquecimiento`), each a copy of a system profile, tagged `proyecto`, `perfil` and `componente`; the agent Lambda called `semana19-agente` (`semana-20/resultados/atribucion.md` §1, §4) | measured 2026-11-24 |
+| Cost allocation tags: they count only from activation, as daily totals per usage type | week 20, 2 | `componente` and `perfil` activated in Billing on 2026-11-24; one `GetCostAndUsage` | `componente=agente`: input 0.0763202 + output 0.022198 = 0.0985182 USD; the tag counted on its activation day (`semana-20/resultados/atribucion/cost_explorer.json`) | measured 2026-11-25 |
+| Least privilege with application profiles: the role names its own profile, the boundary the account's `application-inference-profile/*` | week 20, 2 | `infra/cdk/app.py` (`ModeloDeHaikuPorConverse`, `ModeloDelAgenteDelLimite`) | `test_el_agente_llama_su_perfil_de_aplicacion_y_ningun_otro_modelo`; Access Analyzer: 0 security findings on the 50 documents (`atribucion.md` §2) | tested; measured 2026-11-24 |
+| Cost and token metrics from the span's log line (EMF), with a written list of dimensions held to the free tier | week 20, 2 | `agente/metricas.py`, namespace `LegacyBridge` | 8 names × 1 model × 1 route = 8 custom metrics, within the 10 free; a test holds the count; no extra call from the Lambda (`atribucion.md` §3) | measured 2026-11-24 |
+| The cost of a query three ways: spans, EMF and Cost Explorer by tag | week 20, 2 | `semana-20/atribucion/corrida.py` | 4 tasks: 0.0985182 USD in all three (0.0246296 per task); the stacks' 0.0817 USD of that day is per hour, not per query (`atribucion.md` §4) | measured 2026-11-25 |
 | Where a cache point can go: the model's minimum per point, counted on the whole prefix | week 20, 3 | `semana-20/cache/medir.py`, ADR 0014 | the fixed prefix (tools and system) is 2,664 tokens, under Haiku 4.5's 4,096, so the point goes at the end of the history (`resultados/cache_medicion.json`) | measured 2026-11-25 |
 | Cache TTL by the reuse pattern (5 minutes against 1 hour) | week 20, 3 | ADR 0014, `CACHE_TTL` | the calls of a query are seconds apart and no two queries share a prefix: 1 hour would cost 0.602 USD for the 20 tasks against 0.511 | decided 2026-11-25 |
 | Caching saving predicted before the run, with the cross-region hit rate as scenarios | week 20, 3 | `costos/modelo.py` v3, `semana-20/cache/prediccion.py` | 45.0% (every call reads), 3.9% (1/3), −16.7% (none); break-even 0.27; real total within −0.9% of the central (`cotizacion.md`) | measured 2026-11-26 |
