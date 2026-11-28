@@ -114,7 +114,9 @@ def huella_legado(adm) -> dict:
 
 # ---------- 1. the golden subset and the budget case ----------
 
-def correr_subconjunto(simular: bool, otlp: str | None) -> dict:
+def correr_subconjunto(simular: bool, otlp: str | None, *, modelo: str | None = None, politica=None, api=None) -> dict:
+    """`modelo`, `politica` and `api` default to week 17's (Haiku 5.5 `low`, the calibrated policy, Anthropic's API). Week 20's
+    R0 (semana-20/ruteo/r0_local.py) passes Haiku 4.5, the deployed per-task ceiling and its capped API."""
     os.environ["OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT"] = "NO_CONTENT"
     from guardrails.agente import AgenteGuardado
     from instrumentacion import esquema as E
@@ -139,7 +141,8 @@ def correr_subconjunto(simular: bool, otlp: str | None) -> dict:
     tareas = r14.tareas_ci(adm)
     adm.close()
     refs = CR.cargar()
-    politica = Politica.desde_archivo()
+    politica = politica or Politica.desde_archivo()
+    modelo = modelo or MODELO
     reproduccion = Reproduccion() if simular else None
     conn, _ = conectar()
     lineas_dir = Path(tempfile.mkdtemp(prefix="eval17-lineas-"))
@@ -147,9 +150,9 @@ def correr_subconjunto(simular: bool, otlp: str | None) -> dict:
 
     def una(t: dict, pol, sufijo=""):
         h = Herramientas(Contexto.de_usuario("analista", conexion=conn, idioma=t["lang"]))
-        api = reproduccion.para(t["id"]) if simular else api_anthropic
+        api_ = reproduccion.para(t["id"]) if simular else (api or api_anthropic)
         lineas = lineas_dir / f"{t['id']}{sufijo}.jsonl"
-        a = AgenteGuardado(h, api=api, tenant="ci", politica=pol, modelo=MODELO, esfuerzo=ESFUERZO, simulado=simular, trazas=lineas)
+        a = AgenteGuardado(h, api=api_, tenant="ci", politica=pol, modelo=modelo, esfuerzo=ESFUERZO, simulado=simular, trazas=lineas)
         r = a.resolver({**t, "rep": 0}, "analista")
         return r, a, lineas
 
