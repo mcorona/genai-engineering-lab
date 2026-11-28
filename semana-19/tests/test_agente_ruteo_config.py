@@ -96,3 +96,12 @@ def test_the_rewrite_of_the_prefix_at_an_escalation_to_sonnet_is_the_adrs():
 def test_nova_takes_only_the_5_minute_ttl():
     assert K.TTLS_POR_MODELO[NOVA] == ("5m",)
     assert K.TTLS_POR_MODELO[HAIKU] == K.TTLS_POR_MODELO[SONNET] == ("5m", "1h")
+
+
+def test_each_candidate_has_its_profile_name_and_its_variable_and_the_copy_agrees():
+    """The stack names one application profile per candidate (Haiku 4.5 keeps activity 2's `agente`) and passes its
+    ARN in one variable, which the Lambda reads (ADR 0015 section 6)."""
+    assert config.PERFIL_POR_CANDIDATO == {NOVA: "agente-nova-lite", HAIKU: "agente", SONNET: "agente-sonnet-4-6"}
+    assert config.VARIABLE_POR_CANDIDATO == K.VARIABLE_POR_MODELO == {
+        NOVA: "MODELO_NOVA_LITE", HAIKU: "MODELO", SONNET: "MODELO_SONNET_46"}
+    assert set(config.PERFIL_POR_CANDIDATO) == set(config.RUTEO_CANDIDATOS)

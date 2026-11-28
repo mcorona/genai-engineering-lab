@@ -884,7 +884,7 @@ def test_limite_compactado_conserva_las_acciones_sin_arn(perfil):
     logs, st = lim["LogsDelLimite"]
     assert logs == {"logs:CreateLogStream", "logs:PutLogEvents"}
     destinos = sorted(texto(r) for r in st["Resource"])
-    assert [d.split("log-group:")[1] for d in destinos] == ["/aws/lambda/semana19-datos*:*", "/semana19/*", "/semana19/ia/*:*"]
+    assert [d.split("log-group:")[1] for d in destinos] == ["/aws/lambda/semana19-datos*:*", "/semana19/*"]
 
 
 @pytest.mark.parametrize("perfil", PERFILES)
@@ -1174,7 +1174,7 @@ def test_lo_que_pide_el_rol_del_juez_cabe_en_el_limite(perfil):
     rol = set().union(*(_acciones(st) for _, tipo, st in declaraciones(de_eval(perfil)) if tipo == "AWS::IAM::Policy"))
     assert rol <= del_limite, sorted(rol - del_limite)
     _, bucket = lim["BucketDelJuezDelLimite"]
-    assert sorted(texto(r).rsplit(":", 1)[1] for r in bucket["Resource"]) == ["semana19-eval-*", "semana19-eval-*/*"]
+    assert [texto(bucket["Resource"]).rsplit(":", 1)[1]] == ["semana19-eval-*"]   # also its objects: * spans "/"
     _, modelo = lim["ModeloDelJuezDelLimite"]
     assert any(texto(r).endswith("inference-profile/us.amazon.nova-pro-v1:0") for r in modelo["Resource"])
 
@@ -1189,7 +1189,7 @@ def test_las_fusiones_del_limite_conservan_permisos(perfil):
         "dynamodb", "s3", "secretsmanager"]
     acciones, docs = lim["DocsDatosLeerYListar"]
     assert acciones == {"s3:GetObject", "s3:ListBucket"}
-    assert sorted(texto(r).rsplit(":", 1)[1] for r in docs["Resource"]) == ["semana19-datos*", "semana19-datos*/*"]
+    assert [texto(docs["Resource"]).rsplit(":", 1)[1]] == ["semana19-datos*"]   # also its objects: * spans "/"
 
 
 @pytest.mark.parametrize("perfil", PERFILES)

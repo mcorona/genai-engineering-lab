@@ -23,9 +23,9 @@ from agente import handler as H  # noqa: E402
 from agente import ruteo as R  # noqa: E402
 
 NOVA, HAIKU, SONNET = K.RUTEO_CANDIDATOS
-ARN = {NOVA: "arn:aws:bedrock:us-east-1:000000000000:application-inference-profile/nova",
-       HAIKU: "arn:aws:bedrock:us-east-1:000000000000:application-inference-profile/haiku",
-       SONNET: "arn:aws:bedrock:us-east-1:000000000000:application-inference-profile/sonnet"}
+ARN = {NOVA: "arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/nova",
+       HAIKU: "arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/haiku",
+       SONNET: "arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/sonnet"}
 ENTORNO = {"MODELO": ARN[HAIKU], "FUNCION_HERRAMIENTAS": "fn-herramientas", "GUARDRAIL_ID": "gid-prueba",
            "GUARDRAIL_VERSION": "1", "GRUPO_SPANS": "/semana19/agente/spans"}
 R1 = {**ENTORNO, K.RUTEO: "r1", "MODELO_NOVA_LITE": ARN[NOVA], "MODELO_SONNET_46": ARN[SONNET]}

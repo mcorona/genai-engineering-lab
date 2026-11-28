@@ -14,7 +14,7 @@
       },
       "hallazgos": {
         "ERROR": 2,
-        "SUGGESTION": 6,
+        "SUGGESTION": 3,
         "WARNING": 1
       }
     },
@@ -26,14 +26,14 @@
       },
       "hallazgos": {
         "ERROR": 2,
-        "SUGGESTION": 6,
+        "SUGGESTION": 3,
         "WARNING": 1
       }
     }
   },
   "hallazgos_por_tipo": {
     "ERROR": 4,
-    "SUGGESTION": 12,
+    "SUGGESTION": 6,
     "WARNING": 2
   },
   "errores_o_advertencias_de_seguridad": 0,
@@ -325,45 +325,8 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "20d6b6aafd7502994350309df46dd4fd8bfcf3841678d363ebc054f034b888b3",
-        "hallazgos": [
-          {
-            "findingType": "SUGGESTION",
-            "issueCode": "REDUNDANT_RESOURCE",
-            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:logs:us-east-1:<account>:log-group:/semana19/ia/*:* to remove the redundancy.",
-            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
-            "ruta": [
-              "Statement",
-              0,
-              "Resource",
-              0
-            ]
-          },
-          {
-            "findingType": "SUGGESTION",
-            "issueCode": "REDUNDANT_RESOURCE",
-            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-datos*/* to remove the redundancy.",
-            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
-            "ruta": [
-              "Statement",
-              10,
-              "Resource",
-              0
-            ]
-          },
-          {
-            "findingType": "SUGGESTION",
-            "issueCode": "REDUNDANT_RESOURCE",
-            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-eval-*/* to remove the redundancy.",
-            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
-            "ruta": [
-              "Statement",
-              22,
-              "Resource",
-              0
-            ]
-          }
-        ]
+        "huella": "5aec4835e0fd8d228990bc922df52e1b5d72dec245635893fe605c676b1817ca",
+        "hallazgos": []
       },
       {
         "stack": "semana19-control",
@@ -944,45 +907,8 @@
         "campo": "PolicyDocument",
         "policyType": "IDENTITY_POLICY",
         "validatePolicyResourceType": null,
-        "huella": "20d6b6aafd7502994350309df46dd4fd8bfcf3841678d363ebc054f034b888b3",
-        "hallazgos": [
-          {
-            "findingType": "SUGGESTION",
-            "issueCode": "REDUNDANT_RESOURCE",
-            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:logs:us-east-1:<account>:log-group:/semana19/ia/*:* to remove the redundancy.",
-            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
-            "ruta": [
-              "Statement",
-              0,
-              "Resource",
-              0
-            ]
-          },
-          {
-            "findingType": "SUGGESTION",
-            "issueCode": "REDUNDANT_RESOURCE",
-            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-datos*/* to remove the redundancy.",
-            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
-            "ruta": [
-              "Statement",
-              10,
-              "Resource",
-              0
-            ]
-          },
-          {
-            "findingType": "SUGGESTION",
-            "issueCode": "REDUNDANT_RESOURCE",
-            "detalle": "The 2 resource ARN(s) are redundant because they reference the same resource. Review the use of wildcards (*), or remove the resource arn:aws:s3:::semana19-eval-*/* to remove the redundancy.",
-            "learnMoreLink": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-reference-policy-checks.html#access-analyzer-reference-policy-checks-suggestion-redundant-resource",
-            "ruta": [
-              "Statement",
-              22,
-              "Resource",
-              0
-            ]
-          }
-        ]
+        "huella": "5aec4835e0fd8d228990bc922df52e1b5d72dec245635893fe605c676b1817ca",
+        "hallazgos": []
       },
       {
         "stack": "semana19-control",
