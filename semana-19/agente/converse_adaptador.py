@@ -73,11 +73,37 @@ def _con_cache(req: dict, modo: str, ttl: str) -> dict:
     return req
 
 
+# Week 20, activity 4 (ADR 0015): Nova reads only these keys at the top level of a tool's schema; `$schema`,
+# `description`, `title` and `additionalProperties` there can make it ignore the tool (Nova tool troubleshooting,
+# read 2026-11-27). Nova also calls tools best with greedy decoding (same page), and takes only the 5-minute TTL.
+CLAVES_NOVA = ("type", "properties", "required")
+
+
+def _sin_referencias(objeto, definiciones: dict):
+    if isinstance(objeto, dict):
+        if "$ref" in objeto:
+            return _sin_referencias(definiciones[objeto["$ref"].rsplit("/", 1)[-1]], definiciones)
+        return {k: _sin_referencias(v, definiciones) for k, v in objeto.items() if k != "$defs"}
+    if isinstance(objeto, list):
+        return [_sin_referencias(v, definiciones) for v in objeto]
+    return objeto
+
+
+def esquema_para_nova(esquema: dict) -> dict:
+    """A tool's JSON schema as Nova reads it: the `$defs` references inlined, and only `type`, `properties` and
+    `required` at the top level. A new dict: the loop's definitions are never changed."""
+    plano = _sin_referencias(esquema, esquema.get("$defs", {}))
+    return {k: plano[k] for k in CLAVES_NOVA if k in plano}
+
+
 def peticion_a_converse(cuerpo: dict, *, modelo_id: str, guardrail: dict | None = None, cache: str = "off",
-                        ttl: str = "5m") -> dict:
+                        ttl: str = "5m", nova: bool = False) -> dict:
     """The loop's body (Anthropic format) -> Converse request. `output_config.effort` has no Converse equivalent for
     this model and is dropped on purpose; the loop's own limits still apply. The request's lists are built here, so
-    the cache points never touch the loop's history."""
+    the cache points never touch the loop's history. `nova`: the request for a Nova model (ADR 0015): the tools'
+    schemas reduced, greedy decoding, and the 5-minute TTL only."""
+    if nova and ttl != "5m":
+        raise ValueError(f"Nova solo admite el TTL de 5 minutos, no {ttl}")
     req: dict[str, Any] = {
         "modelId": modelo_id,
         "system": [{"text": cuerpo["system"]}],
@@ -86,11 +112,15 @@ def peticion_a_converse(cuerpo: dict, *, modelo_id: str, guardrail: dict | None 
     }
     herramientas = cuerpo.get("tools") or []
     if herramientas:
+        esquema = esquema_para_nova if nova else (lambda e: e)
         req["toolConfig"] = {"tools": [{"toolSpec": {
             "name": h["name"], "description": h.get("description", ""),
-            "inputSchema": {"json": h.get("input_schema", {"type": "object"})}}} for h in herramientas]}
+            "inputSchema": {"json": esquema(h.get("input_schema", {"type": "object"}))}}} for h in herramientas]}
     if guardrail:
         req["guardrailConfig"] = guardrail
+    if nova:
+        req["inferenceConfig"]["temperature"] = 0
+        req["additionalModelRequestFields"] = {"inferenceConfig": {"topK": 1}}
     return req if cache == "off" else _con_cache(req, cache, ttl)
 
 

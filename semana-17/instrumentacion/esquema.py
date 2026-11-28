@@ -92,6 +92,11 @@ MOTIVOS = ("responder", "max_pasos", "max_tokens_total", "max_segundos", "max_he
 DECISIONES = ("allow", "deny_no_token", "deny_bad_scheme", "deny_invalid_token", "deny_insufficient_scope")
 METODOS_MCP = ("tools/call", "tools/list", "resources/read", "resources/list", "prompts/get", "prompts/list", "other")
 FINALIZACIONES = ("end_turn", "tool_use", "max_tokens", "stop_sequence", "pause_turn", "refusal", "other")
+# Week 20, activity 4 (ADR 0015): why the in-house router moved a call to a larger model. The router's signals, in the
+# order of RUTEO_REGLAS["senales"] (semana-19/agente/construccion.py; a test holds them equal), plus "sin_presupuesto":
+# a response signal fired but the task budget could not pay the resend, so the call kept its model.
+MOTIVOS_RUTA = ("error_herramienta", "resultado_vacio", "bloqueo_capa", "respuesta_invalida", "presion_pasos",
+                "presion_tokens", "respuesta_vacia", "abstencion", "idioma", "sin_presupuesto")
 
 # Lab-owned span kinds -> allowed attribute -> validator.
 ATRIBUTOS: dict[str, dict] = {
@@ -114,6 +119,8 @@ ATRIBUTOS: dict[str, dict] = {
         "lab.run.tokens.input": _entero(), "lab.run.tokens.output": _entero(),
         "lab.run.tokens.cache_read": _entero(), "lab.run.tokens.cache_creation": _entero(),
         "lab.run.cost_usd": _numero(),
+        "lab.route.escalations": _entero(),                # week 20, activity 4: the router's escalations in the task
+        "lab.route.final_model": ID,                       # the model that served the task's last call
         "error.type": _enum(*ESTADOS, "other"),
     },
     "chat": {
@@ -132,6 +139,10 @@ ATRIBUTOS: dict[str, dict] = {
                                                                  # reads both, measured, so the semconv one is locked)
         "server.address": _patron(r"[a-z0-9.-]{1,64}"), "server.port": _entero(65535),
         "lab.step": _entero(), "lab.cost.usd": _numero(), "lab.model.scripted": _bool,
+        "lab.route.initial": ID,                           # week 20, activity 4: the task's first candidate
+        "lab.route.escalated": _bool,                      # the call went to a model above the first one
+        "lab.route.reason": _enum(*MOTIVOS_RUTA),          # the signal that moved it there (absent: no move)
+        "lab.route.discarded": _bool,                      # its answer was paid and then resent to the next model
         "langfuse.observation.cost_details": COSTO_LANGFUSE,
         "error.type": ID,
     },

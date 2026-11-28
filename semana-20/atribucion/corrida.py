@@ -71,14 +71,17 @@ def ventana(filas: list[dict]) -> tuple[float, float]:
     return min(f["inicio"] for f in hechas) - MARGEN_EMF_S, max(f["fin"] for f in hechas) + MARGEN_EMF_S
 
 
-def consulta_metricas(desde: float, hasta: float) -> dict:
-    """GetMetricData: the sum of each metric over the window, one period, dimensions as the agent emits them."""
+def consulta_metricas(desde: float, hasta: float, ruta: str = "fija") -> dict:
+    """GetMetricData: the sum of each metric over the window, one period, dimensions as the agent emits them (activity
+    4: the route metrics by Ruta, the rest without dimensions)."""
     from agente import metricas as M  # noqa: PLC0415
-    dims = [{"Name": d, "Value": v[0]} for d, v in M.DIMENSIONES.items()]
+
+    def dims(n: str) -> list[dict]:
+        return [{"Name": "Ruta", "Value": ruta}] if n in M.POR_RUTA else []
     periodo = max(60, int((hasta - desde) // 60 + 1) * 60)
     return {"StartTime": datetime.fromtimestamp(desde, timezone.utc), "EndTime": datetime.fromtimestamp(hasta, timezone.utc),
             "MetricDataQueries": [{"Id": f"m{i}", "Label": n, "ReturnData": True, "MetricStat": {
-                "Metric": {"Namespace": M.ESPACIO, "MetricName": n, "Dimensions": dims}, "Period": periodo,
+                "Metric": {"Namespace": M.ESPACIO, "MetricName": n, "Dimensions": dims(n)}, "Period": periodo,
                 "Stat": "Sum"}} for i, n in enumerate(M.METRICAS)]}
 
 

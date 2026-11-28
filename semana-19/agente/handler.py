@@ -31,7 +31,7 @@ from instrumentacion import esquema
 N = C.N
 MODELO = "claude-haiku-4-5-20251001"
 AGENTE = "legadobridge"
-RUTA = "fija"      # week 20, activity 2: the route dimension of the metrics; activity 4's router sets it per call
+RUTA = "fija"      # week 20, activity 2: the route dimension of the metrics without the router (activity 4: "r1")
 MOTIVO_PRESUPUESTO = {"presupuesto_usd": "presupuesto_tarea", "presupuesto_tokens": "presupuesto_tarea"}
 # The tools path in the execute_tool span, with week 17's locked attribute and values (no new key): OpenTelemetry's
 # gen_ai.tool.type "function" for the direct call, "extension" for a tool reached through the gateway (agent side,
@@ -129,29 +129,32 @@ class HerramientasCapadas:
 
 def tratar_pregunta(pregunta: str, alcance, *, agente_factory: Callable, llamar_herramienta: Callable, definiciones: list,
                     api_modelo: Callable, politica: Politica, precios: Precios, exportar: Callable[[str], None],
-                    run_id: str | None = None, camino: str = "directo", cerrar: Callable | None = None) -> Resultado:
-    """`cerrar` ends the tools session (the gateway's MCP session) when the question ends, whatever the outcome."""
+                    run_id: str | None = None, camino: str = "directo", cerrar: Callable | None = None,
+                    precios_por_modelo: dict[str, Precios] | None = None, ruta: str = RUTA) -> Resultado:
+    """`cerrar` ends the tools session (the gateway's MCP session) when the question ends, whatever the outcome.
+    Week 20, activity 4: with the router as `api_modelo`, `precios_por_modelo` prices each call at its own model and
+    `ruta` ("r1") is the metrics' route."""
     try:
         return _tratar(pregunta, alcance, agente_factory=agente_factory, llamar_herramienta=llamar_herramienta,
                        definiciones=definiciones, api_modelo=api_modelo, politica=politica, precios=precios,
                        exportar=exportar, run_id=run_id or uuid.uuid4().hex[:12], camino=camino,
-                       inicio=time.monotonic())
+                       inicio=time.monotonic(), precios_por_modelo=precios_por_modelo, ruta=ruta)
     finally:
         if cerrar is not None:
             cerrar()
 
 
 def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definiciones, api_modelo, politica, precios,
-            exportar, run_id, camino, inicio) -> Resultado:
+            exportar, run_id, camino, inicio, precios_por_modelo, ruta) -> Resultado:
     decisiones: list = []
     motivo, de_entrada = C.revisar_entrada(pregunta)
     decisiones.extend(de_entrada)
     if motivo is not None:
         texto = N.texto_de_rechazo_de_entrada(motivo, "es")
         return _cerrar(run_id, alcance, "abstenida", texto, decisiones, None, None, exportar, politica, "guardrail_entrada",
-                       inicio=inicio)
+                       inicio=inicio, ruta=ruta)
 
-    presupuesto = Presupuesto(politica, MODELO, precios)
+    presupuesto = Presupuesto(politica, MODELO, precios, precios_por_modelo=precios_por_modelo)
     herramientas = HerramientasCapadas(llamar_herramienta, definiciones, alcance, pregunta, decisiones, camino)
     agente = agente_factory(presupuesto.envolver(api_modelo), herramientas)
     tarea = {"id": f"consulta-{run_id}", "tarea": pregunta}
@@ -159,7 +162,7 @@ def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definicion
         r = agente.resolver(tarea)
     except TokenVencido:   # fail closed: the loop stops here, with week 17's state for a run that could not finish
         return _cerrar(run_id, alcance, "error", TEXTO_TOKEN_VENCIDO, decisiones, None, presupuesto, exportar, politica,
-                       "otro", herramientas=herramientas, inicio=inicio)
+                       "otro", herramientas=herramientas, inicio=inicio, ruta=ruta)
 
     final = r.final
     if final is not None:
@@ -173,18 +176,43 @@ def _tratar(pregunta, alcance, *, agente_factory, llamar_herramienta, definicion
         estado, motivo_fin = "limite_alcanzado", MOTIVO_PRESUPUESTO[presupuesto.motivo]
     resultados = list((final or {}).get("resultados") or []) if estado == "respondida" else []
     return _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo_fin,
-                   herramientas=herramientas, resultados=resultados, inicio=inicio)
+                   herramientas=herramientas, resultados=resultados, inicio=inicio, ruta=ruta)
+
+
+def _de_ruta(x: dict) -> dict:
+    """A routed call's model and route (week 20, activity 4; ADR 0015 section 7). Empty for an unrouted call, whose
+    span stays week 20's."""
+    if "modelo" not in x:
+        return {}
+    return {"gen_ai.request.model": x["modelo"], "gen_ai.response.model": x["modelo"],
+            "lab.route.initial": x["ruta"]["inicial"], "lab.route.escalated": x["ruta"]["escalado"],
+            "lab.route.reason": x["ruta"]["motivo"], "lab.route.discarded": x["descartada"]}
 
 
 def _spans_chat(llamadas: list[dict]) -> list[dict]:
     """One `chat` span per model call (week 17's locked shape), with its tokens, cache tokens and cost (week 20,
     activity 3: the cache read and written per step). The call's duration is not an attribute of that shape; it goes on
-    the agent line as `duracion_pasos_ms`."""
-    return [{"name": f"chat {MODELO}", "tipo": "chat", "attrs": {
-        "gen_ai.operation.name": "chat", "gen_ai.request.model": MODELO, "lab.step": x["paso"],
-        "gen_ai.usage.input_tokens": x["entrada"], "gen_ai.usage.output_tokens": x["salida"],
-        "gen_ai.usage.cache_read.input_tokens": x["lectura"],
-        "gen_ai.usage.cache_creation.input_tokens": x["escritura"], "lab.cost.usd": x["usd"]}} for x in llamadas]
+    the agent line as `duracion_pasos_ms`. With the router, every paid call has its span, the discarded one included."""
+    spans = []
+    for x in llamadas:
+        attrs = {"gen_ai.operation.name": "chat", "gen_ai.request.model": MODELO, "lab.step": x["paso"],
+                 "gen_ai.usage.input_tokens": x["entrada"], "gen_ai.usage.output_tokens": x["salida"],
+                 "gen_ai.usage.cache_read.input_tokens": x["lectura"],
+                 "gen_ai.usage.cache_creation.input_tokens": x["escritura"], "lab.cost.usd": x["usd"], **_de_ruta(x)}
+        spans.append({"name": f"chat {attrs['gen_ai.request.model']}", "tipo": "chat",
+                      "attrs": {k: v for k, v in attrs.items() if v is not None}})
+    return spans
+
+
+def _ruta_del_agente(llamadas: list[dict]) -> dict:
+    """The agent span's route: the first candidate, how many times the model changed (the router never steps back
+    within a task, so each change is one escalation) and the model of the last call. Empty without the router."""
+    modelos = [x["modelo"] for x in llamadas if "modelo" in x]
+    if not modelos:
+        return {}
+    cambios = sum(a != b for a, b in zip(modelos, modelos[1:]))
+    return {"gen_ai.request.model": llamadas[0]["ruta"]["inicial"], "lab.route.escalations": cambios,
+            "lab.route.final_model": modelos[-1], "lab.run.cost_usd": sum(x["usd"] for x in llamadas)}
 
 
 def _costo(r, presupuesto) -> float | None:
@@ -197,7 +225,7 @@ def _costo(r, presupuesto) -> float | None:
 
 
 def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar, politica, motivo, herramientas=None,
-            resultados=None, inicio=None):
+            resultados=None, inicio=None, ruta=RUTA):
     atributos = {
         "gen_ai.operation.name": "invoke_agent",
         "gen_ai.agent.name": AGENTE,
@@ -221,11 +249,12 @@ def _cerrar(run_id, alcance, estado, texto, decisiones, r, presupuesto, exportar
         "lab.run.tokens.cache_creation": getattr(presupuesto, "cache_escritura", None),
     }
     llamadas = list(getattr(presupuesto, "por_llamada", None) or [])
+    atributos.update(_ruta_del_agente(llamadas))     # routed: each call priced at its model, not the loop's Haiku
     spans = [*(herramientas.spans if herramientas else []), *_spans_chat(llamadas),
              {"name": f"invoke_agent {AGENTE}", "tipo": "invoke_agent",
               "attrs": {k: v for k, v in atributos.items() if v is not None}}]
     latencia_ms = (time.monotonic() - inicio) * 1000 if inicio is not None else 0.0
-    emf = metricas.miembros_emf(atributos, latencia_ms=latencia_ms, modelo=MODELO, ruta=RUTA,
+    emf = metricas.miembros_emf(atributos, latencia_ms=latencia_ms, ruta=ruta,
                                 ahora_ms=int(time.time() * 1000))
     ExportadorSpans(escribir=exportar).exportar(spans, emf=emf,
                                                 extra={"duracion_pasos_ms": [x["ms"] for x in llamadas]})

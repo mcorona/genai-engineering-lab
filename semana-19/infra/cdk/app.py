@@ -119,11 +119,13 @@ def politica_limite() -> list[iam.PolicyStatement]:
     # actions (log writes) or with resource '*' and no condition are merged: the same permissions in fewer statements.
     return [
         # Log writes: the project's groups (/semana19/*, the guardrail creator's /semana19/ia/* among them) and the
-        # loader's group, created by Lambda on its first run.
+        # loader's group, created by Lambda on its first run. Week 20, activity 4: /semana19/ia/*:* is gone, for room;
+        # /semana19/* already covers it ("If the * wildcard is the last character of a resource ARN segment, it can
+        # expand to match beyond the colon boundaries", IAM Resource element, read 2026-11-27), as it covers the
+        # agent's span streams in /semana19/agente/spans.
         _declaracion(sid="LogsDelLimite", actions=["logs:CreateLogStream", "logs:PutLogEvents"],
                      resources=[f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}*",
-                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*",
-                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:{PREFIJO_LOGS}ia/*:*"]),
+                                f"arn:{Aws.PARTITION}:logs:{REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/lambda/semana19-datos*:*"]),
         # Actions AWS does not authorize on a narrower resource (one statement; the reasons per group are in EXCEPCIONES):
         # describing log groups; log delivery, which Step Functions validates with the machine's role (activity 6);
         # X-Ray traces; reading CloudFormation; the default security group's rules (CDK's custom resource empties them);
@@ -179,9 +181,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # Ceiling of the data roles: what the KB (semana19-kb) and the loader need. Each statement
         # is scoped by prefix or by service; the role's own policy decides the rest.
         # Read and list in one statement (activity 8): GetObject applies only to objects and ListBucket only to the bucket,
-        # so the permissions are the same as the two statements before.
+        # so the permissions are the same as the two statements before. One ARN covers the buckets and their objects:
+        # "The asterisk (*) character can expand to replace everything within a segment, including characters like a
+        # forward slash (/)" (IAM Resource element, read 2026-11-27); week 20, activity 4 dropped the /* twin for room.
         _declaracion(sid="DocsDatosLeerYListar", actions=["s3:GetObject", "s3:ListBucket"],
-                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*", f"arn:{Aws.PARTITION}:s3:::semana19-datos*/*"]),
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*"]),
         _declaracion(sid="DocsDatosEscribir", actions=["s3:PutObject"],
                      resources=[f"arn:{Aws.PARTITION}:s3:::semana19-datos*/docs/*"]),
         _declaracion(sid="IndiceKbDatos", actions=["s3vectors:GetIndex", "s3vectors:PutVectors", "s3vectors:GetVectors",
@@ -203,7 +207,11 @@ def politica_limite() -> list[iam.PolicyStatement]:
         # (bedrock/latest/userguide/agents-permissions.html, inference profiles).
         _declaracion(sid="ModeloDelAgenteDelLimite", actions=[
             "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:GetInferenceProfile",
-            "bedrock:GetFoundationModel"], resources=[*arns_en_el_limite(modelo_agente()), ARN_PERFILES_DE_APLICACION]),
+            "bedrock:GetFoundationModel"], resources=[*arns_en_el_limite(modelo_agente()), ARN_PERFILES_DE_APLICACION,
+                                                      *[f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{m.split('.', 1)[1]}"
+                                                        for m in candidatos_del_ruteo() if m != modelo_agente()]]),
+        # Week 20, activity 4: with RUTEO=r1, the router candidates' foundation models; their application profiles are
+        # under application-inference-profile/* already (r1 requires the profiles, so no system profile is added).
         # The profile in any Region (activity 8, for room): a ceiling over the three destinations the role names.
         _declaracion(sid="GuardrailDelAgenteDelLimite", actions=["bedrock:ApplyGuardrail"],
                      resources=[f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:guardrail/*",
@@ -225,8 +233,8 @@ def politica_limite() -> list[iam.PolicyStatement]:
         _declaracion(sid="ModeloDelJuezDelLimite", actions=[
             "bedrock:InvokeModel", "bedrock:CreateModelInvocationJob", "bedrock:StopModelInvocationJob"],
             resources=arns_en_el_limite(modelo_juez())),
-        _declaracion(sid="BucketDelJuezDelLimite", actions=ACCIONES_S3_DEL_JUEZ,
-                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-eval-*", f"arn:{Aws.PARTITION}:s3:::semana19-eval-*/*"]),
+        _declaracion(sid="BucketDelJuezDelLimite", actions=ACCIONES_S3_DEL_JUEZ,     # bucket and objects, as above
+                     resources=[f"arn:{Aws.PARTITION}:s3:::semana19-eval-*"]),
     ]
 
 
@@ -262,6 +270,40 @@ def usar_perfil_de_aplicacion() -> bool:
 
 def nombre_perfil_de_aplicacion(componente: str) -> str:
     return f"semana19-{componente}"
+
+
+def ruteo() -> str:
+    """The router's mode (week 20, activity 4; ADR 0015), chosen at synth time like the cache: RUTEO overrides
+    ia/config.py for one deploy. Unknown values stop the synth; so does a 1-hour TTL with a Nova candidate (Nova takes
+    only the 5-minute TTL), and r1 without the application profiles (ADR 0015 section 6: one per candidate)."""
+    c = _config()
+    modo = os.environ.get("RUTEO") or c.RUTEO
+    if modo not in c.MODOS_RUTEO:
+        raise RuntimeError(f"unknown RUTEO: {modo}")
+    ttl = os.environ.get("CACHE_TTL") or c.CACHE_TTL
+    if modo == "r1" and ttl != "5m" and any(m.startswith("us.amazon.nova") for m in c.RUTEO_CANDIDATOS):
+        raise RuntimeError(f"CACHE_TTL={ttl} with RUTEO=r1: Nova takes only the 5-minute TTL")
+    if modo == "r1" and not c.USAR_PERFIL_DE_APLICACION:
+        raise RuntimeError("RUTEO=r1 needs USAR_PERFIL_DE_APLICACION: each candidate is called by its application profile")
+    return modo
+
+
+def candidatos_del_ruteo() -> tuple[str, ...]:
+    """The router's candidates (ia/config.py, cheapest first) with RUTEO=r1; none with off, so today's templates."""
+    return tuple(_config().RUTEO_CANDIDATOS) if ruteo() == "r1" else ()
+
+
+def perfiles_del_ruteo() -> dict[str, str]:
+    """Candidate -> the component name of its application profile, for the candidates without one today (Haiku 4.5
+    is the agent's own `agente`)."""
+    c = _config()
+    return {m: c.PERFIL_POR_CANDIDATO[m] for m in candidatos_del_ruteo()
+            if c.PERFIL_POR_CANDIDATO[m] not in c.PERFILES_DE_APLICACION}
+
+
+def id_logico(nombre: str) -> str:
+    """agente-nova-lite -> AgenteNovaLite."""
+    return "".join(p.capitalize() for p in nombre.split("-"))
 
 
 def arn_perfil_de_sistema(perfil: str) -> str:
@@ -1218,6 +1260,17 @@ class Ia(Stack):
             Tags.of(perfil).add("componente", componente, priority=200)
             self.perfiles[componente] = perfil.attr_inference_profile_arn
             cdk.CfnOutput(self, f"ArnPerfil{componente.capitalize()}", value=perfil.attr_inference_profile_arn)
+        # Week 20, activity 4 (ADR 0015 section 6): with RUTEO=r1, one more per new router candidate, a copy of its
+        # system profile, tagged componente=agente: the router's calls are the agent's cost.
+        for origen, nombre in perfiles_del_ruteo().items():
+            perfil = bedrock.CfnApplicationInferenceProfile(
+                self, f"Perfil{id_logico(nombre)}", inference_profile_name=nombre_perfil_de_aplicacion(nombre),
+                description="Week 20 activity 4: a router candidate of the agente component",
+                model_source=bedrock.CfnApplicationInferenceProfile.InferenceProfileModelSourceProperty(
+                    copy_from=arn_perfil_de_sistema(origen)))
+            Tags.of(perfil).add("componente", "agente", priority=200)
+            self.perfiles[nombre] = perfil.attr_inference_profile_arn
+            cdk.CfnOutput(self, f"ArnPerfil{id_logico(nombre)}", value=perfil.attr_inference_profile_arn)
 
 
 class Computo(Stack):
@@ -1232,7 +1285,8 @@ class Computo(Stack):
 
     def __init__(self, scope: Construct, id: str, *, llave: kms.IKey, red: ec2.Vpc, bd: rds.DatabaseInstance,
                  sg_bd: ec2.SecurityGroup, sg_endpoints: ec2.SecurityGroup, guardrail_id: str, guardrail_version: str,
-                 perfil_agente: str | None = None, **kwargs) -> None:
+                 perfil_agente: str | None = None, perfiles_ruteo: dict[str, str] | None = None,
+                 **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         codigo = lambda_.Code.from_asset(str(Path(__file__).resolve().parents[2] / "computo"), exclude=["tests", "__pycache__"])
 
@@ -1385,7 +1439,6 @@ class Computo(Stack):
         _sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from ia.config import MODELO_ID as modelo_con_perfil  # the one place the model id lives (ia/config.py)
         perfil_modelo = modelo_con_perfil                       # us.<family>...
-        modelo_fundacion = modelo_con_perfil.split(".", 1)[1]    # the foundation model id behind the profile
         agente = lambda_.Function(
             self, "FuncionAgente", runtime=lambda_.Runtime.PYTHON_3_13, handler="app.consultas.worker.handler_lambda",
             code=lambda_.Code.from_asset(str(ruta_agente)), timeout=Duration.seconds(120), memory_size=512,
@@ -1397,15 +1450,19 @@ class Computo(Stack):
                          "GUARDRAIL_VERSION": guardrail_version, "GRUPO_SPANS": grupo_spans.log_group_name,
                          "S19_RUTA_SEMANA13": "/var/task/semana-13", "TABLA_CONSULTAS": tabla_consultas.table_name,
                          "MODELO": perfil_agente or perfil_modelo,
-                         **entorno_del_camino(), **entorno_del_presupuesto(), **entorno_de_la_cache()},
+                         **entorno_del_camino(), **entorno_del_presupuesto(), **entorno_de_la_cache(),
+                         **entorno_del_ruteo(perfiles_ruteo)},
             description="Agent (activity 6b): answers a question with the week 13 loop, the guardrail and the budget.")
         # Week 20, activity 2: with the application profile, the role names that profile in place of the system one;
         # the foundation model behind it stays the only model (inference-profiles-prereq: the profile and the
         # foundation model in each Region it routes to). Any other model or profile is still denied.
+        # Week 20, activity 4 (ADR 0015 section 6): with RUTEO=r1 the same statement names each router candidate,
+        # cheapest first: its profile, then its foundation model in any Region. Nothing else.
+        llamadas = {perfil_modelo: perfil_agente} if not perfiles_ruteo else perfiles_ruteo
         agente.add_to_role_policy(_declaracion(
             sid="ModeloDeHaikuPorConverse", actions=["bedrock:InvokeModel"],
-            resources=[perfil_agente or f"arn:{Aws.PARTITION}:bedrock:{REGION}:{Aws.ACCOUNT_ID}:inference-profile/{perfil_modelo}",
-                       f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{modelo_fundacion}"]))
+            resources=[*[arn or arn_perfil_de_sistema(m) for m, arn in llamadas.items()],   # None: the system one
+                       *[f"arn:{Aws.PARTITION}:bedrock:*::foundation-model/{m.split('.', 1)[1]}" for m in llamadas]]))
         # The guardrail uses the cross-Region profile us.guardrail.v1:0: ApplyGuardrail needs the guardrail and the
         # profile in each destination Region (Bedrock guide, guardrail profile permissions).
         agente.add_to_role_policy(_declaracion(
@@ -1602,6 +1659,16 @@ def entorno_de_la_cache() -> dict:
     if ttl not in c.TTLS_CACHE:
         raise RuntimeError(f"unknown CACHE_TTL: {ttl}")
     return {**({} if modo == "off" else {"CACHE_PROMPT": modo}), **({} if ttl == "5m" else {"CACHE_TTL": ttl})}
+
+
+def entorno_del_ruteo(perfiles_ruteo: dict[str, str] | None) -> dict:
+    """The router for the agent (week 20, activity 4; ADR 0015): with RUTEO=r1, RUTEO and each candidate's application
+    profile ARN in its variable; MODELO stays the agent's own. Off adds no variable, so today's template does not
+    change."""
+    if not perfiles_ruteo:
+        return {}
+    variables = _config().VARIABLE_POR_CANDIDATO
+    return {"RUTEO": "r1", **{variables[m]: arn for m, arn in perfiles_ruteo.items() if variables[m] != "MODELO"}}
 
 
 NOMBRE_GATEWAY = "semana19-gateway"
@@ -1887,6 +1954,7 @@ def construir(app: cdk.App) -> None:
                           sg_endpoints=base.sg_endpoints, guardrail_id=ia.guardrail_id,
                           guardrail_version=ia.guardrail_version,
                           perfil_agente=ia.perfiles["agente"] if usar_perfil_de_aplicacion() else None,
+                          perfiles_ruteo={m: ia.perfiles[_config().PERFIL_POR_CANDIDATO[m]] for m in candidatos_del_ruteo()},
                           env=cdk.Environment(region=REGION), synthesizer=cdk.DefaultStackSynthesizer(qualifier="s19"))
         gateway = Gateway(app, "semana19-gateway", llave=base.llave, herramientas=computo.herramientas,
                           id_usuarios=computo.id_usuarios, id_cliente=computo.id_cliente,

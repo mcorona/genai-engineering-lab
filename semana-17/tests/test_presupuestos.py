@@ -507,7 +507,7 @@ def test_los_eventos_son_solo_numeros_y_vocabulario_fijo(banco):
 def test_el_motivo_de_parada_nuevo_esta_en_el_vocabulario():
     assert {"presupuesto_tarea", "presupuesto_sesion", "presupuesto_tenant_dia"} <= set(E.MOTIVOS)
     assert E.clasificar_motivo("presupuesto_sesion") == "presupuesto_sesion"
-    assert len(E.claves_permitidas()) == 67                                                         # the span shape did not grow: only enum values
+    assert len(E.claves_permitidas()) == 73          # activity 4 added enum values only; week 20 activity 4 the 6 lab.route.* keys
 
 
 # --- the evaluation runner: the $0 replay of the 84 tasks of week 13 and the report it writes ---------------------------------------

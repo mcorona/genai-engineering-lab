@@ -40,10 +40,14 @@ def test_la_consulta_emf_pide_la_suma_de_cada_metrica_con_sus_dimensiones():
     from agente import metricas as M
     q = A.consulta_metricas(1_000.0, 1_500.0)
     assert [x["Label"] for x in q["MetricDataQueries"]] == list(M.METRICAS)
-    m = q["MetricDataQueries"][0]["MetricStat"]
+    por_nombre = {x["Label"]: x["MetricStat"] for x in q["MetricDataQueries"]}
+    m = por_nombre["CostoUSD"]
     assert m["Stat"] == "Sum" and m["Metric"]["Namespace"] == "LegacyBridge"
-    assert m["Metric"]["Dimensions"] == [{"Name": "Modelo", "Value": "claude-haiku-4-5-20251001"},
-                                         {"Name": "Ruta", "Value": "fija"}]
+    # activity 4: the route metrics by Ruta, the rest without dimensions (as the agent emits them)
+    assert m["Metric"]["Dimensions"] == [{"Name": "Ruta", "Value": "fija"}]
+    assert por_nombre["TokensEntrada"]["Metric"]["Dimensions"] == []
+    assert A.consulta_metricas(1_000.0, 1_500.0, ruta="r1")["MetricDataQueries"][0]["MetricStat"]["Metric"][
+        "Dimensions"] == [{"Name": "Ruta", "Value": "r1"}]
     assert m["Period"] >= 500 and m["Period"] % 60 == 0       # one period covers the whole window
 
 

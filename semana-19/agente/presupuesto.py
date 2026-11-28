@@ -15,6 +15,7 @@ from and written to the cache come apart, at 0.1x and 1.25x the input price. The
 from __future__ import annotations
 
 import json
+import math
 import sys
 import time
 from dataclasses import dataclass
@@ -57,11 +58,30 @@ class Precios:
         return est_in - leido + self.tokens_equivalentes(leido, 0)
 
 
-class Presupuesto:
-    """Spent so far in the task and the motive of the last stop (None while the budget holds)."""
+def holgura(pol: Politica, precios: Precios, est_in: int, restante: Gasto) -> tuple[int, str | None]:
+    """(max_tokens, None) when the task's rest pays at least `min_salida` output tokens at these prices, else
+    (0, "usd" or "tokens"). Week 17's `decidir` for the task scope, with the prices of a given model (week 17's table
+    has Haiku only; ADR 0015 prices each routed call at its own model)."""
+    por_usd = (restante.usd - est_in * precios.entrada_1m / 1e6) / (precios.salida_1m / 1e6)
+    por_tokens = restante.tokens - est_in
+    sal, dim = (por_usd, "usd") if por_usd <= por_tokens else (por_tokens, "tokens")
+    sal = math.floor(sal)
+    if sal >= pol.min_salida:
+        return min(sal, pol.max_salida), None
+    return 0, dim
 
-    def __init__(self, politica: Politica, modelo: str, precios: Precios):
+
+class Presupuesto:
+    """Spent so far in the task and the motive of the last stop (None while the budget holds).
+
+    Week 20, activity 4: with `precios_por_modelo` and the router as `api`, each call is priced at the model that
+    served it (the discarded call of a resend too), and max_tokens is what the rest buys at that model's prices."""
+
+    def __init__(self, politica: Politica, modelo: str, precios: Precios,
+                 precios_por_modelo: dict[str, Precios] | None = None):
         self.pol, self.modelo, self.precios = politica, modelo, precios
+        self.precios_por_modelo = precios_por_modelo
+        self._modelo_cacheado: str | None = None   # the model whose cache holds `_cacheado` (routed calls)
         self.gastado = Gasto()
         self.motivo: str | None = None
         self.llamadas = 0
@@ -75,7 +95,71 @@ class Presupuesto:
         return {"tarea": Gasto(usd=self.pol.tarea.usd - self.gastado.usd,
                                tokens=self.pol.tarea.tokens - self.gastado.tokens)}
 
+    def estimacion_cacheada(self, modelo: str) -> int:
+        """The prefix the next call to `modelo` should read from the cache: the last call's, if `modelo` served it."""
+        return self._cacheado if modelo == self._modelo_cacheado else 0
+
+    def _estimar(self, cuerpo: dict, modelo: str) -> int:
+        return self.precios_por_modelo[modelo].estimar_entrada(
+            len(json.dumps(cuerpo, ensure_ascii=False, default=str)) // 3, self.estimacion_cacheada(modelo))
+
+    def _pendiente(self, llamadas: list[dict]) -> Gasto:
+        """What the calls of the current step cost, before they are added to `gastado`."""
+        costos = [self._usd_de(x) for x in llamadas]
+        return Gasto(usd=sum(c[0] for c in costos), tokens=sum(c[1] for c in costos))
+
+    def _usd_de(self, llamada: dict) -> tuple[float, int]:
+        p, u = self.precios_por_modelo[llamada["modelo"]], llamada["usage"]
+        tin, tout = u.get("input_tokens", 0), u.get("output_tokens", 0)
+        lectura = int(u.get("cache_read_input_tokens") or 0)
+        escritura = int(u.get("cache_creation_input_tokens") or 0)
+        return (p.usd(tin, tout) + p.usd_cache(lectura, escritura),
+                tin + tout + p.tokens_equivalentes(lectura, escritura))
+
+    def _permitir(self, modelo: str, cuerpo: dict, llamadas: list[dict]) -> int | None:
+        """max_tokens for a resend of `cuerpo` to `modelo`, after the step's calls so far; None if it does not fit."""
+        ya = self._pendiente(llamadas)
+        resto = self._restante()["tarea"]
+        sal, _ = holgura(self.pol, self.precios_por_modelo[modelo], self._estimar(cuerpo, modelo),
+                         Gasto(usd=resto.usd - ya.usd, tokens=resto.tokens - ya.tokens))
+        return sal or None
+
+    def _envolver_ruteado(self, api) -> Callable[[dict], dict]:
+        api.permitir = self._permitir
+
+        def con_presupuesto(cuerpo: dict) -> dict:
+            modelo = api.siguiente(cuerpo)
+            sal, dim = holgura(self.pol, self.precios_por_modelo[modelo], self._estimar(cuerpo, modelo),
+                               self._restante()["tarea"])
+            if dim is not None:
+                self.motivo = f"presupuesto_{dim}"
+                return {"content": [], "stop_reason": "max_tokens", "usage": {"input_tokens": 0, "output_tokens": 0}}
+            t0 = time.monotonic()
+            resp = api(dict(cuerpo, max_tokens=sal))
+            ms = round((time.monotonic() - t0) * 1000, 1)
+            for x in resp.get("_llamadas", []):
+                usd, tokens = self._usd_de(x)
+                u = x["usage"]
+                lectura = int(u.get("cache_read_input_tokens") or 0)
+                escritura = int(u.get("cache_creation_input_tokens") or 0)
+                self.llamadas += 1
+                self.cache_lectura += lectura
+                self.cache_escritura += escritura
+                self.costo_cache += self.precios_por_modelo[x["modelo"]].usd_cache(lectura, escritura)
+                self.gastado = Gasto(usd=self.gastado.usd + usd, tokens=self.gastado.tokens + tokens)
+                if not x["descartada"]:
+                    self._cacheado, self._modelo_cacheado = lectura + escritura, x["modelo"]
+                self.por_llamada.append({"paso": self.llamadas, "entrada": u.get("input_tokens", 0),
+                                         "salida": u.get("output_tokens", 0), "lectura": lectura,
+                                         "escritura": escritura, "usd": usd, "ms": ms, "modelo": x["modelo"],
+                                         "ruta": x["ruta"], "descartada": x["descartada"]})
+            return resp
+        return con_presupuesto
+
     def envolver(self, api: Callable[[dict], dict]) -> Callable[[dict], dict]:
+        if self.precios_por_modelo is not None and hasattr(api, "siguiente"):
+            return self._envolver_ruteado(api)
+
         def con_presupuesto(cuerpo: dict) -> dict:
             est_in = self.precios.estimar_entrada(len(json.dumps(cuerpo, ensure_ascii=False, default=str)) // 3,
                                                   self._cacheado)

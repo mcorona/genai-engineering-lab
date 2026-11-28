@@ -71,3 +71,10 @@ RUTEO_REGLAS = {
 # keeps ADR 0014's mode (its minimum, 4,096, is above the fixed prefix). Nova takes only the 5-minute TTL.
 CACHE_POR_MODELO = {"us.amazon.nova-lite-v1:0": "historial+sistema", MODELO_ID: "historial",
                     "us.anthropic.claude-sonnet-4-6": "historial+sistema"}
+# With RUTEO=r1 the ia stack makes one application inference profile per candidate, named semana19-<this> and tagged
+# componente=agente (Haiku 4.5 keeps activity 2's `agente`), and the agent's stack passes each profile's ARN to the
+# Lambda in its variable (ADR 0015 section 6; agente/construccion.py repeats the variables).
+PERFIL_POR_CANDIDATO = {"us.amazon.nova-lite-v1:0": "agente-nova-lite", MODELO_ID: "agente",
+                        "us.anthropic.claude-sonnet-4-6": "agente-sonnet-4-6"}
+VARIABLE_POR_CANDIDATO = {"us.amazon.nova-lite-v1:0": "MODELO_NOVA_LITE", MODELO_ID: "MODELO",
+                          "us.anthropic.claude-sonnet-4-6": "MODELO_SONNET_46"}

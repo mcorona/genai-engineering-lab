@@ -3,7 +3,8 @@
 Week 20 puts prompt caching (activity 3) and model routing (activity 4) behind this seam, so the week 13 loop, the
 budgets and the guardrails do not change. The loop's body (Anthropic format) is translated by `converse_adaptador`,
 sent once to Converse with the pinned guardrail, and translated back. The cache points are placed by the adapter
-(`ConfigModelo.cache`, the CACHE_PROMPT value; ADR 0014). No router yet.
+(`ConfigModelo.cache`, the CACHE_PROMPT value; ADR 0014). With RUTEO=r1 the loop's `api` is the in-house router
+instead (agente/ruteo.py, ADR 0015), built by agente/construccion.py; this seam is the RUTEO=off path.
 
 `llamar` is the real Converse call (`cliente.converse(**req)`) or a fake in tests. Pure: no AWS here.
 """
