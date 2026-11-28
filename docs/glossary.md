@@ -562,6 +562,8 @@ Spanish words used in folder names, file names, JSON and CSV keys and flags. Wor
 | versionados | versioned | versiones | versions | vez | time (once, twice) |
 | vias | paths | viaticos | travel expenses | vigentes | current |
 | vistos | seen | vivo | live | | |
+| causa | cause | contra | against | efecto | effect |
+| equivocadas | wrong | silenciosamente | silently | tambien | also |
 
 ## Term list: one English term per concept
 
@@ -611,3 +613,5 @@ on what a result does not cover is titled "Limitations", not "Limits".
 | permissions boundary | permission boundary | IAM |
 | hand-written loop | own loop, own agentic loop | the week 13 agent loop on the Messages API, with no framework |
 | in-house pipeline, in-house router | own pipeline, own router | built in this lab, not a managed service |
+| silently-wrong rate | wrong-answer rate, false-answer rate | the share of tasks answered (`respondida`) that the verifier rejects |
+| model effect, port effect | model impact, migration effect | the part of a regression the model explains (R0 against week 17) and the part the move to AWS explains (the deployed runs against R0) |
