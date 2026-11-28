@@ -19,6 +19,7 @@ from pathlib import Path
 
 from agente import capa_determinista as C
 from agente import modelo
+from agente import ruteo as R
 from agente.presupuesto import Precios
 from agente.sumidero_logs import SumideroCloudWatch
 from herramientas import contrato  # the internal call of the tools Lambda (one contract for its three callers)
@@ -97,6 +98,10 @@ PRECIOS_POR_MODELO = {
     MODELO_ID: precios("5m"),
     SONNET_46: Precios(entrada_1m=3.3, salida_1m=16.5, cache_lectura_1m=0.33, cache_escritura_1m=4.125),
 }
+# The environment variable that holds what each candidate's call names as modelId (its application profile ARN, set
+# by the stack). Haiku 4.5 keeps today's MODELO. The metrics' route of each mode (agente/metricas.py DIMENSIONES).
+VARIABLE_POR_MODELO = {NOVA_LITE: "MODELO_NOVA_LITE", MODELO_ID: MODELO, SONNET_46: "MODELO_SONNET_46"}
+RUTA_DE_RUTEO = {"off": "fija", "r1": "r1"}
 
 
 def _es_del_nombre(nombre: str, prefijos: tuple[str, ...]) -> bool:
@@ -184,6 +189,24 @@ def cache(entorno) -> tuple[str, str]:
     return modo, ttl
 
 
+def ruteo(entorno) -> str:
+    """The routing mode. Unknown values are an error, never a silent fall back to the default."""
+    valor = entorno.get(RUTEO) or RUTEO_POR_OMISION
+    if valor not in MODOS_RUTEO:
+        raise RuntimeError(f"{RUTEO} desconocido: {valor}")
+    return valor
+
+
+def candidatos(entorno, modo_cache: str, ttl: str) -> tuple[R.Candidato, ...]:
+    """The router's candidates, cheapest first, each called by its ARN from the environment and with its own cache
+    mode when caching is on (ADR 0015 section 3). Nova takes only the 5-minute TTL: 1h is a configuration error."""
+    if ttl not in TTLS_POR_MODELO[NOVA_LITE]:
+        raise RuntimeError(f"{CACHE_TTL}={ttl}: Nova solo admite el TTL de 5 minutos")
+    return tuple(R.Candidato(id=m, llamar_como=entorno[VARIABLE_POR_MODELO[m]],
+                             cache="off" if modo_cache == "off" else CACHE_POR_MODELO[m], nova=m == NOVA_LITE)
+                 for m in RUTEO_CANDIDATOS)
+
+
 def camino(entorno) -> str:
     """The tools path. Unknown values are an error, never a silent fall back to the default."""
     valor = entorno.get(CAMINO_HERRAMIENTAS) or "directo"
@@ -196,6 +219,8 @@ def exigir_entorno(entorno) -> None:
     requeridas = [MODELO, FUNCION_HERRAMIENTAS, GUARDRAIL_ID, GUARDRAIL_VERSION, GRUPO_SPANS]
     if camino(entorno) == "gateway":
         requeridas.append(GATEWAY_URL)
+    if ruteo(entorno) == "r1":
+        requeridas += [VARIABLE_POR_MODELO[m] for m in RUTEO_CANDIDATOS if VARIABLE_POR_MODELO[m] not in requeridas]
     faltan = [n for n in requeridas if not entorno.get(n)]
     if faltan:
         raise RuntimeError(f"faltan variables de entorno: {', '.join(faltan)}")
@@ -215,8 +240,13 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         return cliente_converse.converse(**req)
 
     modo_cache, ttl = cache(entorno)
-    api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=entorno[MODELO], guardrail=guardrail,
-                                                                 cache=modo_cache, ttl=ttl))
+    modo_ruteo = ruteo(entorno)
+    if modo_ruteo == "r1":
+        api = R.Enrutador(llamar_converse, candidatos=candidatos(entorno, modo_cache, ttl), reglas=RUTEO_REGLAS,
+                          guardrail=guardrail, ttl=ttl)
+    else:
+        api = modelo.api(llamar_converse, config=modelo.ConfigModelo(modelo_id=entorno[MODELO], guardrail=guardrail,
+                                                                     cache=modo_cache, ttl=ttl))
     cerrar = None
     if via == "gateway":
         from agente.cliente_gateway import LlamadorGateway
@@ -236,4 +266,6 @@ def construir(*, cliente_converse, cliente_lambda, entorno=None, exportar=None, 
         "exportar": exportar or SumideroCloudWatch(cliente_logs, entorno[GRUPO_SPANS], flujo_spans),
         "camino": via,
         "cerrar": cerrar,
+        "precios_por_modelo": PRECIOS_POR_MODELO if modo_ruteo == "r1" else None,
+        "ruta": RUTA_DE_RUTEO[modo_ruteo],
     }
